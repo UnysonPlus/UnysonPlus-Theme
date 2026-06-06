@@ -1,0 +1,160 @@
+.fw-backend-option-design-default>.fw-backend-option-input.width-type-fixed>.fw-inner {
+    max-width: none;
+}
+.mb-0 {
+	margin-bottom: 0;
+}
+.builder-item .pb-item img.media-image {
+    background: #f0f0f0;
+	max-width: 100%;
+}
+.builder-items .fw-row {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.alignleft {
+	display: inline;
+	float: left;
+	margin-right: 1.5em;
+}
+
+.alignright {
+	display: inline;
+	float: right;
+	margin-left: 1.5em;
+}
+
+/*!
+ * Border options width adjustment
+ */
+.border-options label {
+    width: 100px !important;
+    display: block;
+    font-weight: bold;
+}
+
+.btn {
+    display: inline-block;
+    font-weight: 300;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: 1px solid transparent;
+        border-top-color: transparent;
+        border-right-color: transparent;
+        border-bottom-color: transparent;
+        border-left-color: transparent;
+    padding: .429rem 1rem;
+    font-size: 1rem;
+    line-height: 1.571429;
+    border-radius: .215rem;
+    -webkit-transition: unquote("background-color .15s ease-in-out,border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out");
+    -o-transition: unquote("background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out");
+    transition: unquote("background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out");
+}
+
+.btn {
+    cursor: pointer;
+    -webkit-transition: border .2s linear,color .2s linear,width .2s linear,background-color .2s linear;
+    -o-transition: border .2s linear,color .2s linear,width .2s linear,background-color .2s linear;
+    transition: border .2s linear,color .2s linear,width .2s linear,background-color .2s linear;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+    -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.15),0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.15),0 1px 1px rgba(0,0,0,.075);
+}
+
+.btn-primary.focus, .btn-primary.hover, .btn-primary:focus, .btn-primary:hover {
+    color: #fff;
+    background-color: #589ffc;
+    border-color: #589ffc;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.btn-primary:hover {
+    color: #fff;
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.btn-outline-primary, .btn-outline.btn-primary {
+    color: #3e8ef7;
+    background-color: transparent;
+    border-color: #3e8ef7;
+}
+
+.btn-outline-primary.focus, .btn-outline-primary.hover, .btn-outline-primary:focus, .btn-outline-primary:hover, .btn-outline-primary:not([disabled]):not(.disabled).active, .btn-outline-primary:not([disabled]):not(.disabled):active, .btn-outline.btn-primary.focus, .btn-outline.btn-primary.hover, .btn-outline.btn-primary:focus, .btn-outline.btn-primary:hover, .btn-outline.btn-primary:not([disabled]):not(.disabled).active, .btn-outline.btn-primary:not([disabled]):not(.disabled):active, .open > .btn-outline-primary.dropdown-toggle, .open > .btn-outline.btn-primary.dropdown-toggle, .show > .btn-outline-primary.dropdown-toggle, .show > .btn-outline.btn-primary.dropdown-toggle {
+    color: #fff;
+    background-color: #3e8ef7;
+    border-color: #3e8ef7;
+}
+
+.btn-round {
+    border-radius: 1000px;
+}
+
+.btn-squared {
+    border-radius: 0;
+}
+
+.fw-backend-option-input-type-predefined-colors-color-picker .fw-backend-option-descriptor {
+    display: inline-block;
+}
+
+/*!
+ * WP Visual Editor Custom Styles
+
+.content-block { 
+    border:1px solid #eee; 
+    padding:3px;
+    background:#ccc;
+    max-width:250px;
+    float:right; 
+    text-align:center;
+}
+.content-block:after { 
+    clear:both;
+} 
+.blue-button { 
+    background-color:#33bdef;
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+    border-radius:6px;
+    border:1px solid #057fd0;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    padding:6px 24px;
+    text-decoration:none;
+}
+ 
+.red-button {
+    background-color:#bc3315;
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+    border-radius:6px;
+    border:1px solid #942911;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    padding:6px 24px;
+    text-decoration:none;
+} */

@@ -1,0 +1,42 @@
+<?php if ( ! defined( 'FW' ) ) {
+	die( 'Forbidden' );
+}
+$options = array(
+	'font-loader' => array(
+		'type'    => 'multi',
+		'label' => false,
+		/*'attr' => array(
+			'class' => '',
+		),*/
+		'inner-options' => array(
+			'google'               => array(
+				'label'        => __( 'Google Fonts', 'unysonplus' ),
+				'type'         => 'addable-box',
+				'value'        => array(),
+				'box-controls' => array(//'custom' => '<small class="dashicons dashicons-smiley" title="Custom"></small>',
+				),
+				'box-options'  => array(
+					'font'                => array(
+						'label' => __( 'Font Family', 'unysonplus' ),
+						'type'  => 'typography',
+						'value' => array(
+							'family' => 'Open Sans',
+						),
+						'components' => array(
+							'family' => true,
+							'size'   => false,
+							'style'  => false,
+							'color'  => false
+						),
+						'desc'  => '',
+					),
+				),
+				'desc'  => __( 'Load web fonts.', 'unysonplus' ),
+				'template'     => '{{- font.family }}',
+			),		
+			
+			
+			
+		),
+	),
+);

@@ -1,0 +1,1679 @@
+@charset "UTF-8";
+/*!
+Theme Name:     Unyson+ Theme
+Theme URI:      http://lastimosa.com.ph/unysonplus
+Description:    Bootstrap 5 WordPress theme for the Unyson+ framework.
+Version:        2.1.81
+Author:         Jon-Michael Lastimosa
+Author URI:     http://jon-michael.lastimosa.com.ph
+License:        GNU General Public License v2 or later
+License URI:    http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain:    unysonplus
+Tags:           bootstrap, unyson, custom-header, custom-menu, featured-images, threaded-comments, translation-ready
+*/
+
+/* ========================================================================
+   1. DESIGN TOKENS
+   Defaults; overridden at runtime by inc/includes/theme-vars.php which
+   emits a higher-priority <style id="unysonplus-theme-vars"> block.
+   ======================================================================== */
+:root {
+	--color-primary:      #0d6efd;
+	--color-accent:       #6610f2;
+	--color-text:         #212529;
+	--color-muted:        #6c757d;
+	--color-bg:           #ffffff;
+	--color-border:       rgba(0, 0, 0, 0.1);
+
+	--font-body:          system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--font-heading:       inherit;
+
+	--header-bg:          #ffffff;
+	--header-min-height:  80px;
+	--header-sticky-bg:   rgba(255, 255, 255, 0.95);
+	--header-shadow:      0 2px 8px rgba(0, 0, 0, 0.08);
+	--header-z:           1030;
+
+	--topbar-bg:          #212529;
+	--topbar-color:       #ffffff;
+	--topbar-pad-y:       0.4rem;
+
+	--footer-bg:          #1a1a1a;
+	--footer-color:       #cccccc;
+	--footer-link-color:  #ffffff;
+	--footer-pad-top:     3rem;
+	--footer-pad-bottom:  1.5rem;
+
+	--menu-link-color:    var(--color-text);
+	--menu-link-hover:    var(--color-primary);
+	--menu-link-pad-x:    1rem;
+	--menu-link-pad-y:    0.5rem;
+	--menu-dropdown-bg:   #ffffff;
+	--menu-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+	--drawer-width:       min(360px, 85vw);
+	--drawer-bg:          #ffffff;
+	--drawer-z:           1050;
+	--scrim-bg:           rgba(0, 0, 0, 0.5);
+
+	--admin-bar-offset:   0px;
+
+	--site-max-width:     1320px;
+	--transition-fast:    150ms ease;
+	--transition-base:    250ms ease;
+	--radius:             0.25rem;
+
+	/* Auto-stack step for floating buttons sharing the same corner.
+	   JS in assets/js/layout.js sets --stack-position: 1, 2, … on
+	   subsequent buttons; corner-modifier rules read it. */
+	--stack-step:         56px;
+}
+
+body.admin-bar { --admin-bar-offset: 32px; }
+@media (max-width: 782px) {
+	body.admin-bar { --admin-bar-offset: 46px; }
+}
+
+/* ========================================================================
+   2. ELEMENT DEFAULTS
+   ======================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+	font-family: var(--font-body);
+	color: var(--color-text);
+	background-color: var(--color-bg);
+}
+
+img, video, svg { max-width: 100%; height: auto; }
+
+p:last-child { margin-bottom: 0; }
+
+a { color: var(--color-primary); text-decoration: none; }
+a:hover, a:focus-visible { color: var(--menu-link-hover); text-decoration: underline; }
+a.btn:hover, a.btn:focus-visible { text-decoration: none; }
+
+:focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+}
+
+/* Heading family */
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
+
+/* ========================================================================
+   3. WORDPRESS REQUIRED CLASSES
+   ======================================================================== */
+
+/* --- Accessibility --- */
+.screen-reader-text {
+	border: 0;
+	clip-path: inset(50%);
+	height: 1px;
+	width: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute !important;
+	word-wrap: normal !important;
+}
+.screen-reader-text:focus {
+	background-color: #f1f1f1;
+	border-radius: var(--radius);
+	box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
+	clip-path: none;
+	color: #21759b;
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 700;
+	height: auto;
+	left: 5px;
+	line-height: normal;
+	padding: 15px 23px 14px;
+	text-decoration: none;
+	top: 5px;
+	width: auto;
+	z-index: 100000;
+}
+
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 100000;
+}
+.skip-link:focus { left: 5px; top: 5px; }
+
+/* --- Image alignment --- */
+.alignleft   { float: left;  margin: 0.25rem 1.5rem 1rem 0; }
+.alignright  { float: right; margin: 0.25rem 0 1rem 1.5rem; }
+.aligncenter { display: block; margin-left: auto; margin-right: auto; }
+.alignnone   { display: block; }
+.alignwide   { max-width: min(1200px, 100%); margin-left: auto; margin-right: auto; }
+.alignfull   { width: 100vw; max-width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); }
+
+/* --- Captions --- */
+.wp-caption { max-width: 100%; margin-bottom: 1.5rem; }
+.wp-caption img { display: block; max-width: 100%; height: auto; }
+.wp-caption-text,
+.wp-caption .wp-caption-text {
+	font-size: 0.875rem;
+	color: var(--color-muted);
+	padding-top: 0.5rem;
+	text-align: center;
+}
+
+/* --- Galleries --- */
+.gallery { display: grid; gap: 0.75rem; margin-bottom: 1.5rem; }
+.gallery-columns-1 { grid-template-columns: 1fr; }
+.gallery-columns-2 { grid-template-columns: repeat(2, 1fr); }
+.gallery-columns-3 { grid-template-columns: repeat(3, 1fr); }
+.gallery-columns-4 { grid-template-columns: repeat(4, 1fr); }
+.gallery-columns-5 { grid-template-columns: repeat(5, 1fr); }
+.gallery-columns-6 { grid-template-columns: repeat(6, 1fr); }
+.gallery-columns-7 { grid-template-columns: repeat(7, 1fr); }
+.gallery-columns-8 { grid-template-columns: repeat(8, 1fr); }
+.gallery-columns-9 { grid-template-columns: repeat(9, 1fr); }
+.gallery-item { text-align: center; }
+.gallery-item img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
+.gallery-caption { font-size: 0.8125rem; color: var(--color-muted); padding-top: 0.25rem; }
+
+/* --- WP sticky post + comment user classes --- */
+.sticky        { /* hook for sticky post styling — kept minimal by default */ }
+.bypostauthor  { /* hook for comments by post author */ }
+
+/* --- Block editor minimums --- */
+.wp-block-image    { margin: 0 0 1.5rem; }
+.wp-block-quote    { border-left: 4px solid var(--color-primary); padding: 0.5rem 1rem; margin: 1.5rem 0; }
+.wp-block-pullquote{ border-top: 2px solid var(--color-border); border-bottom: 2px solid var(--color-border); padding: 1.5rem 0; margin: 2rem 0; text-align: center; }
+.wp-block-button   { margin: 0 0 1rem; }
+.wp-block-cover    { margin: 0 0 1.5rem; }
+.wp-block-gallery  { margin: 0 0 1.5rem; }
+.wp-block-columns  { gap: 1.5rem; margin: 0 0 1.5rem; }
+
+.has-text-align-left   { text-align: left; }
+.has-text-align-center { text-align: center; }
+.has-text-align-right  { text-align: right; }
+
+/* --- Clearfix --- */
+.entry-content::after,
+.comment-content::after { content: ""; display: table; clear: both; }
+
+/* ========================================================================
+   4. LAYOUT PRIMITIVES
+   ======================================================================== */
+.site { display: flex; flex-direction: column; min-height: 100vh; }
+.site-content {
+	flex: 1 0 auto;
+	/* Vertical breathing room between the header and the content
+	   (and between the content and the footer). Scales with the
+	   Spacing setting in General → Layout. */
+	padding-block: calc(2.5rem * var(--section-spacing-scale));
+}
+.site > footer  { flex-shrink: 0; }
+
+/* Page-builder posts manage their own padding — the builder handles
+   section spacing internally and any forced padding here would
+   double-space hero sections. */
+body.unyson.page-builder .site-content { padding-block: 0; }
+
+/* Default vertical rhythm for page-builder sections. Builder pages zero the
+   .site-content padding (above) so each section must space itself, but a
+   section with no Padding Top/Bottom set had none — content hugged the header.
+   The section shortcode renders a bare <section> whose base class is a variant
+   like `section--alt` (or none at all), NOT `.section`, so we target the page
+   builder's direct <section> children. style.css now loads AFTER the framework
+   shortcode CSS (see inc/static.php), so a plain selector is enough to win the
+   cascade — and a section's own Top/Bottom Spacing (.pt- / .pb- utilities,
+   emitted !important) still overrides this default. Scales with General →
+   Layout spacing. Bleed sections opt out (image runs full-height, edge to edge). */
+.fw-page-builder-content > section                { padding-block: calc(4rem * var(--section-spacing-scale, 1)); }
+.fw-page-builder-content > section.section--bleed { padding-block: 0; }
+
+/* ========================================================================
+   BLOG LISTING — Theme Settings → Blog → Blog Index.
+   Wrapper classes are emitted by inc/includes/blog.php (loop hooks); the
+   card markup lives in template-parts/content.php.
+   ======================================================================== */
+.posts-list { display: flex; flex-direction: column; gap: clamp(2rem, 4vw, 3rem); }
+.posts-list--grid { display: grid; gap: clamp(1.5rem, 3vw, 2.5rem); }
+.posts-list--grid.posts-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.posts-list--grid.posts-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.posts-list--grid.posts-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 991.98px) { .posts-list--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575.98px) { .posts-list--grid { grid-template-columns: 1fr; } }
+
+.post-entry { margin: 0; }
+.post-entry__body { padding-top: 1rem; }
+
+/* List layout: image beside content from md up. */
+@media (min-width: 768px) {
+	.posts-list--list .post-entry--list { display: grid; grid-template-columns: minmax(0, 38%) 1fr; gap: 1.75rem; align-items: start; }
+	.posts-list--list .post-entry--list .post-entry__body { padding-top: 0; }
+}
+
+.post-thumb { display: block; overflow: hidden; border-radius: var(--radius-md, 10px); background: var(--color-section-alt, #f3f3f3); }
+.post-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s var(--ease-out, ease); }
+.post-thumb:hover img { transform: scale(1.04); }
+.post-thumb--ratio-16-9 { aspect-ratio: 16 / 9; }
+.post-thumb--ratio-4-3  { aspect-ratio: 4 / 3; }
+.post-thumb--ratio-1-1  { aspect-ratio: 1 / 1; }
+.post-thumb--ratio-original img { height: auto; }
+
+.post-entry .entry-meta {
+	display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+	margin: .35rem 0 .5rem; font-size: .8125rem; color: var(--color-muted, #6c757d);
+}
+.post-entry .entry-meta a { color: inherit; }
+.post-entry .entry-meta a:hover { color: var(--color-primary, #0d6efd); }
+.post-entry .entry-meta .meta-sep { opacity: .45; }
+.post-entry .entry-summary { margin-top: .5rem; }
+.post-entry .read-more { font-weight: 600; white-space: nowrap; }
+
+/* Masonry (no JS) via CSS columns. */
+.posts-list--masonry { display: block; column-gap: clamp(1.5rem, 3vw, 2.5rem); }
+.posts-list--masonry.posts-cols-2 { column-count: 2; }
+.posts-list--masonry.posts-cols-3 { column-count: 3; }
+.posts-list--masonry.posts-cols-4 { column-count: 4; }
+.posts-list--masonry .post-entry { break-inside: avoid; display: inline-block; width: 100%; margin-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+@media (max-width: 991.98px) { .posts-list--masonry.posts-cols-3, .posts-list--masonry.posts-cols-4 { column-count: 2; } }
+@media (max-width: 575.98px) { .posts-list--masonry { column-count: 1 !important; } }
+
+/* ========================================================================
+   SINGLE POST — Theme Settings → Blog → Single Post (inc/includes/blog.php).
+   ======================================================================== */
+.single-featured { margin: 0 0 1.75rem; border-radius: var(--radius-md, 10px); overflow: hidden; }
+.single-featured img { width: 100%; height: auto; display: block; }
+
+.author-box {
+	display: flex; gap: 1.25rem; align-items: flex-start;
+	margin: 2.5rem 0; padding: 1.5rem;
+	background: var(--color-section-alt, #f7f7f7); border-radius: var(--radius-md, 10px);
+}
+.author-box__avatar img { border-radius: 50%; display: block; }
+.author-box__name { font-size: 1.1rem; margin: 0 0 .35rem; }
+.author-box__bio { margin: 0 0 .5rem; color: var(--color-muted, #6c757d); }
+.author-box__link { font-weight: 600; }
+
+.related-posts { margin-top: 3rem; }
+.related-posts__title { font-size: 1.4rem; margin-bottom: 1.25rem; }
+.related-posts__grid { display: grid; gap: clamp(1.25rem, 2.5vw, 2rem); }
+.related-posts__grid.posts-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.related-posts__grid.posts-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.related-posts__grid.posts-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 767.98px) { .related-posts__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 479.98px) { .related-posts__grid { grid-template-columns: 1fr; } }
+.related-post__title { font-size: 1rem; line-height: 1.35; margin: .65rem 0 .25rem; }
+.related-post__date { font-size: .8125rem; color: var(--color-muted, #6c757d); }
+
+.post-navigation { margin: 2.5rem 0; padding-top: 1.5rem; border-top: 1px solid var(--color-border, #e5e5e5); }
+.post-navigation .nav-links { display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+.post-navigation .nav-next { text-align: right; margin-left: auto; }
+.post-navigation .nav-label { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--color-muted, #6c757d); }
+.post-navigation .nav-title { font-weight: 600; }
+
+/* ========================================================================
+   ARCHIVES & SEARCH — Theme Settings → Blog → Archives & Search.
+   ======================================================================== */
+.archive-header { margin-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+.archive-header .page-title { margin: 0 0 .5rem; }
+.archive-header .archive-description { color: var(--color-muted, #6c757d); max-width: 65ch; }
+.archive-author { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; }
+.archive-author img { border-radius: 50%; display: block; }
+.archive-author__bio { margin: 0; color: var(--color-muted, #6c757d); max-width: 60ch; }
+
+.container, .container-fluid, .container-lg, .container-xl, .container-xxl {
+	--bs-gutter-x: 1.5rem;
+}
+
+/* ========================================================================
+   5. HEADER
+   ======================================================================== */
+.site-header {
+	background-color: var(--header-bg);
+	min-height: var(--header-min-height);
+	position: relative;
+	z-index: var(--header-z);
+}
+
+.site-header.header-sticky {
+	position: sticky;
+	top: var(--admin-bar-offset);
+	transition: background-color var(--transition-base), box-shadow var(--transition-base);
+}
+.site-header.header-sticky.is-stuck {
+	background-color: var(--header-sticky-bg);
+	box-shadow: var(--header-shadow);
+}
+
+/* --- Topbar --- */
+.header-topbar {
+	background-color: var(--topbar-bg);
+	color: var(--topbar-color);
+	padding-top: var(--topbar-pad-y);
+	padding-bottom: var(--topbar-pad-y);
+	font-size: 0.875rem;
+}
+.header-topbar a { color: inherit; }
+.header-topbar a:hover { opacity: 0.85; }
+
+.header-topbar .header-row {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	gap: 1rem;
+}
+.header-topbar .header-col--start  { justify-self: start;  min-width: 0; }
+.header-topbar .header-col--center { justify-self: center; min-width: 0; }
+.header-topbar .header-col--end    { justify-self: end;    min-width: 0; }
+
+@media (max-width: 767.98px) {
+	.header-topbar .header-row { grid-template-columns: 1fr; gap: 0.25rem; text-align: center; }
+	.header-topbar .header-col { justify-self: center; }
+}
+
+/* --- Main header --- */
+.header-main {
+	min-height: var(--header-min-height);
+	display: flex;
+	align-items: center;
+}
+.header-main > .container,
+.header-main > .container-fluid { width: 100%; }
+
+.header-main .header-row {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	min-height: var(--header-min-height);
+}
+.header-col { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.header-col--start  { flex-shrink: 0; }
+.header-col--center { display: none; flex: 1 1 auto; justify-content: center; }  /* shown on lg+ via media query below */
+.header-col--end    { margin-left: auto; gap: 0.75rem; }
+@media (min-width: 992px) {
+	.header-col--center { display: flex; }
+}
+
+/* --- Brand / logo --- */
+.site-title,
+.navbar-brand {
+	font-size: var(--site-title-size, 1.25rem);
+	font-weight: var(--site-title-weight, 700);
+	color: var(--color-text);
+	text-decoration: none;
+	line-height: 1;
+	margin: 0;
+	padding: 0;
+}
+.site-title:hover,
+.navbar-brand:hover { color: var(--color-text); text-decoration: none; }
+.site-title img,
+.navbar-brand img { width: var(--logo-width, auto); height: auto; max-height: var(--logo-max-height, calc(var(--header-min-height) - 24px)); display: block; }
+
+/* Logo variants (Header → Identity). The wrapper carries has-sticky-logo /
+   has-mobile-logo only when that variant is configured, so the default logo is
+   never hidden with nothing to replace it. Sticky swap fires when theme.js adds
+   .sticky to #masthead; the mobile swap takes over below 768px. */
+.site-logo--sticky,
+.site-logo--mobile { display: none; }
+#masthead.sticky .has-sticky-logo .site-logo--default { display: none; }
+#masthead.sticky .has-sticky-logo .site-logo--sticky { display: block; }
+@media (max-width: 767.98px) {
+	.has-mobile-logo .site-logo--mobile { display: block; }
+	.has-mobile-logo .site-logo--default { display: none; }
+	#masthead.sticky .has-mobile-logo .site-logo--sticky { display: none; }
+}
+
+/* --- Primary navigation (renders inline inside a header slot) --- */
+.primary-navigation { display: inline-block; max-width: 100%; }
+.primary-navigation > ul,
+.primary-menu {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+}
+.primary-menu .menu-item { position: relative; }
+.primary-menu .menu-item > a {
+	display: inline-flex;
+	align-items: center;
+	padding: var(--menu-link-pad-y) var(--menu-link-pad-x);
+	color: var(--menu-link-color);
+	font-weight: 500;
+	border-radius: var(--radius);
+	transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+.primary-menu .menu-item > a:hover,
+.primary-menu .menu-item > a:focus-visible,
+.primary-menu .current-menu-item > a,
+.primary-menu .current-menu-ancestor > a {
+	color: var(--menu-link-hover);
+	text-decoration: none;
+	background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Dropdowns */
+.primary-menu .menu-item-has-children > a { padding-right: 2rem; position: relative; }
+.primary-menu .menu-item-has-children > a::after {
+	content: "";
+	position: absolute;
+	right: 0.75rem;
+	top: 50%;
+	width: 0.5rem;
+	height: 0.5rem;
+	border-right: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	transform: translateY(-75%) rotate(45deg);
+	opacity: 0.6;
+}
+.primary-menu .sub-menu {
+	list-style: none;
+	margin: 0;
+	padding: 0.5rem 0;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	min-width: 220px;
+	background-color: var(--menu-dropdown-bg);
+	box-shadow: var(--menu-dropdown-shadow);
+	border-radius: var(--radius);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(0.25rem);
+	transition: opacity var(--transition-fast), visibility var(--transition-fast), transform var(--transition-fast);
+	z-index: 1;
+}
+.primary-menu .menu-item-has-children.is-open > .sub-menu,
+.primary-menu .menu-item-has-children:focus-within > .sub-menu {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+.primary-menu .sub-menu .menu-item > a {
+	display: block;
+	padding: 0.5rem 1rem;
+	color: var(--color-text);
+	border-radius: 0;
+}
+.primary-menu .sub-menu .sub-menu {
+	top: 0;
+	left: 100%;
+}
+
+/* --- Mobile menu toggle (hidden on lg+ by default; layout modes override) --- */
+.menu-toggle {
+	display: inline-flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 5px;
+	width: 44px;
+	height: 44px;
+	padding: 10px;
+	background: transparent;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	cursor: pointer;
+}
+@media (min-width: 992px) {
+	.menu-toggle { display: none; }
+}
+.menu-toggle__bar {
+	display: block;
+	height: 2px;
+	width: 100%;
+	background-color: var(--color-text);
+	transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+.menu-toggle[aria-expanded="true"] .menu-toggle__bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.menu-toggle[aria-expanded="true"] .menu-toggle__bar:nth-child(2) { opacity: 0; }
+.menu-toggle[aria-expanded="true"] .menu-toggle__bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* --- Off-canvas drawer (mobile) --- */
+.primary-navigation-drawer {
+	position: fixed;
+	inset: 0;
+	z-index: var(--drawer-z);
+	pointer-events: none;
+}
+.primary-navigation-drawer[hidden] { display: none; }
+.primary-navigation-drawer__scrim {
+	position: absolute;
+	inset: 0;
+	background-color: var(--scrim-bg);
+	opacity: 0;
+	transition: opacity var(--transition-base);
+	pointer-events: auto;
+}
+.primary-navigation-drawer__panel {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: var(--drawer-width);
+	background-color: var(--drawer-bg);
+	padding: 1.5rem;
+	overflow-y: auto;
+	transform: translateX(100%);
+	transition: transform var(--transition-base);
+	pointer-events: auto;
+	box-shadow: -2px 0 16px rgba(0, 0, 0, 0.15);
+}
+.primary-navigation-drawer.is-open .primary-navigation-drawer__scrim { opacity: 1; }
+.primary-navigation-drawer.is-open .primary-navigation-drawer__panel { transform: translateX(0); }
+
+.primary-navigation-drawer__close {
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+	width: 40px;
+	height: 40px;
+	font-size: 1.75rem;
+	line-height: 1;
+	background: transparent;
+	border: 0;
+	color: var(--color-text);
+	cursor: pointer;
+}
+
+.primary-navigation-drawer .primary-menu {
+	flex-direction: column;
+	gap: 0;
+	margin-top: 2.5rem;
+}
+.primary-navigation-drawer .primary-menu .menu-item > a {
+	padding: 0.875rem 0.5rem;
+	border-bottom: 1px solid var(--color-border);
+}
+.primary-navigation-drawer .primary-menu .menu-item-has-children > a::after { display: none; }
+.primary-navigation-drawer .primary-menu .submenu-toggle {
+	position: absolute;
+	right: 0;
+	top: 0.5rem;
+	width: 44px;
+	height: 44px;
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	color: var(--color-text);
+}
+.primary-navigation-drawer .primary-menu .submenu-toggle::after {
+	content: "+";
+	font-size: 1.5rem;
+	line-height: 1;
+}
+.primary-navigation-drawer .primary-menu .menu-item-has-children.is-open > .submenu-toggle::after { content: "−"; }
+.primary-navigation-drawer .primary-menu .sub-menu {
+	position: static;
+	opacity: 1;
+	visibility: visible;
+	transform: none;
+	box-shadow: none;
+	background-color: transparent;
+	padding: 0 0 0 1rem;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height var(--transition-base);
+}
+.primary-navigation-drawer .primary-menu .menu-item-has-children.is-open > .sub-menu {
+	max-height: 1000px;
+}
+
+body.menu-drawer-open { overflow: hidden; }
+
+/* --- "No menu assigned" admin-only notice --- */
+.primary-menu-notice {
+	display: inline-block;
+	padding: 0.5rem 0.875rem;
+	background-color: #fff3cd;
+	border: 1px dashed #ffc107;
+	border-radius: var(--radius);
+	color: #664d03;
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	max-width: 100%;
+}
+.primary-menu-notice p { margin: 0; }
+.primary-menu-notice a {
+	color: #664d03;
+	text-decoration: underline;
+	font-weight: 600;
+}
+.primary-menu-notice a:hover { color: #332600; }
+.primary-menu-notice__hint {
+	opacity: 0.7;
+	font-style: italic;
+	margin-left: 0.25rem;
+}
+.primary-navigation-drawer .primary-menu-notice {
+	display: block;
+	margin-top: 2.5rem;
+}
+
+/* ========================================================================
+   6. FOOTER
+   ======================================================================== */
+.footer {
+	background-color: var(--footer-bg);
+	color: var(--footer-color);
+	padding-top: var(--footer-pad-top);
+	padding-bottom: var(--footer-pad-bottom);
+	position: relative;
+}
+.footer a { color: var(--footer-link-color); }
+.footer a:hover { color: var(--footer-link-color); opacity: 0.85; }
+
+.footer--has-bg-image {
+	background-image: var(--footer-bg-image, none);
+	background-size: cover;
+	background-position: center;
+}
+.footer--has-bg-image::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-color: var(--footer-bg);
+	opacity: var(--footer-overlay-opacity, 0.8);
+	pointer-events: none;
+}
+.footer--has-bg-image > * { position: relative; z-index: 1; }
+
+.footer .footer-section { padding-block: 1rem; }
+.footer .footer-section + .footer-section { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+
+.footer .widget-title {
+	color: var(--footer-link-color);
+	font-size: 1rem;
+	font-weight: 600;
+	margin: 0 0 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+.footer .widget ul { list-style: none; padding: 0; margin: 0; }
+.footer .widget ul li { padding: 0.25rem 0; }
+
+.footer-fallback { text-align: center; }
+.footer-fallback p { margin: 0; }
+
+/* ========================================================================
+   7. CONTENT
+   ======================================================================== */
+.entry-header { margin-bottom: 1.5rem; }
+.entry-title  { margin-bottom: 0.5rem; }
+.entry-meta   { color: var(--color-muted); font-size: 0.875rem; }
+.entry-content { margin-bottom: 2rem; }
+.entry-content > * + * { margin-top: 1rem; }
+.entry-footer { padding-top: 1rem; border-top: 1px solid var(--color-border); color: var(--color-muted); font-size: 0.875rem; }
+
+.post-thumbnail { display: block; margin-bottom: 1.5rem; }
+.post-thumbnail img { width: 100%; height: auto; border-radius: var(--radius); }
+
+/* --- Pagination --- */
+.pagination,
+.posts-navigation,
+.post-navigation {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin: 2rem 0;
+}
+.page-numbers,
+.posts-navigation .nav-links a,
+.post-navigation .nav-links a {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.5rem 0.875rem;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	color: var(--color-text);
+	text-decoration: none;
+}
+.page-numbers.current,
+.page-numbers:hover {
+	background-color: var(--color-primary);
+	color: #fff;
+	border-color: var(--color-primary);
+}
+
+/* --- Comments
+   Designed against WordPress's default Walker_Comment markup
+   (style=ul, short_ping=true). Author + metadata flow as one row;
+   content sits below. Nested replies indent + add a left rail.
+   --- */
+.comments-area {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--color-border);
+}
+.comments-title {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin: 0 0 1.5rem;
+}
+.comment-list {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 2rem;
+}
+.comment-list .comment {
+	padding: 1.5rem 0;
+	border-bottom: 1px solid var(--color-border);
+}
+.comment-list .comment:first-child { padding-top: 0; }
+.comment-list .comment:last-child  { padding-bottom: 0; border-bottom: 0; }
+.comment-list .children {
+	list-style: none;
+	padding-left: 1.5rem;
+	margin-top: 1.5rem;
+	border-left: 2px solid var(--color-border);
+}
+.comment-list .children .comment:first-child { padding-top: 0; }
+
+/* Article wrapper (no grid — natural flow) */
+.comment-body { display: block; }
+
+/* Meta row: avatar + author + says + permalink date + edit-link, all inline */
+.comment-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 0.625rem;
+	margin-bottom: 0.875rem;
+	font-size: 0.875rem;
+	line-height: 1.4;
+}
+.comment-author {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	min-width: 0;
+}
+.comment-author .avatar {
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+.comment-author .fn,
+.comment-author b {
+	font-weight: 600;
+	color: var(--color-text);
+	font-style: normal;
+}
+.comment-author .fn a,
+.comment-author b a {
+	color: inherit;
+	text-decoration: none;
+}
+.comment-author .fn a:hover { color: var(--color-primary); }
+.comment-author .says {
+	color: var(--color-muted);
+}
+.comment-metadata {
+	color: var(--color-muted);
+	font-size: 0.8125rem;
+	display: inline-flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+.comment-metadata a {
+	color: inherit;
+	text-decoration: none;
+}
+.comment-metadata a:hover { color: var(--color-text); }
+.comment-metadata .edit-link::before { content: "·"; margin-right: 0.5rem; opacity: 0.6; }
+
+/* Awaiting moderation badge */
+.comment-awaiting-moderation {
+	display: inline-block;
+	background-color: rgba(255, 193, 7, 0.15);
+	color: #856404;
+	padding: 0.125rem 0.5rem;
+	border-radius: var(--radius);
+	font-size: 0.75rem;
+	margin-bottom: 0.5rem;
+}
+
+/* Body */
+.comment-content {
+	color: var(--color-text);
+}
+.comment-content > * + * { margin-top: 0.75rem; }
+.comment-content p { margin: 0 0 0.75rem; }
+.comment-content p:last-child { margin-bottom: 0; }
+
+/* Reply link — small pill button */
+.reply { margin-top: 0.875rem; }
+.comment-reply-link {
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	background-color: transparent;
+	color: var(--color-primary);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	font-size: 0.8125rem;
+	font-weight: 500;
+	text-decoration: none;
+	transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+.comment-reply-link:hover,
+.comment-reply-link:focus-visible {
+	background-color: var(--color-primary);
+	color: #fff;
+	border-color: var(--color-primary);
+	text-decoration: none;
+}
+
+/* Comment navigation (older/newer) */
+.comment-navigation,
+.navigation.comment-navigation {
+	margin: 1.5rem 0;
+	font-size: 0.875rem;
+}
+.comment-navigation .nav-links {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+/* "Comments are closed" notice */
+.no-comments {
+	color: var(--color-muted);
+	font-style: italic;
+	padding: 1rem 0;
+}
+
+/* ---- Comment form ---- */
+#respond {
+	margin-top: 2rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--color-border);
+}
+#reply-title,
+.comment-reply-title {
+	font-size: 1.25rem;
+	font-weight: 700;
+	margin: 0 0 0.5rem;
+}
+.comment-reply-title small {
+	font-size: 0.8125rem;
+	font-weight: 400;
+	margin-left: 0.75rem;
+}
+.comment-reply-title small a { color: var(--color-muted); }
+
+#commentform { margin-top: 1rem; }
+#commentform p { margin: 0 0 1rem; }
+#commentform label {
+	display: block;
+	font-weight: 500;
+	font-size: 0.875rem;
+	margin-bottom: 0.375rem;
+	color: var(--color-text);
+}
+#commentform input[type="text"],
+#commentform input[type="email"],
+#commentform input[type="url"],
+#commentform textarea {
+	width: 100%;
+	padding: 0.625rem 0.875rem;
+	background-color: var(--color-bg);
+	color: var(--color-text);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	font-family: inherit;
+	font-size: 0.9375rem;
+	line-height: 1.5;
+	transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+#commentform input[type="text"]:focus,
+#commentform input[type="email"]:focus,
+#commentform input[type="url"]:focus,
+#commentform textarea:focus {
+	outline: none;
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+#commentform textarea {
+	min-height: 140px;
+	resize: vertical;
+}
+#commentform .form-submit { margin-top: 1.25rem; margin-bottom: 0; }
+#commentform input[type="submit"],
+.form-submit input[type="submit"] {
+	background-color: var(--color-primary);
+	color: #fff;
+	border: 0;
+	padding: 0.625rem 1.5rem;
+	border-radius: var(--radius);
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 0.9375rem;
+	transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+#commentform input[type="submit"]:hover,
+.form-submit input[type="submit"]:hover {
+	background-color: var(--menu-link-hover);
+	transform: translateY(-1px);
+}
+#commentform .comment-notes,
+#commentform .logged-in-as,
+.form-allowed-tags {
+	font-size: 0.8125rem;
+	color: var(--color-muted);
+}
+.form-allowed-tags code {
+	background-color: rgba(127, 127, 127, 0.12);
+	padding: 0.125rem 0.375rem;
+	border-radius: 0.125rem;
+	font-size: 0.8125rem;
+	word-break: break-word;
+}
+#cancel-comment-reply-link {
+	display: inline-block;
+	margin-left: 0.75rem;
+	font-size: 0.8125rem;
+	color: var(--color-muted);
+}
+
+/* --- Search / 404 --- */
+.error-404 { padding: 3rem 0; text-align: center; }
+.error-404 .page-title { margin-bottom: 1rem; }
+
+/* ========================================================================
+   8. FORMS (minimal — Bootstrap handles most)
+   ======================================================================== */
+.search-form { display: flex; gap: 0.5rem; max-width: 480px; margin: 0 auto; }
+.search-form .search-field {
+	flex: 1 1 auto;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+}
+.search-form .search-submit {
+	padding: 0.5rem 1rem;
+	background-color: var(--color-primary);
+	color: #fff;
+	border: 0;
+	border-radius: var(--radius);
+	cursor: pointer;
+}
+
+/* ========================================================================
+   8a. SCROLL-TO-TOP BUTTONS
+   ======================================================================== */
+
+/* --- Floating button (Misc > Scroll to Top) --- */
+.scroll-to-top {
+	position: fixed;
+	z-index: 1040;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.625rem 0.875rem;
+	background-color: var(--color-primary);
+	color: #ffffff;
+	border: 0;
+	border-radius: var(--radius);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+	cursor: pointer;
+	opacity: 0;
+	transform: translateY(8px);
+	transition: opacity var(--transition-base), transform var(--transition-base);
+	font-family: inherit;
+	font-size: 0.875rem;
+	line-height: 1;
+}
+/* Corner placement reads --stack-position (set by JS when buttons collide). */
+.scroll-to-top--right { bottom: calc(1.5rem + var(--stack-position, 0) * var(--stack-step)); right: 1.5rem; }
+.scroll-to-top--left  { bottom: calc(1.5rem + var(--stack-position, 0) * var(--stack-step)); left:  1.5rem; }
+.scroll-to-top.is-visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+.scroll-to-top:hover,
+.scroll-to-top:focus-visible {
+	transform: translateY(-2px) scale(1.03);
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+.scroll-to-top svg { display: block; width: 1.1em; height: 1.1em; }
+.scroll-to-top__label { white-space: nowrap; }
+
+/* --- Inline footer-builder button (back_to_top element) --- */
+.footer-back-to-top {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.5rem 0.875rem;
+	color: inherit;
+	text-decoration: none;
+	border: 1px solid currentColor;
+	border-radius: var(--radius);
+	line-height: 1;
+	transition: opacity var(--transition-fast), background-color var(--transition-fast);
+}
+.footer-back-to-top:hover,
+.footer-back-to-top:focus-visible {
+	opacity: 0.85;
+	text-decoration: none;
+	background-color: rgba(255, 255, 255, 0.08);
+}
+.footer-back-to-top svg { display: block; width: 1em; height: 1em; }
+
+/* ========================================================================
+   8b. DARK MODE
+   Bootstrap 5.3 ships its own [data-bs-theme="dark"] palette for forms,
+   buttons, dropdowns, alerts, etc. — those swap automatically when the
+   attribute is set on <html>. This block re-binds our custom CSS
+   properties to a coordinated dark palette under the same selector.
+   ======================================================================== */
+:root[data-bs-theme="dark"] {
+	--color-bg:           #1a1a1a;
+	--color-text:         #e9ecef;
+	--color-muted:        #adb5bd;
+	--color-border:       rgba(255, 255, 255, 0.12);
+
+	--header-bg:          #212529;
+	--header-sticky-bg:   rgba(33, 37, 41, 0.95);
+	--header-shadow:      0 2px 8px rgba(0, 0, 0, 0.4);
+
+	--topbar-bg:          #0d0e10;
+	--topbar-color:       #e9ecef;
+
+	--footer-bg:          #0d0e10;
+	--footer-color:       #adb5bd;
+	--footer-link-color:  #f0f0f0;
+
+	--menu-link-color:    #e9ecef;
+	--menu-link-hover:    #ffc107;
+	--menu-dropdown-bg:   #2b2f33;
+	--menu-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+	--drawer-bg:          #1a1a1a;
+	--scrim-bg:           rgba(0, 0, 0, 0.7);
+
+	/* Site container backgrounds (introduced in Phase 2; must flip in dark mode
+	   or body keeps its light bg even after JS sets data-bs-theme="dark"). */
+	--site-bg-color:      #0d0e10;
+	--preloader-bg:       #1a1a1a;
+}
+
+/* --- Floating theme-mode toggle --- */
+.theme-toggle {
+	position: fixed;
+	z-index: 1041;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.5rem 0.625rem;
+	background-color: var(--color-bg);
+	color: var(--color-text);
+	border: 1px solid var(--color-border);
+	border-radius: 999px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 0.8125rem;
+	line-height: 1;
+	transition: background-color var(--transition-base), color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-fast);
+}
+/* Corner placement reads --stack-position (set by JS when buttons collide). */
+.theme-toggle--bottom-left   { bottom: calc(1.5rem + var(--stack-position, 0) * var(--stack-step)); left:  1.5rem; }
+.theme-toggle--bottom-right  { bottom: calc(1.5rem + var(--stack-position, 0) * var(--stack-step)); right: 1.5rem; }
+.theme-toggle--top-left      { top: calc(var(--admin-bar-offset) + 1.5rem + var(--stack-position, 0) * var(--stack-step)); left:  1.5rem; }
+.theme-toggle--top-right     { top: calc(var(--admin-bar-offset) + 1.5rem + var(--stack-position, 0) * var(--stack-step)); right: 1.5rem; }
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+	transform: translateY(-1px);
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+.theme-toggle svg { display: block; width: 1.1em; height: 1.1em; }
+
+/* Show the icon that matches the user's preference (data-theme-mode). */
+.theme-toggle__icon { display: none; }
+[data-theme-mode="light"] .theme-toggle__icon--light { display: inline-block; }
+[data-theme-mode="dark"]  .theme-toggle__icon--dark  { display: inline-block; }
+[data-theme-mode="auto"]  .theme-toggle__icon--auto  { display: inline-block; }
+
+.theme-toggle__label { display: none; }
+.theme-toggle--with-label .theme-toggle__label { display: inline; }
+[data-theme-mode="light"] .theme-toggle__label::after { content: attr(data-label-light); }
+[data-theme-mode="dark"]  .theme-toggle__label::after { content: attr(data-label-dark); }
+[data-theme-mode="auto"]  .theme-toggle__label::after { content: attr(data-label-auto); }
+
+/* Hide the button until the boot script confirms which mode applies. */
+html:not([data-theme-mode]) .theme-toggle { visibility: hidden; }
+
+/* ========================================================================
+   10. SITE CONTAINER  (General → Layout sub-tab)
+   Body classes: site-full / site-boxed / site-framed  +  site-boxed--{align}
+   Variables consumed: --site-bg-color, --site-bg-image, --site-bg-pattern,
+                       --site-bg-position, --site-bg-repeat, --site-bg-size,
+                       --site-bg-attachment, --site-max-width, --site-margin,
+                       --site-frame-width, --site-frame-color
+   The site background is driven by the General Layout "Site Background"
+   (Background Pro) field; theme-vars.php emits the vars above from it.
+   ======================================================================== */
+body {
+	background-color: var(--site-bg-color, #ffffff);
+	/* Two layers: the Site Background image (top) + the Background Pattern Overlay
+	   (bottom, repeating). Each property carries a value per layer so the pattern
+	   always tiles top-left regardless of the site image's own settings. When a
+	   layer is unset its var falls back to `none`, leaving an empty layer. */
+	background-image:      var(--site-bg-image, none),        var(--site-bg-pattern, none);
+	background-position:   var(--site-bg-position, top left), top left;
+	background-repeat:     var(--site-bg-repeat, repeat),     repeat;
+	background-size:       var(--site-bg-size, auto),         auto;
+	background-attachment: var(--site-bg-attachment, fixed),  fixed;
+}
+
+/* --- Full width (default) — no constraints on #page --- */
+body.site-full #page { width: 100%; max-width: 100%; }
+
+/* --- Boxed: centered (or aligned) fixed-width container --- */
+body.site-boxed {
+	padding-top: var(--site-margin);
+	padding-bottom: var(--site-margin);
+}
+body.site-boxed #page {
+	width: 100%;
+	max-width: var(--site-max-width);
+	background-color: var(--color-bg);
+	box-shadow: 0 6px 32px rgba(0, 0, 0, 0.08);
+	margin-left: auto;
+	margin-right: auto;
+}
+body.site-boxed--left  #page { margin-left: 0; }
+body.site-boxed--right #page { margin-right: 0; }
+
+/* --- Framed: decorative border around the entire viewport --- */
+body.site-framed {
+	padding: var(--site-frame-width);
+	background-color: var(--site-frame-color);
+	min-height: 100vh;
+}
+body.site-framed #page {
+	min-height: calc(100vh - (var(--site-frame-width) * 2));
+	background-color: var(--color-bg);
+}
+
+/* Background pattern overlay is applied as the 2nd `background-image` layer on
+   `body` above, via the `--site-bg-pattern` variable (set by theme-vars.php from
+   the General → Layout "Background Pattern Overlay" field). Works for both the
+   bundled presets and a user-uploaded tiling image. */
+
+/* ========================================================================
+   11. SPACING SCALE
+   Body classes: spacing-compact (×0.75) / spacing-cozy (×1) / spacing-spacious (×1.5)
+   Variable consumed: --section-spacing-scale (set per body class via theme-vars.php)
+   ======================================================================== */
+.entry-content      { margin-bottom: calc(2rem * var(--section-spacing-scale)); }
+/* Page-builder pages: each section owns its own vertical rhythm, so drop the
+   prose bottom margin that would otherwise leave a dead gap between the last
+   section and the footer. */
+body.unyson.page-builder .entry-content { margin-bottom: 0; }
+.entry-header       { margin-bottom: calc(1.5rem * var(--section-spacing-scale)); }
+.entry-content > * + * { margin-top: calc(1rem * var(--section-spacing-scale)); }
+.entry-footer       { padding-top: calc(1rem * var(--section-spacing-scale)); }
+.pagination,
+.posts-navigation,
+.post-navigation    { margin: calc(2rem * var(--section-spacing-scale)) 0; }
+.comments-area      { margin-top: calc(2rem * var(--section-spacing-scale)); }
+.footer             {
+	padding-top:    calc(var(--footer-pad-top)    * var(--section-spacing-scale));
+	padding-bottom: calc(var(--footer-pad-bottom) * var(--section-spacing-scale));
+}
+
+/* Container gutter override (Bootstrap reads --bs-gutter-x) */
+.container,
+.container-fluid,
+.container-lg,
+.container-xl,
+.container-xxl {
+	--bs-gutter-x: var(--container-gutter, 1.5rem);
+}
+
+/* ========================================================================
+   12. UX POLISH  (Preloader, Scroll Progress; Smooth Scroll handled via inline <style>)
+   ======================================================================== */
+
+/* --- Preloader: full-screen splash, JS removes preloader-active body class on window.load --- */
+.preloader {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--preloader-bg);
+	transition: opacity 400ms ease, visibility 400ms;
+}
+body:not(.preloader-active) .preloader {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+}
+.preloader__spinner {
+	width: 48px;
+	height: 48px;
+	border: 4px solid rgba(0, 0, 0, 0.1);
+	border-top-color: var(--color-primary);
+	border-radius: 50%;
+	animation: unysonplus-spin 800ms linear infinite;
+}
+.preloader__logo {
+	max-width: 200px;
+	height: auto;
+	animation: unysonplus-pulse 1.4s ease-in-out infinite;
+}
+.preloader__logo-text {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--color-text);
+	animation: unysonplus-pulse 1.4s ease-in-out infinite;
+}
+@keyframes unysonplus-spin { to { transform: rotate(360deg); } }
+@keyframes unysonplus-pulse {
+	0%, 100% { opacity: 1; }
+	50%      { opacity: 0.5; }
+}
+
+/* Prevent body scroll while preloader is active */
+body.preloader-active { overflow: hidden; }
+
+/* --- Scroll Progress Bar --- */
+.scroll-progress {
+	position: fixed;
+	top: var(--admin-bar-offset);
+	left: 0;
+	right: 0;
+	height: 3px;
+	z-index: 9998;
+	pointer-events: none;
+	background-color: transparent;
+}
+.scroll-progress__bar {
+	height: 100%;
+	width: 100%;
+	background-color: var(--scroll-progress-color);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 80ms linear;
+}
+
+/* ========================================================================
+   13. SIDEBAR LAYOUT  (Phase 5)
+   Body classes: sidebar-none / sidebar-left / sidebar-right (theme-wide default)
+   Wrapper: .with-sidebar  +  .has-sidebar (only when sidebar widget area is active)
+   Variable consumed: --sidebar-width
+   ======================================================================== */
+.with-sidebar { display: block; }
+
+/* Content/sidebar gap, sticky sidebar, reading width — General → Layout. */
+body.sidebar-right .with-sidebar.has-sidebar,
+body.sidebar-left  .with-sidebar.has-sidebar { gap: var(--content-sidebar-gap, 2.5rem); }
+@media (min-width: 992px) {
+	body.sidebar-sticky .with-sidebar.has-sidebar > .sidebar {
+		position: sticky; top: var(--sticky-sidebar-top, 24px); align-self: start;
+	}
+}
+body.single .with-sidebar:not(.has-sidebar) > main,
+body.page   .with-sidebar:not(.has-sidebar) > main {
+	max-width: var(--prose-max-width, none);
+	margin-inline: auto;
+}
+
+body.sidebar-right .with-sidebar.has-sidebar,
+body.sidebar-left  .with-sidebar.has-sidebar {
+	display: grid;
+	gap: 2rem;
+	align-items: start;
+}
+body.sidebar-right .with-sidebar.has-sidebar {
+	grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
+}
+body.sidebar-left  .with-sidebar.has-sidebar {
+	grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+}
+
+/* Sidebar is rendered after <main> in the DOM (for reading-order accessibility).
+   When sidebar-left is active, flip the visual order. */
+body.sidebar-left .with-sidebar.has-sidebar > .sidebar { order: -1; }
+
+/* Mobile: stack regardless of choice. */
+@media (max-width: 991.98px) {
+	.with-sidebar.has-sidebar {
+		grid-template-columns: minmax(0, 1fr) !important;
+	}
+	.with-sidebar.has-sidebar > .sidebar { order: 0; margin-top: 2rem; }
+}
+
+/* Sidebar visual baseline */
+.sidebar {
+	min-width: 0; /* lets grid track shrink */
+}
+.sidebar .widget + .widget { margin-top: 1.5rem; }
+.sidebar .widget-title {
+	font-size: 1rem;
+	font-weight: 600;
+	margin: 0 0 0.75rem;
+	letter-spacing: 0.02em;
+}
+.sidebar .widget ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.sidebar .widget ul li {
+	padding: 0.375rem 0;
+	border-bottom: 1px solid var(--color-border);
+}
+.sidebar .widget ul li:last-child { border-bottom: 0; }
+
+/* ========================================================================
+   14. ALTERNATE HEADER LAYOUTS  (Phase 6)
+   Body classes: layout-top (default) / layout-vertical-left / layout-vertical-right /
+                 layout-off-canvas-only / layout-overlay
+   Mobile collapse: below 992px viewport, all non-top modes revert to top behavior.
+   ======================================================================== */
+
+/* ---------- A. Vertical layouts (side rail) ---------- */
+@media (min-width: 992px) {
+	body.layout-vertical-left  .site,
+	body.layout-vertical-right .site {
+		display: grid;
+		grid-template-rows: auto minmax(0, 1fr) auto;
+	}
+	body.layout-vertical-left .site {
+		grid-template-columns: var(--vertical-header-width) minmax(0, 1fr);
+		grid-template-areas:
+			"header content"
+			"header content"
+			"header footer";
+	}
+	body.layout-vertical-right .site {
+		grid-template-columns: minmax(0, 1fr) var(--vertical-header-width);
+		grid-template-areas:
+			"content header"
+			"content header"
+			"footer  header";
+	}
+	body.layout-vertical-left .site > #masthead,
+	body.layout-vertical-right .site > #masthead { grid-area: header; }
+	body.layout-vertical-left .site > #content,
+	body.layout-vertical-right .site > #content { grid-area: content; }
+	body.layout-vertical-left .site > #colophon,
+	body.layout-vertical-right .site > #colophon { grid-area: footer; }
+
+	/* Skip-link sits in the .site grid; pull it out of flow so it doesn't claim a cell. */
+	body.layout-vertical-left .site > .skip-link,
+	body.layout-vertical-right .site > .skip-link { position: absolute; }
+
+	/* Side-rail header: fixed full height, scrollable if menu is long */
+	body.layout-vertical-left .site-header,
+	body.layout-vertical-right .site-header {
+		position: sticky;
+		top: var(--admin-bar-offset);
+		align-self: start;
+		height: calc(100vh - var(--admin-bar-offset));
+		overflow-y: auto;
+		min-height: 0;
+	}
+	body.layout-vertical-left  .site-header { border-right: 1px solid var(--color-border); }
+	body.layout-vertical-right .site-header { border-left:  1px solid var(--color-border); }
+
+	/* Reflow header internals: stack slots vertically */
+	body.layout-vertical-left  .site-header .header-main,
+	body.layout-vertical-right .site-header .header-main {
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+		padding: 1.5rem 1.25rem;
+		align-items: stretch;
+	}
+	body.layout-vertical-left  .site-header .header-main > .container,
+	body.layout-vertical-right .site-header .header-main > .container,
+	body.layout-vertical-left  .site-header .header-main > .container-fluid,
+	body.layout-vertical-right .site-header .header-main > .container-fluid {
+		width: 100%;
+		max-width: 100%;
+		padding-left: 0;
+		padding-right: 0;
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+	}
+	body.layout-vertical-left  .site-header .header-row,
+	body.layout-vertical-right .site-header .header-row {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 1.5rem;
+		min-height: 0;
+		flex: 1 1 auto;
+	}
+	body.layout-vertical-left  .header-col,
+	body.layout-vertical-right .header-col {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.5rem;
+		margin-left: 0;
+	}
+	body.layout-vertical-left  .header-col--center,
+	body.layout-vertical-right .header-col--center { display: flex; flex: 1 1 auto; }
+	body.layout-vertical-left  .header-col--end,
+	body.layout-vertical-right .header-col--end { margin-top: auto; }
+
+	/* Primary menu becomes a vertical list inside the rail */
+	body.layout-vertical-left  .primary-navigation,
+	body.layout-vertical-right .primary-navigation { display: block; width: 100%; }
+	body.layout-vertical-left  .primary-menu,
+	body.layout-vertical-right .primary-menu {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.125rem;
+	}
+	body.layout-vertical-left  .primary-menu .menu-item,
+	body.layout-vertical-right .primary-menu .menu-item { width: 100%; }
+	body.layout-vertical-left  .primary-menu .menu-item > a,
+	body.layout-vertical-right .primary-menu .menu-item > a {
+		display: block;
+		padding: 0.625rem 0.875rem;
+	}
+	/* Dropdowns: open inline (no absolute positioning in side rail) */
+	body.layout-vertical-left  .primary-menu .sub-menu,
+	body.layout-vertical-right .primary-menu .sub-menu {
+		position: static;
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+		box-shadow: none;
+		background-color: transparent;
+		padding: 0 0 0 1rem;
+		min-width: 0;
+	}
+	body.layout-vertical-left  .primary-menu .menu-item-has-children > a::after,
+	body.layout-vertical-right .primary-menu .menu-item-has-children > a::after { display: none; }
+
+	/* Hamburger hidden in vertical mode (menu is in the rail) */
+	body.layout-vertical-left  .menu-toggle,
+	body.layout-vertical-right .menu-toggle { display: none; }
+
+	/* Topbar hidden in vertical mode (it's a horizontal-header concept) */
+	body.layout-vertical-left  .header-topbar,
+	body.layout-vertical-right .header-topbar { display: none; }
+}
+
+/* ---------- B. Off-Canvas Only (hamburger always visible, no top menu bar) ---------- */
+body.layout-off-canvas-only .header-col--center { display: none; }
+body.layout-off-canvas-only .menu-toggle        { display: inline-flex; }
+
+/* ---------- C. Overlay Fullscreen (hamburger always; menu fills the viewport) ---------- */
+body.layout-overlay .header-col--center { display: none; }
+body.layout-overlay .menu-toggle        { display: inline-flex; }
+
+/* Overlay drawer variant — full-screen centered menu */
+.primary-navigation-drawer--overlay .primary-navigation-drawer__scrim {
+	background-color: var(--color-bg);
+	opacity: 1;
+}
+.primary-navigation-drawer--overlay .primary-navigation-drawer__panel {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	max-width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	background-color: transparent;
+	box-shadow: none;
+	padding: 4rem 2rem;
+}
+.primary-navigation-drawer--overlay.is-open .primary-navigation-drawer__panel { transform: none; }
+.primary-navigation-drawer--overlay .primary-navigation-drawer__close {
+	top: 1.25rem;
+	right: 1.25rem;
+	font-size: 2.5rem;
+	width: 48px;
+	height: 48px;
+}
+.primary-navigation-drawer--overlay .primary-menu {
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	margin-top: 0;
+	max-width: 100%;
+	text-align: center;
+}
+.primary-navigation-drawer--overlay .primary-menu .menu-item { width: auto; position: relative; }
+.primary-navigation-drawer--overlay .primary-menu .menu-item > a {
+	font-size: clamp(1.5rem, 4vw, 2.5rem);
+	font-weight: 600;
+	border-bottom: 0;
+	padding: 0.25rem 1rem;
+}
+.primary-navigation-drawer--overlay .primary-menu .submenu-toggle { display: none; }
+.primary-navigation-drawer--overlay .primary-menu .sub-menu {
+	position: static;
+	opacity: 1;
+	visibility: visible;
+	transform: none;
+	box-shadow: none;
+	background-color: transparent;
+	max-height: none;
+	padding: 0.5rem 0 1rem;
+	text-align: center;
+}
+.primary-navigation-drawer--overlay .primary-menu .sub-menu .menu-item > a {
+	font-size: 1.125rem;
+	font-weight: 400;
+	padding: 0.375rem 1rem;
+}
+
+/* ---------- D. Mobile collapse (vertical modes revert to top below 992px) ---------- */
+@media (max-width: 991.98px) {
+	body.layout-vertical-left  .site-header,
+	body.layout-vertical-right .site-header {
+		position: static;
+		height: auto;
+		overflow: visible;
+		border: 0;
+	}
+}
+
+/* ========================================================================
+   9. UTILITIES
+   ======================================================================== */
+.site-header--transparent {
+	background-color: transparent;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+body.transparent .site-header { background-color: transparent; }
+
+/* Hide focus ring for mouse users; keep for keyboard */
+:focus:not(:focus-visible) { outline: none; }
+
+/* ========================================================================
+   15. PAGE TEMPLATE WIDTH VARIANTS
+   Wrapper classes emitted by unysonplus_main_wrapper_open() based on the
+   resolved 'width' override (per-page meta → template → global → default).
+   ======================================================================== */
+.with-sidebar.layout-width-narrow > main {
+	max-width: 720px;
+	margin-inline: auto;
+}
+.with-sidebar.layout-width-wide > main {
+	max-width: 100%;
+}
+.with-sidebar.layout-width-full {
+	display: block;
+}
+.with-sidebar.layout-width-full > main {
+	max-width: 100vw;
+	padding-inline: 0;
+}
+
+/* Landing template — strip header, footer, and content padding for a true
+   edge-to-edge campaign page. Hide is also enforced server-side via the
+   hide_header / hide_footer overrides, but this guards against any other
+   template that adds the class. */
+body.page-layout-landing .site-content { padding-block: 0; }
+body.page-layout-landing #masthead,
+body.page-layout-landing #colophon { display: none; }
+
+/* ========================================================================
+   16. PAGE HERO HEADER
+   Emitted by unysonplus_render_page_hero() when a header_image is set.
+   Markup:  .page-hero[.page-hero--<height>][.page-hero--align-<pos>]
+              .page-hero__overlay     (when overlay color + opacity > 0)
+              .page-hero__inner.container
+                .page-hero__title (h1.entry-title)
+   ======================================================================== */
+.page-hero {
+	position: relative;
+	display: flex;
+	width: 100%;
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	color: #fff;
+	overflow: hidden;
+}
+.page-hero--auto       { min-height: 280px; padding-block: 4rem; }
+.page-hero--small      { min-height: 220px; }
+.page-hero--medium     { min-height: 380px; }
+.page-hero--large      { min-height: 560px; }
+.page-hero--fullscreen { min-height: 100vh; }
+
+.page-hero--align-top    { align-items: flex-start; padding-top: 4rem; }
+.page-hero--align-center { align-items: center; }
+.page-hero--align-bottom { align-items: flex-end; padding-bottom: 4rem; }
+
+.page-hero__overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+}
+.page-hero__inner {
+	position: relative;
+	z-index: 2;
+	width: 100%;
+}
+.page-hero__title {
+	color: inherit;
+	margin: 0;
+	text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* The hero replaces the classic .entry-header — strip the entry's own padding
+   so it sits flush against following .entry-content. */
+.has-page-hero .entry-header { display: none; }
+
+@media (max-width: 767.98px) {
+	.page-hero--large      { min-height: 380px; }
+	.page-hero--fullscreen { min-height: 70vh; }
+}

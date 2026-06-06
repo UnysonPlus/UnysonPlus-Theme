@@ -1,0 +1,687 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { die( 'Forbidden' ); }
+
+/**
+ * General → Layout sub-tab runtime.
+ *
+ * Reads options stored under the `general_layout` multi key (defined in
+ * framework-customizations/theme/options/general-layout.php) and wires
+ * them into WordPress via body classes, theme-var emissions, and
+ * preloader / scroll-progress hooks.
+ */
+
+/* ============================================================
+ * Helper
+ * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_layout_get' ) ) :
+/**
+ * Read one key from the general_layout option group.
+ *
+ * @param string $key     Inner-option key (e.g. 'site_width_mode').
+ * @param mixed  $default Returned when Unyson is inactive or the key is empty.
+ * @return mixed
+ */
+function unysonplus_layout_get( $key, $default = '' ) {
+	static $cache = null;
+
+	if ( $cache === null ) {
+		if ( function_exists( 'fw_get_db_settings_option' ) ) {
+			$raw   = fw_get_db_settings_option( 'general_layout', array() );
+			$cache = is_array( $raw ) ? $raw : array();
+		} else {
+			$cache = array();
+		}
+	}
+
+	if ( ! array_key_exists( $key, $cache ) ) { return $default; }
+	$val = $cache[ $key ];
+	if ( $val === '' || $val === null ) { return $default; }
+	return $val;
+}
+endif;
+
+
+/* ============================================================
+ * Layout overrides (template + per-page meta + global Pages)
+ *
+ * Centralizes resolution of per-render layout intent. Templates call
+ * unysonplus_set_layout_override() at the top of the file to declare
+ * their intent ('sidebar=right', 'width=full', etc.); wrapper helpers
+ * read the resolved value via unysonplus_resolve_layout().
+ *
+ * Priority cascade (highest wins):
+ *   1. Per-page meta override (fw_get_db_post_option) — Phase 2
+ *   2. Template-set override (this module's static store)
+ *   3. Global Pages default (general_pages multi) — Phase 3
+ *   4. General Layout default (general_layout multi)
+ *   5. Hardcoded fallback (passed as $default)
+ *
+ * Supported keys:
+ *   sidebar      — 'none' | 'left' | 'right'
+ *   width        — 'default' | 'narrow' | 'wide' | 'full'
+ *   hide_header  — bool
+ *   hide_footer  — bool
+ *   hide_title   — bool
+ * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_layout_override_store' ) ) :
+function &unysonplus_layout_override_store() {
+	static $store = array();
+	return $store;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_set_layout_override' ) ) :
+function unysonplus_set_layout_override( array $overrides ) {
+	$store =& unysonplus_layout_override_store();
+	foreach ( $overrides as $k => $v ) {
+		$store[ $k ] = $v;
+	}
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_get_layout_override' ) ) :
+function unysonplus_get_layout_override( $key, $default = null ) {
+	$store =& unysonplus_layout_override_store();
+	return array_key_exists( $key, $store ) ? $store[ $key ] : $default;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_pages_get' ) ) :
+/**
+ * Read one key from the general_pages option group (Phase 3).
+ */
+function unysonplus_pages_get( $key, $default = '' ) {
+	static $cache = null;
+	if ( $cache === null ) {
+		if ( function_exists( 'fw_get_db_settings_option' ) ) {
+			$raw   = fw_get_db_settings_option( 'general_pages', array() );
+			$cache = is_array( $raw ) ? $raw : array();
+		} else {
+			$cache = array();
+		}
+	}
+	if ( ! array_key_exists( $key, $cache ) ) { return $default; }
+	$val = $cache[ $key ];
+	if ( $val === '' || $val === null ) { return $default; }
+	return $val;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_get_page_meta' ) ) :
+/**
+ * Read a per-page meta value, returning null when unset / empty / 'default'.
+ * Only fires inside the loop on a page post type (Phase 2).
+ */
+function unysonplus_get_page_meta( $key ) {
+	if ( ! function_exists( 'fw_get_db_post_option' ) ) { return null; }
+	$pid = get_the_ID();
+	if ( ! $pid || get_post_type( $pid ) !== 'page' ) { return null; }
+	$val = fw_get_db_post_option( $pid, $key );
+	if ( $val === null || $val === '' || $val === 'default' ) { return null; }
+	return $val;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_resolve_layout' ) ) :
+/**
+ * Resolve a layout key through the 5-level priority cascade.
+ *
+ * @param string $key     One of: sidebar, width, hide_header, hide_footer, hide_title.
+ * @param mixed  $default Hardcoded fallback (level 5).
+ * @return mixed
+ */
+function unysonplus_resolve_layout( $key, $default = null ) {
+	// 1. Per-page meta override (Phase 2).
+	$meta_map = array(
+		'sidebar'     => 'sidebar_override',
+		'width'       => 'content_width',
+		'hide_header' => 'hide_site_header',
+		'hide_footer' => 'hide_site_footer',
+		'hide_title'  => 'hide_page_title',
+	);
+	if ( isset( $meta_map[ $key ] ) ) {
+		$meta = unysonplus_get_page_meta( $meta_map[ $key ] );
+		if ( $meta !== null ) {
+			// Switches store boolean true/false in Unyson multi containers.
+			if ( in_array( $key, array( 'hide_header', 'hide_footer', 'hide_title' ), true ) ) {
+				if ( is_bool( $meta ) )   { return $meta; }
+				if ( $meta === 'yes' )    { return true; }
+				if ( $meta === 'no' )     { return false; }
+			}
+			return $meta;
+		}
+	}
+
+	// 2. Template-set override.
+	$tpl = unysonplus_get_layout_override( $key, null );
+	if ( $tpl !== null ) { return $tpl; }
+
+	// 3. Global Pages default (Phase 3) — only meaningful on pages.
+	if ( is_page() ) {
+		if ( $key === 'sidebar' ) {
+			$layout_pref = unysonplus_pages_get( 'default_page_layout', '' );
+			$layout_to_sidebar = array(
+				'sidebar-right' => 'right',
+				'sidebar-left'  => 'left',
+				'full-width'    => 'none',
+				'boxed-narrow'  => 'none',
+			);
+			if ( isset( $layout_to_sidebar[ $layout_pref ] ) ) {
+				return $layout_to_sidebar[ $layout_pref ];
+			}
+		}
+		if ( $key === 'width' ) {
+			$layout_pref = unysonplus_pages_get( 'default_page_layout', '' );
+			$layout_to_width = array(
+				'full-width'   => 'full',
+				'boxed-narrow' => 'narrow',
+			);
+			if ( isset( $layout_to_width[ $layout_pref ] ) ) {
+				return $layout_to_width[ $layout_pref ];
+			}
+		}
+	}
+
+	// 4. General Layout default.
+	if ( $key === 'sidebar' ) {
+		$pos = unysonplus_layout_get( 'layout_sidebar_position', '' );
+		if ( in_array( $pos, array( 'none', 'left', 'right' ), true ) ) { return $pos; }
+	}
+
+	// 5. Hardcoded fallback.
+	return $default;
+}
+endif;
+
+
+/* ============================================================
+ * Body classes
+ * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_layout_body_classes' ) ) :
+function unysonplus_layout_body_classes( $classes ) {
+	// Site width mode
+	$width_mode = unysonplus_layout_get( 'site_width_mode', 'full' );
+	if ( ! in_array( $width_mode, array( 'full', 'boxed', 'framed' ), true ) ) {
+		$width_mode = 'full';
+	}
+	$classes[] = 'site-' . $width_mode;
+
+	if ( $width_mode === 'boxed' ) {
+		$align = unysonplus_layout_get( 'site_boxed_alignment', 'center' );
+		if ( ! in_array( $align, array( 'left', 'center', 'right' ), true ) ) { $align = 'center'; }
+		$classes[] = 'site-boxed--' . $align;
+	}
+
+	// Background pattern overlay is now applied via the `--site-bg-pattern` CSS
+	// variable (emitted in theme-vars.php from the background-image option), so it
+	// supports uploaded images and no longer needs a per-preset body class.
+
+	// Spacing scale
+	$spacing = unysonplus_layout_get( 'layout_section_spacing', 'cozy' );
+	if ( ! in_array( $spacing, array( 'compact', 'cozy', 'spacious' ), true ) ) { $spacing = 'cozy'; }
+	$classes[] = 'spacing-' . $spacing;
+
+	// Header layout mode (Phase 6 will style these; class is emitted now for forward compat)
+	$header_mode = unysonplus_layout_get( 'layout_header_mode', 'top' );
+	$valid_modes = array( 'top', 'vertical-left', 'vertical-right', 'off-canvas-only', 'overlay' );
+	if ( ! in_array( $header_mode, $valid_modes, true ) ) { $header_mode = 'top'; }
+	$classes[] = 'layout-' . $header_mode;
+
+	// Header position behavior
+	$header_pos = unysonplus_layout_get( 'layout_header_position', 'static' );
+	$valid_pos  = array( 'static', 'sticky', 'transparent-overlay-first-section' );
+	if ( in_array( $header_pos, $valid_pos, true ) && $header_pos !== 'static' ) {
+		$classes[] = 'header-pos-' . $header_pos;
+	}
+
+	// Resolved sidebar position (cascade-aware: per-page meta > template > global > default).
+	$sidebar = unysonplus_resolve_layout( 'sidebar', 'right' );
+	if ( ! in_array( $sidebar, array( 'none', 'left', 'right' ), true ) ) { $sidebar = 'right'; }
+	$classes[] = 'sidebar-' . $sidebar;
+
+	// Sticky sidebar (desktop only; CSS gates the breakpoint).
+	if ( unysonplus_layout_get( 'layout_sidebar_sticky', 'no' ) === 'yes' ) {
+		$classes[] = 'sidebar-sticky';
+	}
+
+	// Resolved content width (only emits when not 'default').
+	$width = unysonplus_resolve_layout( 'width', 'default' );
+	if ( in_array( $width, array( 'narrow', 'wide', 'full' ), true ) ) {
+		$classes[] = 'layout-width-' . $width;
+	}
+
+	// Page-template slug class for CSS targeting (e.g. page-layout-landing).
+	if ( is_page() ) {
+		$tpl = get_page_template_slug( get_the_ID() );
+		if ( $tpl ) {
+			$slug = preg_replace( '/^page-|\.php$/', '', $tpl );
+			if ( $slug ) {
+				$classes[] = 'page-layout-' . sanitize_html_class( $slug );
+			}
+		}
+	}
+
+	// Preloader (active while page loads; JS removes after window.load)
+	if ( unysonplus_layout_get( 'layout_preloader_style', 'none' ) !== 'none' ) {
+		$classes[] = 'preloader-active';
+	}
+
+	return $classes;
+}
+endif;
+add_filter( 'body_class', 'unysonplus_layout_body_classes', 20 );
+
+
+/* ============================================================
+ * Preloader
+ * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_render_preloader' ) ) :
+function unysonplus_render_preloader() {
+	$style = unysonplus_layout_get( 'layout_preloader_style', 'none' );
+	if ( $style === 'none' ) { return; }
+
+	$logo_url = '';
+	if ( $style === 'logo' ) {
+		$custom = get_theme_mod( 'custom_logo' );
+		if ( $custom ) {
+			$src = wp_get_attachment_image_src( $custom, 'full' );
+			if ( $src ) { $logo_url = $src[0]; }
+		}
+	}
+	?>
+	<div class="preloader preloader--<?php echo esc_attr( $style ); ?>" aria-hidden="true">
+		<?php if ( $style === 'spinner' ) : ?>
+			<div class="preloader__spinner"></div>
+		<?php elseif ( $style === 'logo' && $logo_url ) : ?>
+			<img class="preloader__logo" src="<?php echo esc_url( $logo_url ); ?>" alt="">
+		<?php elseif ( $style === 'logo' ) : ?>
+			<div class="preloader__logo-text"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></div>
+		<?php endif; ?>
+	</div>
+	<?php
+}
+endif;
+add_action( 'wp_body_open', 'unysonplus_render_preloader', 1 );
+
+
+/* ============================================================
+ * Scroll Progress Bar
+ * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_render_scroll_progress' ) ) :
+function unysonplus_render_scroll_progress() {
+	if ( unysonplus_layout_get( 'layout_scroll_progress', 'no' ) !== 'yes' ) { return; }
+	?>
+	<div class="scroll-progress" aria-hidden="true"><div class="scroll-progress__bar"></div></div>
+	<?php
+}
+endif;
+add_action( 'wp_body_open', 'unysonplus_render_scroll_progress', 2 );
+
+
+/* ============================================================
+ * Default Sidebar (Phase 5)
+ *
+ * Theme-wide default for which sidebar widget area renders alongside
+ * main content. Templates (page.php, single.php, archive.php, etc.)
+ * call unysonplus_render_default_sidebar() after their <main> and
+ * read unysonplus_has_default_sidebar() to decide whether to apply
+ * the .has-sidebar class on their .with-sidebar wrapper.
+ *
+ * Returning null / false here means "no sidebar" — either because
+ * the option is set to 'none' or because the chosen widget area has
+ * no active widgets.
+ * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_get_default_sidebar_id' ) ) :
+function unysonplus_get_default_sidebar_id() {
+	$pos = unysonplus_resolve_layout( 'sidebar', 'right' );
+	if ( $pos === 'none' ) { return null; }
+	if ( $pos === 'left' )  { return 'sidebar-left'; }
+	return 'sidebar-right';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_has_default_sidebar' ) ) :
+function unysonplus_has_default_sidebar() {
+	$id = unysonplus_get_default_sidebar_id();
+	return $id && is_active_sidebar( $id );
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_render_default_sidebar' ) ) :
+function unysonplus_render_default_sidebar() {
+	$pos = unysonplus_resolve_layout( 'sidebar', 'right' );
+	if ( $pos === 'none' ) { return; }
+	if ( $pos === 'left' ) {
+		get_sidebar( 'left' );
+	} else {
+		get_sidebar();
+	}
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_should_hide_site_header' ) ) :
+function unysonplus_should_hide_site_header() {
+	return (bool) unysonplus_resolve_layout( 'hide_header', false );
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_should_hide_site_footer' ) ) :
+function unysonplus_should_hide_site_footer() {
+	return (bool) unysonplus_resolve_layout( 'hide_footer', false );
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_should_hide_page_title' ) ) :
+function unysonplus_should_hide_page_title() {
+	return (bool) unysonplus_resolve_layout( 'hide_title', false );
+}
+endif;
+
+
+/* ============================================================
+ * Hero Header (Phase 4)
+ *
+ * Renders a full-width banner at the top of a page when the per-page
+ * "Header Image" meta (or the global Pages fallback) is set. Otherwise
+ * silently no-ops — content-page.php falls back to its simple title
+ * header.
+ *
+ * Reads per-page meta first (header_image, header_height, overlay_color,
+ * overlay_opacity, content_position), falling back to the global Pages
+ * default_page_header_image / default_page_header_height.
+ * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_get_page_hero_data' ) ) :
+function unysonplus_get_page_hero_data() {
+	if ( ! function_exists( 'fw_get_db_post_option' ) ) { return null; }
+	$pid = get_the_ID();
+	if ( ! $pid || get_post_type( $pid ) !== 'page' ) { return null; }
+
+	$image = fw_get_db_post_option( $pid, 'header_image' );
+	$url   = is_array( $image ) && ! empty( $image['url'] ) ? $image['url'] : '';
+
+	// Global fallback when per-page image is empty.
+	if ( ! $url ) {
+		$default_img = unysonplus_pages_get( 'default_page_header_image', array() );
+		if ( is_array( $default_img ) && ! empty( $default_img['url'] ) ) {
+			$url = $default_img['url'];
+		}
+	}
+	if ( ! $url ) { return null; }
+
+	$height = fw_get_db_post_option( $pid, 'header_height' );
+	if ( ! $height || $height === 'auto' ) {
+		$height = unysonplus_pages_get( 'default_page_header_height', 'auto' );
+	}
+	$valid_heights = array( 'auto', 'small', 'medium', 'large', 'fullscreen' );
+	if ( ! in_array( $height, $valid_heights, true ) ) { $height = 'auto'; }
+
+	$overlay_color   = fw_get_db_post_option( $pid, 'header_overlay_color' );
+	$overlay_opacity = (int) fw_get_db_post_option( $pid, 'header_overlay_opacity' );
+	$position        = fw_get_db_post_option( $pid, 'header_content_position' );
+	if ( ! in_array( $position, array( 'top', 'center', 'bottom' ), true ) ) { $position = 'center'; }
+
+	return array(
+		'url'             => $url,
+		'height'          => $height,
+		'overlay_color'   => $overlay_color,
+		'overlay_opacity' => max( 0, min( 100, $overlay_opacity ) ),
+		'position'        => $position,
+	);
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_render_page_hero' ) ) :
+/**
+ * Emit the hero header markup, or return false when no hero is configured
+ * so the caller can fall back to its default header.
+ *
+ * @return bool True when a hero rendered, false when no-op.
+ */
+function unysonplus_render_page_hero() {
+	$hero = unysonplus_get_page_hero_data();
+	if ( ! $hero ) { return false; }
+
+	$classes = array( 'page-hero', 'page-hero--' . $hero['height'], 'page-hero--align-' . $hero['position'] );
+	?>
+	<div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" style="background-image: url('<?php echo esc_url( $hero['url'] ); ?>');">
+		<?php if ( $hero['overlay_color'] && $hero['overlay_opacity'] > 0 ) : ?>
+			<div class="page-hero__overlay" style="background-color: <?php echo esc_attr( $hero['overlay_color'] ); ?>; opacity: <?php echo esc_attr( $hero['overlay_opacity'] / 100 ); ?>;"></div>
+		<?php endif; ?>
+		<div class="page-hero__inner container">
+			<?php if ( ! unysonplus_should_hide_page_title() ) : ?>
+				<h1 class="entry-title page-hero__title"><?php the_title(); ?></h1>
+			<?php endif; ?>
+			<?php do_action( 'unysonplus_page_hero_inner' ); ?>
+		</div>
+	</div>
+	<?php
+	return true;
+}
+endif;
+
+
+/* ============================================================
+ * Per-page custom CSS / JS / background color (Phase 5)
+ *
+ * Editors can paste page-specific CSS or JS via the Custom Code meta
+ * box. We emit it inline on that page only — wp_head priority 999 for
+ * CSS (after every enqueued stylesheet so it wins specificity ties)
+ * and wp_footer priority 999 for JS (after every enqueued script).
+ *
+ * JS injection requires unfiltered_html on the post author at save
+ * time — defense in depth against an editor with restricted role
+ * uploading <script>.
+ *
+ * Also: emits a --page-bg-color CSS variable on body when per-page
+ * page_bg_color is set, so style.css can `background-color: var(--page-bg-color, …)`.
+ * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_build_page_custom_css' ) ) :
+/**
+ * Build this page's CSS body: background colour/image variables + the page's
+ * own "Custom CSS (this page only)" meta. Returns '' when nothing applies.
+ */
+function unysonplus_build_page_custom_css( $pid ) {
+	$pid = (int) $pid;
+	if ( ! $pid || ! function_exists( 'fw_get_db_post_option' ) || get_post_type( $pid ) !== 'page' ) {
+		return '';
+	}
+
+	$parts = array();
+
+	$bg = fw_get_db_post_option( $pid, 'page_bg_color' );
+	if ( $bg ) {
+		$parts[] = 'body{--page-bg-color:' . $bg . ';background-color:' . $bg . ';}';
+	}
+
+	$bg_image = fw_get_db_post_option( $pid, 'page_bg_image' );
+	if ( is_array( $bg_image ) && ! empty( $bg_image['url'] ) ) {
+		$parts[] = 'body{background-image:url(' . esc_url_raw( $bg_image['url'] ) . ');background-size:cover;background-attachment:fixed;}';
+	}
+
+	$custom = fw_get_db_post_option( $pid, 'page_custom_css' );
+	if ( is_string( $custom ) && trim( $custom ) !== '' ) {
+		// Strip </style> as a minimal injection guard; the editor still has
+		// post-edit capability, so this is belt-and-suspenders only.
+		$parts[] = str_replace( '</style', '<\/style', $custom );
+	}
+
+	return implode( "\n", $parts );
+}
+endif;
+
+// Contribute this page's CSS to the plugin's per-page stylesheet
+// (page-{id}-{hash}.css), so it's combiner-absorbed alongside the element CSS
+// instead of being its own inline <style> block.
+if ( ! function_exists( 'unysonplus_filter_page_css' ) ) :
+function unysonplus_filter_page_css( $css, $post_id ) {
+	$own = unysonplus_build_page_custom_css( $post_id );
+	if ( $own === '' ) { return $css; }
+	return $css === '' ? $own : $css . "\n" . $own;
+}
+endif;
+add_filter( 'unysonplus_page_css', 'unysonplus_filter_page_css', 10, 2 );
+
+// Legacy inline fallback: only when the plugin's per-page pipeline is NOT
+// loaded (plugin inactive) — otherwise the CSS lands in page-{id}-{hash}.css
+// and emitting here too would duplicate it.
+if ( ! function_exists( 'unysonplus_emit_page_custom_css' ) ) :
+function unysonplus_emit_page_custom_css() {
+	if ( function_exists( 'unysonplus_build_page_css_string' ) ) { return; }
+	if ( ! is_singular( 'page' ) ) { return; }
+	$pid = get_queried_object_id();
+	$css = unysonplus_build_page_custom_css( $pid );
+	if ( $css === '' ) { return; }
+	echo "\n" . '<style id="unysonplus-page-css-' . absint( $pid ) . '">' . $css . '</style>' . "\n";
+}
+endif;
+add_action( 'wp_head', 'unysonplus_emit_page_custom_css', 999 );
+
+if ( ! function_exists( 'unysonplus_emit_page_custom_js' ) ) :
+function unysonplus_emit_page_custom_js() {
+	if ( ! is_singular( 'page' ) || ! function_exists( 'fw_get_db_post_option' ) ) { return; }
+	$pid = get_queried_object_id();
+	if ( ! $pid ) { return; }
+
+	$js = fw_get_db_post_option( $pid, 'page_custom_js' );
+	if ( ! is_string( $js ) || trim( $js ) === '' ) { return; }
+
+	// Require the page author to have unfiltered_html — prevents privilege
+	// escalation if an editor without the cap was given access to the field
+	// (e.g. through a custom role).
+	$post = get_post( $pid );
+	if ( ! $post || ! user_can( $post->post_author, 'unfiltered_html' ) ) { return; }
+
+	$js = str_replace( '</script', '<\/script', $js );
+	echo "\n" . '<script id="unysonplus-page-js-' . absint( $pid ) . '">' . $js . '</script>' . "\n";
+}
+endif;
+add_action( 'wp_footer', 'unysonplus_emit_page_custom_js', 999 );
+
+
+/* ============================================================
+ * Migration notice for the renamed Left Sidebar template
+ *
+ * page-boxed.php (Template Name: "Left Sidebar") was renamed to
+ * page-sidebar-left.php in v2.1.16. Any pages still pointing at the
+ * old slug lose their template assignment; surface a one-time admin
+ * notice so the editor can re-pick the new template.
+ * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_check_boxed_template_migration' ) ) :
+function unysonplus_check_boxed_template_migration() {
+	if ( ! current_user_can( 'edit_pages' ) ) { return; }
+	if ( get_transient( 'unysonplus_boxed_migration_dismissed' ) ) { return; }
+
+	$pages = get_posts( array(
+		'post_type'      => 'page',
+		'post_status'    => 'any',
+		'posts_per_page' => 25,
+		'fields'         => 'ids',
+		'meta_query'     => array( array(
+			'key'   => '_wp_page_template',
+			'value' => 'page-boxed.php',
+		) ),
+	) );
+
+	if ( empty( $pages ) ) { return; }
+
+	echo '<div class="notice notice-warning is-dismissible"><p><strong>Unyson+:</strong> The "Left Sidebar" template was renamed from <code>page-boxed.php</code> to <code>page-sidebar-left.php</code>. The following pages still reference the old slug and need their template re-assigned: ';
+	$links = array();
+	foreach ( $pages as $pid ) {
+		$links[] = '<a href="' . esc_url( get_edit_post_link( $pid ) ) . '">' . esc_html( get_the_title( $pid ) ) . '</a>';
+	}
+	echo implode( ', ', $links );
+	echo '.</p></div>';
+}
+endif;
+add_action( 'admin_notices', 'unysonplus_check_boxed_template_migration' );
+
+if ( ! function_exists( 'unysonplus_is_page_builder_post' ) ) :
+function unysonplus_is_page_builder_post() {
+	return function_exists( 'fw_ext_page_builder_is_builder_post' )
+		&& fw_ext_page_builder_is_builder_post( get_the_ID() );
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_main_wrapper_open' ) ) :
+/**
+ * Opens the standard content wrapper:
+ *   <div class="container"><div class="with-sidebar [has-sidebar]">
+ *     <main id="main" class="site-main {extra}" role="main">
+ *
+ * Page-builder posts get NO wrapper at all (the builder controls
+ * its own container/grid). Sidebar is included only when the chosen
+ * widget area is active.
+ *
+ * @param string $extra_main_classes Optional extra classes for <main>.
+ */
+function unysonplus_main_wrapper_open( $extra_main_classes = '' ) {
+	$is_builder = unysonplus_is_page_builder_post();
+
+	if ( ! $is_builder ) {
+		$has_sidebar = unysonplus_has_default_sidebar();
+		$width       = unysonplus_resolve_layout( 'width', 'default' );
+
+		$wrapper_classes = array( 'with-sidebar' );
+		if ( $has_sidebar ) { $wrapper_classes[] = 'has-sidebar'; }
+		if ( in_array( $width, array( 'narrow', 'wide', 'full' ), true ) ) {
+			$wrapper_classes[] = 'layout-width-' . $width;
+		}
+
+		// Width=full skips the .container constraint so content can go edge-to-edge.
+		$container_class = ( $width === 'full' ) ? 'container-fluid' : 'container';
+		echo '<div class="' . esc_attr( $container_class ) . '"><div class="' . esc_attr( implode( ' ', $wrapper_classes ) ) . '">';
+	}
+
+	/**
+	 * Fires just before <main> opens. Use to inject banners, breadcrumbs,
+	 * or sticky bars inside the content container.
+	 */
+	do_action( 'unysonplus_before_main' );
+
+	$main_classes = 'site-main';
+	if ( $extra_main_classes ) { $main_classes .= ' ' . $extra_main_classes; }
+	echo '<main id="main" class="' . esc_attr( $main_classes ) . '" role="main">';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_main_wrapper_close' ) ) :
+function unysonplus_main_wrapper_close() {
+	$is_builder = unysonplus_is_page_builder_post();
+
+	echo '</main>';
+
+	/**
+	 * Fires just after </main> closes, before the sidebar renders.
+	 * Use to inject post-navigation, related posts, social share, etc.
+	 */
+	do_action( 'unysonplus_after_main' );
+
+	if ( ! $is_builder ) {
+		if ( unysonplus_has_default_sidebar() ) {
+			unysonplus_render_default_sidebar();
+		}
+		echo '</div></div>';
+	}
+}
+endif;
+
+
+/* ============================================================
+ * Smooth scroll (CSS-only, emitted in <head>)
+ * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_emit_smooth_scroll_css' ) ) :
+function unysonplus_emit_smooth_scroll_css() {
+	if ( unysonplus_layout_get( 'layout_smooth_scroll', 'no' ) !== 'yes' ) { return; }
+	echo '<style id="unysonplus-smooth-scroll">html{scroll-behavior:smooth;}</style>' . "\n";
+}
+endif;
+add_action( 'wp_head', 'unysonplus_emit_smooth_scroll_css', 25 );
