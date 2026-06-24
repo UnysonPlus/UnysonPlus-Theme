@@ -1,5 +1,23 @@
 <?php if ( ! defined( 'ABSPATH' ) ) die( 'Direct access forbidden.' );
 
+if ( ! function_exists( 'unysonplus_element_visibility_classes' ) ) :
+/**
+ * Map an element's per-device "Hide On" checkboxes to hide-xs/sm/md classes
+ * (shared by header + footer element renderers). Handles both Unyson checkbox
+ * shapes: associative (key => bool) and a plain list of selected keys.
+ */
+function unysonplus_element_visibility_classes( $element ) {
+	$vis = ! empty( $element['visibility'] ) ? $element['visibility'] : array();
+	if ( ! is_array( $vis ) ) { return ''; }
+	$out = '';
+	foreach ( array( 'hide-xs', 'hide-sm', 'hide-md' ) as $hc ) {
+		$on = isset( $vis[ $hc ] ) ? ! empty( $vis[ $hc ] ) : in_array( $hc, $vis, true );
+		if ( $on ) { $out .= ' ' . $hc; }
+	}
+	return $out;
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_render_primary_toggler' ) ) :
 function unysonplus_render_primary_toggler() {
         static $rendered = false;
@@ -73,6 +91,20 @@ function unysonplus_render_header_element( $element ) {
                                 unysonplus_render_widget_area( $settings );
                         }
                         break;
+
+                case 'builder_section':
+                        if ( function_exists( 'unysonplus_render_builder_section' ) ) {
+                                unysonplus_render_builder_section( $settings );
+                        }
+                        break;
+
+                case 'spacer':
+                        echo '<span class="header-spacer" aria-hidden="true"></span>';
+                        break;
+
+                case 'divider':
+                        echo '<span class="header-divider" role="separator" aria-orientation="vertical"></span>';
+                        break;
         }
 }
 endif;
@@ -95,7 +127,7 @@ function unysonplus_render_header_column( $elements, $align = 'start' ) {
         foreach ( $elements as $element ) {
                 if ( empty( $element['element_type']['element'] ) ) continue;
                 $type = $element['element_type']['element'];
-                echo '<div class="header-element header-element--' . esc_attr( $type ) . '">';
+                echo '<div class="header-element header-element--' . esc_attr( $type ) . esc_attr( unysonplus_element_visibility_classes( $element ) ) . '">';
                 unysonplus_render_header_element( $element );
                 echo '</div>';
         }
@@ -163,30 +195,16 @@ endif;
 
 if ( ! function_exists( 'unysonplus_render_cta_button' ) ) :
 function unysonplus_render_cta_button( $settings ) {
-        $text       = ! empty( $settings['cta_text'] ) ? $settings['cta_text'] : 'Get Started';
-        $link       = ! empty( $settings['cta_link'] ) ? $settings['cta_link'] : '#';
-        $bg         = ! empty( $settings['cta_bg_color'] ) ? $settings['cta_bg_color'] : '#0d6efd';
-        $color      = ! empty( $settings['cta_text_color'] ) ? $settings['cta_text_color'] : '#ffffff';
-        $style_type = ! empty( $settings['cta_style'] ) ? $settings['cta_style'] : 'filled';
+        $text = ! empty( $settings['cta_text'] ) ? $settings['cta_text'] : 'Get Started';
+        $link = ! empty( $settings['cta_link'] ) ? $settings['cta_link'] : '#';
 
-        $classes = 'header-cta-btn';
-        $inline_style = '';
+        // Colors are emitted to the generated CSS file via a per-instance hash
+        // class (see inc/includes/hf-custom-css.php) — no inline styles here.
+        $classes = function_exists( 'unysonplus_cta_button_classes' )
+                ? unysonplus_cta_button_classes( $settings )
+                : 'header-cta-btn';
 
-        switch ( $style_type ) {
-                case 'outline':
-                        $classes .= ' header-cta-btn--outline';
-                        $inline_style = 'border: 2px solid ' . esc_attr( $bg ) . '; color: ' . esc_attr( $bg ) . '; background: transparent;';
-                        break;
-                case 'pill':
-                        $classes .= ' header-cta-btn--pill';
-                        $inline_style = 'background: ' . esc_attr( $bg ) . '; color: ' . esc_attr( $color ) . '; border-radius: 50px;';
-                        break;
-                default:
-                        $inline_style = 'background: ' . esc_attr( $bg ) . '; color: ' . esc_attr( $color ) . ';';
-                        break;
-        }
-
-        echo '<a href="' . esc_url( $link ) . '" class="' . esc_attr( $classes ) . '" style="' . $inline_style . '">' . esc_html( $text ) . '</a>';
+        echo '<a href="' . esc_url( $link ) . '" class="' . esc_attr( $classes ) . '">' . esc_html( $text ) . '</a>';
 }
 endif;
 

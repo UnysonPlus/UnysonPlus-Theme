@@ -2,8 +2,9 @@
 /*!
 Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
-Description:    Bootstrap 5 WordPress theme for the Unyson+ framework.
-Version:        2.1.82
+Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
+Requires Plugins: unysonplus
+Version: 2.2.25
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -91,6 +92,15 @@ p:last-child { margin-bottom: 0; }
 
 a { color: var(--color-primary); text-decoration: none; }
 a:hover, a:focus-visible { color: var(--menu-link-hover); text-decoration: underline; }
+/* Body/content link colors (Typography → Body Link Color). Fall back to the base
+   link color so an unset value keeps current behavior.
+   Scoped to `:not([class])` so ONLY bare prose links get the body-link color —
+   the whole page-builder lives inside `.entry-content`, so an unscoped
+   `.entry-content a` would override every classed link (buttons like
+   `.toplist-offers__btn`, `.btn`, shortcode links, etc.). Per the clean-DOM
+   convention, genuine prose links carry no class, so they still match. */
+.entry-content :is(p, li) a:not([class]) { color: var(--body-link-color, var(--color-primary)); }
+.entry-content :is(p, li) a:not([class]):is(:hover, :focus-visible) { color: var(--body-link-hover, var(--body-link-color, var(--menu-link-hover))); }
 a.btn:hover, a.btn:focus-visible { text-decoration: none; }
 
 :focus-visible {
@@ -411,6 +421,22 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .site-title img,
 .navbar-brand img { width: var(--logo-width, auto); height: auto; max-height: var(--logo-max-height, calc(var(--header-min-height) - 24px)); display: block; }
 
+/* WooCommerce core ships `.woocommerce img,.woocommerce-page img{max-width:100%;height:auto}`
+   (woocommerce-layout.css), which over-broadly resizes the brand logo on any page WC tags
+   with the woocommerce-page body class. These selectors (0,2,1) out-rank WC's (0,1,1) so the
+   logo keeps its configured size regardless of stylesheet order. */
+.site-header .site-title img,
+.site-header .navbar-brand img,
+.woocommerce-page .site-title img,
+.woocommerce-page .navbar-brand img,
+.woocommerce .site-title img,
+.woocommerce .navbar-brand img {
+	width: var(--logo-width, auto);
+	height: auto;
+	max-width: var(--logo-width, none);
+	max-height: var(--logo-max-height, calc(var(--header-min-height) - 24px));
+}
+
 /* Logo variants (Header → Identity). The wrapper carries has-sticky-logo /
    has-mobile-logo only when that variant is configured, so the default logo is
    never hidden with nothing to replace it. Sticky swap fires when theme.js adds
@@ -487,6 +513,7 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 	z-index: 1;
 }
 .primary-menu .menu-item-has-children.is-open > .sub-menu,
+.primary-menu .menu-item-has-children:hover > .sub-menu,
 .primary-menu .menu-item-has-children:focus-within > .sub-menu {
 	opacity: 1;
 	visibility: visible;
@@ -1224,13 +1251,22 @@ body.unyson.page-builder .entry-content { margin-bottom: 0; }
 	padding-bottom: calc(var(--footer-pad-bottom) * var(--section-spacing-scale));
 }
 
-/* Container gutter override (Bootstrap reads --bs-gutter-x) */
+/* Container horizontal padding.
+   IMPORTANT: the theme does NOT always load Bootstrap's CSS, so we must define
+   `.container` side padding ourselves — relying on Bootstrap's own
+   `.container { padding: calc(--bs-gutter-x * .5) }` left the container with ZERO
+   padding (logo + content flush against the edge). `--bs-gutter-x` stays at the
+   normal grid value for Bootstrap .row/.col (when present); the side padding is a
+   generous, responsive default (~20px on phones up to ~32px on desktop). The
+   Container Gutter option overrides it; blank = this responsive default. */
 .container,
 .container-fluid,
 .container-lg,
 .container-xl,
 .container-xxl {
-	--bs-gutter-x: var(--container-gutter, 1.5rem);
+	--bs-gutter-x: 1.5rem;
+	padding-right: var(--container-gutter, clamp(1.25rem, 3vw, 2rem));
+	padding-left:  var(--container-gutter, clamp(1.25rem, 3vw, 2rem));
 }
 
 /* ========================================================================
@@ -1676,4 +1712,25 @@ body.page-layout-landing #colophon { display: none; }
 @media (max-width: 767.98px) {
 	.page-hero--large      { min-height: 380px; }
 	.page-hero--fullscreen { min-height: 70vh; }
+}
+
+/* ============================================================
+ * Print — drop site chrome, print readable content only.
+ * ============================================================ */
+@media print {
+	#masthead, .site-header, .header-topbar, .header-bottombar,
+	#colophon, .site-footer, .footer,
+	#sidebar, .sidebar, .widget-area,
+	.primary-navigation-drawer, .scroll-to-top, .scroll-progress,
+	.preloader, #unysonplus-preloader, .comment-respond, .entry-footer,
+	.no-print {
+		display: none !important;
+	}
+	body { background: #fff !important; color: #000 !important; }
+	.site-main, .content-area, .container, .container-fluid {
+		width: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important; float: none !important;
+	}
+	a, .entry-content a { color: #000 !important; text-decoration: underline; }
+	.entry-content a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.85em; word-break: break-all; }
+	img { max-width: 100% !important; }
 }

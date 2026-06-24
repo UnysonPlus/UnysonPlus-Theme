@@ -1,0 +1,330 @@
+/**
+ * Header & Footer Builder — element + header-type/behavior styles.
+ *
+ * Loaded globally: the Header/Footer Elements shortcodes ([nav_menu], [site_logo],
+ * [site_search], [social_icons], [menu_toggle]) can appear in normal page content
+ * too, not just builder headers/footers. Element selectors are scoped to their
+ * `.sc-*` wrappers so they never clobber the theme's own (slot) header markup.
+ */
+
+/* =========================================================
+ * Navigation Menu shortcode  ([nav_menu] → .sc-nav)
+ * ========================================================= */
+.sc-nav { display: flex; }
+.sc-nav .primary-menu {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1.5rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.sc-nav .primary-menu a { text-decoration: none; }
+
+.sc-nav .primary-menu--vertical {
+	flex-direction: column;
+	align-items: flex-start;
+	gap: .5rem;
+	width: 100%;
+}
+
+.sc-nav .nav-align-center    { justify-content: center; }
+.sc-nav .nav-align-end       { justify-content: flex-end; }
+.sc-nav .nav-align-justified { justify-content: space-between; width: 100%; }
+
+/* Submenus — base */
+.sc-nav .primary-menu .sub-menu {
+	list-style: none;
+	margin: 0;
+	padding: .5rem 0;
+}
+.sc-nav .primary-menu .sub-menu a { display: block; padding: .4rem 1.25rem; }
+
+/* Dropdown (horizontal) */
+.sc-nav .primary-menu--horizontal .menu-item-has-children { position: relative; }
+.sc-nav .primary-menu--horizontal .sub-menu {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	min-width: 12rem;
+	background: #fff;
+	box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .12);
+	border-radius: .375rem;
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(.25rem);
+	transition: opacity .15s ease, transform .15s ease, visibility .15s ease;
+	z-index: 1000;
+}
+.sc-nav .primary-menu--horizontal .menu-item-has-children.is-open > .sub-menu,
+.sc-nav .primary-menu--horizontal .menu-item-has-children:hover > .sub-menu {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+
+/* Accordion (vertical / drawer) */
+.sc-nav .primary-menu--vertical .sub-menu { padding-left: 1rem; }
+.sc-nav .submenu-accordion .sub-menu { display: none; }
+.sc-nav .submenu-accordion .menu-item-has-children.is-open > .sub-menu { display: block; }
+
+/* Mega (full-width panel) */
+.sc-nav .submenu-mega .menu-item-has-children { position: static; }
+.sc-nav .submenu-mega .sub-menu {
+	left: 0;
+	right: 0;
+	width: 100%;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	padding: 1.5rem;
+}
+
+/* =========================================================
+ * Site Logo shortcode  ([site_logo] → .sc-site-logo)
+ * ========================================================= */
+.sc-site-logo { display: inline-flex; align-items: center; }
+.sc-site-logo__img { display: block; height: auto; max-width: 100%; }
+.sc-site-logo__title { font-size: 1.5rem; font-weight: 700; text-decoration: none; }
+.sc-site-logo.text-center { justify-content: center; width: 100%; }
+.sc-site-logo.text-end    { justify-content: flex-end; width: 100%; }
+
+/* =========================================================
+ * Search shortcode  ([site_search] → .sc-site-search)
+ * ========================================================= */
+.sc-site-search { display: inline-flex; align-items: center; }
+.sc-search-form { display: flex; align-items: center; }
+.sc-search-field {
+	border: 1px solid rgba(0, 0, 0, .2);
+	border-radius: .375rem 0 0 .375rem;
+	padding: .4rem .75rem;
+	min-width: 0;
+}
+.sc-search-submit {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid rgba(0, 0, 0, .2);
+	border-left: 0;
+	border-radius: 0 .375rem .375rem 0;
+	background: transparent;
+	padding: .4rem .6rem;
+	cursor: pointer;
+	color: inherit;
+}
+.sc-site-search--icon-toggle { position: relative; }
+.sc-search-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: 0;
+	padding: .4rem;
+	cursor: pointer;
+	color: inherit;
+}
+.sc-search-panel {
+	position: absolute;
+	top: calc(100% + .5rem);
+	right: 0;
+	z-index: 1000;
+	background: #fff;
+	padding: .75rem;
+	border-radius: .5rem;
+	box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .15);
+}
+.sc-search-panel[hidden] { display: none; }
+
+/* =========================================================
+ * Social Icons shortcode  ([social_icons] → .sc-social)
+ * ========================================================= */
+.sc-social {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .75rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.sc-social__link { display: inline-flex; align-items: center; justify-content: center; color: inherit; text-decoration: none; }
+.sc-social--sm { font-size: 1rem; }
+.sc-social--md { font-size: 1.25rem; }
+.sc-social--lg { font-size: 1.5rem; }
+
+/* Builder Section escape-hatch wrapper */
+.up-builder-section { width: 100%; }
+
+/* Spacer + Divider header elements */
+.header-element--spacer { flex: 1 1 auto; }
+.header-spacer { display: block; flex: 1 1 auto; min-width: 1rem; }
+.header-divider {
+	display: inline-block;
+	align-self: stretch;
+	width: 1px;
+	min-height: 1.25rem;
+	margin: 0 .25rem;
+	background: currentColor;
+	opacity: .25;
+}
+
+/* =========================================================
+ * Slot header — Bottom Bar row (mirrors .header-topbar in style.css)
+ * ========================================================= */
+.header-bottombar {
+	background-color: var(--bottombar-bg, transparent);
+	color: var(--bottombar-color, inherit);
+	border-top: 1px solid rgba(0, 0, 0, .06);
+	font-size: .9375rem;
+}
+.header-bottombar a { color: inherit; }
+.header-bottombar a:hover { opacity: .85; }
+
+.header-bottombar .header-row {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	gap: 1rem;
+	min-height: 2.75rem;
+}
+.header-bottombar .header-col--start  { justify-self: start;  min-width: 0; }
+.header-bottombar .header-col--center { justify-self: center; min-width: 0; }
+.header-bottombar .header-col--end    { justify-self: end;    min-width: 0; }
+
+@media (max-width: 767.98px) {
+	.header-bottombar .header-row { grid-template-columns: 1fr; gap: .25rem; text-align: center; }
+	.header-bottombar .header-col { justify-self: center; }
+}
+
+/* =========================================================
+ * Builder header TYPES  (<header class="site-header site-header--{type}">)
+ * ========================================================= */
+.site-header .up-builder-section { width: 100%; }
+
+/* Off-canvas: the visible bar shows the toggle; nav lives in the drawer. */
+.site-header--off-canvas .menu-toggle { display: inline-flex; }
+
+/* Sidebar: fixed vertical column on desktop (base — refine per project). */
+@media (min-width: 992px) {
+	.site-header--sidebar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		width: 280px;
+		z-index: 1031;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+	}
+}
+
+/* Transparent overlay over the first section; solidifies once stuck. */
+.site-header--transparent {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 1030;
+	background: transparent;
+}
+.site-header--transparent.is-stuck {
+	position: fixed;
+	background: #fff;
+	box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .08);
+}
+
+/* =========================================================
+ * Builder header BEHAVIORS  (data-hf-behavior on <header>)
+ * ========================================================= */
+
+/* Sticky base — reuses the existing .header-sticky → .is-stuck observer. */
+.site-header.header-sticky { position: sticky; top: 0; z-index: 1030; }
+.site-header.header-sticky.is-stuck:not(.site-header--transparent) {
+	background: #fff;
+	box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .08);
+}
+
+/* Sticky + shrink */
+.site-header[data-hf-behavior="sticky-shrink"] { transition: padding .2s ease; }
+.site-header[data-hf-behavior="sticky-shrink"].is-stuck { padding-top: .25rem; padding-bottom: .25rem; }
+.site-header[data-hf-behavior="sticky-shrink"] .sc-site-logo__img { transition: max-height .2s ease; }
+.site-header[data-hf-behavior="sticky-shrink"].is-stuck .sc-site-logo__img { max-height: 40px; }
+
+/* Hide on scroll down (header-behaviors.js toggles .is-hidden) */
+.site-header[data-hf-behavior="hide-on-scroll"] { transition: transform .3s ease; will-change: transform; }
+.site-header[data-hf-behavior="hide-on-scroll"].is-hidden { transform: translateY(-100%); }
+
+/* =========================================================
+ * Responsive — per-element visibility + collapse breakpoint + mobile height
+ * ========================================================= */
+
+/* Per-element "Hide On" (header + footer elements). */
+@media (max-width: 767.98px) {
+	.header-element.hide-xs,
+	.footer-element.hide-xs { display: none !important; }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+	.header-element.hide-sm,
+	.footer-element.hide-sm { display: none !important; }
+}
+@media (min-width: 992px) {
+	.header-element.hide-md,
+	.footer-element.hide-md { display: none !important; }
+}
+
+/* Collapse-to-mobile-menu at 768px (header-collapse-md). The default
+   header-collapse-lg keeps the theme's built-in 992px behavior, so it needs no
+   override here. Higher specificity than the base rules wins regardless of load
+   order. */
+@media (min-width: 768px) {
+	.site-header.header-collapse-md .header-col--center { display: flex; }
+	.site-header.header-collapse-md .menu-toggle { display: none; }
+}
+@media (max-width: 767.98px) {
+	.site-header.header-collapse-md .header-col--center { display: none; }
+	.site-header.header-collapse-md .menu-toggle { display: inline-flex; }
+}
+
+/* Mobile main-header height (falls back to the desktop height when unset). */
+@media (max-width: 767.98px) {
+	.header-main { min-height: var(--header-min-height-mobile, var(--header-min-height)); }
+}
+
+/* ============================================================
+   Primary nav — regular dropdowns + Mega Menu support (shared base for child
+   themes; children render the menu inside .upw-nav-links > ul.upw-menu). Dropdown
+   rules use STRICT child combinators from the menu UL so they never reach the Mega
+   Menu extension's internal .sub-menu (which lives inside a .mega-menu div).
+   ============================================================ */
+.upw-nav-links .menu-item-has-children { position: relative; }
+.upw-nav-links > ul > li.menu-item-has-children > .sub-menu {
+	position: absolute; top: 100%; left: 0; z-index: 200;
+	min-width: 210px; margin: .45rem 0 0; padding: .4rem;
+	list-style: none; background: #fff;
+	border: 1px solid rgba(20,22,26,.08); border-radius: 12px;
+	box-shadow: 0 16px 40px rgba(20,22,26,.14);
+	opacity: 0; visibility: hidden; transform: translateY(6px);
+	transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+}
+.upw-nav-links > ul > li.menu-item-has-children:hover > .sub-menu,
+.upw-nav-links > ul > li.menu-item-has-children:focus-within > .sub-menu {
+	opacity: 1; visibility: visible; transform: translateY(0); transition-delay: 0s;
+}
+.upw-nav-links > ul > li > .sub-menu li { list-style: none; }
+.upw-nav-links > ul > li > .sub-menu a {
+	display: block; padding: .5rem .8rem; border-radius: 8px;
+	white-space: nowrap; font-weight: 500; text-decoration: none; color: #1c1e22;
+}
+.upw-nav-links > ul > li > .sub-menu a::after { display: none; }
+.upw-nav-links > ul > li > .sub-menu a:hover,
+.upw-nav-links > ul > li > .sub-menu .current-menu-item > a { background: rgba(20,22,26,.05); }
+
+/* Mega Menu (FW Mega Menu extension) — the extension positions the full-width
+   panel; the theme just makes it readable on its light surface. */
+.upw-header .mega-menu, .site-header .mega-menu { padding-top: 1.6rem; padding-bottom: 1.9rem; }
+.upw-header .mega-menu .mega-menu-col > a, .site-header .mega-menu .mega-menu-col > a { color: #1c1e22; font-weight: 700; font-size: .95rem; }
+.upw-header .mega-menu .mega-menu-col > .sub-menu a, .site-header .mega-menu .mega-menu-col > .sub-menu a { color: #5f6266; font-weight: 500; }
+.upw-header .mega-menu a:hover, .site-header .mega-menu a:hover { color: #1a8f74; }
+.upw-header .mega-menu a::after, .site-header .mega-menu a::after { display: none; }

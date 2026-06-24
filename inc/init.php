@@ -37,6 +37,22 @@ class Theme_Includes {
         self::$initialized = true;
 
         /**
+         * Hard dependency: the UnysonPlus plugin (the Unyson+ framework, which
+         * defines the `FW` constant). Most of the theme's `inc/includes/*.php`
+         * files start with `if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }`,
+         * so auto-including them with the plugin inactive halts the whole page
+         * (the "Forbidden" white screen — e.g. when the theme is activated
+         * BEFORE the plugin). Bail out before loading any framework-dependent
+         * file: instead surface the TGMPA "required plugin" installer + an admin
+         * notice so the user can install/activate UnysonPlus, then load fully on
+         * the next request once `FW` is available.
+         */
+        if (!defined('FW')) {
+            self::bootstrap_without_framework();
+            return;
+        }
+
+        /**
          * Only frontend
          */
         if (!is_admin()) {
@@ -69,6 +85,88 @@ class Theme_Includes {
 
         add_action('init', [__CLASS__, '_action_init']);
         add_action('widgets_init', [__CLASS__, '_action_widgets_init']);
+    }
+
+    /**
+     * Loaded in place of the normal theme includes when the UnysonPlus plugin
+     * (the `FW` framework) is not active. Keeps wp-admin usable and prompts the
+     * user to install/activate the required plugin instead of fatally dying.
+     *
+     * @internal
+     */
+    private static function bootstrap_without_framework(): void {
+        // TGMPA already registers UnysonPlus as a required plugin (see
+        // inc/classes/tgm-plugins.php). Load it directly so the one-click
+        // installer + nag notice still appear even though the rest of the
+        // (framework-dependent) theme is skipped. TGMPA itself has no FW deps.
+        $tgmpa_class = self::get_parent_path('/classes/class-tgm-plugin-activation.php');
+        $tgmpa_reg   = self::get_parent_path('/classes/tgm-plugins.php');
+        if (file_exists($tgmpa_class)) require_once $tgmpa_class;
+        if (file_exists($tgmpa_reg))   require_once $tgmpa_reg;
+
+        // Belt-and-suspenders: a plain admin notice in case TGMPA is unavailable.
+        add_action('admin_notices', [__CLASS__, '_notice_requires_unysonplus']);
+
+        // The front-end templates call theme/framework helpers that we just
+        // skipped, so rendering them would fatal (HTTP 500). Short-circuit with
+        // a clean "requires plugin" screen (503) instead of a white error page.
+        if (!is_admin()) {
+            add_action('template_redirect', [__CLASS__, '_frontend_dependency_screen'], 0);
+        }
+    }
+
+    /**
+     * Minimal front-end screen shown when the UnysonPlus plugin is missing, in
+     * place of the theme's (now un-loadable) templates. Admins get an actionable
+     * link to the dashboard; visitors get a generic "temporarily unavailable".
+     *
+     * @internal
+     */
+    public static function _frontend_dependency_screen(): void {
+        if (!headers_sent()) {
+            status_header(503);
+            nocache_headers();
+            header('Content-Type: text/html; charset=utf-8');
+            header('Retry-After: 3600');
+        }
+
+        $is_admin_user = current_user_can('install_plugins') || current_user_can('switch_themes');
+        $title   = esc_html__('Site temporarily unavailable', 'unysonplus');
+        $message = $is_admin_user
+            ? esc_html__('The active theme (Unyson+) requires the UnysonPlus plugin, which is not active. Install or activate it to bring the site back online.', 'unysonplus')
+            : esc_html__('The site is undergoing maintenance and will be back shortly.', 'unysonplus');
+        $action  = $is_admin_user
+            ? '<p style="margin-top:1.5rem"><a href="' . esc_url(admin_url('themes.php?page=tgmpa-install-plugins'))
+                . '" style="display:inline-block;padding:.6rem 1.1rem;background:#0d6efd;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">'
+                . esc_html__('Install UnysonPlus', 'unysonplus') . '</a></p>'
+            : '';
+
+        echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            . '<title>' . $title . '</title></head>'
+            . '<body style="margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f6f7f9;color:#212529;display:flex;min-height:100vh;align-items:center;justify-content:center">'
+            . '<div style="max-width:30rem;padding:2rem;text-align:center">'
+            . '<h1 style="font-size:1.4rem;margin:0 0 .75rem">' . $title . '</h1>'
+            . '<p style="margin:0;color:#6c757d;line-height:1.6">' . $message . '</p>'
+            . $action
+            . '</div></body></html>';
+        exit;
+    }
+
+    /**
+     * Fallback admin notice shown when the UnysonPlus plugin is missing.
+     *
+     * @internal
+     */
+    public static function _notice_requires_unysonplus(): void {
+        if (!current_user_can('install_plugins') && !current_user_can('activate_plugins')) {
+            return;
+        }
+        $install_url = admin_url('themes.php?page=tgmpa-install-plugins');
+        echo '<div class="notice notice-error"><p><strong>'
+            . esc_html__('Unyson+ Theme', 'unysonplus') . '</strong> &mdash; '
+            . esc_html__('this theme requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active. The theme’s features stay disabled until then.', 'unysonplus')
+            . ' <a href="' . esc_url($install_url) . '">'
+            . esc_html__('Install UnysonPlus', 'unysonplus') . '</a></p></div>';
     }
 
     private static function get_rel_path(string $append = ''): string {
@@ -140,7 +238,7 @@ class Theme_Includes {
      */
     public static function _action_init(): void {
         self::include_child_first('/menus.php');
-        //self::include_child_first('/post-types.php');
+        self::include_child_first('/post-types.php');
         //self::include_child_first('/optimization.php');
     }
 

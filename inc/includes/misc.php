@@ -126,14 +126,9 @@ function unysonplus_render_scroll_top_button() {
 	}
 	$offset_val = max( 0, $offset_val );
 	$text       = unysonplus_misc_get( 'scroll_top_text', '' );
-	$bg         = unysonplus_misc_get( 'scroll_top_bg_color', '' );
-	$fg         = unysonplus_misc_get( 'scroll_top_text_color', '#ffffff' );
 
-	$style_parts = array();
-	if ( $bg !== '' ) { $style_parts[] = 'background-color:' . $bg; }
-	if ( $fg !== '' ) { $style_parts[] = 'color:' . $fg; }
-	$style_attr = $style_parts ? ' style="' . esc_attr( implode( ';', $style_parts ) ) . '"' : '';
-
+	// Button colors (scroll_top_bg_color / scroll_top_text_color) are emitted to
+	// the generated CSS file as a .scroll-to-top rule — no inline style here.
 	$position = ( $position === 'left' ) ? 'left' : 'right';
 	?>
 	<button type="button"
@@ -141,7 +136,7 @@ function unysonplus_render_scroll_top_button() {
 	        data-offset="<?php echo esc_attr( $offset_val ); ?>"
 	        data-offset-unit="<?php echo esc_attr( $offset_unit ); ?>"
 	        aria-label="<?php esc_attr_e( 'Scroll to top', 'unysonplus' ); ?>"
-	        hidden<?php echo $style_attr; ?>>
+	        hidden>
 		<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
 			<path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
 		</svg>

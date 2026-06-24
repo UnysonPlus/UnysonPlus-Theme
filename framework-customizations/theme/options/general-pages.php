@@ -16,12 +16,33 @@
  * here, but assigning a Template Name to a page still wins.
  */
 
+$header_preset_choices = [ '' => __( 'Default (Theme Settings header)', 'unysonplus' ) ];
+$footer_preset_choices = [ '' => __( 'Default (Theme Settings footer)', 'unysonplus' ) ];
+if ( function_exists( 'unysonplus_preset_choices' ) ) {
+	$header_preset_choices += unysonplus_preset_choices( 'up_header' );
+	$footer_preset_choices += unysonplus_preset_choices( 'up_footer' );
+}
+
 $options = [
 	'general_pages' => [
 		'type'   => 'multi',
 		'label'  => false,
 		'desc'   => false,
 		'inner-options' => [
+			'default_header_preset' => [
+				'label'   => __( 'Site-Wide Header Preset', 'unysonplus' ),
+				'desc'    => __( 'Use a Header Preset across the whole site by default. Per-content selections (Header & Footer box on a page/post) still override this. "Default" uses the header configured under Theme Settings → Header.', 'unysonplus' ),
+				'type'    => 'select',
+				'value'   => '',
+				'choices' => $header_preset_choices,
+			],
+			'default_footer_preset' => [
+				'label'   => __( 'Site-Wide Footer Preset', 'unysonplus' ),
+				'desc'    => __( 'Use a Footer Preset across the whole site by default. Per-content selections still override this. "Default" uses the footer configured under Theme Settings → Footer.', 'unysonplus' ),
+				'type'    => 'select',
+				'value'   => '',
+				'choices' => $footer_preset_choices,
+			],
 			'default_page_layout' => [
 				'label'   => __( 'Default Page Layout', 'unysonplus' ),
 				'desc'    => __( 'Which named template should the default page.php behave like? Per-page Template selections still override this.', 'unysonplus' ),

@@ -1,17 +1,27 @@
 <?php if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
 
 /**
- * Theme bridge — emits <style id="unysonplus-tokens">…</style> in <head> with
- * h1-h6 + body typography tokens.
+ * Theme bridge — typography tokens (h1-h6 + body) as CSS custom properties.
+ *
+ * On the FRONT END these are compiled into the generated CSS file by
+ * inc/includes/hf-custom-css.php (no inline <style>). In the ADMIN they are still
+ * emitted inline on admin_head so the page-builder editor preview stays live.
  *
  * Font Size + Color preset tokens are emitted by the plugin in a separate
  * <style id="unysonplus-presets"> block (see unysonplus/framework/includes/css-tokens.php).
  */
 
-if ( ! function_exists( 'unysonplus_emit_css_tokens' ) ) :
-	function unysonplus_emit_css_tokens() {
+if ( ! function_exists( 'unysonplus_css_tokens_css' ) ) :
+	/**
+	 * Build the typography token CSS (minified `:root{}` + mobile media query),
+	 * with no <style> wrapper. Returns '' when there are no tokens.
+	 *
+	 * @return string
+	 */
+	function unysonplus_css_tokens_css() {
+		if ( ! function_exists( 'fw_get_db_settings_option' ) ) { return ''; }
 		$typography = fw_get_db_settings_option( 'typography', array() );
-		if ( empty( $typography ) ) { return; }
+		if ( empty( $typography ) ) { return ''; }
 
 		$tokens  = array();
 		$targets = array( 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'body' );
@@ -21,7 +31,7 @@ if ( ! function_exists( 'unysonplus_emit_css_tokens' ) ) :
 			$tokens = array_merge( $tokens, unysonplus_typography_to_vars( $typography[ $t ], $t ) );
 		}
 
-		if ( empty( $tokens ) ) { return; }
+		if ( empty( $tokens ) ) { return ''; }
 
 		// Mobile overrides for typography font-size tokens (tiered scaling, shared with plugin)
 		$mobile_overrides = array();
@@ -37,33 +47,26 @@ if ( ! function_exists( 'unysonplus_emit_css_tokens' ) ) :
 			}
 		}
 
-		$pretty = ( defined( 'WP_DEBUG' ) && WP_DEBUG );
-
-		if ( $pretty ) {
-			echo "\n<style id=\"unysonplus-tokens\">\n:root {\n";
-			foreach ( $tokens as $name => $value ) {
-				echo "\t{$name}: {$value};\n";
-			}
-			echo "}\n";
-			if ( ! empty( $mobile_overrides ) ) {
-				echo "@media (max-width: 767.98px) {\n\t:root {\n";
-				foreach ( $mobile_overrides as $name => $value ) { echo "\t\t{$name}: {$value};\n"; }
-				echo "\t}\n}\n";
-			}
-			echo "</style>\n";
-		} else {
-			$css = ':root{';
-			foreach ( $tokens as $name => $value ) {
-				$css .= $name . ':' . $value . ';';
-			}
-			$css .= '}';
-			if ( ! empty( $mobile_overrides ) ) {
-				$css .= '@media (max-width:767.98px){:root{';
-				foreach ( $mobile_overrides as $name => $value ) { $css .= $name . ':' . $value . ';'; }
-				$css .= '}}';
-			}
-			echo '<style id="unysonplus-tokens">' . $css . '</style>';
+		$css = ':root{';
+		foreach ( $tokens as $name => $value ) {
+			$css .= $name . ':' . $value . ';';
 		}
+		$css .= '}';
+		if ( ! empty( $mobile_overrides ) ) {
+			$css .= '@media (max-width:767.98px){:root{';
+			foreach ( $mobile_overrides as $name => $value ) { $css .= $name . ':' . $value . ';'; }
+			$css .= '}}';
+		}
+		return $css;
+	}
+endif;
+
+if ( ! function_exists( 'unysonplus_emit_css_tokens' ) ) :
+	/** Inline emitter — admin only (front end uses the generated file). */
+	function unysonplus_emit_css_tokens() {
+		$css = unysonplus_css_tokens_css();
+		if ( $css === '' ) { return; }
+		echo '<style id="unysonplus-tokens">' . $css . '</style>'; // phpcs:ignore — CSS, values sanitized upstream
 	}
 endif;
 

@@ -1,12 +1,21 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { die( 'Forbidden' ); }
 
 /**
- * General → Layout sub-tab runtime.
+ * General → Layout / Sidebar / Preloader / Scrolling sub-tab runtime.
  *
- * Reads options stored under the `general_layout` multi key (defined in
- * framework-customizations/theme/options/general-layout.php) and wires
- * them into WordPress via body classes, theme-var emissions, and
+ * Reads options stored under the `general_layout`, `general_sidebar`,
+ * `general_preloader` and `general_scroll` multi keys (defined in
+ * framework-customizations/theme/options/general-{layout,sidebar,preloader,scroll}.php)
+ * and wires them into WordPress via body classes, theme-var emissions, and
  * preloader / scroll-progress hooks.
+ *
+ * The General → Layout tab was split into separate sub-tabs (Layout / Sidebar /
+ * Preloader / Scrolling), each with its own storage key, and the header
+ * layout-mode / vertical-rail-width controls moved to Header → Layout
+ * (`header_layout`). `unysonplus_layout_get()` merges the general_* keys so every
+ * read site keeps using the same key names;
+ * `unysonplus_migrate_layout_settings()` moves existing saved values into their
+ * new homes.
  */
 
 /* ============================================================
@@ -15,7 +24,12 @@
 
 if ( ! function_exists( 'unysonplus_layout_get' ) ) :
 /**
- * Read one key from the general_layout option group.
+ * Read one key from the merged general layout option groups.
+ *
+ * Merges `general_layout`, `general_sidebar`, `general_preloader` and
+ * `general_scroll` (later keys win) so callers can keep reading
+ * `layout_sidebar_*` / `layout_preloader_*` / `layout_*scroll*` regardless of
+ * which sub-tab now owns them.
  *
  * @param string $key     Inner-option key (e.g. 'site_width_mode').
  * @param mixed  $default Returned when Unyson is inactive or the key is empty.
@@ -25,11 +39,12 @@ function unysonplus_layout_get( $key, $default = '' ) {
 	static $cache = null;
 
 	if ( $cache === null ) {
+		$cache = array();
 		if ( function_exists( 'fw_get_db_settings_option' ) ) {
-			$raw   = fw_get_db_settings_option( 'general_layout', array() );
-			$cache = is_array( $raw ) ? $raw : array();
-		} else {
-			$cache = array();
+			foreach ( array( 'general_layout', 'general_sidebar', 'general_preloader', 'general_scroll' ) as $opt ) {
+				$raw = fw_get_db_settings_option( $opt, array() );
+				if ( is_array( $raw ) ) { $cache = array_merge( $cache, $raw ); }
+			}
 		}
 	}
 
@@ -39,6 +54,118 @@ function unysonplus_layout_get( $key, $default = '' ) {
 	return $val;
 }
 endif;
+
+if ( ! function_exists( 'unysonplus_header_layout_get' ) ) :
+/**
+ * Read one key from the `header_layout` option group (Header → Layout).
+ *
+ * Used for the relocated `header_mode` / `vertical_width` controls. Falls back to
+ * the caller-supplied default, which the call sites set to the legacy
+ * general_layout value so pre-migration installs still render correctly.
+ *
+ * @param string $key
+ * @param mixed  $default
+ * @return mixed
+ */
+function unysonplus_header_layout_get( $key, $default = '' ) {
+	static $cache = null;
+
+	if ( $cache === null ) {
+		$raw   = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'header_layout', array() ) : array();
+		$cache = is_array( $raw ) ? $raw : array();
+	}
+
+	if ( ! array_key_exists( $key, $cache ) ) { return $default; }
+	$val = $cache[ $key ];
+	if ( $val === '' || $val === null ) { return $default; }
+	return $val;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_migrate_layout_settings' ) ) :
+/**
+ * One-time migration: distribute the old single `general_layout` blob into the
+ * new per-tab storage keys after the General → Layout tab was split.
+ *
+ *  - sidebar keys   → `general_sidebar`
+ *  - preloader keys → `general_preloader`
+ *  - scroll keys    → `general_scroll`
+ *  - header_mode / vertical_width → `header_layout` (renamed to header_mode /
+ *    vertical_width)
+ *  - drops the deprecated `layout_header_position` (superseded by Header →
+ *    Layout → Header Behavior) and the unused `layout_mobile_breakpoint`.
+ *
+ * Idempotent + self-terminating: once the moved keys are gone from
+ * `general_layout` there is nothing left to do, so it stops rewriting.
+ */
+function unysonplus_migrate_layout_settings() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) || ! function_exists( 'fw_set_db_settings_option' ) ) {
+		return;
+	}
+
+	$general = fw_get_db_settings_option( 'general_layout', array() );
+	if ( ! is_array( $general ) ) { return; }
+
+	$sidebar_keys   = array( 'layout_sidebar_position', 'layout_sidebar_width', 'layout_sidebar_gap', 'layout_sidebar_sticky' );
+	$preloader_keys = array( 'layout_preloader_style', 'layout_preloader_bg_color' );
+	$scroll_keys    = array( 'layout_smooth_scroll', 'layout_scroll_progress', 'layout_scroll_progress_color' );
+	$header_map     = array( 'layout_header_mode' => 'header_mode', 'layout_vertical_width' => 'vertical_width' );
+	$drop_keys      = array( 'layout_header_position', 'layout_mobile_breakpoint' );
+
+	// Nothing to migrate? bail (this is the steady state).
+	$present = false;
+	foreach ( array_merge( $sidebar_keys, $preloader_keys, $scroll_keys, array_keys( $header_map ), $drop_keys ) as $k ) {
+		if ( array_key_exists( $k, $general ) ) { $present = true; break; }
+	}
+	if ( ! $present ) { return; }
+
+	$sidebar = fw_get_db_settings_option( 'general_sidebar', array() );
+	if ( ! is_array( $sidebar ) ) { $sidebar = array(); }
+	foreach ( $sidebar_keys as $k ) {
+		if ( array_key_exists( $k, $general ) ) {
+			if ( ! array_key_exists( $k, $sidebar ) ) { $sidebar[ $k ] = $general[ $k ]; }
+			unset( $general[ $k ] );
+		}
+	}
+
+	$preloader = fw_get_db_settings_option( 'general_preloader', array() );
+	if ( ! is_array( $preloader ) ) { $preloader = array(); }
+	foreach ( $preloader_keys as $k ) {
+		if ( array_key_exists( $k, $general ) ) {
+			if ( ! array_key_exists( $k, $preloader ) ) { $preloader[ $k ] = $general[ $k ]; }
+			unset( $general[ $k ] );
+		}
+	}
+
+	$scroll = fw_get_db_settings_option( 'general_scroll', array() );
+	if ( ! is_array( $scroll ) ) { $scroll = array(); }
+	foreach ( $scroll_keys as $k ) {
+		if ( array_key_exists( $k, $general ) ) {
+			if ( ! array_key_exists( $k, $scroll ) ) { $scroll[ $k ] = $general[ $k ]; }
+			unset( $general[ $k ] );
+		}
+	}
+
+	$header = fw_get_db_settings_option( 'header_layout', array() );
+	if ( ! is_array( $header ) ) { $header = array(); }
+	foreach ( $header_map as $old => $new ) {
+		if ( array_key_exists( $old, $general ) ) {
+			if ( ! array_key_exists( $new, $header ) ) { $header[ $new ] = $general[ $old ]; }
+			unset( $general[ $old ] );
+		}
+	}
+
+	foreach ( $drop_keys as $k ) { unset( $general[ $k ] ); }
+
+	fw_set_db_settings_option( 'general_layout', $general );
+	fw_set_db_settings_option( 'general_sidebar', $sidebar );
+	fw_set_db_settings_option( 'general_preloader', $preloader );
+	fw_set_db_settings_option( 'general_scroll', $scroll );
+	fw_set_db_settings_option( 'header_layout', $header );
+}
+endif;
+// Invoked by the central schema-migration runner (inc/includes/migrations.php),
+// not hooked directly. Kept idempotent so a re-run is a safe no-op.
 
 
 /* ============================================================
@@ -123,6 +250,26 @@ function unysonplus_get_page_meta( $key ) {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_get_singular_meta' ) ) :
+/**
+ * Read a per-content meta value on ANY singular view (page, post, or CPT),
+ * returning null when unset / empty / 'default'. Used for the header/footer
+ * preset keys, which — unlike the page-only layout keys above — apply to all
+ * singular content. Reads the queried object so it is correct in the header /
+ * footer templates regardless of the inner loop state.
+ */
+function unysonplus_get_singular_meta( $key ) {
+	if ( ! function_exists( 'fw_get_db_post_option' ) ) { return null; }
+	if ( ! is_singular() ) { return null; }
+	$pid = get_queried_object_id();
+	if ( ! $pid ) { $pid = get_the_ID(); }
+	if ( ! $pid ) { return null; }
+	$val = fw_get_db_post_option( $pid, $key );
+	if ( $val === null || $val === '' || $val === 'default' ) { return null; }
+	return $val;
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_resolve_layout' ) ) :
 /**
  * Resolve a layout key through the 5-level priority cascade.
@@ -132,6 +279,18 @@ if ( ! function_exists( 'unysonplus_resolve_layout' ) ) :
  * @return mixed
  */
 function unysonplus_resolve_layout( $key, $default = null ) {
+	// Header / footer preset keys resolve independently of the page-only cascade
+	// below: a preset can be set on any singular content, plus a site-wide
+	// default that applies everywhere (incl. archives / posts).
+	//   per-content meta  →  site-wide default (General → Pages)  →  $default ('')
+	if ( $key === 'header_preset' || $key === 'footer_preset' ) {
+		$meta = unysonplus_get_singular_meta( $key );
+		if ( $meta !== null ) { return $meta; }
+		$gd = unysonplus_pages_get( 'default_' . $key, '' ); // default_header_preset | default_footer_preset
+		if ( $gd !== '' && $gd !== null ) { return $gd; }
+		return $default;
+	}
+
 	// 1. Per-page meta override (Phase 2).
 	$meta_map = array(
 		'sidebar'     => 'sidebar_override',
@@ -199,17 +358,99 @@ endif;
  * Body classes
  * ============================================================ */
 
+if ( ! function_exists( 'unysonplus_width_get' ) ) :
+/**
+ * Read a value from the `site_width_mode` multi-picker.
+ *
+ * Stored shape: [ 'mode' => 'full|boxed|framed', 'boxed' => [ … ], 'framed' => [ … ] ].
+ * Tolerates the legacy flat shape (mode as a bare string + sub-options stored at
+ * the top level of general_layout) so reads work before the migration runs.
+ *
+ * @param string $key     'mode' or a sub-option id (site_boxed_* / site_frame_*).
+ * @param mixed  $default
+ * @return mixed
+ */
+function unysonplus_width_get( $key, $default = '' ) {
+	$wm = unysonplus_layout_get( 'site_width_mode', null );
+
+	if ( ! is_array( $wm ) ) { // legacy flat
+		if ( $key === 'mode' ) {
+			return ( $wm !== null && $wm !== '' ) ? $wm : $default;
+		}
+		return unysonplus_layout_get( $key, $default );
+	}
+
+	if ( $key === 'mode' ) {
+		return ! empty( $wm['mode'] ) ? $wm['mode'] : $default;
+	}
+
+	$group = ( strpos( $key, 'site_boxed' ) === 0 ) ? 'boxed' : 'framed';
+	if ( isset( $wm[ $group ][ $key ] ) && $wm[ $group ][ $key ] !== '' && $wm[ $group ][ $key ] !== null ) {
+		return $wm[ $group ][ $key ];
+	}
+	return unysonplus_layout_get( $key, $default ); // legacy flat fallback
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_migrate_width_mode' ) ) :
+/**
+ * Schema migration (v3): convert the legacy flat Site Width Mode (a string +
+ * top-level boxed/frame sub-options) into the `site_width_mode` multi-picker
+ * shape, and drop the removed (broken) `layout_container_max_width` option.
+ * Idempotent. Invoked by the central runner (inc/includes/migrations.php).
+ */
+function unysonplus_migrate_width_mode() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) || ! function_exists( 'fw_set_db_settings_option' ) ) {
+		return;
+	}
+	$gl = fw_get_db_settings_option( 'general_layout', array() );
+	if ( ! is_array( $gl ) ) { return; }
+
+	$changed = false;
+	$wm      = isset( $gl['site_width_mode'] ) ? $gl['site_width_mode'] : null;
+
+	if ( ! is_array( $wm ) ) {
+		$mode   = ( $wm !== null && $wm !== '' ) ? $wm : 'full';
+		$nested = array( 'mode' => $mode );
+
+		$boxed = array();
+		foreach ( array( 'site_boxed_width', 'site_boxed_alignment', 'site_boxed_margin' ) as $k ) {
+			if ( array_key_exists( $k, $gl ) ) { $boxed[ $k ] = $gl[ $k ]; unset( $gl[ $k ] ); }
+		}
+		if ( $boxed ) { $nested['boxed'] = $boxed; }
+
+		$framed = array();
+		foreach ( array( 'site_frame_width', 'site_frame_color' ) as $k ) {
+			if ( array_key_exists( $k, $gl ) ) { $framed[ $k ] = $gl[ $k ]; unset( $gl[ $k ] ); }
+		}
+		if ( $framed ) { $nested['framed'] = $framed; }
+
+		$gl['site_width_mode'] = $nested;
+		$changed = true;
+	}
+
+	if ( array_key_exists( 'layout_container_max_width', $gl ) ) {
+		unset( $gl['layout_container_max_width'] );
+		$changed = true;
+	}
+
+	if ( $changed ) {
+		fw_set_db_settings_option( 'general_layout', $gl );
+	}
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_layout_body_classes' ) ) :
 function unysonplus_layout_body_classes( $classes ) {
-	// Site width mode
-	$width_mode = unysonplus_layout_get( 'site_width_mode', 'full' );
+	// Site width mode (read from the multi-picker; legacy flat tolerated).
+	$width_mode = unysonplus_width_get( 'mode', 'full' );
 	if ( ! in_array( $width_mode, array( 'full', 'boxed', 'framed' ), true ) ) {
 		$width_mode = 'full';
 	}
 	$classes[] = 'site-' . $width_mode;
 
 	if ( $width_mode === 'boxed' ) {
-		$align = unysonplus_layout_get( 'site_boxed_alignment', 'center' );
+		$align = unysonplus_width_get( 'site_boxed_alignment', 'center' );
 		if ( ! in_array( $align, array( 'left', 'center', 'right' ), true ) ) { $align = 'center'; }
 		$classes[] = 'site-boxed--' . $align;
 	}
@@ -223,18 +464,12 @@ function unysonplus_layout_body_classes( $classes ) {
 	if ( ! in_array( $spacing, array( 'compact', 'cozy', 'spacious' ), true ) ) { $spacing = 'cozy'; }
 	$classes[] = 'spacing-' . $spacing;
 
-	// Header layout mode (Phase 6 will style these; class is emitted now for forward compat)
-	$header_mode = unysonplus_layout_get( 'layout_header_mode', 'top' );
+	// Header layout mode (now owned by Header → Layout; legacy general_layout
+	// value is the fallback for pre-migration installs).
+	$header_mode = unysonplus_header_layout_get( 'header_mode', unysonplus_layout_get( 'layout_header_mode', 'top' ) );
 	$valid_modes = array( 'top', 'vertical-left', 'vertical-right', 'off-canvas-only', 'overlay' );
 	if ( ! in_array( $header_mode, $valid_modes, true ) ) { $header_mode = 'top'; }
 	$classes[] = 'layout-' . $header_mode;
-
-	// Header position behavior
-	$header_pos = unysonplus_layout_get( 'layout_header_position', 'static' );
-	$valid_pos  = array( 'static', 'sticky', 'transparent-overlay-first-section' );
-	if ( in_array( $header_pos, $valid_pos, true ) && $header_pos !== 'static' ) {
-		$classes[] = 'header-pos-' . $header_pos;
-	}
 
 	// Resolved sidebar position (cascade-aware: per-page meta > template > global > default).
 	$sidebar = unysonplus_resolve_layout( 'sidebar', 'right' );

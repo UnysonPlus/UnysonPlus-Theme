@@ -1,0 +1,298 @@
+/**
+ * WooCommerce compatibility styles (UnysonPlus theme).
+ *
+ * Loaded only on WooCommerce pages (see inc/includes/woocommerce.php). Keeps
+ * shop / product / cart / checkout markup aligned with the theme's container,
+ * spacing and button language. Intentionally light — it bridges WooCommerce's
+ * defaults to the theme rather than restyling the whole shop. Buttons, colors
+ * and typography inherit from the theme; tune per-site in the child theme.
+ */
+
+/* The theme wrapper already provides .container, so let WC content fill it. */
+.woocommerce .woocommerce-content,
+.woocommerce-page .woocommerce-content {
+	width: 100%;
+}
+
+/* Breathing room above the shop content below the site header. */
+.woocommerce .site-main,
+.woocommerce-page .site-main {
+	padding-top: 2rem;
+	padding-bottom: 3rem;
+}
+
+/* Result count / ordering row spacing. */
+.woocommerce .woocommerce-result-count,
+.woocommerce .woocommerce-ordering {
+	margin-bottom: 1.5rem;
+}
+
+/* ---- Product grid -------------------------------------------------------- */
+
+/* Even, responsive product grid that ignores WC's inline float widths. */
+.woocommerce ul.products,
+.woocommerce-page ul.products {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1.75rem;
+	margin: 0 0 2rem;
+	padding: 0;
+	list-style: none;
+}
+
+/* WooCommerce's clearfix pseudo-elements would otherwise become grid items
+   and occupy the first / last cell, pushing the first product off-grid. */
+.woocommerce ul.products::before,
+.woocommerce ul.products::after,
+.woocommerce-page ul.products::before,
+.woocommerce-page ul.products::after {
+	display: none;
+	content: none;
+}
+
+.woocommerce ul.products li.product,
+.woocommerce-page ul.products li.product {
+	width: auto !important;
+	margin: 0 !important;
+	float: none !important;
+	clear: none !important;
+	text-align: inherit;
+}
+
+.woocommerce ul.products li.product a img {
+	width: 100%;
+	height: auto;
+	margin-bottom: 1rem;
+	border-radius: 6px;
+}
+
+.woocommerce ul.products li.product .woocommerce-loop-product__title {
+	font-size: 1rem;
+	padding: 0.25rem 0;
+}
+
+.woocommerce ul.products li.product .price {
+	display: block;
+	margin-bottom: 0.75rem;
+}
+
+@media (max-width: 991px) {
+	.woocommerce ul.products,
+	.woocommerce-page ul.products {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.25rem;
+	}
+}
+
+@media (max-width: 575px) {
+	.woocommerce ul.products,
+	.woocommerce-page ul.products {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* ---- Single product ------------------------------------------------------ */
+
+.woocommerce div.product .product_title {
+	margin-bottom: 0.5rem;
+}
+
+.woocommerce div.product .woocommerce-product-gallery {
+	margin-bottom: 1.5rem;
+}
+
+/* ---- Buttons ------------------------------------------------------------- */
+
+/* Let theme button radius/colors lead; just normalise sizing & focus. */
+.woocommerce a.button,
+.woocommerce button.button,
+.woocommerce input.button,
+.woocommerce #respond input#submit,
+.woocommerce .button.alt {
+	border-radius: 4px;
+	line-height: 1.4;
+	transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.woocommerce a.button:hover,
+.woocommerce button.button:hover,
+.woocommerce input.button:hover {
+	opacity: 0.92;
+}
+
+/* ---- Cart / checkout / account ------------------------------------------ */
+
+.woocommerce-cart .site-main,
+.woocommerce-checkout .site-main,
+.woocommerce-account .site-main {
+	padding-top: 2rem;
+}
+
+.woocommerce table.shop_table {
+	border-radius: 6px;
+}
+
+/* WooCommerce notices keep readable spacing inside the container. */
+.woocommerce-message,
+.woocommerce-info,
+.woocommerce-error {
+	margin-bottom: 1.5rem;
+}
+
+/* ============================================================
+ * Commerce page polish — single product, cart, checkout, account.
+ * Light touches that align WooCommerce's default markup with the
+ * theme's spacing and form language without restyling everything.
+ * ============================================================ */
+
+/* ---- Single product ------------------------------------------------------ */
+
+/* Two-column gallery / summary on wider screens. */
+@media (min-width: 768px) {
+	.woocommerce div.product .woocommerce-product-gallery {
+		float: left;
+		width: 48%;
+		margin-bottom: 2rem;
+	}
+	.woocommerce div.product .summary.entry-summary {
+		float: right;
+		width: 48%;
+	}
+	.woocommerce div.product::after {
+		content: "";
+		display: block;
+		clear: both;
+	}
+}
+
+.woocommerce div.product p.price,
+.woocommerce div.product span.price {
+	font-size: 1.5rem;
+	font-weight: 600;
+}
+
+.woocommerce div.product form.cart {
+	margin: 1.5rem 0;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+}
+.woocommerce div.product form.cart .quantity { margin: 0; }
+
+/* Product data tabs — flatten into a clean strip. */
+.woocommerce div.product .woocommerce-tabs ul.tabs {
+	padding: 0;
+	margin: 0 0 1.5rem;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.woocommerce div.product .woocommerce-tabs ul.tabs::before { border: 0; }
+.woocommerce div.product .woocommerce-tabs ul.tabs li {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	margin: 0 1rem 0 0;
+	padding: 0;
+}
+.woocommerce div.product .woocommerce-tabs ul.tabs li.active {
+	border-bottom: 2px solid currentColor;
+}
+.woocommerce div.product .woocommerce-tabs ul.tabs li::before,
+.woocommerce div.product .woocommerce-tabs ul.tabs li::after { display: none; }
+.woocommerce div.product .woocommerce-tabs ul.tabs li a { padding: 0.5rem 0; }
+
+/* ---- Quantity input ------------------------------------------------------ */
+.woocommerce .quantity input.qty {
+	width: 4em;
+	height: 2.6em;
+	padding: 0.3em;
+	text-align: center;
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	border-radius: 4px;
+}
+
+/* ---- Cart ---------------------------------------------------------------- */
+.woocommerce table.shop_table {
+	border-collapse: collapse;
+	overflow: hidden;
+}
+.woocommerce table.shop_table th,
+.woocommerce table.shop_table td {
+	padding: 1rem;
+}
+.woocommerce-cart table.cart img { width: 64px; height: auto; border-radius: 4px; }
+.woocommerce .cart-collaterals .cart_totals,
+.woocommerce-page .cart-collaterals .cart_totals {
+	float: right;
+	width: 100%;
+	max-width: 420px;
+}
+.woocommerce a.remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 50%;
+	line-height: 1;
+}
+
+/* ---- Checkout ------------------------------------------------------------ */
+@media (min-width: 992px) {
+	.woocommerce .col2-set,
+	.woocommerce-page .col2-set {
+		display: flex;
+		gap: 2.5rem;
+	}
+	.woocommerce .col2-set .col-1,
+	.woocommerce .col2-set .col-2 {
+		float: none;
+		width: 50%;
+	}
+}
+.woocommerce form .form-row input.input-text,
+.woocommerce form .form-row textarea,
+.woocommerce form .form-row select,
+.woocommerce-page form .form-row input.input-text {
+	padding: 0.6em 0.75em;
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	border-radius: 4px;
+	line-height: 1.4;
+}
+.woocommerce form .form-row label { margin-bottom: 0.25rem; display: inline-block; }
+.woocommerce #payment,
+.woocommerce-checkout #payment {
+	border-radius: 6px;
+}
+
+/* ---- My Account ---------------------------------------------------------- */
+@media (min-width: 768px) {
+	.woocommerce-account .woocommerce-MyAccount-navigation {
+		float: left;
+		width: 25%;
+	}
+	.woocommerce-account .woocommerce-MyAccount-content {
+		float: right;
+		width: 70%;
+	}
+}
+.woocommerce-account .woocommerce-MyAccount-navigation ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 6px;
+	overflow: hidden;
+}
+.woocommerce-account .woocommerce-MyAccount-navigation li {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+.woocommerce-account .woocommerce-MyAccount-navigation li:last-child { border-bottom: 0; }
+.woocommerce-account .woocommerce-MyAccount-navigation li a {
+	display: block;
+	padding: 0.7rem 1rem;
+	text-decoration: none;
+}
+.woocommerce-account .woocommerce-MyAccount-navigation li.is-active a {
+	font-weight: 600;
+}

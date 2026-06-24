@@ -1,8 +1,8 @@
 <?php 
 $hide_footer_widgets = get_post_meta(get_the_ID(), 'hide-footer-widgets', true);
 if(empty($hide_footer_widgets))	{
-	$footer_widgets = fw_get_db_settings_option('footer_widgets'); 
-	if( isset($footer_widgets) && $footer_widgets['enabled'] == 'yes' ) : 
+	$footer_widgets = function_exists('fw_get_db_settings_option') ? fw_get_db_settings_option('footer_widgets') : null;
+	if( is_array($footer_widgets) && ! empty($footer_widgets['enabled']) && $footer_widgets['enabled'] == 'yes' ) :
 		$footer_widgets = $footer_widgets['yes'];
 		$column_count = $footer_widgets['style']['selected'];
 		$class[]	= $footer_widgets['container'];
@@ -11,7 +11,7 @@ if(empty($hide_footer_widgets))	{
 		if( !empty($class))			$attr['class'] = join(' ', $class);
 		?>
 		<div class="widgets">
-			<div <?php echo fw_attr_to_html($attr); ?>>
+			<div <?php echo unysonplus_attr_to_html($attr); ?>>
 			<div class="row">
 				<?php
 				switch ($column_count) {

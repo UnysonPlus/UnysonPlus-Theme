@@ -15,8 +15,14 @@ $options = [
 	fw()->theme->get_options( 'blog-settings' ),
 	fw()->theme->get_options( 'social-settings' ),
 	fw()->theme->get_options( 'footer-settings' ),
-	fw()->theme->get_options( 'misc' ),
 ];
+
+// WooCommerce settings tab — only when WooCommerce is active.
+if ( class_exists( 'WooCommerce' ) ) {
+	$options[] = fw()->theme->get_options( 'woocommerce-settings' );
+}
+
+$options[] = fw()->theme->get_options( 'misc' );
 
 /**
  * Developer Tools → "Show Demo Options" (Miscellaneous tab, off by default)

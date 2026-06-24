@@ -27,7 +27,7 @@ $options = [
 				'label' => __( 'H1 Heading', 'unysonplus' ),
 				'type'  => 'typography-v2',
 				'value'      => [
-					'family'    => 'Raleway',
+					'family'    => '',
 		//			For standard fonts, instead of subset and variation you should set 'style' and 'weight'.
 					'style' => 'normal',
 		//			'weight' => 700,
@@ -51,7 +51,7 @@ $options = [
 				'label' => __( 'H2 Heading', 'unysonplus' ),
 				'type'  => 'typography-v2',
 				'value'      => [
-					'family'    => 'Raleway',
+					'family'    => '',
 		//			For standard fonts, instead of subset and variation you should set 'style' and 'weight'.
 		//			'style' => 'italic',
 		//			'weight' => 700,
@@ -75,7 +75,7 @@ $options = [
 				'label' => __( 'H3 Heading', 'unysonplus' ),
 				'type'  => 'typography-v2',
 				'value'      => [
-					'family'    => 'Raleway',
+					'family'    => '',
 		//			For standard fonts, instead of subset and variation you should set 'style' and 'weight'.
 		//			'style' => 'italic',
 		//			'weight' => 700,
@@ -99,7 +99,7 @@ $options = [
 				'label' => __( 'H4 Heading', 'unysonplus' ),
 				'type'  => 'typography-v2',
 				'value'      => [
-					'family'    => 'Raleway',
+					'family'    => '',
 		//			For standard fonts, instead of subset and variation you should set 'style' and 'weight'.
 		//			'style' => 'italic',
 		//			'weight' => 700,
@@ -123,7 +123,7 @@ $options = [
 				'label' => __( 'H5 Heading', 'unysonplus' ),
 				'type'  => 'typography-v2',
 				'value'      => [
-					'family'    => 'Raleway',
+					'family'    => '',
 		//			For standard fonts, instead of subset and variation you should set 'style' and 'weight'.
 		//			'style' => 'italic',
 		//			'weight' => 700,
@@ -147,7 +147,7 @@ $options = [
 				'label' => __( 'H6 Heading', 'unysonplus' ),
 				'type'  => 'typography-v2',
 				'value'      => [
-					'family'    => 'Raleway',
+					'family'    => '',
 		//			For standard fonts, instead of subset and variation you should set 'style' and 'weight'.
 		//			'style' => 'italic',
 		//			'weight' => 700,
@@ -194,16 +194,16 @@ $options = [
 				'help'  => 	__( 'This includes the paragraphs and lists.',	'unysonplus' ),
 			],
 			'body_link'              => [
-				'label' => __( '', 'unysonplus' ),
-				'desc'  => __( 'Body Link Color', 'unysonplus' ),
+				'label' => __( 'Body Link Color', 'unysonplus' ),
+				'desc'  => __( 'Link color inside post/page content. Leave empty to use the theme primary color.', 'unysonplus' ),
 				'type'  => 'color-picker',
-				'value' => '#000000',
+				'value' => '',
 			],
 			'body_link_hover'              => [
-				'label' => __( '', 'unysonplus' ),
-				'desc'  => __( 'Body Link Hover Color', 'unysonplus' ),
+				'label' => __( 'Body Link Hover Color', 'unysonplus' ),
+				'desc'  => __( 'Hover color for content links. Leave empty to reuse the link color.', 'unysonplus' ),
 				'type'  => 'color-picker',
-				'value' => '#333333',
+				'value' => '',
 			],
 		],
 	],

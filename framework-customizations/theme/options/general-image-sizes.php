@@ -2,6 +2,15 @@
 	die( 'Forbidden' );
 }
 
+/**
+ * General → Image Sizes — define custom WordPress image sizes (theme settings).
+ *
+ * This file ONLY declares the option schema. The saved sizes are registered with
+ * add_image_size() on `after_setup_theme` by inc/includes/image-sizes.php — an
+ * options file is loaded only on the settings screen, so registration must NOT
+ * live here or the sizes would never exist on the front end.
+ */
+
 $options = [
 	'theme_image_sizes'  => [
 		'label'        => false,
@@ -54,34 +63,3 @@ $options = [
 		//'limit' => 3,
 	],
 ];
-
-/**
- * Map a saved crop value to the add_image_size() $crop argument.
- * (Replaces a previously broken nested-ternary chain whose orphaned
- *  statements meant most positional crops never applied.)
- */
-$crop_map = [
-	'false'         => false,
-	'true'          => true,
-	'top-left'      => [ 'left', 'top' ],
-	'top-center'    => [ 'center', 'top' ],
-	'top-right'     => [ 'right', 'top' ],
-	'center-left'   => [ 'left', 'center' ],
-	'center'        => [ 'center', 'center' ],
-	'center-right'  => [ 'right', 'center' ],
-	'bottom-left'   => [ 'left', 'bottom' ],
-	'bottom-center' => [ 'center', 'bottom' ],
-	'bottom-right'  => [ 'right', 'bottom' ],
-];
-
-$theme_image_sizes = fw_get_db_settings_option('theme_image_sizes');
-if( !empty($theme_image_sizes)) {
-	foreach( $theme_image_sizes as $key => $value ) {
-		$name		= sanitize_title_with_dashes($theme_image_sizes[$key]['name']);
-		$width 	= preg_replace('/[^0-9]/', '', $theme_image_sizes[$key]['width']);
-		$height	= preg_replace('/[^0-9]/', '', $theme_image_sizes[$key]['height']);
-		$crop_key = isset( $theme_image_sizes[$key]['crop'] ) ? $theme_image_sizes[$key]['crop'] : 'false';
-		$crop 	= array_key_exists( $crop_key, $crop_map ) ? $crop_map[ $crop_key ] : '';
-		add_image_size( $name, $width, $height, $crop );
-	}
-}

@@ -19,21 +19,74 @@ builder doc).
 
 `framework-customizations/theme/options/` — `settings.php` aggregates the tabs:
 
-- **General** — `general-layout.php` (`general_layout`: site width/bg, container, spacing scale,
-  border **roundness** → `--radius`/`--radius-sm/md/lg`, sticky sidebar, content/sidebar gap, prose
-  reading width; options are wrapped in `group` containers for editor organization — groups flatten,
-  keys stay flat),
-  `general-typography.php` (`typography`: h1–h6 + body family/size/line-height/letter-spacing/color,
-  `body_link*`, `font_sizes`), `general-colors.php` (`theme_colors` palette), `general-spacing.php`
-  (`spacing_scale`, `gap_scale`, `default_gap*`), `general-buttons.php`. (Social moved to its own tab.)
-- **Header** — `header-identity.php` (`header_logo` incl. logo image + favicon, **two-way synced**
-  with WP core `custom_logo` / `site_icon` via `inc/includes/identity-sync.php` — set it in Theme
-  Settings or in Customize/Settings→General and the other follows), `header-layout.php`
-  (`header_layout`: container, min_height, bg_color, sticky, topbar + main builder columns).
+- **General** — split into sub-tabs (order: Layout, Typography, Colors, Sidebar, Preloader, Scrolling,
+  Image Sizes):
+  - **Layout** — `general-layout.php` (`general_layout`: site width/bg + pattern, container max-width/
+    gutter, spacing scale, border **roundness** → `--radius`/`--radius-sm/md/lg`, prose reading width).
+  - **Typography** — `general-typography.php` (`typography`: h1–h6 + body family/size/line-height/
+    letter-spacing/color, `body_link*`, `font_sizes`) **+ Custom Fonts box** `general-fonts.php`
+    (`custom_fonts` addable-box: self-hosted family + .woff2/.woff + weight/style → @font-face &
+    picker registration, see `inc/includes/custom-fonts.php`).
+  - **Colors** — pointer only (`html-full` note): the palette / buttons / borders / spacing presets
+    live in the plugin (Unyson+ → Extensions → Shortcodes → Settings); the tab links there for
+    discoverability. No options stored.
+  - **Sidebar** — `general-sidebar.php` (`general_sidebar`: default position, width, content/sidebar
+    gap, sticky sidebar).
+  - **Preloader** — `general-preloader.php` (`general_preloader`: preloader style + bg color).
+  - **Scrolling** — `general-scroll.php` (`general_scroll`: smooth anchor scroll, scroll-progress bar
+    + color).
+  - **Image Sizes** — `general-image-sizes.php` (`theme_image_sizes` addable-box: name/width/height/
+    crop). Schema only; the sizes are registered with `add_image_size()` on `after_setup_theme` by
+    `inc/includes/image-sizes.php` (NOT in the options file, which loads only on the settings screen).
+
+  All wrapped in `group` containers for editor organization — groups flatten, leaf keys stay flat.
+  The Sidebar/Preloader/Scrolling split is **read-transparent**: `unysonplus_layout_get()` merges
+  `general_layout` + `general_sidebar` + `general_preloader` + `general_scroll`, so reads keep the
+  same `layout_*` key names. `unysonplus_migrate_layout_settings()` (in
+  `inc/includes/layout.php`, run by the central schema-migration runner — see below) moves legacy
+  saved values into the new keys once.
+  (`general-colors.php`/`general-spacing.php`/`general-buttons.php` are now owned by the plugin's
+  Shortcodes settings; Social is its own tab.)
+- **Header** — sub-tabs (Identity, Layout, Top Bar, Main Header, Bottom Bar), mirroring the footer's
+  per-section structure. Each row is its own storage key, so the preset/slot system reads them
+  generically (see `unysonplus_preset_option_ids('header')`).
+  - **Identity** — `header-identity.php` (`header_logo` incl. logo image + favicon, **two-way synced**
+    with WP core `custom_logo` / `site_icon` via `inc/includes/identity-sync.php`).
+  - **Layout** — `header-layout.php` (`header_layout`: the header *chrome* — **`header_mode`**
+    (top / vertical L-R / off-canvas / overlay) + **`vertical_width`** (both moved here from
+    General → Layout), container, min_height, mobile_min_height, mobile_breakpoint, bg_color,
+    header_behavior). `header_mode`/`vertical_width` read via `unysonplus_header_layout_get()`
+    (legacy `general_layout` keys are the fallback).
+  - **Menu** — `header-menu.php` (`header_menu`: link color, hover/active color, link padding X/Y,
+    dropdown bg → the `--menu-*` tokens; folded into the generated stylesheet by theme-vars, falling
+    back to style.css defaults).
+  - **Top Bar** — `header-topbar.php` (`header_topbar`: bg/text + left/center/right columns).
+  - **Main Header** — `header-main.php` (`header_main`: left/center/right columns; logo + primary
+    menu defaults).
+  - **Bottom Bar** — `header-bottombar.php` (`header_bottombar`: bg/text + left/center/right columns).
+
+  **No Enable switch on the bars** — like the footer, Top/Bottom Bar render only when a column has an
+  element (the template derives `*_enabled` from content). `unysonplus_get_active_header_config()`
+  returns a config keyed by the four ids (resolved from the active preset or global settings, mirroring
+  the footer loader), and `unysonplus_migrate_header_layout()` (in
+  `inc/includes/header-footer-presets.php`, run by the central schema-migration runner) lifts the old single-blob `header_layout`
+  (`{enabled, yes:{…}}` bars) into the four keys for both global settings and up_header preset
+  post-meta — a bar that was explicitly disabled keeps its content withheld so it stays hidden. The old
+  `layout_header_position` (superseded by `header_behavior`) and unused `layout_mobile_breakpoint`
+  were dropped.
 - **Social** — `social-settings.php` → `general-social.php` (`social_profiles` addable-box: name,
   URL, icon, new-tab). Its own top-level tab; consumed by the header Social Icons element + footer.
 - **Footer** — `footer-layout.php` (`footer_bg_color/_image/_overlay`, `footer_text_color`,
   `footer_link_color`, padding, `footer_css_class`), `footer-pre/main/post.php`, `footer-copyright.php`.
+- **WooCommerce** — `woocommerce-settings.php` is a **pointer tab only** (`html-full` note → the
+  WooCommerce extension settings). The actual shop settings are **owned by the WooCommerce
+  *extension*** (`unysonplus/framework/extensions/woocommerce/settings-options.php`), which is a
+  superset (columns, per-page, sidebar, related, gallery thumbs + gallery zoom/lightbox/slider,
+  catalog mode, sale badge, AJAX cart, breadcrumb) and bridges to the theme's
+  `unysonplus_woocommerce_*` filters via `register_catalog_settings_bridge()`. Do **not** re-add
+  theme-side Woo options — it double-feeds those filters and conflicts. The theme only defines the
+  filter defaults in `inc/includes/woocommerce.php`. The pointer tab is **conditionally registered**
+  in `settings.php` only when `class_exists('WooCommerce')`.
 - **Misc** — `misc.php`: `misc_scroll_top`, `misc_dark_mode`, **`misc_custom_css`** (global CSS),
   `misc_custom_scripts`, `misc_analytics`, `misc_performance`, `misc_404`, `misc_maintenance`,
   `misc_dev_tools` (Developer Tools → `dev_show_demo` switch, off by default; `settings.php` reads it
@@ -68,15 +121,49 @@ Each tab/box is a `multi` container, so its top-level option id (e.g. `general_l
 - Write: `fw_set_db_settings_option( $id = null, $value )`.
 - Validate posted input against the schema: `fw_get_options_values_from_input( fw()->theme->get_settings_options(), $input )`.
 
+### Schema migrations (versioned runner)
+
+When you change the **shape** of stored settings/preset data (split an option, rename a key, drop a
+field), add a migration rather than relying on read-time fallbacks forever. They run through ONE
+versioned runner in **`inc/includes/migrations.php`**:
+
+- `UNYSONPLUS_SCHEMA_VERSION` (constant) = the current target version; `unysonplus_schema_migrations()`
+  maps `version => callback`; `unysonplus_run_schema_migrations()` (admin_init) runs every callback
+  whose version is newer than the stored `unysonplus_schema_version` option, in order, then advances it.
+- Callbacks live next to the code they migrate and **must be idempotent** (the version gate is the fast
+  path; the per-migration guards are the correctness backstop, so a re-run / fresh install is a no-op).
+- To add one: write the idempotent callback, register `<n> => 'callback'`, bump the constant to `<n>`.
+- Current: `1` = General → Layout split (`unysonplus_migrate_layout_settings`); `2` = header_layout
+  blob split (`unysonplus_migrate_header_layout`).
+
 ## How settings become CSS (the design → tokens map)
 
-- `inc/includes/css-tokens.php` → `unysonplus_emit_css_tokens()` reads `typography` and emits
-  `<style id="unysonplus-tokens">` with `--h1-font-family/-size/-line-height/-letter-spacing/-color`
-  (h1–h6 + body), incl. mobile font-size tiers. (wp_head priority 1.)
-- `inc/includes/theme-vars.php` → `unysonplus_collect_theme_vars()` + `unysonplus_emit_theme_vars()`
-  read `general_layout`, `header_layout`, footer options, `typography` and emit `:root { … }`
-  (`--site-bg-color`, `--container-gutter`, `--header-bg`, `--header-min-height`, `--topbar-*`,
-  `--footer-*`, `--color-text`, `--font-body`, `--font-heading`, …). (wp_head priority 20.)
+- **`inc/includes/hf-custom-css.php` → the single generated front-end stylesheet.** On the front end
+  ALL settings-driven CSS is compiled into one file at `uploads/unysonplus/unysonplus-generated.css`
+  (enqueued after `parent-style`, `filemtime()` version) — the front end ships **no inline `<style>`
+  blocks or per-element inline styles**. `unysonplus_generated_css()` concatenates, in order:
+  (1) typography tokens (`unysonplus_css_tokens_css()`), (2) the theme-var `:root` block
+  (`unysonplus_theme_vars_css()`), (3) the per-section **Custom Styling** rules (Header → Top Bar /
+  Main Header / Bottom Bar via `*_custom_styling` inside `header_topbar`/`header_main`/`header_bottombar`;
+  Footer → Pre / Main / Post via `{prefix}_custom_styling`) plus global rules (site title/tagline color,
+  scroll-to-top, per-instance CTA buttons + footer logos). **Freshness:** the CSS is rebuilt every
+  front-end load and written to disk only when its **content hash** (`unysonplus_hf_css_hash` option)
+  changes — no staleness, no added compute vs the old inline emit — plus proactive rebuilds on
+  `fw_settings_form_saved` / `customize_save_after`, and a `wp_add_inline_style` fallback if uploads
+  isn't writable. **Class-based bits are NOT in the file:** `padding` rides the `spacing` Bootstrap
+  utility classes, `container` + Custom CSS Class ride wrapper classes (`unysonplus_hf_section_render_attrs()`).
+  Section Google fonts (typography-v2 `google_font`) enqueue via `unysonplus_hf_enqueue_google_fonts()`.
+  Shared field set: `unysonplus_hf_custom_styling($prefix)`.
+- `inc/includes/css-tokens.php` → `unysonplus_css_tokens_css()` builds the typography tokens
+  (`--h1-font-family/-size/-line-height/-letter-spacing/-color` for h1–h6 + body, incl. mobile tiers).
+  Front end: folded into the generated file (above). Admin: `unysonplus_emit_css_tokens()` still emits
+  `<style id="unysonplus-tokens">` on `admin_head` for the live page-builder editor preview.
+- `inc/includes/theme-vars.php` → `unysonplus_collect_theme_vars()` + `unysonplus_theme_vars_css()`
+  read `general_layout`, `header_layout`, footer options, `typography` and build the `:root { … }`
+  block (`--site-bg-color`, `--container-gutter`, `--header-bg`, `--header-min-height`,
+  `--footer-*`, `--color-text`, `--font-body`, `--font-heading`, …). Front end: folded into the
+  generated file. Admin: `unysonplus_emit_theme_vars()` emits inline on `admin_head` for the editor.
+  (Top/Bottom Bar styling lives in the per-section rules, not here.)
   The **site background** vars (`--site-bg-color`, `--site-bg-image`, plus
   `--site-bg-position/-repeat/-size/-attachment`) are derived here from the General Layout
   **`site_background`** field — a `background-pro` value (color + gradient + image layers; video is

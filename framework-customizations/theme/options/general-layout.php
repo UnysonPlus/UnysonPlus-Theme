@@ -5,14 +5,22 @@
 /**
  * General → Layout sub-tab.
  *
- * Site-wide layout controls — width mode, alternate header layouts
- * (vertical / off-canvas / overlay), sidebar position, spacing scale,
- * and UX polish (preloader / smooth scroll / scroll progress).
+ * Site-wide layout controls — width mode, site background, container, and the
+ * spacing system.
  *
- * All options stored under the `general_layout` multi key. The four sections
+ * Sidebar controls live in their own General → Sidebar sub-tab
+ * (`general-sidebar.php`, `general_sidebar`); the preloader lives in
+ * General → Preloader (`general-preloader.php`, `general_preloader`); the smooth
+ * scroll / scroll-progress controls live in General → Scrolling
+ * (`general-scroll.php`, `general_scroll`); and the header layout-mode /
+ * vertical-rail-width controls moved to Header → Layout (`header_layout`).
+ *
+ * Options here are stored under the `general_layout` multi key. The sections
  * are wrapped in `group` containers purely for editor organization — groups
  * flatten on save, so every leaf key stays at the top level of the
- * `general_layout` value and `unysonplus_layout_get()` reads are unchanged.
+ * `general_layout` value. `unysonplus_layout_get()` merges `general_layout`,
+ * `general_sidebar`, `general_preloader` and `general_scroll`, so reads of the
+ * moved keys are unchanged.
  *
  * Image-picker previews live at assets/svg/layout/*.svg.
  */
@@ -33,19 +41,6 @@ $picker = function ( array $pairs, $height_small = 70, $height_large = 140 ) use
 	return $out;
 };
 
-/* Same shape but accepts arbitrary src paths (used for the bg pattern picker
- * which reuses the existing images/patterns/ PNGs). */
-$picker_paths = function ( array $pairs, $height_small = 70, $height_large = 140 ) {
-	$out = [];
-	foreach ( $pairs as $value => $src ) {
-		$out[ $value ] = [
-			'small' => [ 'height' => $height_small, 'src' => $src ],
-			'large' => [ 'height' => $height_large, 'src' => $src ],
-		];
-	}
-	return $out;
-};
-
 $options = [
 	'general_layout' => [
 		'type'          => 'multi',
@@ -56,60 +51,77 @@ $options = [
 			'group_container' => [
 				'type'    => 'group',
 				'options' => [
+					/* Site Width Mode is a multi-picker: the picker chooses the mode,
+					   and only the chosen mode's options are revealed (Boxed → width/
+					   alignment/margin; Framed → frame width/color; Full → nothing). */
 					'site_width_mode' => [
-						'label'   => __( 'Site Width Mode', 'unysonplus' ),
-						'desc'    => __( 'How the whole site container is laid out. Full-width spans edge to edge; Boxed centers a fixed-width column; Framed adds a colored border around the entire viewport.', 'unysonplus' ),
-						'type'    => 'image-picker',
-						'value'   => 'full',
-						'choices' => $picker( [
-							'full'   => 'width-full.svg',
-							'boxed'  => 'width-boxed.svg',
-							'framed' => 'width-framed.svg',
-						] ),
-					],
-					'site_boxed_width' => [
-						'label' => __( 'Boxed Width', 'unysonplus' ),
-						'desc'  => __( 'Maximum width of the boxed container (when Site Width Mode = Boxed). Recommended range: 1100–1600 px.', 'unysonplus' ),
-						'type'  => 'slider',
-						'value' => 1320,
-						'properties' => [
-							'min'  => 980,
-							'max'  => 1920,
-							'step' => 10,
+						'type'   => 'multi-picker',
+						'label'  => false,
+						'desc'   => false,
+						'picker' => [
+							'mode' => [
+								'label'   => __( 'Site Width Mode', 'unysonplus' ),
+								'desc'    => __( 'How the whole site container is laid out. Full-width spans edge to edge; Boxed centers a fixed-width column; Framed adds a colored border around the entire viewport. The options for the chosen mode appear below.', 'unysonplus' ),
+								'type'    => 'image-picker',
+								'choices' => $picker( [
+									'full'   => 'width-full.svg',
+									'boxed'  => 'width-boxed.svg',
+									'framed' => 'width-framed.svg',
+								] ),
+							],
 						],
-					],
-					'site_boxed_alignment' => [
-						'label'   => __( 'Boxed Alignment', 'unysonplus' ),
-						'desc'    => __( 'Horizontal alignment of the boxed container (when Site Width Mode = Boxed).', 'unysonplus' ),
-						'type'    => 'image-picker',
-						'value'   => 'center',
-						'choices' => $picker( [
-							'left'   => 'align-left.svg',
-							'center' => 'align-center.svg',
-							'right'  => 'align-right.svg',
-						] ),
-					],
-					'site_boxed_margin' => [
-						'label' => __( 'Site Top/Bottom Margin', 'unysonplus' ),
-						'desc'  => __( 'Spacing above and below the boxed container (when Site Width Mode = Boxed).', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'rem', 'px', 'em' ],
-						'value' => [ 'value' => '2.5', 'unit' => 'rem' ],
-						'min'   => 0,
-					],
-					'site_frame_width' => [
-						'label' => __( 'Frame Width', 'unysonplus' ),
-						'desc'  => __( 'Thickness of the decorative border (when Site Width Mode = Framed).', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'rem', 'px', 'em' ],
-						'value' => [ 'value' => '1.25', 'unit' => 'rem' ],
-						'min'   => 0,
-					],
-					'site_frame_color' => [
-						'label' => __( 'Frame Color', 'unysonplus' ),
-						'desc'  => __( 'Color of the decorative border (when Site Width Mode = Framed).', 'unysonplus' ),
-						'type'  => 'color-picker',
-						'value' => '#222222',
+						'value'   => [ 'mode' => 'full' ],
+						'choices' => [
+							'boxed' => [
+								'site_boxed_width' => [
+									'label' => __( 'Boxed Width', 'unysonplus' ),
+									'desc'  => __( 'Maximum width of the boxed container. Recommended range: 1100–1600 px.', 'unysonplus' ),
+									'type'  => 'slider',
+									'value' => 1320,
+									'properties' => [
+										'min'  => 980,
+										'max'  => 1920,
+										'step' => 10,
+									],
+								],
+								'site_boxed_alignment' => [
+									'label'   => __( 'Boxed Alignment', 'unysonplus' ),
+									'desc'    => __( 'Horizontal alignment of the boxed container.', 'unysonplus' ),
+									'type'    => 'image-picker',
+									'value'   => 'center',
+									'choices' => $picker( [
+										'left'   => 'align-left.svg',
+										'center' => 'align-center.svg',
+										'right'  => 'align-right.svg',
+									] ),
+								],
+								'site_boxed_margin' => [
+									'label' => __( 'Site Top/Bottom Margin', 'unysonplus' ),
+									'desc'  => __( 'Spacing above and below the boxed container.', 'unysonplus' ),
+									'type'  => 'unit-input',
+									'units' => [ 'rem', 'px', 'em' ],
+									'value' => [ 'value' => '2.5', 'unit' => 'rem' ],
+									'min'   => 0,
+								],
+							],
+							'framed' => [
+								'site_frame_width' => [
+									'label' => __( 'Frame Width', 'unysonplus' ),
+									'desc'  => __( 'Thickness of the decorative border.', 'unysonplus' ),
+									'type'  => 'unit-input',
+									'units' => [ 'rem', 'px', 'em' ],
+									'value' => [ 'value' => '1.25', 'unit' => 'rem' ],
+									'min'   => 0,
+								],
+								'site_frame_color' => [
+									'label' => __( 'Frame Color', 'unysonplus' ),
+									'desc'  => __( 'Color of the decorative border.', 'unysonplus' ),
+									'type'  => 'color-picker',
+									'value' => '#222222',
+								],
+							],
+						],
+						'show_borders' => false,
 					],
 					'site_background' => [
 						'label' => __( 'Site Background', 'unysonplus' ),
@@ -154,89 +166,7 @@ $options = [
 				],
 			],
 
-			/* ============ B. Header & Sidebar Layout ============ */
-			'group_header_sidebar' => [
-				'type'    => 'group',
-				'options' => [
-					'layout_header_mode' => [
-						'label'   => __( 'Header Layout Mode', 'unysonplus' ),
-						'desc'    => __( 'Top: standard horizontal header. Vertical Left/Right: fixed side rail with logo + menu. Off-Canvas Only: hamburger always visible, no top bar. Overlay Fullscreen: hamburger opens a fullscreen menu.', 'unysonplus' ),
-						'type'    => 'image-picker',
-						'value'   => 'top',
-						'choices' => $picker( [
-							'top'              => 'header-top.svg',
-							'vertical-left'    => 'header-vertical-left.svg',
-							'vertical-right'   => 'header-vertical-right.svg',
-							'off-canvas-only'  => 'header-off-canvas.svg',
-							'overlay'          => 'header-overlay.svg',
-						] ),
-					],
-					'layout_vertical_width' => [
-						'label' => __( 'Vertical Header Width', 'unysonplus' ),
-						'desc'  => __( 'Width of the fixed side rail (when Header Layout Mode = Vertical Left/Right).', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'rem', 'px', 'em' ],
-						'value' => [ 'value' => '16.25', 'unit' => 'rem' ],
-						'min'   => 0,
-					],
-					'layout_header_position' => [
-						'label'   => __( 'Header Position Behavior', 'unysonplus' ),
-						'desc'    => __( 'Static: header scrolls with content. Sticky: header sticks to viewport top on scroll. Transparent Overlay: header sits on top of the first section with no background.', 'unysonplus' ),
-						'type'    => 'radio',
-						'value'   => 'static',
-						'choices' => [
-							'static'                          => __( 'Static (scrolls with content)', 'unysonplus' ),
-							'sticky'                          => __( 'Sticky (follows scroll)', 'unysonplus' ),
-							'transparent-overlay-first-section' => __( 'Transparent Overlay (on first section)', 'unysonplus' ),
-						],
-					],
-					'layout_sidebar_position' => [
-						'label'   => __( 'Default Sidebar Position', 'unysonplus' ),
-						'desc'    => __( 'Theme-wide default for where the sidebar renders on pages/posts. Individual posts/pages can override via their own meta options.', 'unysonplus' ),
-						'type'    => 'image-picker',
-						'value'   => 'right',
-						'choices' => $picker( [
-							'none'  => 'sidebar-none.svg',
-							'left'  => 'sidebar-left.svg',
-							'right' => 'sidebar-right.svg',
-						] ),
-					],
-					'layout_sidebar_width' => [
-						'label' => __( 'Sidebar Width', 'unysonplus' ),
-						'desc'  => __( 'Width of the sidebar column (when Sidebar Position is Left or Right).', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'rem', 'px', 'em' ],
-						'value' => [ 'value' => '18.75', 'unit' => 'rem' ],
-						'min'   => 0,
-					],
-					'layout_sidebar_gap' => [
-						'label' => __( 'Content / Sidebar Gap', 'unysonplus' ),
-						'desc'  => __( 'Horizontal gap between the content and the sidebar column.', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'rem', 'px', 'em' ],
-						'value' => [ 'value' => '2.5', 'unit' => 'rem' ],
-						'min'   => 0,
-					],
-					'layout_sidebar_sticky' => [
-						'label'        => __( 'Sticky Sidebar', 'unysonplus' ),
-						'desc'         => __( 'Make the sidebar follow the page as it scrolls (desktop only).', 'unysonplus' ),
-						'type'         => 'switch',
-						'value'        => 'no',
-						'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
-						'left-choice'  => [ 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ],
-					],
-					'layout_mobile_breakpoint' => [
-						'label' => __( 'Mobile Menu Breakpoint', 'unysonplus' ),
-						'desc'  => __( 'Below this viewport width, vertical/overlay header modes collapse to a top + hamburger layout. Usually set in px.', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'px', 'rem', 'em' ],
-						'value' => [ 'value' => '992', 'unit' => 'px' ],
-						'min'   => 0,
-					],
-				],
-			],
-
-			/* ============ C. Spacing System ============ */
+			/* ============ B. Spacing System ============ */
 			'group_spacing' => [
 				'type'    => 'group',
 				'options' => [
@@ -251,20 +181,12 @@ $options = [
 							'spacious' => __( 'Spacious', 'unysonplus' ),
 						],
 					],
-					'layout_container_max_width' => [
-						'label' => __( 'Container Max Width', 'unysonplus' ),
-						'desc'  => __( 'Overrides the Bootstrap container max-width.', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'px', 'rem', 'em' ],
-						'value' => [ 'value' => '1320', 'unit' => 'px' ],
-						'min'   => 0,
-					],
 					'layout_container_gutter' => [
 						'label' => __( 'Container Gutter', 'unysonplus' ),
-						'desc'  => __( 'Horizontal padding inside .container.', 'unysonplus' ),
+						'desc'  => __( 'Horizontal breathing room on the sides of content (the Bootstrap container gutter). Leave blank for the responsive default (~12px on phones up to ~24px on desktop).', 'unysonplus' ),
 						'type'  => 'unit-input',
 						'units' => [ 'rem', 'px', 'em' ],
-						'value' => [ 'value' => '1.5', 'unit' => 'rem' ],
+						'value' => [ 'value' => '', 'unit' => 'rem' ],
 						'min'   => 0,
 					],
 					'layout_roundness' => [
@@ -286,52 +208,6 @@ $options = [
 						'units' => [ 'rem', 'px', 'em' ],
 						'value' => [ 'value' => '', 'unit' => 'rem' ],
 						'min'   => 0,
-					],
-				],
-			],
-
-			/* ============ D. UX Polish ============ */
-			'group_ux' => [
-				'type'    => 'group',
-				'options' => [
-					'layout_preloader_style' => [
-						'label'   => __( 'Preloader', 'unysonplus' ),
-						'desc'    => __( 'Full-screen splash shown until the page finishes loading.', 'unysonplus' ),
-						'type'    => 'image-picker',
-						'value'   => 'none',
-						'choices' => $picker( [
-							'none'    => 'preloader-none.svg',
-							'spinner' => 'preloader-spinner.svg',
-							'logo'    => 'preloader-logo.svg',
-						] ),
-					],
-					'layout_preloader_bg_color' => [
-						'label' => __( 'Preloader Background', 'unysonplus' ),
-						'desc'  => __( 'Background color of the preloader splash (when Preloader != None).', 'unysonplus' ),
-						'type'  => 'color-picker',
-						'value' => '#ffffff',
-					],
-					'layout_smooth_scroll' => [
-						'label'        => __( 'Smooth Scroll for Anchor Links', 'unysonplus' ),
-						'desc'         => __( 'Enables CSS scroll-behavior: smooth for in-page anchor navigation.', 'unysonplus' ),
-						'type'         => 'switch',
-						'value'        => 'no',
-						'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
-						'left-choice'  => [ 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ],
-					],
-					'layout_scroll_progress' => [
-						'label'        => __( 'Scroll Progress Bar', 'unysonplus' ),
-						'desc'         => __( 'Thin gradient bar at the top of the viewport that fills as the user scrolls.', 'unysonplus' ),
-						'type'         => 'switch',
-						'value'        => 'no',
-						'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
-						'left-choice'  => [ 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ],
-					],
-					'layout_scroll_progress_color' => [
-						'label' => __( 'Scroll Progress Bar Color', 'unysonplus' ),
-						'desc'  => __( 'Color of the scroll progress bar (when enabled).', 'unysonplus' ),
-						'type'  => 'color-picker',
-						'value' => '#0d6efd',
 					],
 				],
 			],

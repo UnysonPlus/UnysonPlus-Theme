@@ -16,7 +16,7 @@ $page_header_attr = array( 'class' => 'entry-header' );
 	?>
 
 	<?php if ( ! function_exists( 'fw_ext_page_builder_is_builder_post' ) || ! fw_ext_page_builder_is_builder_post( get_the_ID() ) ) : ?>
-		<header <?php echo fw_attr_to_html( $page_header_attr ); ?>>
+		<header <?php echo unysonplus_attr_to_html( $page_header_attr ); ?>>
 			<?php do_action( 'unysonplus_entry_header' ); ?>
 		</header><!-- .entry-header -->
 	<?php endif; ?>

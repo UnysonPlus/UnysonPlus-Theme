@@ -55,33 +55,37 @@ jQuery(function ($) {
 
 
 /*!
- * This is the javascript that made the listeners passive.
+ * Make high-frequency SCROLL listeners passive (improves scroll performance and
+ * silences Chrome's "non-passive event listener" / Lighthouse warning).
+ *
+ * IMPORTANT: this must NOT be applied to every event type. An earlier version
+ * monkey-patched addEventListener to force `passive: true` on ALL listeners,
+ * which silently broke any interaction that relies on preventDefault() inside a
+ * pointer/mouse drag. The most visible casualty was the Unyson live-editor
+ * column-resize handle (`fw-le-resize`): the drag tracked visually, but because
+ * the pointermove listener was forced passive its preventDefault() was ignored,
+ * so the new width was discarded on drop and the column snapped back to its
+ * original size. Passive only matters for the scroll-blocking events below, so
+ * the override is scoped to those — pointer/mouse drag listeners are untouched.
  */
 (function() {
-  var supportsPassive = eventListenerOptionsSupported();  
-
-  if (supportsPassive) {
-    var addEvent = EventTarget.prototype.addEventListener;
-    overwriteAddEvent(addEvent);
+  if (!eventListenerOptionsSupported()) {
+    return;
   }
 
-  function overwriteAddEvent(superMethod) {
-    var defaultOptions = {
-      passive: true,
-      capture: false
-    };
+  // The only events where a passive listener is beneficial AND where the
+  // Lighthouse "passive listeners" audit looks. Everything else is left alone.
+  var PASSIVE_EVENTS = { scroll: 1, wheel: 1, mousewheel: 1, touchstart: 1, touchmove: 1 };
+  var superMethod = EventTarget.prototype.addEventListener;
 
-    EventTarget.prototype.addEventListener = function(type, listener, options) {
-      var usesListenerOptions = typeof options === 'object';
-      var useCapture = usesListenerOptions ? options.capture : options;
-
-      options = usesListenerOptions ? options : {};
-      options.passive = options.passive !== undefined ? options.passive : defaultOptions.passive;
-      options.capture = useCapture !== undefined ? useCapture : defaultOptions.capture;
-
-      superMethod.call(this, type, listener, options);
-    };
-  }
+  EventTarget.prototype.addEventListener = function(type, listener, options) {
+    // Only auto-passive the safe scroll events, and only when the caller didn't
+    // pass an explicit options object (so any deliberate passive:false is kept).
+    if (PASSIVE_EVENTS[type] && (options === undefined || typeof options === 'boolean')) {
+      options = { capture: !!options, passive: true };
+    }
+    return superMethod.call(this, type, listener, options);
+  };
 
   function eventListenerOptionsSupported() {
     var supported = false;
@@ -91,7 +95,8 @@ jQuery(function ($) {
           supported = true;
         }
       });
-      window.addEventListener("test", null, opts);
+      window.addEventListener('test', null, opts);
+      window.removeEventListener('test', null, opts);
     } catch (e) {}
 
     return supported;

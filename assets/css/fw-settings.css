@@ -163,3 +163,94 @@ a.button .dashicons,
     justify-content: center;
 }
 
+/* ───── Header / Footer builder: lay the column fields side by side ─────
+ * The Top Bar / Main / Bottom Bar Left-Center-Right columns and each footer
+ * section's columns are addable-popup options that Unyson otherwise stacks
+ * full-width. Float them into a responsive row of titled boxes. Targeted by the
+ * stable id suffix (#fw-backend-option-…main_left / …_col_1) plus the
+ * addable-popup type class, so no other option is affected. */
+/* Flex the parent that directly holds the column fields. :has() means we don't
+ * need to know the container's class (it differs between the footer multi-picker
+ * choice and the header group / top-bar choice). */
+div:has(> .fw-backend-option-type-addable-popup[id*="_col_"]),
+div:has(> .fw-backend-option-type-addable-popup[id$="_left"]),
+div:has(> .fw-backend-option-type-addable-popup[id$="_center"]),
+div:has(> .fw-backend-option-type-addable-popup[id$="_right"]) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 28px 24px;
+    margin-top: 6px;
+}
+/* Non-column siblings (Column Ratio picker, the bar bg/text colours) take a full
+ * row of their own so only the columns flow side by side. */
+div:has(> .fw-backend-option-type-addable-popup[id*="_col_"]) > .fw-backend-option,
+div:has(> .fw-backend-option-type-addable-popup[id$="_left"]) > .fw-backend-option,
+div:has(> .fw-backend-option-type-addable-popup[id$="_center"]) > .fw-backend-option,
+div:has(> .fw-backend-option-type-addable-popup[id$="_right"]) > .fw-backend-option {
+    flex: 0 0 100%;
+    margin: 0;
+}
+/* The columns share the row equally — 1-to-5 fit on one line, a lone column
+ * expands to full width. !important beats the :has() parent rule above. */
+.fw-backend-option-type-addable-popup[id*="_col_"],
+.fw-backend-option-type-addable-popup[id$="_left"],
+.fw-backend-option-type-addable-popup[id$="_center"],
+.fw-backend-option-type-addable-popup[id$="_right"] {
+    flex: 1 1 180px !important;
+    min-width: 180px;
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 0;
+}
+/* Outer breathing room: the flex `gap` only spaces BETWEEN columns, so the FIRST
+ * column gets left padding and the LAST gets right padding to inset the block
+ * evenly. "First/last column" is matched without relying on child position
+ * (a Column Ratio picker may precede the columns): the first column has no
+ * preceding addable-popup sibling; the last has no following one. Works for any
+ * column count and in both the footer multi-picker and the header group. */
+:where(
+    div:has(> .fw-backend-option-type-addable-popup[id*="_col_"]),
+    div:has(> .fw-backend-option-type-addable-popup[id$="_left"]),
+    div:has(> .fw-backend-option-type-addable-popup[id$="_center"]),
+    div:has(> .fw-backend-option-type-addable-popup[id$="_right"])
+) > .fw-backend-option-type-addable-popup:not(.fw-backend-option-type-addable-popup ~ .fw-backend-option-type-addable-popup) {
+    padding-left: 27px;
+}
+:where(
+    div:has(> .fw-backend-option-type-addable-popup[id*="_col_"]),
+    div:has(> .fw-backend-option-type-addable-popup[id$="_left"]),
+    div:has(> .fw-backend-option-type-addable-popup[id$="_center"]),
+    div:has(> .fw-backend-option-type-addable-popup[id$="_right"])
+) > .fw-backend-option-type-addable-popup:not(:has(~ .fw-backend-option-type-addable-popup)) {
+    padding-right: 27px;
+}
+/* Stack the label above the addable list inside each column box. */
+.fw-backend-option-type-addable-popup[id*="_col_"] > .fw-backend-option-label,
+.fw-backend-option-type-addable-popup[id$="_left"] > .fw-backend-option-label,
+.fw-backend-option-type-addable-popup[id$="_center"] > .fw-backend-option-label,
+.fw-backend-option-type-addable-popup[id$="_right"] > .fw-backend-option-label,
+.fw-backend-option-type-addable-popup[id*="_col_"] > .fw-backend-option-input,
+.fw-backend-option-type-addable-popup[id$="_left"] > .fw-backend-option-input,
+.fw-backend-option-type-addable-popup[id$="_center"] > .fw-backend-option-input,
+.fw-backend-option-type-addable-popup[id$="_right"] > .fw-backend-option-input {
+    width: 100%;
+    max-width: 100%;
+    float: none;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+.fw-backend-option-type-addable-popup[id*="_col_"] > .fw-backend-option-label,
+.fw-backend-option-type-addable-popup[id$="_left"] > .fw-backend-option-label,
+.fw-backend-option-type-addable-popup[id$="_center"] > .fw-backend-option-label,
+.fw-backend-option-type-addable-popup[id$="_right"] > .fw-backend-option-label {
+    margin-bottom: 8px;
+}
+.fw-backend-option-type-addable-popup[id*="_col_"] > .fw-backend-option-label label,
+.fw-backend-option-type-addable-popup[id$="_left"] > .fw-backend-option-label label,
+.fw-backend-option-type-addable-popup[id$="_center"] > .fw-backend-option-label label,
+.fw-backend-option-type-addable-popup[id$="_right"] > .fw-backend-option-label label {
+    font-weight: 600;
+}
+

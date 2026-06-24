@@ -12,7 +12,11 @@ $is_builder = function_exists( 'fw_ext_page_builder_is_builder_post' )
 $hide_title          = function_exists( 'unysonplus_should_hide_page_title' ) && unysonplus_should_hide_page_title();
 $hide_featured       = function_exists( 'fw_get_db_post_option' )
 	&& fw_get_db_post_option( get_the_ID(), 'hide_featured_image' );
-$has_thumbnail       = ! $hide_featured && has_post_thumbnail();
+// Global "Show Featured Image on Pages" toggle (Pages → Defaults, default yes);
+// a per-page hide_featured_image meta still wins.
+$pages_featured_on   = ! function_exists( 'unysonplus_pages_get' )
+	|| unysonplus_pages_get( 'pages_show_featured_image', 'yes' ) !== 'no';
+$has_thumbnail       = $pages_featured_on && ! $hide_featured && has_post_thumbnail();
 ?>
 
 <article id="post-<?php the_ID(); ?>" <?php post_class( 'col-12' ); ?>>
@@ -41,7 +45,7 @@ $has_thumbnail       = ! $hide_featured && has_post_thumbnail();
 				}
 			}
 			?>
-			<header <?php echo fw_attr_to_html( $page_header_attr ); ?>>
+			<header <?php echo unysonplus_attr_to_html( $page_header_attr ); ?>>
 				<?php do_action( 'unysonplus_entry_header' ); ?>
 			</header><!-- .entry-header -->
 		<?php endif; ?>

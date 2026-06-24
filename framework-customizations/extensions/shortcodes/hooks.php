@@ -9,7 +9,11 @@ function _filter_disable_shortcodes($to_disable)
 
 {
 
-	$to_disable[] = 'team_member';
+	// NOTE: do NOT disable 'team_member' here — that was leftover boilerplate from
+	// the original Unyson sample theme (team_member was its throwaway "example" of
+	// disabling a shortcode). It hid the Team Member element from the builder
+	// entirely. The header/footer builder still disables it inside header/footer
+	// editing only, which is correct.
 
 	include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 
@@ -25,4 +29,4 @@ function _filter_disable_shortcodes($to_disable)
 
 }
 
-add_filter('fw_ext_shortcodes_disable_shortcodes', '_filter_disable_shortcodes');
+// add_filter('fw_ext_shortcodes_disable_shortcodes', '_filter_disable_shortcodes');

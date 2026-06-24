@@ -70,6 +70,25 @@ wp_enqueue_script(
         true
 );
 
+// Header & Footer Builder — element styles (nav/logo/search/social shortcodes)
+// + builder-header type/behavior chrome, and the hide-on-scroll behavior JS.
+// Loaded globally because the nav shortcodes can appear in normal page content.
+wp_enqueue_style(
+        'unysonplus-hf-builder',
+        get_template_directory_uri() . '/assets/css/header-footer-builder.css',
+        array(),
+        $unysonplus_theme_version,
+        'all'
+);
+
+wp_enqueue_script(
+        'unysonplus-header-behaviors',
+        get_template_directory_uri() . '/assets/js/header-behaviors.js',
+        array(),
+        $unysonplus_theme_version,
+        true
+);
+
 wp_enqueue_script(
         'unysonplus-scroll-top',
         get_template_directory_uri() . '/assets/js/scroll-top.js',
@@ -136,35 +155,144 @@ if ( is_child_theme() ) {
         );
 }
 
+if ( ! function_exists( 'unysonplus_style_handle_resolvable' ) ) {
+        /**
+         * True only when a style handle AND its entire dependency subtree are
+         * registered, with no cycle back to the theme stylesheet.
+         *
+         * The cascade orderer below makes `parent-style` depend on the other queued
+         * stylesheets. If any of those carries a missing or cyclic dependency, that
+         * unresolvable link propagates up into `parent-style`, and WordPress then
+         * silently refuses to print it (and `child-style` with it) — a blank,
+         * unstyled site with no error. This guard lets the orderer skip such a
+         * handle instead of folding it in.
+         *
+         * @param WP_Styles $styles
+         * @param string    $handle
+         * @param array     $stack  Recursion / cycle guard.
+         * @return bool
+         */
+        function unysonplus_style_handle_resolvable( $styles, $handle, $stack = array() ) {
+                if ( ! isset( $styles->registered[ $handle ] ) ) { return false; }   // unregistered dep
+                if ( in_array( $handle, $stack, true ) ) { return false; }           // cycle
+                $stack[] = $handle;
+                foreach ( (array) $styles->registered[ $handle ]->deps as $dep ) {
+                        if ( 'parent-style' === $dep ) { return false; }            // would cycle through the theme stylesheet
+                        if ( ! unysonplus_style_handle_resolvable( $styles, $dep, $stack ) ) { return false; }
+                }
+                return true;
+        }
+}
+
 if ( ! function_exists( 'unysonplus_order_theme_stylesheets' ) ) {
         function unysonplus_order_theme_stylesheets() {
                 $styles = wp_styles();
                 if ( ! isset( $styles->registered['parent-style'] ) ) { return; }
 
                 // Layers that must load AFTER the theme stylesheet.
-                $after_theme = array( 'unysonplus-presets', 'unysonplus-dynamic', 'child-style' );
+                $after_theme = array( 'unysonplus-presets', 'unysonplus-dynamic', 'unysonplus-hf-custom', 'unysonplus-hf-custom-inline', 'child-style' );
 
                 // parent-style depends on every other enqueued stylesheet except the
                 // "after theme" layer, so it prints right after the framework CSS.
-                $deps = array();
+                // Only RESOLVABLE handles are folded in — a handle with a missing or
+                // cyclic dependency is skipped (and reported) so it can never silently
+                // break the whole cascade.
+                $deps    = array();
+                $skipped = array();
                 foreach ( $styles->queue as $handle ) {
                         if ( 'parent-style' === $handle || in_array( $handle, $after_theme, true ) ) { continue; }
-                        $deps[] = $handle;
+                        if ( unysonplus_style_handle_resolvable( $styles, $handle ) ) {
+                                $deps[] = $handle;
+                        } else {
+                                $skipped[] = $handle;
+                        }
                 }
                 $styles->registered['parent-style']->deps = array_values( array_unique(
                         array_merge( (array) $styles->registered['parent-style']->deps, $deps )
                 ) );
 
-                // Child theme loads dead last — after the presets + per-page dynamic CSS.
+                // Last-resort guarantee: if parent-style is somehow still unresolvable
+                // (e.g. a broken pre-existing dep), drop the extra deps so the theme
+                // stylesheet ALWAYS prints. A slightly-off cascade order beats an
+                // unstyled site.
+                if ( ! unysonplus_style_handle_resolvable( $styles, 'parent-style' ) ) {
+                        $styles->registered['parent-style']->deps = array();
+                }
+
+                // Child theme loads dead last — after the presets + per-page dynamic CSS
+                // AND the header/footer generated CSS (so the order is
+                // parent-style → presets → dynamic → hf-custom → child-style).
+                //
+                // Do NOT gate these with unysonplus_style_handle_resolvable(): that helper
+                // reports any handle depending on `parent-style` as unresolvable (a cycle),
+                // which is the right guard only when building parent-style's OWN deps. The
+                // after-theme layers (hf-custom / hf-custom-inline) legitimately depend on
+                // parent-style, and child-style depending on THEM is not a cycle — so the
+                // guard would wrongly drop hf-custom and let child-style print before it. A
+                // plain registered check is correct and safe here (parent-style is always
+                // registered by the time this runs, per the early return above).
                 if ( isset( $styles->registered['child-style'] ) ) {
                         $child_deps = array( 'parent-style' );
-                        foreach ( array( 'unysonplus-presets', 'unysonplus-dynamic' ) as $handle ) {
+                        foreach ( array( 'unysonplus-presets', 'unysonplus-dynamic', 'unysonplus-hf-custom', 'unysonplus-hf-custom-inline' ) as $handle ) {
                                 if ( isset( $styles->registered[ $handle ] ) ) { $child_deps[] = $handle; }
                         }
                         $styles->registered['child-style']->deps = array_values( array_unique(
                                 array_merge( (array) $styles->registered['child-style']->deps, $child_deps )
                         ) );
                 }
+
+                // Surface skipped handles loudly instead of failing silently: log for
+                // developers (WP_DEBUG) and stash for an admin notice.
+                if ( ! empty( $skipped ) ) {
+                        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                                error_log( 'UnysonPlus: stylesheet ordering skipped unresolvable handle(s): ' . implode( ', ', $skipped ) . ' — missing or cyclic dependency. Check the wp_enqueue_style() deps for each.' );
+                        }
+                        set_transient( 'unysonplus_style_order_skipped', $skipped, HOUR_IN_SECONDS );
+                } elseif ( false !== get_transient( 'unysonplus_style_order_skipped' ) ) {
+                        delete_transient( 'unysonplus_style_order_skipped' );
+                }
         }
 }
 add_action( 'wp_enqueue_scripts', 'unysonplus_order_theme_stylesheets', 9999 );
+
+if ( ! function_exists( 'unysonplus_style_order_admin_notice' ) ) {
+        /**
+         * Admin warning when the cascade orderer had to skip a stylesheet handle —
+         * so a mis-slotted enqueue is visible instead of being discovered via a
+         * broken front end.
+         */
+        function unysonplus_style_order_admin_notice() {
+                if ( ! current_user_can( 'edit_theme_options' ) ) { return; }
+                $skipped = get_transient( 'unysonplus_style_order_skipped' );
+                if ( empty( $skipped ) || ! is_array( $skipped ) ) { return; }
+                echo '<div class="notice notice-warning"><p><strong>'
+                        . esc_html__( 'UnysonPlus theme', 'unysonplus' ) . ':</strong> '
+                        . esc_html__( 'these stylesheet handles could not be folded into the theme cascade (missing or cyclic dependency):', 'unysonplus' )
+                        . ' <code>' . esc_html( implode( ', ', $skipped ) ) . '</code>. '
+                        . esc_html__( 'They still print on their own, but check their wp_enqueue_style() dependencies.', 'unysonplus' )
+                        . '</p></div>';
+        }
+}
+add_action( 'admin_notices', 'unysonplus_style_order_admin_notice' );
+
+if ( ! function_exists( 'unysonplus_assert_theme_styles_printed' ) ) {
+        /**
+         * Dev smoke check (WP_DEBUG, front end only): the theme stylesheet — and the
+         * child stylesheet when a child theme is active — MUST print on every
+         * request. If the cascade orderer or a bad dependency ever drops them again
+         * (the exact failure that blanked the site once), this logs loudly at
+         * wp_footer instead of letting a silently-unstyled page ship. Inert in
+         * production (WP_DEBUG off) and never prints output — log only.
+         */
+        function unysonplus_assert_theme_styles_printed() {
+                if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) || is_admin() ) { return; }
+                $required = array( 'parent-style' );
+                if ( is_child_theme() ) { $required[] = 'child-style'; }
+                foreach ( $required as $handle ) {
+                        if ( ! wp_style_is( $handle, 'done' ) ) {
+                                error_log( 'UnysonPlus SMOKE CHECK FAILED: required stylesheet "' . $handle . '" did not print — the theme CSS cascade is broken (check stylesheet dependencies / ordering in inc/static.php).' );
+                        }
+                }
+        }
+}
+add_action( 'wp_footer', 'unysonplus_assert_theme_styles_printed', 9999 );

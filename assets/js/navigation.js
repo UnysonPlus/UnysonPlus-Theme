@@ -144,15 +144,10 @@
 				return;
 			}
 
-			// Desktop: click the link toggles the submenu; href still works via
-			// keyboard / right-click. We only intercept primary mouse clicks.
-			anchor.addEventListener( 'click', function ( e ) {
-				if ( e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey ) { return; }
-				e.preventDefault();
-				var willOpen = ! parent.classList.contains( SUBMENU_OPEN );
-				closeAllDropdowns();
-				if ( willOpen ) { parent.classList.add( SUBMENU_OPEN ); }
-			} );
+			// Desktop: submenus open on HOVER (and keyboard :focus-within) via CSS
+			// — see .primary-menu .menu-item-has-children:hover > .sub-menu. The
+			// parent link is left alone so a click navigates to its own page,
+			// matching the header-builder nav behaviour.
 		} );
 
 		document.addEventListener( 'click', function ( e ) {

@@ -1,268 +1,135 @@
 <?php if ( ! defined( 'FW' ) ) {
-        die( 'Forbidden' );
+	die( 'Forbidden' );
 }
 
-$sidebar_choices = [
-        'sidebar-right' => __( 'Right Sidebar Area', 'unysonplus' ),
-        'sidebar-left'  => __( 'Left Sidebar Area', 'unysonplus' ),
-        'header-1'      => __( 'Header Widget Area 1', 'unysonplus' ),
-        'header-2'      => __( 'Header Widget Area 2', 'unysonplus' ),
-        'header-3'      => __( 'Header Widget Area 3', 'unysonplus' ),
-        'footer-1'      => __( 'Footer Column 1', 'unysonplus' ),
-        'footer-2'      => __( 'Footer Column 2', 'unysonplus' ),
-        'footer-3'      => __( 'Footer Column 3', 'unysonplus' ),
-        'footer-4'      => __( 'Footer Column 4', 'unysonplus' ),
-        'footer-5'      => __( 'Footer Column 5', 'unysonplus' ),
-];
-if ( ! empty( $GLOBALS['wp_registered_sidebars'] ) ) {
-        foreach ( $GLOBALS['wp_registered_sidebars'] as $sidebar ) {
-                if ( ! isset( $sidebar_choices[ $sidebar['id'] ] ) ) {
-                        $sidebar_choices[ $sidebar['id'] ] = $sidebar['name'];
-                }
-        }
-}
+/**
+ * HEADER → LAYOUT — the header "chrome": layout mode, container, heights,
+ * mobile breakpoint, background and scroll behavior.
+ *
+ * The header's three rows were split into their own sibling sub-tabs (mirroring
+ * the footer's Pre / Main / Post structure), each with its own storage key:
+ *   - Top Bar     → `header_topbar`    (header-topbar.php)
+ *   - Main Header → `header_main`      (header-main.php)
+ *   - Bottom Bar  → `header_bottombar` (header-bottombar.php)
+ * The top/bottom bars no longer have an Enable switch — like the footer, a row
+ * renders whenever any of its columns has an element. The slot/preset system
+ * reads all four ids (see unysonplus_preset_option_ids()); a one-time admin
+ * migration (unysonplus_migrate_header_layout()) lifts the legacy single-blob
+ * `header_layout` shape into the four keys, for both global settings and any
+ * up_header preset post-meta.
+ *
+ * `header_mode` + `vertical_width` are read via unysonplus_header_layout_get().
+ * SVG previews live at assets/svg/layout/*.svg.
+ */
 
-$menu_choices = [];
-if ( function_exists( 'wp_get_nav_menus' ) ) {
-        foreach ( wp_get_nav_menus() as $menu_obj ) {
-                $menu_choices[ $menu_obj->term_id ] = $menu_obj->name;
-        }
-}
+$uri = get_template_directory_uri();
+$svg = $uri . '/assets/svg/layout';
 
-$menu_location_choices = [
-        'primary'   => __( 'Primary menu', 'unysonplus' ),
-        'secondary' => __( 'Secondary menu', 'unysonplus' ),
-        'footer'    => __( 'Footer menu', 'unysonplus' ),
-];
-if ( function_exists( 'get_registered_nav_menus' ) ) {
-        foreach ( get_registered_nav_menus() as $loc => $label ) {
-                if ( ! isset( $menu_location_choices[ $loc ] ) ) {
-                        $menu_location_choices[ $loc ] = $label;
-                }
-        }
-}
-
-$sidebar_label_map = json_encode( $sidebar_choices, JSON_UNESCAPED_UNICODE );
-$menu_label_map = json_encode( array_map( 'strval', $menu_choices ), JSON_UNESCAPED_UNICODE );
-$menu_location_label_map = json_encode( $menu_location_choices, JSON_UNESCAPED_UNICODE );
-
-$element_popup_options = [
-        'element_type' => [
-                'type'         => 'multi-picker',
-                'label'        => false,
-                'desc'         => false,
-                'picker'       => [
-                        'element' => [
-                                'label'   => __( 'Element', 'unysonplus' ),
-                                'type'    => 'select',
-                                'value'   => 'logo',
-                                'choices' => [
-                                        'logo'          => __( 'Logo', 'unysonplus' ),
-                                        'menu'          => __( 'Menu', 'unysonplus' ),
-                                        'menu_area'     => __( 'Menu Area', 'unysonplus' ),
-                                        'cta_button'    => __( 'CTA Button', 'unysonplus' ),
-                                        'phone'         => __( 'Phone Number', 'unysonplus' ),
-                                        'search'        => __( 'Search', 'unysonplus' ),
-                                        'social_icons'  => __( 'Social Icons', 'unysonplus' ),
-                                        'custom_html'   => __( 'Custom HTML', 'unysonplus' ),
-                                        'text'          => __( 'Text', 'unysonplus' ),
-                                        'widget_area'   => __( 'Widget Area', 'unysonplus' ),
-                                ],
-                                'desc'    => __( 'Select header element.', 'unysonplus' ),
-                        ]
-                ],
-                'choices'      => [
-                        'cta_button'  => [
-                                'cta_text' => [
-                                        'label' => __( 'Button Text', 'unysonplus' ),
-                                        'type'  => 'text',
-                                        'value' => 'Get Started',
-                                ],
-                                'cta_link' => [
-                                        'label' => __( 'Button Link', 'unysonplus' ),
-                                        'type'  => 'text',
-                                        'value' => '#',
-                                ],
-                                'cta_bg_color' => [
-                                        'label' => __( 'Button Background', 'unysonplus' ),
-                                        'type'  => 'color-picker',
-                                        'value' => '#0d6efd',
-                                ],
-                                'cta_text_color' => [
-                                        'label' => __( 'Button Text Color', 'unysonplus' ),
-                                        'type'  => 'color-picker',
-                                        'value' => '#ffffff',
-                                ],
-                                'cta_style' => [
-                                        'label'   => __( 'Button Style', 'unysonplus' ),
-                                        'type'    => 'select',
-                                        'value'   => 'filled',
-                                        'choices' => [
-                                                'filled'  => __( 'Filled', 'unysonplus' ),
-                                                'outline' => __( 'Outline', 'unysonplus' ),
-                                                'pill'    => __( 'Pill (Rounded)', 'unysonplus' ),
-                                        ],
-                                ],
-                        ],
-                        'phone' => [
-                                'phone_number' => [
-                                        'label' => __( 'Phone Number', 'unysonplus' ),
-                                        'type'  => 'text',
-                                        'value' => '',
-                                ],
-                        ],
-                        'custom_html' => [
-                                'custom_html_content' => [
-                                        'label' => __( 'Custom HTML', 'unysonplus' ),
-                                        'type'  => 'textarea',
-                                        'value' => '',
-                                ],
-                        ],
-                        'menu' => [
-                                'menu_id' => [
-                                        'label'   => __( 'Select Menu', 'unysonplus' ),
-                                        'type'    => 'select',
-                                        'value'   => '',
-                                        'choices' => $menu_choices,
-                                        'desc'    => __( 'Choose a menu created in Appearance > Menus.', 'unysonplus' ),
-                                ],
-                        ],
-                        'menu_area' => [
-                                'menu_location' => [
-                                        'label'   => __( 'Menu Location', 'unysonplus' ),
-                                        'type'    => 'select',
-                                        'value'   => 'primary',
-                                        'choices' => $menu_location_choices,
-                                        'desc'    => __( 'Select a theme menu location.', 'unysonplus' ),
-                                ],
-                        ],
-                        'text' => [
-                                'text_content' => [
-                                        'label'         => __( 'Text', 'unysonplus' ),
-                                        'type'          => 'wp-editor',
-                                        'value'         => '',
-                                        'desc'          => __( 'Add rich text content.', 'unysonplus' ),
-                                        'tinymce'       => true,
-                                        'size'          => 'large',
-                                        'editor_height' => 200,
-                                        'reinit'        => true,
-                                        'wpautop'       => true,
-                                ],
-                        ],
-                        'widget_area' => [
-                                'sidebar_id' => [
-                                        'label'   => __( 'Widget Area', 'unysonplus' ),
-                                        'type'    => 'select',
-                                        'value'   => 'sidebar-right',
-                                        'choices' => $sidebar_choices,
-                                        'desc'    => __( 'Select a registered widget area.', 'unysonplus' ),
-                                ],
-                        ],
-                ],
-                'show_borders' => false,
-        ],
-];
-
-$column_options = function( $label, $defaults = [] ) use ( $element_popup_options, $sidebar_label_map, $menu_label_map, $menu_location_label_map ) {
-        return [
-                'label'         => __( $label, 'unysonplus' ),
-                'type'          => 'addable-popup',
-                'value'         => $defaults,
-                'desc'          => __( 'Add and reorder header elements. Drag to sort.', 'unysonplus' ),
-                'template'      => '{{= (function(){ var el = element_type["element"]; var lbl = ({"logo":"Logo","cta_button":"CTA Button","phone":"Phone Number","search":"Search","social_icons":"Social Icons","custom_html":"Custom HTML","text":"Text","menu":"Menu","menu_area":"Menu Area","widget_area":"Widget Area"})[el] || el; if (el === "widget_area" && element_type["widget_area"] && element_type["widget_area"]["sidebar_id"]) { var smap = ' . $sidebar_label_map . '; var sid = element_type["widget_area"]["sidebar_id"]; lbl += " - " + (smap[sid] || sid); } if (el === "menu" && element_type["menu"] && element_type["menu"]["menu_id"]) { var mmap = ' . $menu_label_map . '; var mid = element_type["menu"]["menu_id"]; lbl += " - " + (mmap[mid] || mid); } if (el === "menu_area" && element_type["menu_area"] && element_type["menu_area"]["menu_location"]) { var amap = ' . $menu_location_label_map . '; var loc = element_type["menu_area"]["menu_location"]; lbl += " - " + (amap[loc] || loc); } return lbl; })() }}',
-                'popup-options' => $element_popup_options,
-        ];
+/* Build the image-picker `choices` array for any pair of {value => svg-filename}. */
+$picker = function ( array $pairs, $height_small = 70, $height_large = 140 ) use ( $svg ) {
+	$out = [];
+	foreach ( $pairs as $value => $file ) {
+		$out[ $value ] = [
+			'small' => [ 'height' => $height_small, 'src' => $svg . '/' . $file ],
+			'large' => [ 'height' => $height_large, 'src' => $svg . '/' . $file ],
+		];
+	}
+	return $out;
 };
 
 $options = [
-        'header_layout' => [
-                'type'          => 'multi',
-                'label'         => false,
-                'inner-options' => [
-                        'container' => [
-                                'label'   => __( 'Container', 'unysonplus' ),
-                                'type'    => 'select',
-                                'value'   => 'container',
-                                'choices' => [
-                                        'container'       => __( 'Fixed Width', 'unysonplus' ),
-                                        'container-fluid' => __( 'Full Width', 'unysonplus' ),
-                                ],
-                        ],
-                        'min_height' => [
-                                'label' => __( 'Main Header Height', 'unysonplus' ),
-                                'desc'  => __( 'Minimum height of the main header row.', 'unysonplus' ),
-                                'type'  => 'unit-input',
-                                'units' => [ 'rem', 'px', 'em' ],
-                                'value' => [ 'value' => '5', 'unit' => 'rem' ],
-                                'min'   => 0,
-                        ],
-                        'bg_color' => [
-                                'label' => __( 'Main Header Background', 'unysonplus' ),
-                                'type'  => 'rgba-color-picker',
-                                'value' => 'rgba(255, 255, 255, 1)',
-                        ],
-                        'sticky_header' => [
-                                'label'        => __( 'Sticky Header', 'unysonplus' ),
-                                'type'         => 'switch',
-                                'value'        => 'no',
-                                'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
-                                'left-choice'  => [ 'value' => 'no', 'label' => __( 'No', 'unysonplus' ) ],
-                                'desc'         => __( 'Make the main header stick to the top on scroll', 'unysonplus' ),
-                        ],
+	'header_layout' => [
+		'type'          => 'multi',
+		'label'         => false,
+		'inner-options' => [
+			'group_header_layout' => [
+				'type'    => 'group',
+				'options' => [
 
-                        'topbar_settings' => [
-                                'type'         => 'multi-picker',
-                                'label'        => false,
-                                'desc'         => false,
-                                'picker'       => [
-                                        'enabled' => [
-                                                'label'        => __( 'Enable Top Bar', 'unysonplus' ),
-                                                'type'         => 'switch',
-                                                'right-choice' => [
-                                                        'value' => 'yes',
-                                                        'label' => __( 'Yes', 'unysonplus' ),
-                                                ],
-                                                'left-choice'  => [
-                                                        'value' => 'no',
-                                                        'label' => __( 'No', 'unysonplus' ),
-                                                ],
-                                                'value'        => 'no',
-                                        ],
-                                ],
-                                'choices'      => [
-                                        'yes' => [
-                                                'topbar_bg_color' => [
-                                                        'label' => __( 'Top Bar Background', 'unysonplus' ),
-                                                        'type'  => 'rgba-color-picker',
-                                                        'value' => 'rgba(33, 37, 41, 1)',
-                                                ],
-                                                'topbar_text_color' => [
-                                                        'label' => __( 'Top Bar Text Color', 'unysonplus' ),
-                                                        'type'  => 'color-picker',
-                                                        'value' => '#ffffff',
-                                                ],
-                                                'topbar_left'   => $column_options( 'Top Bar — Left Column' ),
-                                                'topbar_center' => $column_options( 'Top Bar — Center Column' ),
-                                                'topbar_right'  => $column_options( 'Top Bar — Right Column' ),
-                                        ],
-                                ],
-                                'show_borders' => false,
-                        ],
+					'header_mode' => [
+						'label'   => __( 'Header Layout Mode', 'unysonplus' ),
+						'desc'    => __( 'Top: standard horizontal header. Vertical Left/Right: fixed side rail with logo + menu. Off-Canvas Only: hamburger always visible, no top bar. Overlay Fullscreen: hamburger opens a fullscreen menu.', 'unysonplus' ),
+						'type'    => 'image-picker',
+						'value'   => 'top',
+						'choices' => $picker( [
+							'top'             => 'header-top.svg',
+							'vertical-left'   => 'header-vertical-left.svg',
+							'vertical-right'  => 'header-vertical-right.svg',
+							'off-canvas-only' => 'header-off-canvas.svg',
+							'overlay'         => 'header-overlay.svg',
+						] ),
+					],
 
-                        'main_header_group' => [
-                                'type'    => 'group',
-                                'options' => [
-                                        'main_left' => $column_options(
-                                                'Main Header — Left Column',
-                                                [ [ 'element_type' => [ 'element' => 'logo' ] ] ]
-                                        ),
-                                        'main_center' => $column_options( 'Main Header — Center Column' ),
-                                        'main_right' => $column_options(
-                                                'Main Header — Right Column',
-                                                [ [ 'element_type' => [ 'element' => 'menu_area', 'menu_area' => [ 'menu_location' => 'primary' ] ] ] ]
-                                        ),
-                                ],
-                        ],
-                ],
-        ],
+					'vertical_width' => [
+						'label' => __( 'Vertical Header Width', 'unysonplus' ),
+						'desc'  => __( 'Width of the fixed side rail (when Header Layout Mode = Vertical Left/Right).', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'rem', 'px', 'em' ],
+						'value' => [ 'value' => '16.25', 'unit' => 'rem' ],
+						'min'   => 0,
+					],
+
+					'container' => [
+						'label'   => __( 'Container', 'unysonplus' ),
+						'type'    => 'select',
+						'value'   => 'container',
+						'choices' => [
+							'container'       => __( 'Fixed Width', 'unysonplus' ),
+							'container-fluid' => __( 'Full Width', 'unysonplus' ),
+						],
+					],
+
+					'min_height' => [
+						'label' => __( 'Main Header Height', 'unysonplus' ),
+						'desc'  => __( 'Minimum height of the main header row.', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'rem', 'px', 'em' ],
+						'value' => [ 'value' => '5', 'unit' => 'rem' ],
+						'min'   => 0,
+					],
+
+					'mobile_min_height' => [
+						'label' => __( 'Mobile Header Height', 'unysonplus' ),
+						'desc'  => __( 'Main header height on phones (below 768px). Leave empty to reuse the desktop height.', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'rem', 'px', 'em' ],
+						'value' => [ 'value' => '', 'unit' => 'rem' ],
+						'min'   => 0,
+					],
+
+					'mobile_breakpoint' => [
+						'label'   => __( 'Collapse to Mobile Menu At', 'unysonplus' ),
+						'type'    => 'select',
+						'value'   => 'lg',
+						'choices' => [
+							'lg' => __( 'Below 992px (tablet & phone)', 'unysonplus' ),
+							'md' => __( 'Below 768px (phone only)', 'unysonplus' ),
+						],
+						'desc'    => __( 'Screen width below which the inline menu collapses to the hamburger drawer.', 'unysonplus' ),
+					],
+
+					'bg_color' => [
+						'label' => __( 'Main Header Background', 'unysonplus' ),
+						'type'  => 'rgba-color-picker',
+						'value' => 'rgba(255, 255, 255, 1)',
+					],
+
+					'header_behavior' => [
+						'label'   => __( 'Header Behavior', 'unysonplus' ),
+						'type'    => 'select',
+						'value'   => 'static',
+						'choices' => [
+							'static'              => __( 'Static (scrolls away with the page)', 'unysonplus' ),
+							'sticky'              => __( 'Sticky (follows scroll)', 'unysonplus' ),
+							'sticky-shrink'       => __( 'Sticky + Shrink on scroll', 'unysonplus' ),
+							'hide-on-scroll'      => __( 'Sticky, hide on scroll down / reveal up', 'unysonplus' ),
+							'transparent-overlay' => __( 'Transparent over the first section', 'unysonplus' ),
+						],
+						'desc'    => __( 'How the header behaves on scroll. This supersedes the old Sticky switch and General → Layout → Header Position Behavior. Per-page "Transparent" still overrides it for that page.', 'unysonplus' ),
+					],
+
+				],
+			],
+		],
+	],
 ];

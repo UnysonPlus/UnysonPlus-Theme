@@ -32,6 +32,32 @@ function unysonplus_get_footer_col_classes( $layout ) {
 endif;
 
 
+if ( ! function_exists( 'unysonplus_footer_resolve_tokens' ) ) :
+/**
+ * Resolve dynamic-content tokens inside footer text (copyright / Text element).
+ *
+ * The legacy proprietary {year} token is retired in favor of the unified
+ * {{current_year}} Dynamic Content tag. Any old saved value is bridged to the
+ * new token so existing footers keep working, then handed to the plugin's
+ * resolver. If the Unyson+ plugin is inactive, {{current_year}} still degrades
+ * to the current year so the footer is never left with a literal token.
+ */
+function unysonplus_footer_resolve_tokens( $text ) {
+        if ( ! is_string( $text ) || '' === $text ) return $text;
+
+        // Bridge the retired {year} token to the unified {{current_year}} tag.
+        $text = str_replace( '{year}', '{{current_year}}', $text );
+
+        if ( function_exists( 'fw_dynamic_content' ) ) {
+                return fw_dynamic_content()->resolve( $text );
+        }
+
+        // Plugin inactive — keep the year working standalone.
+        return str_replace( '{{current_year}}', date_i18n( 'Y' ), $text );
+}
+endif;
+
+
 if ( ! function_exists( 'unysonplus_render_footer_element' ) ) :
 function unysonplus_render_footer_element( $element ) {
         if ( empty( $element['element_type']['element'] ) ) return;
@@ -103,6 +129,12 @@ function unysonplus_render_footer_element( $element ) {
                 case 'back_to_top':
                         unysonplus_render_back_to_top( $settings );
                         break;
+
+                case 'builder_section':
+                        if ( function_exists( 'unysonplus_render_builder_section' ) ) {
+                                unysonplus_render_builder_section( $settings );
+                        }
+                        break;
         }
 }
 endif;
@@ -123,7 +155,7 @@ function unysonplus_render_footer_column( $column_data, $col_class ) {
         foreach ( $column_data as $element ) {
                 if ( empty( $element['element_type']['element'] ) ) continue;
                 $type = $element['element_type']['element'];
-                echo '<div class="footer-element footer-element--' . esc_attr( $type ) . '">';
+                echo '<div class="footer-element footer-element--' . esc_attr( $type ) . esc_attr( function_exists( 'unysonplus_element_visibility_classes' ) ? unysonplus_element_visibility_classes( $element ) : '' ) . '">';
                 unysonplus_render_footer_element( $element );
                 echo '</div>';
         }
@@ -178,62 +210,20 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
         }
         if ( ! $has_content ) return;
 
+        // Visual styling (bg / typography / link / borders) is compiled into the
+        // generated CSS file (inc/includes/hf-custom-css.php), scoped to
+        // .footer-section--{prefix}. Only container + css-class + padding are
+        // class-based here — no inline element styles or overlay element.
         $custom_styling = ! empty( $section_data[ $prefix . '_custom_styling' ] ) ? $section_data[ $prefix . '_custom_styling' ] : array();
-        $has_custom     = ! empty( $custom_styling['enabled'] ) && $custom_styling['enabled'] === 'yes';
-        $cs             = $has_custom && ! empty( $custom_styling['yes'] ) ? $custom_styling['yes'] : array();
-
-        $container = ! empty( $cs[ $prefix . '_container' ] ) ? $cs[ $prefix . '_container' ] : 'container';
+        $attr = function_exists( 'unysonplus_hf_section_render_attrs' )
+                ? unysonplus_hf_section_render_attrs( $custom_styling, $prefix, 'container' )
+                : array( 'container' => 'container', 'class' => '' );
 
         $classes = array( 'footer-section', 'footer-section--' . str_replace( '_', '-', $prefix ) );
-        if ( ! empty( $cs[ $prefix . '_css_class' ] ) ) $classes[] = $cs[ $prefix . '_css_class' ];
         if ( ! empty( $section_class ) ) $classes[] = $section_class;
-
-        $styles    = array();
-        $link_css  = '';
-        $overlay   = '';
-
-        if ( $has_custom ) {
-                $bg_color       = ! empty( $cs[ $prefix . '_bg_color' ] ) ? $cs[ $prefix . '_bg_color' ] : '';
-                $bg_image       = ! empty( $cs[ $prefix . '_bg_image' ]['url'] ) ? $cs[ $prefix . '_bg_image' ]['url'] : '';
-                $text_color     = ! empty( $cs[ $prefix . '_text_color' ] ) ? $cs[ $prefix . '_text_color' ] : '';
-                $link_color     = ! empty( $cs[ $prefix . '_link_color' ] ) ? $cs[ $prefix . '_link_color' ] : '';
-                $padding_top    = ! empty( $cs[ $prefix . '_padding_top' ] ) ? $cs[ $prefix . '_padding_top' ] : '';
-                $padding_bottom = ! empty( $cs[ $prefix . '_padding_bottom' ] ) ? $cs[ $prefix . '_padding_bottom' ] : '';
-                $border_color   = ! empty( $cs[ $prefix . '_border_top_color' ] ) ? $cs[ $prefix . '_border_top_color' ] : '';
-                $border_width   = ! empty( $cs[ $prefix . '_border_top_width' ] ) ? $cs[ $prefix . '_border_top_width' ] : '';
-
-                if ( ! empty( $text_color ) )     $styles[] = 'color: ' . $text_color;
-                if ( ! empty( $padding_top ) )    $styles[] = 'padding-top: ' . $padding_top;
-                if ( ! empty( $padding_bottom ) ) $styles[] = 'padding-bottom: ' . $padding_bottom;
-                if ( ! empty( $link_color ) )     $link_css = '--footer-link-color: ' . $link_color;
-
-                if ( ! empty( $bg_image ) ) {
-                        $styles[] = 'background-image: url(' . esc_url( $bg_image ) . ')';
-                        $styles[] = 'background-size: cover';
-                        $styles[] = 'background-position: center';
-                        $bg_overlay  = isset( $cs[ $prefix . '_bg_overlay' ] ) ? intval( $cs[ $prefix . '_bg_overlay' ] ) : 80;
-                        $overlay_bg  = ! empty( $bg_color ) ? $bg_color : 'rgba(0,0,0,0.8)';
-                        $overlay     = '<div class="footer-section__overlay" style="background: ' . esc_attr( $overlay_bg ) . '; opacity: ' . esc_attr( $bg_overlay / 100 ) . ';"></div>';
-                } elseif ( ! empty( $bg_color ) ) {
-                        $styles[] = 'background-color: ' . $bg_color;
-                }
-
-                if ( ! empty( $border_color ) && ! empty( $border_width ) ) {
-                        $styles[] = 'border-top: ' . $border_width . ' solid ' . $border_color;
-                }
-        }
-
-        $style_attr = '';
-        if ( ! empty( $styles ) || ! empty( $link_css ) ) {
-                $parts = array();
-                if ( ! empty( $styles ) ) $parts[] = implode( '; ', $styles );
-                if ( ! empty( $link_css ) ) $parts[] = $link_css;
-                $style_attr = ' style="' . esc_attr( implode( '; ', $parts ) ) . '"';
-        }
         ?>
-        <div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"<?php echo $style_attr; ?>>
-                <?php echo $overlay; ?>
-                <div class="<?php echo esc_attr( $container ); ?> footer-section__inner">
+        <div class="<?php echo esc_attr( implode( ' ', $classes ) ) . $attr['class']; // phpcs:ignore — $attr['class'] is pre-escaped ?>">
+                <div class="<?php echo esc_attr( $attr['container'] ); ?> footer-section__inner">
                         <div class="row footer-row">
                                 <?php
                                 for ( $i = 1; $i <= $col_count; $i++ ) {
@@ -263,8 +253,15 @@ function unysonplus_render_footer_logo( $settings ) {
                 return;
         }
 
+        // max-width is emitted to the generated CSS file via a per-instance hash
+        // class (see inc/includes/hf-custom-css.php) — no inline style here.
+        $logo_class = 'footer-logo-img';
+        if ( function_exists( 'unysonplus_footer_logo_class' ) ) {
+                $w = unysonplus_footer_logo_class( $max_width );
+                if ( $w !== '' ) { $logo_class .= ' ' . $w; }
+        }
         echo '<a href="' . esc_url( home_url( '/' ) ) . '" class="footer-logo-link">';
-        echo '<img src="' . esc_url( $image ) . '" alt="' . esc_attr( get_bloginfo( 'name' ) ) . '" class="footer-logo-img" style="max-width: ' . esc_attr( $max_width ) . ';">';
+        echo '<img src="' . esc_url( $image ) . '" alt="' . esc_attr( get_bloginfo( 'name' ) ) . '" class="' . esc_attr( $logo_class ) . '">';
         echo '</a>';
 }
 endif;
@@ -293,9 +290,9 @@ function unysonplus_render_copyright_text( $settings ) {
         // default so the footer is never silently blank.
         $text = ! empty( $settings['copyright_content'] )
                 ? $settings['copyright_content']
-                : sprintf( '&copy; {year} %s. All rights reserved.', get_bloginfo( 'name' ) );
+                : sprintf( '&copy; {{current_year}} %s. All rights reserved.', get_bloginfo( 'name' ) );
 
-        $text = str_replace( '{year}', date( 'Y' ), $text );
+        $text = unysonplus_footer_resolve_tokens( $text );
         echo '<div class="footer-copyright-text">' . do_shortcode( wp_kses_post( $text ) ) . '</div>';
 }
 endif;
@@ -333,6 +330,7 @@ if ( ! function_exists( 'unysonplus_render_text_element' ) ) :
 function unysonplus_render_text_element( $settings ) {
         $content = ! empty( $settings['text_content'] ) ? $settings['text_content'] : '';
         if ( empty( $content ) ) return;
+        $content = unysonplus_footer_resolve_tokens( $content );
 
         echo '<div class="builder-text-element">' . do_shortcode( wpautop( wp_kses_post( $content ) ) ) . '</div>';
 }

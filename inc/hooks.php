@@ -44,8 +44,15 @@ function unysonplus_theme_support() {
          */
         add_theme_support( 'title-tag' );
         
-        // Add Woocommerce support
-        //add_theme_support('woocommerce');
+        // WooCommerce support — declared only when WooCommerce is active so the
+        // theme stays neutral without it. The full compatibility layer (content
+        // wrappers, sidebar routing, shop styles) lives in inc/includes/woocommerce.php.
+        if ( class_exists( 'WooCommerce' ) ) {
+                add_theme_support( 'woocommerce' );
+                add_theme_support( 'wc-product-gallery-zoom' );
+                add_theme_support( 'wc-product-gallery-lightbox' );
+                add_theme_support( 'wc-product-gallery-slider' );
+        }
 
         /*
          * Switch default core markup for search form, comment form, and comments
@@ -117,7 +124,7 @@ if( ! function_exists('unysonplus_move_jquery_scripts') ) :
 endif;
 
 
-if(!function_exists('_action_theme_process_google_fonts')) :
+if(!function_exists('unysonplus_layerslider_overrides')) :
         function unysonplus_layerslider_overrides() {
         /**
          * Register your custom function to override some LayerSlider data
@@ -135,53 +142,35 @@ if(!function_exists('_action_theme_process_google_fonts')) {
         */
         function _action_theme_process_google_fonts()
         {
-                $include_from_google = array();
+                if ( ! function_exists( 'fw_get_google_fonts' ) || ! function_exists( 'fw_get_db_settings_option' ) ) {
+                        return;
+                }
                 $google_fonts = fw_get_google_fonts();
-                //$google_fonts = fw_get_google_fonts_v2();
+                if ( ! is_array( $google_fonts ) ) {
+                        return;
+                }
 
-                $typographys = fw_get_db_settings_option('typography');
-                $body = $typographys['body'];
-                $h1 = $typographys['h1'];
-                $h2 = $typographys['h2'];
-                $h3 = $typographys['h3'];
-                $h4 = $typographys['h4'];
-                $h5 = $typographys['h5'];
-                $h6 = $typographys['h6'];
-                if( isset($google_fonts[$body['family']]) )                     $include_from_google[$body['family']] = $google_fonts[$body['family']];
-                if( isset($google_fonts[$h1['family']]) )                       $include_from_google[$h1['family']] = $google_fonts[$h1['family']];
-                if( isset($google_fonts[$h2['family']]) )                       $include_from_google[$h2['family']] = $google_fonts[$h2['family']];
-                if( isset($google_fonts[$h3['family']]) )                       $include_from_google[$h3['family']] = $google_fonts[$h3['family']];             
-                if( isset($google_fonts[$h4['family']]) )                               $include_from_google[$h4['family']] = $google_fonts[$h4['family']];             
-                if( isset($google_fonts[$h5['family']]) )                       $include_from_google[$h5['family']] = $google_fonts[$h5['family']];     
-                if( isset($google_fonts[$h6['family']]) )                       $include_from_google[$h6['family']] = $google_fonts[$h6['family']];
+                // Collect Google-font families from the theme Typography settings
+                // (body + h1–h6). The legacy header_menu / footer_widgets /
+                // footer_menu / footer_copyright reads were removed — those option
+                // ids no longer exist in this theme and only produced "array offset
+                // on null" warnings on every settings save. Header / footer
+                // per-section typography loads its own Google fonts via
+                // inc/includes/hf-custom-css.php.
+                $include_from_google = array();
+                $typographys = fw_get_db_settings_option( 'typography' );
+                if ( is_array( $typographys ) ) {
+                        foreach ( array( 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ) as $key ) {
+                                $family = isset( $typographys[ $key ]['family'] ) ? $typographys[ $key ]['family'] : '';
+                                if ( $family !== '' && isset( $google_fonts[ $family ] ) ) {
+                                        $include_from_google[ $family ] = $google_fonts[ $family ];
+                                }
+                        }
+                }
 
-                $header_menu = fw_get_db_settings_option('header_menu');
-                $menu           = $header_menu[$header_menu['selected']]['menu']['typography'];
-                $submenu        = $header_menu[$header_menu['selected']]['submenu']['typography'];
-                $megamenu_header = $header_menu[$header_menu['selected']]['megamenu']['heading_typography'];
-                $megamenu = $header_menu[$header_menu['selected']]['megamenu']['typography'];
-                if( isset($google_fonts[$menu['family']]) )                                                             $include_from_google[$menu['family']] = $google_fonts[$menu['family']];
-                if( isset($google_fonts[$submenu['family']]) )                                          $include_from_google[$submenu['family']] = $google_fonts[$submenu['family']];
-                if( isset($google_fonts[$megamenu_header['family']]) )          $include_from_google[$megamenu_header['family']] = $google_fonts[$megamenu_header['family']];
-                if( isset($google_fonts[$megamenu['family']]) )                                         $include_from_google[$megamenu['family']] = $google_fonts[$megamenu['family']];
-
-                $footer_widgets = fw_get_db_settings_option('footer_widgets');
-                $footer_widgets_heading_typography = $footer_widgets['yes']['heading_typography'];
-                $footer_widgets_typography = $footer_widgets['yes']['typography'];
-                if( isset($google_fonts[$footer_widgets_heading_typography['family']]) )                                $include_from_google[$footer_widgets_heading_typography['family']] = $google_fonts[$footer_widgets_heading_typography['family']];
-                if( isset($google_fonts[$footer_widgets_typography['family']]) )                                                                $include_from_google[$footer_widgets_typography['family']] = $google_fonts[$footer_widgets_typography['family']];
-
-                $footer_menu = fw_get_db_settings_option('footer_menu');
-                if( isset($google_fonts[$footer_menu['family']]) )                                                                                                                      $include_from_google[$footer_menu['family']] = $google_fonts[$footer_menu['family']];
-
-                $footer_copyright = fw_get_db_settings_option('footer_copyright');
-                if( isset($google_fonts[$footer_copyright['family']]) )                                                                                                 $include_from_google[$footer_copyright['family']] = $google_fonts[$footer_copyright['family']];
-         /* if( isset($google_fonts[$your_typography_option_1['family']]) ){
-                                $include_from_google[$your_typography_option_2['family']] =   $google_fonts[$your_typography_option_2['family']];
-                }*/
-
-                $google_fonts_links = fw_theme_get_remote_fonts($include_from_google);
-                // set a option in db for save google fonts link
+                $google_fonts_links = fw_theme_get_remote_fonts( $include_from_google );
+                // Cache the <link> markup; printed in <head> by
+                // _action_theme_print_google_fonts_link().
                 update_option( 'fw_theme_google_fonts_link', $google_fonts_links );
         }
         add_action('fw_settings_form_saved', '_action_theme_process_google_fonts', 999, 2);
@@ -228,7 +217,9 @@ if (!function_exists('_action_theme_print_google_fonts_link')) :
         add_action('wp_head', '_action_theme_print_google_fonts_link');
 endif;
 
-add_action( 'wp_head',    'unysonplus_emit_css_tokens', 1 );
+// Front end: typography tokens are compiled into the generated CSS file
+// (inc/includes/hf-custom-css.php). Admin keeps the inline emit for the
+// page-builder editor preview.
 add_action( 'admin_head', 'unysonplus_emit_css_tokens', 1 );
 
 
@@ -375,7 +366,10 @@ if(! function_exists('unysonplus_breadcrumbs') ) :
          * Breadcrumbs
          */
         function unysonplus_breadcrumbs() {
-                if( !is_front_page() && function_exists('fw_ext_breadcrumbs') && is_page() ) {
+                // Gated by Pages → Defaults → "Show Breadcrumbs on Pages" (default no).
+                $enabled = ! function_exists( 'unysonplus_pages_get' )
+                        || unysonplus_pages_get( 'pages_show_breadcrumbs', 'no' ) === 'yes';
+                if( $enabled && !is_front_page() && function_exists('fw_ext_breadcrumbs') && is_page() ) {
                         fw_ext_breadcrumbs();
                 }
         }

@@ -1,40 +1,43 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { die( 'Forbidden' ); }
 
 /**
- * Emits <style id="unysonplus-theme-vars"> in <head> with the design-token
- * CSS custom properties that style.css consumes (colors, header, topbar,
- * footer, menu, layout).
+ * Design-token CSS custom properties that style.css consumes (colors, header,
+ * footer, layout). All values are GLOBAL (same on every page).
+ *
+ * On the FRONT END these are compiled into the generated CSS file by
+ * inc/includes/hf-custom-css.php (no inline <style>); the file loads after
+ * parent-style so the tokens win the cascade against any defaults in style.css.
+ * In the ADMIN they are still emitted inline on admin_head so the page-builder
+ * editor preview stays live.
  *
  * Reads Unyson options when the framework is active; falls back to neutral
  * defaults so a fresh install with the plugin inactive still renders cleanly.
- *
- * Typography tokens (--body-font-family, --h1-font-size, …) are emitted by
- * unysonplus_emit_css_tokens() at priority 1. This runs at priority 20 —
- * after wp_print_styles (priority 8) so the inline :root block wins the
- * cascade against any defaults declared inside style.css.
  */
 
-if ( ! function_exists( 'unysonplus_emit_theme_vars' ) ) :
-	function unysonplus_emit_theme_vars() {
+if ( ! function_exists( 'unysonplus_theme_vars_css' ) ) :
+	/**
+	 * Build the theme-vars CSS (minified `:root{}`), no <style> wrapper.
+	 *
+	 * @return string  '' when there are no vars.
+	 */
+	function unysonplus_theme_vars_css() {
 		$vars = unysonplus_collect_theme_vars();
-		if ( empty( $vars ) ) { return; }
-
-		$pretty = ( defined( 'WP_DEBUG' ) && WP_DEBUG );
-
-		if ( $pretty ) {
-			echo "\n<style id=\"unysonplus-theme-vars\">\n:root {\n";
-			foreach ( $vars as $name => $value ) {
-				echo "\t" . $name . ': ' . $value . ";\n";
-			}
-			echo "}\n</style>\n";
-		} else {
-			$css = ':root{';
-			foreach ( $vars as $name => $value ) {
-				$css .= $name . ':' . $value . ';';
-			}
-			$css .= '}';
-			echo '<style id="unysonplus-theme-vars">' . $css . '</style>';
+		if ( empty( $vars ) ) { return ''; }
+		$css = ':root{';
+		foreach ( $vars as $name => $value ) {
+			$css .= $name . ':' . $value . ';';
 		}
+		$css .= '}';
+		return $css;
+	}
+endif;
+
+if ( ! function_exists( 'unysonplus_emit_theme_vars' ) ) :
+	/** Inline emitter — admin only (front end uses the generated file). */
+	function unysonplus_emit_theme_vars() {
+		$css = unysonplus_theme_vars_css();
+		if ( $css === '' ) { return; }
+		echo '<style id="unysonplus-theme-vars">' . $css . '</style>'; // phpcs:ignore — CSS, values sanitized upstream
 	}
 endif;
 
@@ -113,21 +116,31 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			}
 		}
 
-		/* General → Layout (read all keys under general_layout multi) */
-		$layout = fw_get_db_settings_option( 'general_layout', array() );
-		if ( is_array( $layout ) && ! empty( $layout ) ) {
+		/* General → Layout / Sidebar / Preloader (the tab was split into three
+		 * storage keys; merge them so the reads below are key-name stable). */
+		$layout = array();
+		foreach ( array( 'general_layout', 'general_sidebar', 'general_preloader', 'general_scroll' ) as $layout_opt ) {
+			$layout_raw = fw_get_db_settings_option( $layout_opt, array() );
+			if ( is_array( $layout_raw ) ) { $layout = array_merge( $layout, $layout_raw ); }
+		}
+		if ( ! empty( $layout ) ) {
 			$lget = function ( $k, $d = '' ) use ( $layout ) {
 				return ( isset( $layout[ $k ] ) && $layout[ $k ] !== '' && $layout[ $k ] !== null ) ? $layout[ $k ] : $d;
 			};
 
-			if ( ( $v = $lget( 'site_boxed_margin' ) ) !== '' ){ $out['--site-margin']           = unysonplus_css_length( $v ); }
-			if ( ( $v = $lget( 'site_frame_width' ) ) !== '' ) { $out['--site-frame-width']      = unysonplus_css_length( $v ); }
-			if ( ( $v = $lget( 'site_frame_color' ) ) !== '' ) { $out['--site-frame-color']      = $v; }
-			if ( ( $v = $lget( 'site_boxed_width' ) ) !== '' ) { $out['--site-max-width']        = unysonplus_css_length( $v ); }
-			if ( ( $v = $lget( 'layout_container_max_width' ) ) !== '' ) { $out['--site-max-width'] = unysonplus_css_length( $v ); }
+			// Site Width Mode sub-options now live in the site_width_mode multi-picker
+			// (boxed / framed groups); read them via the width helper. site_boxed_width
+			// is the sole writer of --site-max-width (the old layout_container_max_width
+			// collision was removed — it clobbered Boxed Width and never styled .container).
+			$wget = function_exists( 'unysonplus_width_get' ) ? 'unysonplus_width_get' : null;
+			if ( $wget ) {
+				if ( ( $v = $wget( 'site_boxed_margin' ) ) !== '' ) { $out['--site-margin']      = unysonplus_css_length( $v ); }
+				if ( ( $v = $wget( 'site_frame_width' ) ) !== '' )  { $out['--site-frame-width'] = unysonplus_css_length( $v ); }
+				if ( ( $v = $wget( 'site_frame_color' ) ) !== '' )  { $out['--site-frame-color'] = $v; }
+				if ( ( $v = $wget( 'site_boxed_width' ) ) !== '' )  { $out['--site-max-width']   = unysonplus_css_length( $v ); }
+			}
 			if ( ( $v = $lget( 'layout_container_gutter' ) ) !== '' )    { $out['--container-gutter'] = unysonplus_css_length( $v ); }
 			if ( ( $v = $lget( 'layout_sidebar_width' ) ) !== '' )       { $out['--sidebar-width']    = unysonplus_css_length( $v ); }
-			if ( ( $v = $lget( 'layout_vertical_width' ) ) !== '' )      { $out['--vertical-header-width'] = unysonplus_css_length( $v ); }
 			if ( ( $v = $lget( 'layout_preloader_bg_color' ) ) !== '' )  { $out['--preloader-bg']     = $v; }
 			if ( ( $v = $lget( 'layout_scroll_progress_color' ) ) !== '' ) { $out['--scroll-progress-color'] = $v; }
 
@@ -220,16 +233,22 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			$hmh = unysonplus_css_length( isset( $header_layout['min_height'] ) ? $header_layout['min_height'] : '' );
 			if ( $hmh !== '' ) { $out['--header-min-height'] = $hmh; }
 
-			$topbar_opts = ! empty( $header_layout['topbar_settings']['yes'] )
-				? $header_layout['topbar_settings']['yes']
-				: array();
-			if ( ! empty( $topbar_opts['topbar_bg_color'] ) ) {
-				$out['--topbar-bg'] = $topbar_opts['topbar_bg_color'];
-			}
-			if ( ! empty( $topbar_opts['topbar_text_color'] ) ) {
-				$out['--topbar-color'] = $topbar_opts['topbar_text_color'];
-			}
+			$hmh_mobile = unysonplus_css_length( isset( $header_layout['mobile_min_height'] ) ? $header_layout['mobile_min_height'] : '' );
+			if ( $hmh_mobile !== '' ) { $out['--header-min-height-mobile'] = $hmh_mobile; }
+
+			// Vertical header rail width (moved here from General → Layout; falls
+			// back to the legacy general_layout key for pre-migration installs).
+			$vw_raw = ! empty( $header_layout['vertical_width'] )
+				? $header_layout['vertical_width']
+				: ( isset( $layout['layout_vertical_width'] ) ? $layout['layout_vertical_width'] : '' );
+			$vw = unysonplus_css_length( $vw_raw );
+			if ( $vw !== '' ) { $out['--vertical-header-width'] = $vw; }
+
 		}
+
+		// Top Bar / Bottom Bar styling (bg, typography, link, borders) is compiled
+		// into the generated header/footer CSS file (inc/includes/hf-custom-css.php),
+		// not emitted as :root tokens here.
 
 			// Logo width (Header → Identity) — an explicit display width overrides
 			// the header-height cap (see .site-title img in style.css).
@@ -272,7 +291,20 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 
 		$footer_bg_image = fw_get_db_settings_option( 'footer_bg_image' );
 		if ( ! empty( $footer_bg_image['url'] ) ) {
-			$out['--footer-bg-image'] = 'url(' . esc_url_raw( $footer_bg_image['url'] ) . ')';
+			$f_img = esc_url_raw( $footer_bg_image['url'] );
+			// Overlay opacity (0-100, default 80) composited over the image so footer
+			// text stays readable; tinted with the footer bg color (fallback black).
+			$f_overlay = fw_get_db_settings_option( 'footer_bg_overlay' );
+			$f_overlay = ( $f_overlay === null || $f_overlay === '' ) ? 80 : (int) $f_overlay;
+			$f_overlay = max( 0, min( 100, $f_overlay ) );
+			if ( $f_overlay > 0 && function_exists( 'unysonplus_color_with_alpha' ) ) {
+				$f_tint = fw_get_db_settings_option( 'footer_bg_color' );
+				if ( empty( $f_tint ) ) { $f_tint = 'rgba(0,0,0,1)'; }
+				$f_ov = unysonplus_color_with_alpha( $f_tint, $f_overlay / 100 );
+				$out['--footer-bg-image'] = 'linear-gradient(0deg,' . $f_ov . ',' . $f_ov . '),url(' . $f_img . ')';
+			} else {
+				$out['--footer-bg-image'] = 'url(' . $f_img . ')';
+			}
 		}
 
 		// Body text color from typography (aliases the existing --body-color emitted by css-tokens.php).
@@ -285,6 +317,26 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 		}
 		if ( ! empty( $typography['h1']['family'] ) ) {
 			$out['--font-heading'] = "'" . $typography['h1']['family'] . "', " . $out['--font-body'];
+		}
+		// Body/content link colors (Typography). Emitted only when set; style.css
+		// falls back to --color-primary so unset = current behavior.
+		if ( ! empty( $typography['body_link'] ) ) {
+			$out['--body-link-color'] = $typography['body_link'];
+		}
+		if ( ! empty( $typography['body_link_hover'] ) ) {
+			$out['--body-link-hover'] = $typography['body_link_hover'];
+		}
+
+		// Header → Menu styling (maps to the --menu-* tokens consumed by style.css).
+		$menu = fw_get_db_settings_option( 'header_menu', array() );
+		if ( is_array( $menu ) ) {
+			if ( ! empty( $menu['menu_link_color'] ) )       { $out['--menu-link-color'] = $menu['menu_link_color']; }
+			if ( ! empty( $menu['menu_link_hover_color'] ) ) { $out['--menu-link-hover'] = $menu['menu_link_hover_color']; }
+			if ( ! empty( $menu['menu_dropdown_bg'] ) )      { $out['--menu-dropdown-bg'] = $menu['menu_dropdown_bg']; }
+			$mpx = unysonplus_css_length( isset( $menu['menu_link_padding_x'] ) ? $menu['menu_link_padding_x'] : '' );
+			if ( $mpx !== '' ) { $out['--menu-link-pad-x'] = $mpx; }
+			$mpy = unysonplus_css_length( isset( $menu['menu_link_padding_y'] ) ? $menu['menu_link_padding_y'] : '' );
+			if ( $mpy !== '' ) { $out['--menu-link-pad-y'] = $mpy; }
 		}
 
 		return $out;
@@ -339,5 +391,7 @@ if ( ! function_exists( 'unysonplus_color_with_alpha' ) ) :
 	}
 endif;
 
-add_action( 'wp_head',    'unysonplus_emit_theme_vars', 20 );
+// Front end: theme vars are compiled into the generated CSS file
+// (inc/includes/hf-custom-css.php). Admin keeps the inline emit for the
+// page-builder editor preview.
 add_action( 'admin_head', 'unysonplus_emit_theme_vars', 20 );

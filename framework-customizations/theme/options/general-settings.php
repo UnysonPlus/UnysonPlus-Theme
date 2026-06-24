@@ -2,6 +2,19 @@
 	die( 'Forbidden' );
 }
 
+// Color palette / buttons / borders / spacing presets are owned by the plugin
+// (stored theme-independently, shared with the page builder). The Colors tab below
+// points there so they're discoverable from Theme Settings.
+$colors_settings_url = function_exists( 'sc_theme_settings_url' )
+	? sc_theme_settings_url( 'colors' )
+	: admin_url( 'admin.php?page=fw-extensions&sub-page=extension&extension=shortcodes' );
+
+$colors_pointer_html = '<div style="max-width:70ch">'
+	. '<p><strong>' . esc_html__( 'Color palette, buttons, borders &amp; spacing presets are managed in the Unyson+ plugin.', 'unysonplus' ) . '</strong></p>'
+	. '<p>' . esc_html__( 'They are stored independently of the theme (so they survive a theme switch) and are shared with the page builder, which is why they live outside Theme Settings.', 'unysonplus' ) . '</p>'
+	. '<p><a class="button button-primary" href="' . esc_url( $colors_settings_url ) . '">' . esc_html__( 'Open Color &amp; Button Settings', 'unysonplus' ) . '</a></p>'
+	. '</div>';
+
 $options = [
 	'general_settings_container' => [
 		'title'   => __( 'General', 'unysonplus' ),
@@ -33,6 +46,82 @@ $options = [
 								'type'    => 'box',
 								'options' => [
 									fw()->theme->get_options( 'general-typography' ),
+								],
+							],
+							'custom_fonts_box' => [
+								'title'   => __( 'Custom Fonts', 'unysonplus' ),
+								'type'    => 'box',
+								'options' => [
+									fw()->theme->get_options( 'general-fonts' ),
+								],
+							],
+						],
+					],
+					'tab_colors' => [
+						'title'   => __( 'Colors', 'unysonplus' ),
+						'type'    => 'tab',
+						'options' => [
+							'colors_box' => [
+								'title'   => __( 'Colors &amp; Buttons', 'unysonplus' ),
+								'type'    => 'box',
+								'options' => [
+									'colors_pointer' => [
+										'type'  => 'html-full',
+										'label' => false,
+										'html'  => $colors_pointer_html,
+									],
+								],
+							],
+						],
+					],
+					'tab_sidebar' => [
+						'title'   => __( 'Sidebar', 'unysonplus' ),
+						'type'    => 'tab',
+						'options' => [
+							'sidebar_box' => [
+								'title'   => __( 'Sidebar', 'unysonplus' ),
+								'type'    => 'box',
+								'options' => [
+									fw()->theme->get_options( 'general-sidebar' ),
+								],
+							],
+						],
+					],
+					'tab_preloader' => [
+						'title'   => __( 'Preloader', 'unysonplus' ),
+						'type'    => 'tab',
+						'options' => [
+							'preloader_box' => [
+								'title'   => __( 'Preloader', 'unysonplus' ),
+								'type'    => 'box',
+								'options' => [
+									fw()->theme->get_options( 'general-preloader' ),
+								],
+							],
+						],
+					],
+					'tab_scroll' => [
+						'title'   => __( 'Scrolling', 'unysonplus' ),
+						'type'    => 'tab',
+						'options' => [
+							'scroll_box' => [
+								'title'   => __( 'Scrolling', 'unysonplus' ),
+								'type'    => 'box',
+								'options' => [
+									fw()->theme->get_options( 'general-scroll' ),
+								],
+							],
+						],
+					],
+					'tab_image_sizes' => [
+						'title'   => __( 'Image Sizes', 'unysonplus' ),
+						'type'    => 'tab',
+						'options' => [
+							'image_sizes_box' => [
+								'title'   => __( 'Custom Image Sizes', 'unysonplus' ),
+								'type'    => 'box',
+								'options' => [
+									fw()->theme->get_options( 'general-image-sizes' ),
 								],
 							],
 						],

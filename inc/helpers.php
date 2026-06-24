@@ -3,6 +3,40 @@
  * This is for Helper functions and classes
  */
 
+if ( ! function_exists( 'unysonplus_attr_to_html' ) ) :
+	/**
+	 * Render an associative array of HTML attributes to a string.
+	 *
+	 * Wraps the framework's fw_attr_to_html() when available, with a native
+	 * fallback so front-end templates never fatal if the Unyson+ plugin is
+	 * inactive (the plugin is required + TGM-enforced, but this keeps the theme
+	 * resilient during updates / misconfiguration).
+	 *
+	 * @param array $attr name => value (true = boolean attr; false/null = skip).
+	 * @return string e.g. `class="x" id="y"` (no leading space).
+	 */
+	function unysonplus_attr_to_html( $attr ) {
+		if ( function_exists( 'fw_attr_to_html' ) ) {
+			return fw_attr_to_html( $attr );
+		}
+		if ( ! is_array( $attr ) ) {
+			return '';
+		}
+		$html = '';
+		foreach ( $attr as $name => $value ) {
+			if ( $value === false || $value === null ) {
+				continue;
+			}
+			if ( $value === true ) {
+				$html .= ' ' . esc_attr( $name );
+				continue;
+			}
+			$html .= ' ' . esc_attr( $name ) . '="' . esc_attr( $value ) . '"';
+		}
+		return ltrim( $html );
+	}
+endif;
+
 if(!function_exists('unysonplus_container_start')) :
         function unysonplus_container_start() {
 
@@ -104,9 +138,9 @@ if(! function_exists('unysonplus_logo')) :
                 $unysonplus_brand_link_attr = array( 'href' => esc_url( home_url( '/' ) ), 'rel' => 'home' );
                 $unysonplus_logo_color      = isset( $header_logo['color'] ) ? $header_logo['color'] : array();
                 if ( is_array( $unysonplus_logo_color ) ) {
-                        if ( ! empty( $unysonplus_logo_color['custom'] ) ) {
-                                $unysonplus_brand_link_attr['style'] = 'color:' . $unysonplus_logo_color['custom'] . ';';
-                        } elseif ( ! empty( $unysonplus_logo_color['predefined'] ) ) {
+                        // Custom hex is emitted to the generated CSS file (.site-title a);
+                        // the predefined palette is a class. No inline style here.
+                        if ( ! empty( $unysonplus_logo_color['predefined'] ) ) {
                                 $unysonplus_brand_link_attr['class'] = $unysonplus_logo_color['predefined'];
                         }
                 }
@@ -135,9 +169,9 @@ if(! function_exists('unysonplus_logo')) :
                         $unysonplus_desc_attr  = array();
                         $unysonplus_tag_color  = isset( $header_logo['tagline_color'] ) ? $header_logo['tagline_color'] : array();
                         if ( is_array( $unysonplus_tag_color ) ) {
-                                if ( ! empty( $unysonplus_tag_color['custom'] ) ) {
-                                        $unysonplus_desc_attr['style'] = 'color:' . $unysonplus_tag_color['custom'] . ';';
-                                } elseif ( ! empty( $unysonplus_tag_color['predefined'] ) ) {
+                                // Custom hex is emitted to the generated CSS file (.site-description);
+                                // the predefined palette is a class. No inline style here.
+                                if ( ! empty( $unysonplus_tag_color['predefined'] ) ) {
                                         $description_class[] = $unysonplus_tag_color['predefined'];
                                 }
                         }
