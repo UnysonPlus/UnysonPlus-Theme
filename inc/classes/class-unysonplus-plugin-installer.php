@@ -22,8 +22,15 @@ class UnysonPlus_Plugin_Installer {
 	/** Destination folder slug the GitHub archive is renamed to. */
 	const PLUGIN_SLUG = 'unysonplus';
 
-	/** GitHub branch archive (stable plugin lives on master). */
-	const SOURCE_ZIP = 'https://github.com/UnysonPlus/UnysonPlus/archive/refs/heads/master.zip';
+	/**
+	 * Complete plugin build, published as a GitHub *release asset* — the same
+	 * source the plugin's own auto-updater consumes (it calls
+	 * enableReleaseAssets()). NOTE: the core UnysonPlus repo's source archive is
+	 * NOT a complete plugin (the shortcodes / page-builder / … extensions live in
+	 * separate repos), so we must use the release-asset zip, which bundles
+	 * everything and unzips straight to an `unysonplus/` folder.
+	 */
+	const SOURCE_ZIP = 'https://github.com/UnysonPlus/UnysonPlus/releases/latest/download/UnysonPlus.zip';
 
 	/** admin-post action slug. */
 	const ACTION = 'unysonplus_install_plugin';
