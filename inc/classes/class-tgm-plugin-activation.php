@@ -3599,7 +3599,12 @@ if ( ! function_exists( 'tgmpa_load_bulk_installer' ) ) {
 								// Automatic activation strings.
 								$this->upgrader->strings['skin_upgrade_start'] = __( 'The installation and activation process is starting. This process may take a while on some hosts, so please be patient.', 'tgmpa' );
 								/* translators: 1: plugin name. */
-								$this->upgrader->strings['skin_update_successful'] = __( '%1$s installed and activated successfully.', 'tgmpa' ) . ' <a href="#" class="hide-if-no-js" onclick="%2$s"><span>' . esc_html__( 'Show Details', 'tgmpa' ) . '</span><span class="hidden">' . esc_html__( 'Hide Details', 'tgmpa' ) . '</span>.</a>';
+								// WP-core compat: modern Bulk_Upgrader_Skin::after() calls
+								// sprintf( skin_update_successful, $title ) with ONLY the title and
+								// renders its own "More details" toggle, so the old inline
+								// `onclick="%2$s"` Show/Hide-Details link is dropped — leaving it in
+								// makes sprintf throw ArgumentCountError on PHP 8 (missing %2$s arg).
+								$this->upgrader->strings['skin_update_successful'] = __( '%1$s installed and activated successfully.', 'tgmpa' );
 								$this->upgrader->strings['skin_upgrade_end']       = __( 'All installations and activations have been completed.', 'tgmpa' );
 								/* translators: 1: plugin name, 2: action number 3: total number of actions. */
 								$this->upgrader->strings['skin_before_update_header'] = __( 'Installing and Activating Plugin %1$s (%2$d/%3$d)', 'tgmpa' );
@@ -3607,7 +3612,9 @@ if ( ! function_exists( 'tgmpa_load_bulk_installer' ) ) {
 								// Default installation strings.
 								$this->upgrader->strings['skin_upgrade_start'] = __( 'The installation process is starting. This process may take a while on some hosts, so please be patient.', 'tgmpa' );
 								/* translators: 1: plugin name. */
-								$this->upgrader->strings['skin_update_successful'] = esc_html__( '%1$s installed successfully.', 'tgmpa' ) . ' <a href="#" class="hide-if-no-js" onclick="%2$s"><span>' . esc_html__( 'Show Details', 'tgmpa' ) . '</span><span class="hidden">' . esc_html__( 'Hide Details', 'tgmpa' ) . '</span>.</a>';
+								// WP-core compat: see note above — drop the old `onclick="%2$s"`
+								// Show/Hide-Details link so sprintf( …, $title ) doesn't fatal on PHP 8.
+								$this->upgrader->strings['skin_update_successful'] = esc_html__( '%1$s installed successfully.', 'tgmpa' );
 								$this->upgrader->strings['skin_upgrade_end']       = __( 'All installations have been completed.', 'tgmpa' );
 								/* translators: 1: plugin name, 2: action number 3: total number of actions. */
 								$this->upgrader->strings['skin_before_update_header'] = __( 'Installing Plugin %1$s (%2$d/%3$d)', 'tgmpa' );
