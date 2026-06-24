@@ -1,0 +1,24 @@
+<!--
+  WPML configuration for the UnysonPlus parent theme.
+  Read automatically by WPML (Languages → support) — no setup needed beyond
+  having WPML active. Notes:
+    - Nav menus and widget text are translated natively by WPML, so they need
+      no declaration here.
+    - up_header / up_footer are Header/Footer Builder LAYOUT storage, not
+      visitor content; they're marked translate="0" so WPML doesn't list them
+      as translatable post types (the same chrome is used across languages;
+      build a per-language header by assigning different layouts if needed).
+    - The theme's settings (footer copyright text, social links, custom code,
+      etc.) live in the serialized option below; declaring it lets WPML's
+      String Translation surface those admin strings. Deeply-nested builder
+      strings may also be picked individually in WPML → String Translation.
+-->
+<wpml-config>
+    <custom-types>
+        <custom-type translate="0">up_header</custom-type>
+        <custom-type translate="0">up_footer</custom-type>
+    </custom-types>
+    <admin-texts>
+        <key name="fw_theme_settings_options:unysonplus" />
+    </admin-texts>
+</wpml-config>

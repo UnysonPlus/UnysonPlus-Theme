@@ -217,6 +217,33 @@ if (!function_exists('_action_theme_print_google_fonts_link')) :
         add_action('wp_head', '_action_theme_print_google_fonts_link');
 endif;
 
+
+if ( ! function_exists( 'unysonplus_google_fonts_resource_hints' ) ) :
+        /**
+         * Speed up Google Fonts: open the connection to the font hosts early so the
+         * browser doesn't pay DNS + TLS + TCP cost only after it discovers the
+         * stylesheet (and again for the font files on gstatic). Only emitted when
+         * the theme actually outputs a Google Fonts <link> — self-hosted Custom
+         * Fonts are same-origin and need no hint. Uses the core wp_resource_hints
+         * filter so WordPress dedupes and prints them in <head> before the link.
+         *
+         * @param array  $hints
+         * @param string $relation_type
+         * @return array
+         */
+        function unysonplus_google_fonts_resource_hints( $hints, $relation_type ) {
+                if ( '' === (string) get_option( 'fw_theme_google_fonts_link', '' ) ) {
+                        return $hints;
+                }
+                if ( 'preconnect' === $relation_type ) {
+                        $hints[] = 'https://fonts.googleapis.com';
+                        $hints[] = array( 'href' => 'https://fonts.gstatic.com', 'crossorigin' );
+                }
+                return $hints;
+        }
+        add_filter( 'wp_resource_hints', 'unysonplus_google_fonts_resource_hints', 10, 2 );
+endif;
+
 // Front end: typography tokens are compiled into the generated CSS file
 // (inc/includes/hf-custom-css.php). Admin keeps the inline emit for the
 // page-builder editor preview.
@@ -608,7 +635,7 @@ if(!function_exists('unysonplus_theme_mods')) :
   function unysonplus_theme_mods() {
     $theme_layout = fw_get_db_settings_option('theme_layout'); 
                 if( isset($theme_layout['layout']['selected']) && ($theme_layout['layout']['selected'] == 'container')){
-                        $box_class = esc_attr($theme_layout['layout']['selected']);
+                        $box_class = esc_attr( unysonplus_fw_container_class( $theme_layout['layout']['selected'] ) );
                         $box_container_start = '<box '. fw_attr_to_html( array('class' => $box_class) ) .'>';
       set_theme_mod( 'box_container_start', $box_container_start );
                         set_theme_mod( 'box_container_end', '</box>' );

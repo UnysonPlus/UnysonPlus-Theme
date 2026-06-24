@@ -3,9 +3,9 @@
 ?>
 <?php if( empty($footer_copyright['text']) && !has_nav_menu( 'footer' ) ) return; ?>
 <div class="copyright-info">
-        <div class="container">
-                <div class="row">
-                        <div class="col-md-12">
+        <div class="fw-container">
+                <div class="fw-row">
+                        <div class="fw-col-md-12">
                                 <div class="float-lg-start"><?php echo $footer_copyright['text']; ?></div>
                                 <?php if ( has_nav_menu( 'footer' ) ) : ?>
                                         <?php wp_nav_menu( array( 

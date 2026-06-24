@@ -69,8 +69,10 @@
 	}
 
 	function scrollToTop() {
+		// Respect the OS "reduce motion" preference — jump instead of animating.
+		var reduce = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 		try {
-			window.scrollTo( { top: 0, behavior: 'smooth' } );
+			window.scrollTo( { top: 0, behavior: reduce ? 'auto' : 'smooth' } );
 		} catch ( err ) {
 			window.scrollTo( 0, 0 );
 		}

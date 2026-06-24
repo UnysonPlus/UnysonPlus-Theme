@@ -39,12 +39,17 @@ class UnysonPlus_Plugin_Installer {
 	const RESULT_KEY = 'unysonplus_install_result';
 
 	/**
-	 * Wire up the admin notice + install handler. Called only when FW is absent.
+	 * Wire up the admin notice + install handlers. Called only when FW is absent.
+	 *
+	 * Install runs over AJAX with a live progress UI (see print_assets). The plain
+	 * admin-post handler stays as a no-JS fallback (progressive enhancement).
 	 */
 	public static function init(): void {
 		add_action( 'admin_notices', array( __CLASS__, 'prompt_notice' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'result_notice' ) );
-		add_action( 'admin_post_' . self::ACTION, array( __CLASS__, 'handle_install' ) );
+		add_action( 'admin_footer', array( __CLASS__, 'print_assets' ) );
+		add_action( 'admin_post_' . self::ACTION, array( __CLASS__, 'handle_install' ) );      // no-JS fallback
+		add_action( 'wp_ajax_' . self::ACTION, array( __CLASS__, 'handle_ajax_install' ) );    // progress UI
 	}
 
 	/** Whether the plugin files already exist on disk (installed but inactive). */
@@ -62,21 +67,35 @@ class UnysonPlus_Plugin_Installer {
 
 	/**
 	 * Admin notice prompting the user to install (or just activate) UnysonPlus.
+	 *
+	 * The button is a real nonce'd link (works without JS); print_assets() upgrades
+	 * the click into an AJAX install with the live progress bar below it.
 	 */
 	public static function prompt_notice(): void {
 		if ( ! current_user_can( 'install_plugins' ) ) {
 			return;
 		}
 
-		$label = self::is_installed()
-			? __( 'Activate UnysonPlus', 'unysonplus' )
-			: __( 'Install UnysonPlus', 'unysonplus' );
+		$installed = self::is_installed();
+		$label     = $installed ? __( 'Activate UnysonPlus', 'unysonplus' ) : __( 'Install UnysonPlus', 'unysonplus' );
+		$busy      = $installed
+			? __( 'Activating…', 'unysonplus' )
+			: __( 'Downloading &amp; installing from GitHub… this can take up to a minute.', 'unysonplus' );
 
-		echo '<div class="notice notice-error"><p><strong>'
+		echo '<div class="notice notice-error" id="unysonplus-install-notice"><p><strong>'
 			. esc_html__( 'Unyson+ Theme', 'unysonplus' ) . '</strong> &mdash; '
 			. esc_html__( 'this theme requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active. The theme’s features stay disabled until then.', 'unysonplus' )
-			. ' <a class="button button-primary" style="vertical-align:baseline;margin-left:.25rem" href="' . esc_url( self::action_url() ) . '">'
-			. esc_html( $label ) . '</a></p></div>';
+			. ' <a class="button button-primary" id="unysonplus-install-btn" style="vertical-align:baseline;margin-left:.25rem"'
+			. ' href="' . esc_url( self::action_url() ) . '"'
+			. ' data-action="' . esc_attr( self::ACTION ) . '"'
+			. ' data-nonce="' . esc_attr( wp_create_nonce( self::ACTION ) ) . '"'
+			. ' data-busy="' . esc_attr( $busy ) . '">'
+			. esc_html( $label ) . '</a></p>'
+			// Progress UI (hidden until the button is clicked).
+			. '<div id="unysonplus-install-progress" style="display:none;margin:.25rem 0 .5rem">'
+			. '<div class="upi-track"><div class="upi-fill"></div></div>'
+			. '<p class="upi-status" style="margin:.5rem 0 0;color:#50575e"></p>'
+			. '</div></div>';
 	}
 
 	/**
@@ -107,11 +126,104 @@ class UnysonPlus_Plugin_Installer {
 	}
 
 	/**
+	 * AJAX handler powering the live progress UI. Same work as handle_install(),
+	 * but returns JSON so the front-end can show progress + a redirect target.
+	 */
+	public static function handle_ajax_install(): void {
+		if ( ! current_user_can( 'install_plugins' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to install plugins on this site.', 'unysonplus' ) ) );
+		}
+		check_ajax_referer( self::ACTION );
+
+		$result = self::install_and_activate();
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( array( 'redirect' => self_admin_url( 'index.php' ) ) );
+	}
+
+	/**
+	 * Print the progress-bar styles + the JS that upgrades the install button
+	 * into an AJAX install with a live (indeterminate) progress bar and staged
+	 * status text. Without JS the button's nonce'd href falls back to the
+	 * synchronous admin-post handler.
+	 */
+	public static function print_assets(): void {
+		if ( ! current_user_can( 'install_plugins' ) ) {
+			return;
+		}
+		?>
+		<style>
+			#unysonplus-install-progress .upi-track{position:relative;height:8px;border-radius:6px;background:#dcdcde;overflow:hidden;max-width:420px}
+			#unysonplus-install-progress .upi-fill{position:absolute;top:0;left:0;height:100%;width:40%;border-radius:6px;background:#2271b1;animation:upiSlide 1.4s ease-in-out infinite}
+			#unysonplus-install-progress.upi-done .upi-fill{width:100%;animation:none;background:#46b450;transition:width .4s ease}
+			#unysonplus-install-progress.upi-error .upi-fill{width:100%;animation:none;background:#d63638}
+			@keyframes upiSlide{0%{left:-40%}50%{left:30%}100%{left:100%}}
+		</style>
+		<script>
+		(function(){
+			document.addEventListener('click', function(e){
+				var btn = e.target.closest && e.target.closest('#unysonplus-install-btn');
+				if(!btn || typeof ajaxurl === 'undefined') return;
+				e.preventDefault();
+				if(btn.getAttribute('aria-busy') === 'true') return;
+				btn.setAttribute('aria-busy','true');
+
+				var box    = document.getElementById('unysonplus-install-progress');
+				var status = box.querySelector('.upi-status');
+				btn.style.pointerEvents='none'; btn.style.opacity='.6';
+				box.style.display='block'; box.className=''; // reset done/error states
+
+				var stages = [
+					<?php echo "'" . esc_js( __( 'Connecting to GitHub…', 'unysonplus' ) ) . "',"; ?>
+					<?php echo "'" . esc_js( __( 'Downloading UnysonPlus…', 'unysonplus' ) ) . "',"; ?>
+					<?php echo "'" . esc_js( __( 'Installing the plugin…', 'unysonplus' ) ) . "',"; ?>
+					<?php echo "'" . esc_js( __( 'Activating…', 'unysonplus' ) ) . "'"; ?>
+				];
+				var i=0; status.textContent = stages[0];
+				var timer = setInterval(function(){ if(i < stages.length-1){ status.textContent = stages[++i]; } }, 6000);
+
+				var body = new FormData();
+				body.append('action', btn.dataset.action);
+				body.append('_ajax_nonce', btn.dataset.nonce);
+
+				fetch(ajaxurl, {method:'POST', credentials:'same-origin', body:body})
+					.then(function(r){ return r.json(); })
+					.then(function(res){
+						clearInterval(timer);
+						if(res && res.success){
+							box.className='upi-done';
+							status.textContent = <?php echo "'" . esc_js( __( 'Installed! Reloading…', 'unysonplus' ) ) . "'"; ?>;
+							setTimeout(function(){ window.location = (res.data && res.data.redirect) || window.location.href; }, 800);
+						} else {
+							box.className='upi-error';
+							status.textContent = (res && res.data && res.data.message) ? res.data.message : <?php echo "'" . esc_js( __( 'Installation failed.', 'unysonplus' ) ) . "'"; ?>;
+							btn.style.pointerEvents=''; btn.style.opacity=''; btn.removeAttribute('aria-busy');
+							btn.textContent = <?php echo "'" . esc_js( __( 'Retry', 'unysonplus' ) ) . "'"; ?>;
+						}
+					})
+					.catch(function(){
+						clearInterval(timer);
+						box.className='upi-error';
+						status.textContent = <?php echo "'" . esc_js( __( 'Installation failed (network error). Please try again.', 'unysonplus' ) ) . "'"; ?>;
+						btn.style.pointerEvents=''; btn.style.opacity=''; btn.removeAttribute('aria-busy');
+					});
+			});
+		})();
+		</script>
+		<?php
+	}
+
+	/**
 	 * Download + install (if not already on disk) + activate the plugin.
 	 *
 	 * @return true|WP_Error
 	 */
 	private static function install_and_activate() {
+		@set_time_limit( 300 ); // the GitHub download + install can take ~a minute
+
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/misc.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';

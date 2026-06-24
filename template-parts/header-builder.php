@@ -193,7 +193,7 @@ if ( $layout_mode === 'overlay' ) {
 
 	<?php if ( $topbar_enabled ) : ?>
 	<div class="header-topbar<?php echo $topbar_attr['class']; // phpcs:ignore — pre-escaped ?>">
-		<div class="<?php echo esc_attr( $topbar_attr['container'] ); ?>">
+		<div class="<?php echo esc_attr( unysonplus_fw_container_class( $topbar_attr['container'] ) ); ?>">
 			<div class="header-row">
 				<div class="header-col header-col--start"><?php  unysonplus_render_header_column( $topbar_left,   'start'  ); ?></div>
 				<div class="header-col header-col--center"><?php unysonplus_render_header_column( $topbar_center, 'center' ); ?></div>
@@ -204,7 +204,7 @@ if ( $layout_mode === 'overlay' ) {
 	<?php endif; ?>
 
 	<div class="header-main<?php echo $main_attr['class']; // phpcs:ignore — pre-escaped ?>">
-		<div class="<?php echo esc_attr( $main_attr['container'] ); ?>">
+		<div class="<?php echo esc_attr( unysonplus_fw_container_class( $main_attr['container'] ) ); ?>">
 			<div class="header-row">
 				<?php if ( ! empty( $main_left ) ) : ?>
 				<div class="header-col header-col--start">
@@ -234,7 +234,7 @@ if ( $layout_mode === 'overlay' ) {
 
 	<?php if ( $bottombar_enabled ) : ?>
 	<div class="header-bottombar<?php echo $bottombar_attr['class']; // phpcs:ignore — pre-escaped ?>">
-		<div class="<?php echo esc_attr( $bottombar_attr['container'] ); ?>">
+		<div class="<?php echo esc_attr( unysonplus_fw_container_class( $bottombar_attr['container'] ) ); ?>">
 			<div class="header-row">
 				<div class="header-col header-col--start"><?php  unysonplus_render_header_column( $bottombar_left,   'start'  ); ?></div>
 				<div class="header-col header-col--center"><?php unysonplus_render_header_column( $bottombar_center, 'center' ); ?></div>

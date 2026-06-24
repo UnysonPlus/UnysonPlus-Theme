@@ -1,0 +1,5423 @@
+# Translation template for the UnysonPlus Theme.
+# Copyright (C) 2026 UnysonPlus
+# This file is distributed under the same license as the theme.
+msgid ""
+msgstr ""
+"Project-Id-Version: UnysonPlus Theme 2.2.30\n"
+"Report-Msgid-Bugs-To: https://github.com/UnysonPlus\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: unysonplus\n"
+
+#: inc/includes/blog.php:61
+msgid "%d min read"
+msgid_plural "%d min read"
+msgstr[0] ""
+msgstr[1] ""
+
+#: inc/helpers-shortcode-options.php:131
+msgid "%s color."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:133
+msgid "%s color. Add or modify the color palettes by clicking <a href=\"%s\" target=\"_blank\">here</a>."
+msgstr ""
+
+#: inc/helpers.php:263
+msgid "%s navigation"
+msgstr ""
+
+#: inc/includes/footer-builder.php:416
+msgid "&copy; %1$s %2$s. All rights reserved."
+msgstr ""
+
+#: inc/includes/blog.php:93
+msgid "&larr; Previous"
+msgstr ""
+
+#: inc/helpers.php:720
+msgid "(%d)"
+msgid_plural "(%d)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: inc/includes/header-footer-presets.php:386
+#: inc/includes/header-footer-presets.php:425
+msgid "(no title) #%d"
+msgstr ""
+
+#: inc/helpers.php:305
+msgid ", "
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:38
+msgid "0 = transparent, 100 = opaque."
+msgstr ""
+
+#: framework-customizations/theme/options/footer-copyright.php:53
+#: framework-customizations/theme/options/footer-main.php:30
+#: framework-customizations/theme/options/footer-post.php:28
+#: framework-customizations/theme/options/footer-pre.php:29
+msgid "1 Column"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:43
+msgid "1 column"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:454
+msgid "1/2 + 1/2"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:462
+msgid "1/2 + 1/4 + 1/4"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:475
+msgid "1/2 + 1/6 + 1/6 + 1/6"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:461
+msgid "1/3 + 1/3 + 1/3"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:472
+msgid "1/3 + 1/3 + 1/6 + 1/6"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:471
+msgid "1/3 + 1/4 + 1/4 + 1/6"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:470
+msgid "1/3 + 1/6 + 1/4 + 1/4"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:480
+msgid "1/3 + 1/6 + 1/6 + 1/6 + 1/6"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:455
+msgid "1/3 + 2/3"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:464
+msgid "1/4 + 1/2 + 1/4"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:463
+msgid "1/4 + 1/4 + 1/2"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:469
+msgid "1/4 + 1/4 + 1/4 + 1/4"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:457
+msgid "1/4 + 3/4"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:479
+msgid "1/5 + 1/5 + 1/5 + 1/5 + 1/5"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:476
+msgid "1/6 + 1/6 + 1/6 + 1/2"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:481
+msgid "1/6 + 1/6 + 1/6 + 1/6 + 1/3"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:264
+msgid "10-character alphanumeric ID from clarity.microsoft.com."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:377
+#: framework-customizations/theme/options/demo.php:383
+msgid "100%"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1152
+#: framework-customizations/theme/options/demo-2.php:1206
+#: framework-customizations/theme/options/demo-2.php:1277
+#: framework-customizations/theme/options/demo-2.php:1333
+#: framework-customizations/theme/options/demo.php:1114
+#: framework-customizations/theme/options/demo.php:1168
+#: framework-customizations/theme/options/demo.php:1239
+#: framework-customizations/theme/options/demo.php:1295
+msgid "16Gb"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-copyright.php:54
+#: framework-customizations/theme/options/footer-main.php:31
+#: framework-customizations/theme/options/footer-post.php:29
+#: framework-customizations/theme/options/footer-pre.php:30
+msgid "2 Columns"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:46
+msgid "2 columns (1/3 + 2/3)"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:45
+msgid "2 columns (2/3 + 1/3)"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:44
+msgid "2 equal columns"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:474
+msgid "2/12 + 2/12 + 3/12 + 5/12"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:456
+msgid "2/3 + 1/3"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:375
+#: framework-customizations/theme/options/demo.php:381
+msgid "25%"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:769
+msgid "2d Transition"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-copyright.php:55
+#: framework-customizations/theme/options/footer-main.php:32
+#: framework-customizations/theme/options/footer-post.php:30
+#: framework-customizations/theme/options/footer-pre.php:31
+msgid "3 Columns"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:50
+msgid "3 columns (1/3 + 1/6 + 1/2)"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:48
+msgid "3 columns (1/4 + 1/2 + 1/4)"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:49
+msgid "3 columns (1/4 + 1/4 + 1/2)"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:47
+msgid "3 equal columns"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:458
+msgid "3/4 + 1/4"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1153
+#: framework-customizations/theme/options/demo-2.php:1207
+#: framework-customizations/theme/options/demo-2.php:1278
+#: framework-customizations/theme/options/demo-2.php:1334
+#: framework-customizations/theme/options/demo.php:1115
+#: framework-customizations/theme/options/demo.php:1169
+#: framework-customizations/theme/options/demo.php:1240
+#: framework-customizations/theme/options/demo.php:1296
+msgid "32Gb"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-main.php:33
+#: framework-customizations/theme/options/footer-post.php:31
+#: framework-customizations/theme/options/footer-pre.php:32
+msgid "4 Columns"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:51
+msgid "4 equal columns"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:337
+msgid "404 Not Found Page"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:333
+msgid "404 Page"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-main.php:34
+#: framework-customizations/theme/options/footer-post.php:32
+#: framework-customizations/theme/options/footer-pre.php:33
+msgid "5 Columns"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:52
+msgid "5 equal columns"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:465
+msgid "5/12 + 2/12 + 5/12"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:473
+msgid "5/12 + 3/12 + 2/12 + 2/12"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:466
+msgid "5/12 + 3/12 + 4/12"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:376
+#: framework-customizations/theme/options/demo.php:382
+msgid "50%"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1154
+#: framework-customizations/theme/options/demo-2.php:1208
+#: framework-customizations/theme/options/demo-2.php:1279
+#: framework-customizations/theme/options/demo-2.php:1335
+#: framework-customizations/theme/options/demo.php:1116
+#: framework-customizations/theme/options/demo.php:1170
+#: framework-customizations/theme/options/demo.php:1241
+#: framework-customizations/theme/options/demo.php:1297
+msgid "64Gb"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:470
+msgid "<p><strong>auto</strong> -\tDefault value. The background image contains its width and height.</p>\n\t\t\t\t\t\t\t\t<p><strong>cover</strong> - Scale the background image to be as large as possible so that the background area is completely covered by the background image. Some parts of the background image may not be in view within the background positioning area.</p>\n\t\t\t\t\t\t\t\t<p><strong>contain</strong> - Scale the image to the largest size such that both its width and its height can fit inside the content area.</p>\n\t\t\t\t\t\t\t\t<p><strong>custom</strong> - Counts for the width and height of the background image. i.e.:<br />\n\t\t\t\t\t\t\t\t400px - it counts for the width, and the height is set to auto.<br />\n\t\t\t\t\t\t\t\t300px 100px - the first sets the background image's width and the second sets the height. </p>"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:458
+msgid "<p><strong>scroll</strong> - The background scrolls along with the page. This is default</p>\n\t\t\t\t\t\t\t\t\t<p><strong>fixed</strong> - The background is fixed with regard to the viewport.</p>\n\t\t\t\t\t\t\t\t\t"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:554
+msgid "A consuming view would emit <code>class=\"bg-primary\"</code> here. Flip to the custom-picker half by setting <code>predefined => \"\"</code> + <code>custom => \"#abc123\"</code>; the view then emits <code>style=\"background: #abc123\"</code>. Near-white presets (e.g. White, Light Gray) render with a gray chip behind the label so they stay readable against the white panel background."
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:726
+msgid "A dropdown that previews each Button Preset as a real button (trigger + every row). Reused by the Button shortcode's Style and Size pickers. Stores the class string, e.g. <code>btn-primary</code>."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:756
+msgid "A dropdown that previews each Button Preset as a real button. Reused by the Button shortcode Style/Size pickers. Stores the class string, e.g. <code>btn-primary</code>."
+msgstr ""
+
+#: inc/includes/onboarding.php:104
+msgid "A few quick steps to get your site looking complete. Everything here is optional — you can change it anytime."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1382
+#: framework-customizations/theme/options/demo.php:1346
+msgid "A popover hosting several options organized into tabs (like Background Pro). Multiple options / tabs → the value is a hash keyed by inner option id; the tab grouping is purely visual. Option ids must be unique across all tabs."
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:15
+msgid "A single background image spanning the full footer."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:42
+msgid "Above title"
+msgstr ""
+
+#: inc/classes/class-unysonplus-plugin-installer.php:72
+msgid "Activate UnysonPlus"
+msgstr ""
+
+#: inc/post-types.php:70
+#: inc/post-types.php:88
+msgid "Add New"
+msgstr ""
+
+#: inc/post-types.php:89
+msgid "Add New Footer Preset"
+msgstr ""
+
+#: inc/post-types.php:71
+msgid "Add New Header Preset"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-copyright.php:57
+#: framework-customizations/theme/options/footer-main.php:36
+#: framework-customizations/theme/options/footer-post.php:34
+#: framework-customizations/theme/options/footer-pre.php:35
+msgid "Add and reorder footer element. Drag to sort."
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:60
+msgid "Add custom CSS class(es) to the footer wrapper."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:614
+msgid "Add custom CSS class(es) to this section."
+msgstr ""
+
+#: inc/includes/onboarding.php:83
+msgid "Add footer columns/widgets or build the footer in Theme Settings → Footer."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:174
+#: inc/includes/header-footer-option-helpers.php:325
+msgid "Add rich text content. Use the {{current_year}} dynamic tag for the current year."
+msgstr ""
+
+#: framework-customizations/theme/options/general-fonts.php:19
+msgid "Add self-hosted fonts. After saving, each family becomes selectable in the Typography font pickers."
+msgstr ""
+
+#: inc/includes/onboarding.php:54
+msgid "Add your logo & site identity"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1006
+#: framework-customizations/theme/options/demo.php:975
+msgid "Addable Box"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:990
+#: framework-customizations/theme/options/demo.php:959
+msgid "Addable Option"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:884
+#: framework-customizations/theme/options/demo-2.php:954
+#: framework-customizations/theme/options/demo.php:854
+#: framework-customizations/theme/options/demo.php:923
+msgid "Addable Popup"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:120
+msgid "Adds a floating light/dark/auto toggle to every page. Uses Bootstrap 5.3 data-bs-theme so components inherit the dark palette automatically."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1409
+#: framework-customizations/theme/options/demo.php:1373
+#: inc/helpers-shortcode-options.php:2064
+#: inc/helpers-shortcode-options.php:2068
+msgid "Advanced"
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:587
+msgid "Advanced gradient picker: a read-only CSS output that opens a dropdown editor (unlimited stops, linear/radial, angle, RGBA, live preview). Blank = no gradient."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:585
+msgid "Advanced gradient picker: a read-only CSS output that opens a dropdown editor. This entry ships pre-set, so its output shows a radial gradient that round-trips on save; clear it with the x for the blank state."
+msgstr ""
+
+#: framework-customizations/theme/options/bingo-reviews-options.php:59
+#: framework-customizations/theme/options/casino-reviews-options.php:59
+msgid "Affiliate Link"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:209
+msgid "After opening <body>"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:960
+msgid "Alignment"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:95
+msgid "Alternative text for the image logo (accessibility / SEO). Leave empty to fall back to the Site Title."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:233
+msgid "Analytics & Tracking"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:237
+msgid "Analytics & Tracking IDs"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1236
+msgid "Animation"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:53
+msgid "Archive Columns"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:19
+msgid "Archive Header"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:42
+msgid "Archive Layout"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:60
+msgid "Archive Sidebar"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-settings.php:50
+msgid "Archives & Search"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-settings.php:54
+msgid "Archives &amp; Search"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1244
+msgid "Attention Seekers"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:77
+#: framework-customizations/theme/options/blog-single.php:52
+msgid "Author"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:35
+msgid "Author Bio (author archives)"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:60
+#: framework-customizations/theme/options/post-options.php:44
+msgid "Author Box"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:70
+#: framework-customizations/theme/options/posts/page.php:24
+#: inc/helpers-shortcode-options.php:483
+#: inc/includes/misc.php:234
+msgid "Auto"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:130
+msgid "Auto (follow system preference)"
+msgstr ""
+
+#: framework-customizations/theme/options/bingo-reviews-options.php:139
+#: framework-customizations/theme/options/casino-reviews-options.php:139
+msgid "BG Color"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:822
+msgid "Back Pulse"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:122
+msgid "Back to Top"
+msgstr ""
+
+#: inc/includes/footer-builder.php:313
+msgid "Back to top"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:7
+#: inc/includes/header-footer-option-helpers.php:552
+msgid "Background Color"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:601
+#: framework-customizations/theme/options/demo.php:590
+#: framework-customizations/theme/options/footer-layout.php:13
+#: inc/includes/header-footer-option-helpers.php:558
+msgid "Background Image"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:18
+#: inc/includes/header-footer-option-helpers.php:563
+msgid "Background Overlay Opacity"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:132
+msgid "Background Pattern Overlay"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:678
+#: framework-customizations/theme/options/demo.php:668
+msgid "Background Pro"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:816
+msgid "Background Transition"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:128
+msgid "Background behind all content (body). Background Pro: Color / Gradient / Image layers stack (color underneath, gradient over, image over). Video is not applied to the site-wide background."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:89
+msgid "Background color"
+msgstr ""
+
+#: framework-customizations/theme/options/header-menu.php:52
+msgid "Background color of sub-menu dropdown panels."
+msgstr ""
+
+#: framework-customizations/theme/options/general-preloader.php:54
+msgid "Background color of the preloader splash (when Preloader != None)."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:802
+msgid "Backward"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:217
+msgid "Before </body>"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:106
+msgid "Below 768px (phone only)"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:105
+msgid "Below 992px (tablet & phone)"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:43
+msgid "Below title"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:55
+msgid "Black (900)"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-settings.php:16
+msgid "Blog"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-settings.php:24
+msgid "Blog Index"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:572
+msgid "Blog Post"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-settings.php:20
+msgid "Blog Settings"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:787
+msgid "Bob"
+msgstr ""
+
+#: framework-customizations/theme/options/page-options.php:31
+msgid "Body Class"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:197
+msgid "Body Link Color"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:203
+msgid "Body Link Hover Color"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:171
+msgid "Body Text"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:53
+msgid "Bold (700)"
+msgstr ""
+
+#: framework-customizations/theme/options/bingo-reviews-options.php:79
+#: framework-customizations/theme/options/casino-reviews-options.php:79
+msgid "Bonus"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1861
+msgid "Bootstrap margins (Recommended)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1633
+msgid "Bootstrap margins and paddings (Recommended)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:857
+msgid "Border Fade"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:193
+msgid "Border Roundness"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:852
+msgid "Border Transition"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:50
+#: inc/helpers-shortcode-options.php:1944
+#: inc/helpers-shortcode-options.php:1974
+msgid "Bottom"
+msgstr ""
+
+#: framework-customizations/theme/options/header-settings.php:80
+#: framework-customizations/theme/options/header-settings.php:84
+msgid "Bottom Bar"
+msgstr ""
+
+#: framework-customizations/theme/options/header-bottombar.php:26
+msgid "Bottom Bar — Center Column"
+msgstr ""
+
+#: framework-customizations/theme/options/header-bottombar.php:25
+msgid "Bottom Bar — Left Column"
+msgstr ""
+
+#: framework-customizations/theme/options/header-bottombar.php:27
+msgid "Bottom Bar — Right Column"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:599
+msgid "Bottom Border Color"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:605
+msgid "Bottom Border Width"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:57
+#: inc/helpers-shortcode-options.php:432
+msgid "Bottom Center"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:56
+#: inc/helpers-shortcode-options.php:431
+msgid "Bottom Left"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:58
+#: inc/helpers-shortcode-options.php:433
+msgid "Bottom Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:531
+msgid "Bottom to left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:532
+msgid "Bottom to right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:526
+msgid "Bottom to top"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:71
+#: framework-customizations/theme/options/misc.php:140
+msgid "Bottom-left"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:70
+#: framework-customizations/theme/options/misc.php:141
+msgid "Bottom-right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:781
+msgid "Bounce In"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:782
+msgid "Bounce Out"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:829
+msgid "Bounce To Bottom"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:828
+msgid "Bounce To Left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:827
+msgid "Bounce To Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:830
+msgid "Bounce To Top"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1260
+msgid "Bouncing Entrances"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-box.php:22
+msgid "Box"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:739
+#: framework-customizations/theme/options/demo.php:709
+msgid "Box Shadow"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:898
+msgid "Box Shadow Inset"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:897
+msgid "Box Shadow Outset"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:88
+msgid "Boxed Alignment"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:56
+msgid "Boxed Narrow"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:77
+msgid "Boxed Width"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:919
+msgid "Bubble Bottom"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:923
+msgid "Bubble Float Bottom"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:924
+msgid "Bubble Float Left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:922
+msgid "Bubble Float Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:921
+msgid "Bubble Float Top"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:920
+msgid "Bubble Left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:918
+msgid "Bubble Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:917
+msgid "Bubble Top"
+msgstr ""
+
+#: inc/includes/onboarding.php:69
+msgid "Build a menu and assign it to the Primary location so visitors can get around."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:123
+#: inc/includes/header-footer-option-helpers.php:272
+msgid "Builder Section"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:755
+#: framework-customizations/theme/options/demo.php:725
+msgid "Button"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:132
+#: inc/includes/header-footer-option-helpers.php:283
+msgid "Button Background"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:131
+#: inc/includes/header-footer-option-helpers.php:282
+msgid "Button Link"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:745
+#: framework-customizations/theme/options/demo.php:715
+msgid "Button Presets"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:135
+#: inc/includes/header-footer-option-helpers.php:286
+msgid "Button Style"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:752
+#: framework-customizations/theme/options/demo.php:722
+msgid "Button Style Picker"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:130
+#: inc/includes/header-footer-option-helpers.php:209
+#: inc/includes/header-footer-option-helpers.php:281
+msgid "Button Text"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:133
+#: inc/includes/header-footer-option-helpers.php:284
+msgid "Button Text Color"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:83
+msgid "Button label"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:799
+msgid "Buzz"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:800
+msgid "Buzz Out"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1411
+#: framework-customizations/theme/options/demo.php:1375
+msgid "CSS Class"
+msgstr ""
+
+#: framework-customizations/theme/options/page-options.php:35
+msgid "CSS class for the /<body/> tag"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:115
+#: inc/includes/header-footer-option-helpers.php:265
+msgid "CTA Button"
+msgstr ""
+
+#: comments.php:99
+msgid "Cancel Reply"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:206
+msgid "Caps the content width of single posts/pages that have no sidebar, for comfortable reading. Leave blank for none."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:78
+#: framework-customizations/theme/options/blog-single.php:53
+msgid "Category"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:54
+#: framework-customizations/theme/options/posts/page.php:49
+#: inc/helpers-shortcode-options.php:983
+#: inc/helpers-shortcode-options.php:1038
+#: inc/helpers-shortcode-options.php:1081
+#: inc/helpers-shortcode-options.php:1124
+#: inc/helpers-shortcode-options.php:1167
+msgid "Center"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:429
+msgid "Center Center"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:53
+#: inc/helpers-shortcode-options.php:428
+msgid "Center Left"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:55
+#: inc/helpers-shortcode-options.php:430
+msgid "Center Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:708
+#: inc/helpers-shortcode-options.php:719
+#: inc/helpers-shortcode-options.php:730
+#: inc/helpers-shortcode-options.php:741
+#: inc/helpers-shortcode-options.php:752
+msgid "Centered"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1421
+msgid "Change the animation duration. "
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:135
+#: framework-customizations/theme/options/demo.php:141
+msgid "Checkbox"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:158
+#: framework-customizations/theme/options/demo.php:164
+msgid "Checkbox 1 Custom Text"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:159
+#: framework-customizations/theme/options/demo.php:165
+msgid "Checkbox 2 Custom Text"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:160
+#: framework-customizations/theme/options/demo.php:166
+msgid "Checkbox 3 Custom Text"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:149
+#: framework-customizations/theme/options/demo.php:155
+msgid "Checkboxes"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:24
+msgid "Checkout the font styles. For preview purposes only."
+msgstr ""
+
+#: inc/includes/local-avatar.php:105
+msgid "Choose / Upload Image"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:157
+#: inc/includes/header-footer-option-helpers.php:308
+msgid "Choose a menu created in Appearance > Menus."
+msgstr ""
+
+#: inc/includes/onboarding.php:79
+msgid "Choose homepage"
+msgstr ""
+
+#: inc/includes/onboarding.php:61
+msgid "Choose your brand colours & fonts"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:2077
+msgid "Class"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1357
+#: framework-customizations/theme/options/demo.php:1319
+msgid "Click the field to reveal the hosted control; pick a value and it collapses again, showing the selection. The \"summary\" map turns the saved value into the friendly label on the trigger."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1383
+#: framework-customizations/theme/options/demo.php:1347
+msgid "Click to open, switch tabs to reach each group of controls. The trigger keeps a static label here because there is no single value to summarise."
+msgstr ""
+
+#: template-parts/header-builder.php:60
+#: template-parts/header-builder.php:263
+msgid "Close menu"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1051
+#: framework-customizations/theme/options/demo.php:133
+msgid "Code Editor"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:101
+msgid "Collapse to Mobile Menu At"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1356
+#: framework-customizations/theme/options/demo.php:1318
+msgid "Collapses an option into a compact trigger that expands an in-flow panel on click (like the color picker dropdown, but anchored inline — not the modal \"popup\" type). With a single inner option the value passes straight through, so it is a drop-in for that option without the inline clutter."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1395
+#: framework-customizations/theme/options/demo.php:1359
+msgid "Color"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:485
+#: framework-customizations/theme/options/demo-2.php:973
+#: framework-customizations/theme/options/demo.php:491
+#: framework-customizations/theme/options/demo.php:942
+msgid "Color Picker"
+msgstr ""
+
+#: framework-customizations/theme/options/header-menu.php:30
+msgid "Color of menu links on hover and for the current page. Leave empty to use the primary color."
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:118
+msgid "Color of the decorative border."
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:127
+msgid "Color of the header tagline. Pick a palette preset or a custom color."
+msgstr ""
+
+#: framework-customizations/theme/options/general-scroll.php:43
+msgid "Color of the scroll progress bar (when enabled)."
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:61
+msgid "Color of the text site title (used when no image logo is set). Pick a palette preset or a custom color."
+msgstr ""
+
+#: framework-customizations/theme/options/header-menu.php:24
+msgid "Color of top-level menu links. Leave empty to use the body text color."
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:13
+msgid "Color palette, buttons, borders &amp; spacing presets are managed in the Unyson+ plugin."
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:61
+msgid "Colors"
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:65
+msgid "Colors &amp; Buttons"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-copyright.php:62
+#: framework-customizations/theme/options/footer-copyright.php:66
+#: framework-customizations/theme/options/footer-copyright.php:71
+#: framework-customizations/theme/options/footer-main.php:41
+#: framework-customizations/theme/options/footer-main.php:45
+#: framework-customizations/theme/options/footer-main.php:50
+#: framework-customizations/theme/options/footer-main.php:56
+#: framework-customizations/theme/options/footer-main.php:63
+#: framework-customizations/theme/options/footer-post.php:39
+#: framework-customizations/theme/options/footer-post.php:43
+#: framework-customizations/theme/options/footer-post.php:48
+#: framework-customizations/theme/options/footer-post.php:54
+#: framework-customizations/theme/options/footer-post.php:61
+#: framework-customizations/theme/options/footer-pre.php:40
+#: framework-customizations/theme/options/footer-pre.php:44
+#: framework-customizations/theme/options/footer-pre.php:49
+#: framework-customizations/theme/options/footer-pre.php:55
+#: framework-customizations/theme/options/footer-pre.php:62
+msgid "Column 1"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-copyright.php:67
+#: framework-customizations/theme/options/footer-copyright.php:72
+#: framework-customizations/theme/options/footer-main.php:46
+#: framework-customizations/theme/options/footer-main.php:51
+#: framework-customizations/theme/options/footer-main.php:57
+#: framework-customizations/theme/options/footer-main.php:64
+#: framework-customizations/theme/options/footer-post.php:44
+#: framework-customizations/theme/options/footer-post.php:49
+#: framework-customizations/theme/options/footer-post.php:55
+#: framework-customizations/theme/options/footer-post.php:62
+#: framework-customizations/theme/options/footer-pre.php:45
+#: framework-customizations/theme/options/footer-pre.php:50
+#: framework-customizations/theme/options/footer-pre.php:56
+#: framework-customizations/theme/options/footer-pre.php:63
+msgid "Column 2"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-copyright.php:73
+#: framework-customizations/theme/options/footer-main.php:52
+#: framework-customizations/theme/options/footer-main.php:58
+#: framework-customizations/theme/options/footer-main.php:65
+#: framework-customizations/theme/options/footer-post.php:50
+#: framework-customizations/theme/options/footer-post.php:56
+#: framework-customizations/theme/options/footer-post.php:63
+#: framework-customizations/theme/options/footer-pre.php:51
+#: framework-customizations/theme/options/footer-pre.php:57
+#: framework-customizations/theme/options/footer-pre.php:64
+msgid "Column 3"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-main.php:59
+#: framework-customizations/theme/options/footer-main.php:66
+#: framework-customizations/theme/options/footer-post.php:57
+#: framework-customizations/theme/options/footer-post.php:64
+#: framework-customizations/theme/options/footer-pre.php:58
+#: framework-customizations/theme/options/footer-pre.php:65
+msgid "Column 4"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-main.php:67
+#: framework-customizations/theme/options/footer-post.php:65
+#: framework-customizations/theme/options/footer-pre.php:66
+msgid "Column 5"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:499
+msgid "Column Ratio"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:32
+msgid "Columns"
+msgstr ""
+
+#: framework-customizations/theme/options/woocommerce-settings.php:19
+msgid "Columns, products per page, sidebar, single-product gallery, catalog mode, sale badge, AJAX cart and breadcrumb live there (and apply through this theme automatically). Enable it under Unyson+ → Extensions if it is not already, then configure it."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:79
+#: framework-customizations/theme/options/blog-single.php:55
+msgid "Comment count"
+msgstr ""
+
+#: comments.php:55
+#: comments.php:73
+msgid "Comment navigation"
+msgstr ""
+
+#: comments.php:90
+msgid "Comments are closed."
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:179
+msgid "Compact"
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:560
+msgid "Compact dropdown variant of the wide hybrid. Each option shows BOTH a colored swatch and the preset name painted in that color. Near-white presets (luminance > 0.95) get a subtle gray chip behind the label so they don't disappear against the panel background. Saved value shape: <code>{ predefined: \"bg-red\", custom: \"\" }</code> when a preset is picked, or <code>{ predefined: \"\", custom: \"#abc123\" }</code> when a custom color is picked. Consumers emit <code>predefined</code> as <code>class=\"...\"</code> directly; <code>custom</code> as inline <code>style=\"…\"</code>. This demo uses <code>bg-{slug}</code> keys; switch the call to <code>unysonplus_demo_compact_choices( \"text\" )</code> to get <code>text-{slug}</code> keys for a text-color context."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:680
+#: framework-customizations/theme/options/demo.php:670
+msgid "Composite background option (v1). Four tabs: Color / Gradient / Image / Video. Values stack as CSS layers — color underneath, gradient over, image over, video on top. The dot on each tab indicates that layer has a value."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:708
+#: framework-customizations/theme/options/demo.php:678
+msgid "Composite spacing option. Two columns side-by-side; each has an All Sides select plus a Top / Right / Bottom / Left quadrant arranged like a \"+\". Values are Bootstrap utility class names sourced from the live spacing scale."
+msgstr ""
+
+#: framework-customizations/theme/options/bingo-reviews-options.php:119
+#: framework-customizations/theme/options/casino-reviews-options.php:119
+msgid "Cons"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:200
+#: framework-customizations/theme/options/demo-2.php:259
+#: framework-customizations/theme/options/demo.php:206
+#: framework-customizations/theme/options/demo.php:265
+msgid "Consectetur"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:485
+msgid "Contain"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:76
+#: framework-customizations/theme/options/header-layout.php:73
+#: inc/includes/header-footer-option-helpers.php:543
+msgid "Container"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:185
+msgid "Container Gutter"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:79
+msgid "Container layout for the widget."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1386
+#: framework-customizations/theme/options/demo.php:1350
+msgid "Content"
+msgstr ""
+
+#: framework-customizations/theme/options/general-sidebar.php:61
+msgid "Content / Sidebar Gap"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:174
+msgid "Content Density"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:128
+msgid "Content Width"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-settings.php:68
+msgid "Copyright"
+msgstr ""
+
+#: inc/classes/class-unysonplus-plugin-installer.php:183
+msgid "Could not prepare the UnysonPlus plugin folder."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:484
+msgid "Cover"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:180
+msgid "Cozy (default)"
+msgstr ""
+
+#: inc/includes/onboarding.php:68
+msgid "Create a navigation menu"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:44
+msgid "Crop"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:49
+msgid "Cropped"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1507
+#: inc/helpers-shortcode-options.php:1517
+msgid "Ctrl + Click to select multiple choices."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:946
+msgid "Curl Bottom Left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:945
+msgid "Curl Bottom Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:943
+msgid "Curl Top Left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:944
+msgid "Curl Top Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:938
+msgid "Curls"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:161
+#: framework-customizations/theme/options/misc.php:165
+msgid "Custom CSS"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:57
+msgid "Custom CSS (this page only)"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:57
+#: inc/includes/header-footer-option-helpers.php:611
+msgid "Custom CSS Class"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:222
+msgid "Custom Code"
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:52
+msgid "Custom Fonts"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:119
+#: inc/includes/header-footer-option-helpers.php:149
+#: inc/includes/header-footer-option-helpers.php:269
+#: inc/includes/header-footer-option-helpers.php:300
+msgid "Custom HTML"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:193
+msgid "Custom Header & Footer Scripts"
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:121
+msgid "Custom Image Sizes"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:64
+msgid "Custom JS (this page only)"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:189
+msgid "Custom Scripts"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:532
+msgid "Custom Styling"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:486
+msgid "Custom Value"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1862
+msgid "Custom margins"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1634
+msgid "Custom margins and paddings"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:140
+#: framework-customizations/theme/options/demo.php:146
+msgid "Custom text"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:736
+msgid "Custom unit list with <code>separate => true</code> → \"3 m\" (space-separated) for human measurements. Shows optional min/step attributes."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:132
+#: inc/includes/misc.php:233
+msgid "Dark"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:107
+msgid "Dark Mode"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:111
+msgid "Dark Mode Toggle"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:76
+#: framework-customizations/theme/options/blog-single.php:51
+msgid "Date"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:839
+#: framework-customizations/theme/options/demo.php:809
+msgid "Date & Time picker"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:48
+#: framework-customizations/theme/options/posts/page.php:88
+#: framework-customizations/theme/options/posts/page.php:132
+#: framework-customizations/theme/options/posts/page.php:183
+#: framework-customizations/theme/options/posts/page.php:193
+#: inc/helpers-shortcode-options.php:117
+#: inc/helpers-shortcode-options.php:1017
+#: inc/helpers-shortcode-options.php:1060
+#: inc/helpers-shortcode-options.php:1103
+#: inc/helpers-shortcode-options.php:1146
+msgid "Default"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:20
+msgid "Default (Theme Settings footer)"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:19
+msgid "Default (Theme Settings header)"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:121
+msgid "Default (from template / global)"
+msgstr ""
+
+#: inc/includes/header-footer-presets.php:459
+msgid "Default (global footer)"
+msgstr ""
+
+#: inc/includes/header-footer-presets.php:458
+msgid "Default (global header)"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:52
+msgid "Default (no sidebar)"
+msgstr ""
+
+#: framework-customizations/theme/options/post-options.php:19
+#: framework-customizations/theme/options/post-options.php:37
+msgid "Default (use global)"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:66
+msgid "Default Hero Header Height"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:60
+msgid "Default Hero Header Image"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:47
+msgid "Default Page Layout"
+msgstr ""
+
+#: framework-customizations/theme/options/general-sidebar.php:42
+msgid "Default Sidebar Position"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:125
+msgid "Default mode"
+msgstr ""
+
+#: framework-customizations/theme/options/pages-settings.php:15
+msgid "Defaults"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1428
+msgid "Delay"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-box.php:7
+msgid "Demo Options"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:811
+#: framework-customizations/theme/options/demo.php:781
+msgid "Demo date range"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:307
+msgid "Deregister jquery-migrate"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:453
+msgid "Design Export / Import"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:235
+#: inc/includes/header-footer-option-helpers.php:363
+msgid "Desktop (≥ 992px)"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:421
+#: framework-customizations/theme/options/misc.php:425
+msgid "Developer Tools"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1491
+msgid "Device's Responsiveness Visibility."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:289
+msgid "Disable WordPress emojis"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:319
+msgid "Disable XML-RPC"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:295
+msgid "Disable oEmbed discovery"
+msgstr ""
+
+#: inc/includes/onboarding.php:185
+msgid "Dismiss"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:443
+msgid "Display Once (No-Repeat)"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:109
+msgid "Display width of the image logo (e.g. 300px or 12rem). Leave empty to auto-size to the header height. Ignored for the text site title."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:76
+msgid "Distance scrolled before the button appears. px is an absolute distance; vh is a fraction of the screen height (100vh = one full screen)."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:274
+msgid "Divider"
+msgstr ""
+
+#: inc/includes/sub-includes/featured-content.php:428
+msgid "Don&rsquo;t display tag on front end."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:709
+#: inc/helpers-shortcode-options.php:720
+#: inc/helpers-shortcode-options.php:731
+#: inc/helpers-shortcode-options.php:742
+#: inc/helpers-shortcode-options.php:753
+msgid "Don't float"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1359
+#: framework-customizations/theme/options/demo.php:1322
+msgid "Dots"
+msgstr ""
+
+#: framework-customizations/theme/options/header-menu.php:51
+msgid "Dropdown Background"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:308
+msgid "Drops the legacy compatibility shim. Modern themes / plugins do not need it."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1418
+msgid "Duration"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1453
+msgid "E.g.: <b>10</b> for 10 times."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1443
+msgid "E.g.: <b>10</b> for 10px."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1423
+msgid "E.g.: <b>2s</b> for 2 seconds."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1433
+msgid "E.g.: <b>5s</b> for 5 seconds."
+msgstr ""
+
+#: template-parts/content-page.php:79
+#: template-parts/content-single.php:49
+#: template-parts/content-standard.php:45
+msgid "Edit %s"
+msgstr ""
+
+#: inc/post-types.php:91
+msgid "Edit Footer Preset"
+msgstr ""
+
+#: inc/post-types.php:73
+msgid "Edit Header Preset"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1381
+#: framework-customizations/theme/options/demo.php:1345
+msgid "Edit settings…"
+msgstr ""
+
+#: inc/includes/onboarding.php:86
+msgid "Edit widgets"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:107
+#: inc/includes/header-footer-option-helpers.php:258
+msgid "Element"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:174
+msgid "Emitted in &lt;style id=\"unysonplus-custom-css\"&gt; just before &lt;/head&gt;. Loads after all theme + plugin stylesheets so it wins the cascade."
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:65
+msgid "Emitted inline before &lt;/body&gt;. Loaded only on this page."
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:58
+msgid "Emitted inline in &lt;head&gt;. Loaded only on this page."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:60
+#: framework-customizations/theme/options/misc.php:119
+msgid "Enable"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-copyright.php:33
+msgid "Enable Copyright Section"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:503
+msgid "Enable background overlay?"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:382
+msgid "Enable maintenance mode"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:537
+msgid "Enable to override the global footer styling for this section."
+msgstr ""
+
+#: framework-customizations/theme/options/general-scroll.php:27
+msgid "Enables CSS scroll-behavior: smooth for in-page anchor navigation."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:583
+msgid "Enter the URL. Leave Manual Link empty to disable."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:602
+msgid "Enter the title of the page."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:624
+msgid "Enter the title of the post."
+msgstr ""
+
+#: framework-customizations/theme/options/header-logo.php:15
+msgid "Enter your website's name"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:213
+#: framework-customizations/theme/options/demo-2.php:272
+#: framework-customizations/theme/options/demo.php:219
+#: framework-customizations/theme/options/demo.php:278
+msgid "Excepteur sint occaecat"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:61
+msgid "Excerpt"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:66
+msgid "Excerpt Length (words)"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:449
+msgid "Export / Import"
+msgstr ""
+
+#: inc/includes/settings-export-import.php:290
+msgid "Export design"
+msgstr ""
+
+#: inc/includes/onboarding.php:134
+msgid "Export or import all your theme settings from Theme Settings → Miscellaneous."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1137
+msgid "Extra Large"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:747
+#: inc/helpers-shortcode-options.php:1138
+msgid "Extra large devices (large desktops, 1200px and up)"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:54
+msgid "Extrabold (800)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:821
+msgid "Fade"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1284
+msgid "Fading Entrances"
+msgstr ""
+
+#: framework-customizations/theme/options/general-fonts.php:34
+msgid "Fallback (.woff) — optional"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:98
+msgid "Favicon / Site Icon"
+msgstr ""
+
+#: inc/includes/sub-includes/featured-content.php:398
+msgid "Featured Content"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:39
+#: framework-customizations/theme/options/blog-single.php:31
+#: framework-customizations/theme/options/post-options.php:43
+msgid "Featured Image"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:38
+msgid "Featured Image Position"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:139
+#: inc/includes/header-footer-option-helpers.php:290
+msgid "Filled"
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:881
+msgid "First Image"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:456
+msgid "Fixed"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:77
+#: inc/includes/header-footer-option-helpers.php:547
+msgid "Fixed Width"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1316
+msgid "Flippers"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:785
+msgid "Float"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:894
+msgid "Float Shadow"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:706
+#: inc/helpers-shortcode-options.php:717
+#: inc/helpers-shortcode-options.php:728
+#: inc/helpers-shortcode-options.php:739
+#: inc/helpers-shortcode-options.php:750
+msgid "Float left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:707
+#: inc/helpers-shortcode-options.php:718
+#: inc/helpers-shortcode-options.php:729
+#: inc/helpers-shortcode-options.php:740
+#: inc/helpers-shortcode-options.php:751
+msgid "Float right"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:52
+msgid "Floating Scroll-to-Top Button"
+msgstr ""
+
+#: framework-customizations/theme/options/general-fonts.php:23
+msgid "Font Family Name"
+msgstr ""
+
+#: framework-customizations/theme/options/general-fonts.php:29
+msgid "Font File (.woff2)"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:13
+msgid "Font Preview"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:572
+msgid "Font family, size, weight, line-height, letter-spacing and color for this section's text."
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:41
+msgid "Font size of the text site title (e.g. 1.5rem or 24px). Leave empty for the theme default. Ignored when an image logo is shown."
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:57
+msgid "Font weight of the text site title. Ignored when an image logo is shown."
+msgstr ""
+
+#: framework-customizations/theme/options/footer-settings.php:7
+msgid "Footer"
+msgstr ""
+
+#: inc/hooks.php:278
+msgid "Footer Column %d"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:39
+msgid "Footer Column 1"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:40
+msgid "Footer Column 2"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:41
+msgid "Footer Column 3"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:42
+msgid "Footer Column 4"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:43
+msgid "Footer Column 5"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-settings.php:72
+msgid "Footer Copyright Settings"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-settings.php:15
+msgid "Footer Layout"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:112
+#: inc/includes/header-footer-option-helpers.php:194
+msgid "Footer Logo"
+msgstr ""
+
+#: inc/includes/header-footer-presets.php:482
+#: inc/post-types.php:85
+#: inc/post-types.php:87
+msgid "Footer Preset"
+msgstr ""
+
+#: inc/post-types.php:84
+#: inc/post-types.php:86
+#: inc/post-types.php:93
+msgid "Footer Presets"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-settings.php:11
+msgid "Footer Settings"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:13
+msgid "Footer Widgets"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:63
+#: inc/menus.php:18
+msgid "Footer menu"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:702
+msgid "For All Devices ( Default )"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:54
+msgid "For Grid / Masonry. \"Inherit\" uses the Blog Index columns."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:246
+msgid "Format: G-XXXXXXXXXX. Leave empty to disable."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:252
+msgid "Format: GTM-XXXXXXX. Emits both the &lt;head&gt; script and &lt;noscript&gt; iframe."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:801
+msgid "Forward"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:117
+msgid "Frame Color"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:109
+msgid "Frame Width"
+msgstr ""
+
+#: framework-customizations/theme/options/bingo-reviews-options.php:89
+#: framework-customizations/theme/options/casino-reviews-options.php:89
+msgid "Free Spins"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:135
+msgid "Full (edge-to-edge)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:444
+msgid "Full Tile (Repeat XY Axis)"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:55
+#: framework-customizations/theme/options/header-layout.php:78
+#: inc/includes/header-footer-option-helpers.php:548
+msgid "Full Width"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:62
+msgid "Full content"
+msgstr ""
+
+#: framework-customizations/theme/options/general-social.php:31
+msgid "Full profile URL, including https://"
+msgstr ""
+
+#: framework-customizations/theme/options/general-preloader.php:43
+msgid "Full-screen splash shown until the page finishes loading."
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:15
+msgid "Full-width banner image at the top of the page."
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:28
+msgid "Fullscreen (100vh)"
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:20
+#: framework-customizations/theme/options/posts/page.php:215
+msgid "General"
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:24
+msgid "General Settings"
+msgstr ""
+
+#: inc/includes/onboarding.php:184
+msgid "Get started"
+msgstr ""
+
+#: inc/includes/onboarding.php:22
+#: inc/includes/onboarding.php:23
+msgid "Getting Started"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:194
+msgid "Global corner rounding applied to cards, buttons, inputs and images (drives the --radius tokens)."
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:175
+msgid "Global density for the theme's default vertical rhythm: content-area padding, post/page content spacing, the footer, and the fallback spacing of page-builder sections that have no Top/Bottom Spacing of their own. Does not override a section's own Top/Bottom Spacing. Compact = 0.75×, Cozy = 1× (default), Spacious = 1.5×."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:895
+msgid "Glow"
+msgstr ""
+
+#: inc/init.php:142
+msgid "Go to the dashboard to install UnysonPlus"
+msgstr ""
+
+#: inc/includes/onboarding.php:124
+msgid "Good to know"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:245
+msgid "Google Analytics 4 Measurement ID"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:251
+msgid "Google Tag Manager Container ID"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:558
+#: framework-customizations/theme/options/demo.php:564
+msgid "Gradient"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:574
+#: framework-customizations/theme/options/demo.php:580
+msgid "Gradient V2"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:521
+msgid "Gradient direction."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:48
+#: framework-customizations/theme/options/blog-archives.php:77
+#: framework-customizations/theme/options/blog-index.php:27
+msgid "Grid"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:774
+msgid "Grow"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:784
+msgid "Grow Rotate"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:893
+msgid "Grow Shadow"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:27
+msgid "H1 Heading"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:51
+msgid "H2 Heading"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:75
+msgid "H3 Heading"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:99
+msgid "H4 Heading"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:123
+msgid "H5 Heading"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:147
+msgid "H6 Heading"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:121
+#: framework-customizations/theme/options/demo.php:119
+msgid "HTML"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:67
+#: framework-customizations/theme/options/demo.php:65
+msgid "HTML5 number input with min/max/step. Saved as integer."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:788
+msgid "Hang"
+msgstr ""
+
+#: framework-customizations/theme/options/header-settings.php:7
+msgid "Header"
+msgstr ""
+
+#: inc/includes/header-footer-presets.php:466
+msgid "Header & Footer"
+msgstr ""
+
+#: inc/includes/onboarding.php:133
+msgid "Header & Footer are built visually in Theme Settings → Header / Footer (drag-and-drop columns)."
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:118
+msgid "Header Behavior"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:20
+msgid "Header Height"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:14
+msgid "Header Image"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:50
+msgid "Header Layout Mode"
+msgstr ""
+
+#: inc/includes/header-footer-presets.php:475
+#: inc/post-types.php:67
+#: inc/post-types.php:69
+msgid "Header Preset"
+msgstr ""
+
+#: inc/post-types.php:66
+#: inc/post-types.php:68
+#: inc/post-types.php:75
+msgid "Header Presets"
+msgstr ""
+
+#: framework-customizations/theme/options/header-settings.php:11
+#: framework-customizations/theme/options/posts/page.php:83
+msgid "Header Settings"
+msgstr ""
+
+#: inc/hooks.php:267
+msgid "Header Widget Area %d"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:36
+msgid "Header Widget Area 1"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:37
+msgid "Header Widget Area 2"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:38
+msgid "Header Widget Area 3"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:123
+msgid "Header-only tagline. Leave empty to use the WordPress Tagline (Settings &rarr; General). Setting it here does not change the site-wide tagline."
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:39
+msgid "Height"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:336
+#: framework-customizations/theme/options/demo.php:342
+msgid "Hello"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:210
+msgid "Hero Header"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1479
+msgid "Hidden"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1493
+msgid "Hidden on all devices"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1498
+msgid "Hidden only on Extra Large devices. (x > 1200px)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1494
+msgid "Hidden only on Extra Small devices. (x < 577px)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1497
+msgid "Hidden only on Large devices. (992px > x < 1201px)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1496
+msgid "Hidden only on Medium devices. (767px > x < 993px)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1495
+msgid "Hidden only on Small devices. (576px > x < 768px)"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:24
+#: framework-customizations/theme/options/blog-archives.php:32
+#: framework-customizations/theme/options/blog-archives.php:39
+#: framework-customizations/theme/options/blog-index.php:43
+#: framework-customizations/theme/options/blog-single.php:35
+#: framework-customizations/theme/options/blog-single.php:64
+#: framework-customizations/theme/options/blog-single.php:71
+#: framework-customizations/theme/options/blog-single.php:93
+#: framework-customizations/theme/options/post-options.php:21
+msgid "Hide"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:172
+msgid "Hide Featured Image"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:103
+msgid "Hide Footer Widgets"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:229
+#: inc/includes/header-footer-option-helpers.php:357
+msgid "Hide On"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:97
+msgid "Hide Page Title"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:165
+msgid "Hide Site Footer"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:158
+msgid "Hide Site Header"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:112
+#: framework-customizations/theme/options/header-logo.php:37
+msgid "Hide Tagline"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:90
+msgid "Hide the header on this page"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:230
+#: inc/includes/header-footer-option-helpers.php:358
+msgid "Hide this element on the selected screen sizes."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:314
+msgid "Hides the &lt;meta name=\"generator\"&gt; tag from front-end source."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:858
+msgid "Hollow"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:445
+msgid "Horizontal Tile (Repeat X Axis)"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:89
+msgid "Horizontal alignment of the boxed container."
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:186
+msgid "Horizontal breathing room on the sides of content (the Bootstrap container gutter). Leave blank for the responsive default (~12px on phones up to ~24px on desktop)."
+msgstr ""
+
+#: framework-customizations/theme/options/general-sidebar.php:62
+msgid "Horizontal gap between the content and the sidebar column."
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:204
+msgid "Hover color for content links. Leave empty to reuse the link color."
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:128
+msgid "How the header behaves on scroll. This supersedes the old Sticky switch and General → Layout → Header Position Behavior. Per-page \"Transparent\" still overrides it for that page."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:22
+msgid "How the posts listing is arranged."
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:64
+msgid "How the whole site container is laid out. Full-width spans edge to edge; Boxed centers a fixed-width column; Framed adds a colored border around the entire viewport. The options for the chosen mode appear below."
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:546
+msgid "Hybrid control. Saved value is a two-key array: <code>{ predefined: \"\", custom: \"\" }</code>. Only one half is meant to be live at a time — picking a swatch clears <code>custom</code>; opening the picker clears <code>predefined</code> (the JS handles this mutual exclusion automatically). Switch <code>picker</code> from <code>color-picker</code> to <code>rgba-color-picker</code> to allow alpha."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:2072
+msgid "ID"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:422
+#: framework-customizations/theme/options/demo.php:428
+#: framework-customizations/theme/options/general-social.php:39
+msgid "Icon"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:94
+msgid "Icon / text color"
+msgstr ""
+
+#: framework-customizations/theme/options/header-settings.php:15
+msgid "Identity"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:387
+#: framework-customizations/theme/options/demo-2.php:904
+#: framework-customizations/theme/options/demo.php:393
+#: framework-customizations/theme/options/demo.php:874
+msgid "Image Picker"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:46
+msgid "Image Ratio"
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:117
+msgid "Image Sizes"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:961
+msgid "Image alignment"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:451
+msgid "Image attachment"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:421
+msgid "Image position"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:438
+msgid "Image repeat"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:465
+msgid "Image size"
+msgstr ""
+
+#: inc/includes/settings-export-import.php:297
+msgid "Import design"
+msgstr ""
+
+#: inc/includes/settings-export-import.php:244
+msgid "Imported, but the file came from a different theme; only recognized design settings were applied."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:57
+msgid "Inherit"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:46
+#: framework-customizations/theme/options/blog-archives.php:75
+msgid "Inherit (Blog Index)"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:64
+#: framework-customizations/theme/options/blog-single.php:24
+msgid "Inherit (use global)"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:584
+msgid "Inner spacing for this section (responsive). Applied as utility classes."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1932
+msgid "Input values in pixels. i.e.: 60"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:201
+msgid "Inside <head>"
+msgstr ""
+
+#: inc/classes/class-unysonplus-plugin-installer.php:73
+msgid "Install UnysonPlus"
+msgstr ""
+
+#: 404.php:51
+msgid "It looks like nothing was found at this location. Maybe try one of the links below or a search?"
+msgstr ""
+
+#: template-parts/content-none.php:36
+msgid "It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help."
+msgstr ""
+
+#: framework-customizations/theme/options/general-fonts.php:52
+msgid "Italic"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1448
+msgid "Iteration"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1130
+#: framework-customizations/theme/options/demo-2.php:1184
+#: framework-customizations/theme/options/demo-2.php:1246
+#: framework-customizations/theme/options/demo-2.php:1306
+#: framework-customizations/theme/options/demo.php:1091
+#: framework-customizations/theme/options/demo.php:1146
+#: framework-customizations/theme/options/demo.php:1208
+#: framework-customizations/theme/options/demo.php:1268
+msgid "Laptop"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1403
+#: framework-customizations/theme/options/demo.php:1367
+#: inc/helpers-shortcode-options.php:1094
+msgid "Large"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:73
+#: framework-customizations/theme/options/posts/page.php:27
+msgid "Large (560px)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:736
+#: inc/helpers-shortcode-options.php:1095
+msgid "Large devices (desktops, 992px and up)"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:21
+#: framework-customizations/theme/options/general-settings.php:28
+#: framework-customizations/theme/options/header-settings.php:28
+msgid "Layout"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:111
+msgid "Layout Overrides"
+msgstr ""
+
+#: framework-customizations/theme/options/header-settings.php:32
+msgid "Layout Settings"
+msgstr ""
+
+#: comments.php:97
+msgid "Leave a Reply"
+msgstr ""
+
+#: comments.php:98
+msgid "Leave a Reply to %s"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1424
+#: inc/helpers-shortcode-options.php:1434
+#: inc/helpers-shortcode-options.php:1444
+#: inc/helpers-shortcode-options.php:1455
+msgid "Leave blank to disable."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:590
+#: inc/includes/header-footer-option-helpers.php:602
+msgid "Leave empty for no border."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:212
+msgid "Leave empty to show only an arrow icon."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:66
+#: framework-customizations/theme/options/blog-single.php:26
+#: framework-customizations/theme/options/post-options.php:39
+#: framework-customizations/theme/options/posts/page.php:123
+#: inc/helpers-shortcode-options.php:976
+#: inc/helpers-shortcode-options.php:1031
+#: inc/helpers-shortcode-options.php:1074
+#: inc/helpers-shortcode-options.php:1117
+#: inc/helpers-shortcode-options.php:1160
+#: inc/helpers-shortcode-options.php:1948
+#: inc/helpers-shortcode-options.php:1975
+msgid "Left"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:54
+msgid "Left Sidebar"
+msgstr ""
+
+#: inc/hooks.php:264
+#: inc/includes/header-footer-option-helpers.php:35
+msgid "Left Sidebar Area"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:527
+msgid "Left to right"
+msgstr ""
+
+#: framework-customizations/theme/options/header-menu.php:36
+msgid "Left/right padding inside each menu link."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:302
+msgid "Legacy Windows Live Writer + Really Simple Discovery autodiscovery tags. Safe to remove on most sites."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:131
+#: inc/includes/misc.php:232
+msgid "Light"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:49
+msgid "Light (300)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1328
+msgid "Lightspeed"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:566
+msgid "Link"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:35
+#: inc/includes/header-footer-option-helpers.php:575
+msgid "Link Color"
+msgstr ""
+
+#: framework-customizations/theme/options/header-menu.php:35
+msgid "Link Horizontal Spacing"
+msgstr ""
+
+#: framework-customizations/theme/options/header-menu.php:43
+msgid "Link Vertical Spacing"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:198
+msgid "Link color inside post/page content. Leave empty to use the theme primary color."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:47
+#: framework-customizations/theme/options/blog-archives.php:76
+msgid "List"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:26
+msgid "List (stacked)"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:406
+msgid "Logged-in users with any of these roles see the live site as normal."
+msgstr ""
+
+#: framework-customizations/theme/options/header-logo.php:14
+#: framework-customizations/theme/options/misc.php:399
+#: inc/includes/header-footer-option-helpers.php:111
+#: inc/includes/header-footer-option-helpers.php:262
+msgid "Logo"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:74
+msgid "Logo (Retina / 2&times;)"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:92
+msgid "Logo Alt Text"
+msgstr ""
+
+#: framework-customizations/theme/options/bingo-reviews-options.php:145
+#: framework-customizations/theme/options/casino-reviews-options.php:145
+msgid "Logo Background Color"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:199
+msgid "Logo Max Width"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:68
+#: framework-customizations/theme/options/header-logo.php:26
+msgid "Logo Upload"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:104
+msgid "Logo Width"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:198
+#: framework-customizations/theme/options/demo-2.php:257
+#: framework-customizations/theme/options/demo.php:204
+#: framework-customizations/theme/options/demo.php:263
+msgid "Lorem ipsum"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:37
+#: framework-customizations/theme/options/demo-2.php:40
+#: framework-customizations/theme/options/demo-2.php:50
+#: framework-customizations/theme/options/demo-2.php:53
+#: framework-customizations/theme/options/demo-2.php:80
+#: framework-customizations/theme/options/demo-2.php:83
+#: framework-customizations/theme/options/demo-2.php:99
+#: framework-customizations/theme/options/demo-2.php:110
+#: framework-customizations/theme/options/demo-2.php:113
+#: framework-customizations/theme/options/demo-2.php:124
+#: framework-customizations/theme/options/demo-2.php:128
+#: framework-customizations/theme/options/demo-2.php:138
+#: framework-customizations/theme/options/demo-2.php:142
+#: framework-customizations/theme/options/demo-2.php:155
+#: framework-customizations/theme/options/demo-2.php:163
+#: framework-customizations/theme/options/demo-2.php:181
+#: framework-customizations/theme/options/demo-2.php:184
+#: framework-customizations/theme/options/demo-2.php:194
+#: framework-customizations/theme/options/demo-2.php:221
+#: framework-customizations/theme/options/demo-2.php:231
+#: framework-customizations/theme/options/demo-2.php:243
+#: framework-customizations/theme/options/demo-2.php:253
+#: framework-customizations/theme/options/demo-2.php:280
+#: framework-customizations/theme/options/demo-2.php:294
+#: framework-customizations/theme/options/demo-2.php:297
+#: framework-customizations/theme/options/demo-2.php:308
+#: framework-customizations/theme/options/demo-2.php:311
+#: framework-customizations/theme/options/demo-2.php:322
+#: framework-customizations/theme/options/demo-2.php:325
+#: framework-customizations/theme/options/demo-2.php:339
+#: framework-customizations/theme/options/demo-2.php:342
+#: framework-customizations/theme/options/demo-2.php:354
+#: framework-customizations/theme/options/demo-2.php:362
+#: framework-customizations/theme/options/demo-2.php:372
+#: framework-customizations/theme/options/demo-2.php:380
+#: framework-customizations/theme/options/demo-2.php:390
+#: framework-customizations/theme/options/demo-2.php:415
+#: framework-customizations/theme/options/demo-2.php:425
+#: framework-customizations/theme/options/demo-2.php:428
+#: framework-customizations/theme/options/demo-2.php:436
+#: framework-customizations/theme/options/demo-2.php:441
+#: framework-customizations/theme/options/demo-2.php:449
+#: framework-customizations/theme/options/demo-2.php:453
+#: framework-customizations/theme/options/demo-2.php:461
+#: framework-customizations/theme/options/demo-2.php:466
+#: framework-customizations/theme/options/demo-2.php:474
+#: framework-customizations/theme/options/demo-2.php:478
+#: framework-customizations/theme/options/demo-2.php:488
+#: framework-customizations/theme/options/demo-2.php:491
+#: framework-customizations/theme/options/demo-2.php:501
+#: framework-customizations/theme/options/demo-2.php:504
+#: framework-customizations/theme/options/demo-2.php:516
+#: framework-customizations/theme/options/demo-2.php:564
+#: framework-customizations/theme/options/demo-2.php:567
+#: framework-customizations/theme/options/demo-2.php:591
+#: framework-customizations/theme/options/demo-2.php:594
+#: framework-customizations/theme/options/demo-2.php:668
+#: framework-customizations/theme/options/demo-2.php:671
+#: framework-customizations/theme/options/demo-2.php:767
+#: framework-customizations/theme/options/demo-2.php:770
+#: framework-customizations/theme/options/demo-2.php:799
+#: framework-customizations/theme/options/demo-2.php:802
+#: framework-customizations/theme/options/demo-2.php:812
+#: framework-customizations/theme/options/demo-2.php:815
+#: framework-customizations/theme/options/demo-2.php:840
+#: framework-customizations/theme/options/demo-2.php:843
+#: framework-customizations/theme/options/demo-2.php:864
+#: framework-customizations/theme/options/demo-2.php:866
+#: framework-customizations/theme/options/demo-2.php:877
+#: framework-customizations/theme/options/demo-2.php:879
+#: framework-customizations/theme/options/demo-2.php:886
+#: framework-customizations/theme/options/demo-2.php:894
+#: framework-customizations/theme/options/demo-2.php:897
+#: framework-customizations/theme/options/demo-2.php:907
+#: framework-customizations/theme/options/demo-2.php:935
+#: framework-customizations/theme/options/demo-2.php:943
+#: framework-customizations/theme/options/demo-2.php:947
+#: framework-customizations/theme/options/demo-2.php:956
+#: framework-customizations/theme/options/demo-2.php:962
+#: framework-customizations/theme/options/demo-2.php:966
+#: framework-customizations/theme/options/demo-2.php:976
+#: framework-customizations/theme/options/demo-2.php:979
+#: framework-customizations/theme/options/demo-2.php:996
+#: framework-customizations/theme/options/demo-2.php:999
+#: framework-customizations/theme/options/demo-2.php:1009
+#: framework-customizations/theme/options/demo-2.php:1012
+#: framework-customizations/theme/options/demo-2.php:1024
+#: framework-customizations/theme/options/demo-2.php:1027
+#: framework-customizations/theme/options/demo-2.php:1037
+#: framework-customizations/theme/options/demo-2.php:1062
+#: framework-customizations/theme/options/demo-2.php:1065
+#: framework-customizations/theme/options/demo-2.php:1075
+#: framework-customizations/theme/options/demo-2.php:1078
+#: framework-customizations/theme/options/demo-2.php:1096
+#: framework-customizations/theme/options/demo-2.php:1099
+#: framework-customizations/theme/options/demo-2.php:1109
+#: framework-customizations/theme/options/demo-2.php:1112
+#: framework-customizations/theme/options/demo-2.php:1132
+#: framework-customizations/theme/options/demo-2.php:1135
+#: framework-customizations/theme/options/demo-2.php:1186
+#: framework-customizations/theme/options/demo-2.php:1189
+#: framework-customizations/theme/options/demo-2.php:1257
+#: framework-customizations/theme/options/demo-2.php:1260
+#: framework-customizations/theme/options/demo-2.php:1313
+#: framework-customizations/theme/options/demo-2.php:1316
+#: framework-customizations/theme/options/demo.php:35
+#: framework-customizations/theme/options/demo.php:38
+#: framework-customizations/theme/options/demo.php:48
+#: framework-customizations/theme/options/demo.php:51
+#: framework-customizations/theme/options/demo.php:78
+#: framework-customizations/theme/options/demo.php:81
+#: framework-customizations/theme/options/demo.php:97
+#: framework-customizations/theme/options/demo.php:108
+#: framework-customizations/theme/options/demo.php:111
+#: framework-customizations/theme/options/demo.php:122
+#: framework-customizations/theme/options/demo.php:126
+#: framework-customizations/theme/options/demo.php:144
+#: framework-customizations/theme/options/demo.php:148
+#: framework-customizations/theme/options/demo.php:161
+#: framework-customizations/theme/options/demo.php:169
+#: framework-customizations/theme/options/demo.php:187
+#: framework-customizations/theme/options/demo.php:190
+#: framework-customizations/theme/options/demo.php:200
+#: framework-customizations/theme/options/demo.php:227
+#: framework-customizations/theme/options/demo.php:237
+#: framework-customizations/theme/options/demo.php:249
+#: framework-customizations/theme/options/demo.php:259
+#: framework-customizations/theme/options/demo.php:286
+#: framework-customizations/theme/options/demo.php:300
+#: framework-customizations/theme/options/demo.php:303
+#: framework-customizations/theme/options/demo.php:314
+#: framework-customizations/theme/options/demo.php:317
+#: framework-customizations/theme/options/demo.php:328
+#: framework-customizations/theme/options/demo.php:331
+#: framework-customizations/theme/options/demo.php:345
+#: framework-customizations/theme/options/demo.php:348
+#: framework-customizations/theme/options/demo.php:360
+#: framework-customizations/theme/options/demo.php:368
+#: framework-customizations/theme/options/demo.php:378
+#: framework-customizations/theme/options/demo.php:386
+#: framework-customizations/theme/options/demo.php:396
+#: framework-customizations/theme/options/demo.php:421
+#: framework-customizations/theme/options/demo.php:431
+#: framework-customizations/theme/options/demo.php:434
+#: framework-customizations/theme/options/demo.php:442
+#: framework-customizations/theme/options/demo.php:447
+#: framework-customizations/theme/options/demo.php:455
+#: framework-customizations/theme/options/demo.php:459
+#: framework-customizations/theme/options/demo.php:467
+#: framework-customizations/theme/options/demo.php:472
+#: framework-customizations/theme/options/demo.php:480
+#: framework-customizations/theme/options/demo.php:484
+#: framework-customizations/theme/options/demo.php:494
+#: framework-customizations/theme/options/demo.php:497
+#: framework-customizations/theme/options/demo.php:507
+#: framework-customizations/theme/options/demo.php:510
+#: framework-customizations/theme/options/demo.php:522
+#: framework-customizations/theme/options/demo.php:544
+#: framework-customizations/theme/options/demo.php:558
+#: framework-customizations/theme/options/demo.php:570
+#: framework-customizations/theme/options/demo.php:573
+#: framework-customizations/theme/options/demo.php:658
+#: framework-customizations/theme/options/demo.php:661
+#: framework-customizations/theme/options/demo.php:737
+#: framework-customizations/theme/options/demo.php:740
+#: framework-customizations/theme/options/demo.php:769
+#: framework-customizations/theme/options/demo.php:772
+#: framework-customizations/theme/options/demo.php:782
+#: framework-customizations/theme/options/demo.php:785
+#: framework-customizations/theme/options/demo.php:810
+#: framework-customizations/theme/options/demo.php:813
+#: framework-customizations/theme/options/demo.php:834
+#: framework-customizations/theme/options/demo.php:836
+#: framework-customizations/theme/options/demo.php:847
+#: framework-customizations/theme/options/demo.php:849
+#: framework-customizations/theme/options/demo.php:856
+#: framework-customizations/theme/options/demo.php:864
+#: framework-customizations/theme/options/demo.php:867
+#: framework-customizations/theme/options/demo.php:877
+#: framework-customizations/theme/options/demo.php:904
+#: framework-customizations/theme/options/demo.php:912
+#: framework-customizations/theme/options/demo.php:916
+#: framework-customizations/theme/options/demo.php:925
+#: framework-customizations/theme/options/demo.php:931
+#: framework-customizations/theme/options/demo.php:935
+#: framework-customizations/theme/options/demo.php:945
+#: framework-customizations/theme/options/demo.php:948
+#: framework-customizations/theme/options/demo.php:965
+#: framework-customizations/theme/options/demo.php:968
+#: framework-customizations/theme/options/demo.php:978
+#: framework-customizations/theme/options/demo.php:980
+#: framework-customizations/theme/options/demo.php:992
+#: framework-customizations/theme/options/demo.php:995
+#: framework-customizations/theme/options/demo.php:1005
+#: framework-customizations/theme/options/demo.php:1023
+#: framework-customizations/theme/options/demo.php:1026
+#: framework-customizations/theme/options/demo.php:1036
+#: framework-customizations/theme/options/demo.php:1039
+#: framework-customizations/theme/options/demo.php:1057
+#: framework-customizations/theme/options/demo.php:1060
+#: framework-customizations/theme/options/demo.php:1070
+#: framework-customizations/theme/options/demo.php:1073
+#: framework-customizations/theme/options/demo.php:1093
+#: framework-customizations/theme/options/demo.php:1096
+#: framework-customizations/theme/options/demo.php:1148
+#: framework-customizations/theme/options/demo.php:1151
+#: framework-customizations/theme/options/demo.php:1219
+#: framework-customizations/theme/options/demo.php:1222
+#: framework-customizations/theme/options/demo.php:1275
+#: framework-customizations/theme/options/demo.php:1278
+msgid "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+msgstr ""
+
+#: framework-customizations/theme/options/footer-settings.php:42
+#: framework-customizations/theme/options/footer-settings.php:46
+msgid "Main Footer"
+msgstr ""
+
+#: framework-customizations/theme/options/header-settings.php:67
+#: framework-customizations/theme/options/header-settings.php:71
+msgid "Main Header"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:112
+msgid "Main Header Background"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:83
+msgid "Main Header Height"
+msgstr ""
+
+#: framework-customizations/theme/options/header-main.php:28
+msgid "Main Header — Center Column"
+msgstr ""
+
+#: framework-customizations/theme/options/header-main.php:25
+msgid "Main Header — Left Column"
+msgstr ""
+
+#: framework-customizations/theme/options/header-main.php:30
+msgid "Main Header — Right Column"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:93
+msgid "Main header height on phones (below 768px). Leave empty to reuse the desktop height."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:370
+#: framework-customizations/theme/options/misc.php:374
+msgid "Maintenance Mode"
+msgstr ""
+
+#: framework-customizations/theme/options/general-sidebar.php:70
+msgid "Make the sidebar follow the page as it scrolls (desktop only)."
+msgstr ""
+
+#: inc/includes/onboarding.php:72
+msgid "Manage menus"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:570
+msgid "Manual"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:49
+#: framework-customizations/theme/options/blog-index.php:28
+msgid "Masonry"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:200
+msgid "Max width of the footer logo."
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:78
+msgid "Maximum width of the boxed container. Recommended range: 1100–1600 px."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:573
+msgid "Media"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1402
+#: framework-customizations/theme/options/demo.php:1366
+#: inc/helpers-shortcode-options.php:1051
+msgid "Medium"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:72
+#: framework-customizations/theme/options/posts/page.php:26
+msgid "Medium (380px)"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:51
+msgid "Medium (500)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:725
+#: inc/helpers-shortcode-options.php:1052
+msgid "Medium devices (tablets, 768px and up)"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1150
+#: framework-customizations/theme/options/demo-2.php:1204
+#: framework-customizations/theme/options/demo-2.php:1275
+#: framework-customizations/theme/options/demo-2.php:1331
+#: framework-customizations/theme/options/demo.php:1112
+#: framework-customizations/theme/options/demo.php:1166
+#: framework-customizations/theme/options/demo.php:1237
+#: framework-customizations/theme/options/demo.php:1293
+msgid "Memory"
+msgstr ""
+
+#: framework-customizations/theme/options/header-settings.php:41
+#: inc/includes/header-footer-option-helpers.php:113
+#: inc/includes/header-footer-option-helpers.php:263
+msgid "Menu"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:114
+#: inc/includes/header-footer-option-helpers.php:264
+msgid "Menu Area"
+msgstr ""
+
+#: framework-customizations/theme/options/header-menu.php:23
+msgid "Menu Link Color"
+msgstr ""
+
+#: framework-customizations/theme/options/header-menu.php:29
+msgid "Menu Link Hover / Active Color"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:162
+#: inc/includes/header-footer-option-helpers.php:313
+msgid "Menu Location"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:393
+msgid "Message"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:257
+msgid "Meta (Facebook) Pixel ID"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:263
+msgid "Microsoft Clarity Project ID"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:84
+msgid "Minimum height of the main header row."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:38
+#: framework-customizations/theme/options/misc.php:42
+msgid "Miscellaneous"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:233
+#: inc/includes/header-footer-option-helpers.php:361
+msgid "Mobile (< 768px)"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:92
+msgid "Mobile Header Height"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:86
+msgid "Mobile Logo"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1231
+#: framework-customizations/theme/options/demo.php:1193
+msgid "Multi Picker: Image Picker"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1180
+#: framework-customizations/theme/options/demo.php:1142
+msgid "Multi Picker: Radio"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1126
+#: framework-customizations/theme/options/demo.php:1087
+msgid "Multi Picker: Select"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:460
+#: framework-customizations/theme/options/demo.php:466
+msgid "Multi Upload"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:473
+#: framework-customizations/theme/options/demo.php:479
+msgid "Multi Upload (Images Only)"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:961
+#: framework-customizations/theme/options/demo.php:930
+msgid "Multi Upload (images only)"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:333
+#: framework-customizations/theme/options/demo.php:339
+msgid "Multi-Select: Custom Array"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:291
+#: framework-customizations/theme/options/demo.php:297
+msgid "Multi-Select: Posts"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:305
+#: framework-customizations/theme/options/demo.php:311
+msgid "Multi-Select: Taxonomies"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:319
+#: framework-customizations/theme/options/demo.php:325
+msgid "Multi-Select: Users"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:29
+#: framework-customizations/theme/options/general-social.php:24
+msgid "Name"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:133
+msgid "Narrow (~720px)"
+msgstr ""
+
+#: framework-customizations/theme/options/header-settings.php:45
+msgid "Navigation Menu"
+msgstr ""
+
+#: framework-customizations/theme/options/general-social.php:25
+msgid "Network name (used as the link label / aria-label)."
+msgstr ""
+
+#: inc/post-types.php:90
+msgid "New Footer Preset"
+msgstr ""
+
+#: inc/post-types.php:72
+msgid "New Header Preset"
+msgstr ""
+
+#: comments.php:59
+#: comments.php:77
+msgid "Newer Comments"
+msgstr ""
+
+#: inc/includes/blog.php:329
+msgid "Next"
+msgstr ""
+
+#: inc/includes/blog.php:94
+msgid "Next &rarr;"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:178
+#: framework-customizations/theme/options/demo.php:184
+#: framework-customizations/theme/options/footer-copyright.php:36
+#: framework-customizations/theme/options/footer-widgets.php:21
+#: framework-customizations/theme/options/general-pages.php:80
+#: framework-customizations/theme/options/general-pages.php:87
+#: framework-customizations/theme/options/general-scroll.php:31
+#: framework-customizations/theme/options/general-scroll.php:39
+#: framework-customizations/theme/options/general-sidebar.php:74
+#: framework-customizations/theme/options/general-social.php:47
+#: framework-customizations/theme/options/header-identity.php:114
+#: framework-customizations/theme/options/header-logo.php:41
+#: framework-customizations/theme/options/misc.php:438
+#: framework-customizations/theme/options/posts/page.php:162
+#: framework-customizations/theme/options/posts/page.php:169
+#: framework-customizations/theme/options/posts/page.php:176
+#: framework-customizations/theme/options/posts/page.php:185
+#: framework-customizations/theme/options/posts/page.php:195
+#: inc/helpers-shortcode-options.php:511
+#: inc/includes/header-footer-option-helpers.php:535
+msgid "No"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:48
+msgid "No Crop"
+msgstr ""
+
+#: inc/includes/settings-export-import.php:245
+msgid "No file was uploaded, or the upload failed."
+msgstr ""
+
+#: inc/post-types.php:96
+msgid "No footer presets found in Trash."
+msgstr ""
+
+#: inc/post-types.php:95
+msgid "No footer presets found."
+msgstr ""
+
+#: inc/post-types.php:78
+msgid "No header presets found in Trash."
+msgstr ""
+
+#: inc/post-types.php:77
+msgid "No header presets found."
+msgstr ""
+
+#: inc/includes/settings-export-import.php:248
+msgid "No importable design settings were found in that file."
+msgstr ""
+
+#: inc/menus.php:106
+msgid "No menu assigned to the <strong>%1$s</strong> location. <a href=\"%2$s\">Set one up &rarr;</a> <span class=\"primary-menu-notice__hint\">(admins only)</span>"
+msgstr ""
+
+#: inc/includes/header-builder.php:162
+msgid "No menu assigned to the <strong>Primary</strong> location. <a href=\"%s\">Set one up &rarr;</a> <span class=\"primary-menu-notice__hint\">(admins only)</span>"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:65
+#: framework-customizations/theme/options/blog-single.php:25
+#: framework-customizations/theme/options/post-options.php:38
+msgid "No sidebar"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:122
+#: inc/helpers-shortcode-options.php:699
+#: inc/helpers-shortcode-options.php:773
+#: inc/helpers-shortcode-options.php:820
+#: inc/helpers-shortcode-options.php:856
+#: inc/helpers-shortcode-options.php:891
+#: inc/helpers-shortcode-options.php:916
+#: inc/helpers-shortcode-options.php:942
+#: inc/helpers-shortcode-options.php:969
+#: inc/helpers-shortcode-options.php:1024
+#: inc/helpers-shortcode-options.php:1067
+#: inc/helpers-shortcode-options.php:1110
+#: inc/helpers-shortcode-options.php:1153
+#: inc/helpers-shortcode-options.php:1241
+msgid "None"
+msgstr ""
+
+#: framework-customizations/theme/options/general-fonts.php:51
+msgid "Normal"
+msgstr ""
+
+#: template-parts/content-none.php:14
+msgid "Nothing Found"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:60
+#: framework-customizations/theme/options/demo.php:58
+msgid "Number"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:70
+#: framework-customizations/theme/options/demo.php:68
+msgid "Number (float)"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-copyright.php:50
+#: framework-customizations/theme/options/footer-main.php:27
+#: framework-customizations/theme/options/footer-post.php:25
+#: framework-customizations/theme/options/footer-pre.php:26
+msgid "Number of Columns"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:33
+msgid "Number of columns for Grid / Masonry layouts."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1451
+msgid "Number of times the animation is repeated."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:93
+msgid "Numbered"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:258
+msgid "Numeric ID, e.g. 1234567890123456."
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:696
+msgid "Numeric field + a configurable unit dropdown (defaults px / em / rem). Saved value is <code>{ value, unit }</code>; consume with <code>FW_Option_Type_Unit_Input::to_string( $val )</code> → \"24px\"."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:726
+msgid "Numeric field + a configurable unit dropdown (defaults px / em / rem). Saved value is <code>{ value, unit }</code>; consume with <code>FW_Option_Type_Unit_Input::to_string( $val )</code>."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1438
+msgid "Offset"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:94
+msgid "Older / Newer"
+msgstr ""
+
+#: comments.php:58
+#: comments.php:76
+msgid "Older Comments"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:216
+#: framework-customizations/theme/options/demo-2.php:275
+#: framework-customizations/theme/options/demo.php:222
+#: framework-customizations/theme/options/demo.php:281
+msgid "One"
+msgstr ""
+
+#: 404.php:47
+msgid "Oops! That page can&rsquo;t be found."
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:15
+msgid "Open Color &amp; Button Settings"
+msgstr ""
+
+#: inc/includes/onboarding.php:65
+msgid "Open Theme Settings"
+msgstr ""
+
+#: framework-customizations/theme/options/woocommerce-settings.php:20
+msgid "Open WooCommerce Extension Settings"
+msgstr ""
+
+#: framework-customizations/theme/options/general-social.php:43
+msgid "Open in New Tab"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:592
+#: inc/helpers-shortcode-options.php:614
+#: inc/helpers-shortcode-options.php:636
+#: inc/helpers-shortcode-options.php:656
+msgid "Open link in new window"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:591
+#: inc/helpers-shortcode-options.php:613
+#: inc/helpers-shortcode-options.php:635
+#: inc/helpers-shortcode-options.php:655
+msgid "Open link in same window"
+msgstr ""
+
+#: framework-customizations/theme/options/general-social.php:48
+msgid "Open the link in a new browser tab."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:208
+#: framework-customizations/theme/options/demo-2.php:267
+#: framework-customizations/theme/options/demo.php:214
+#: framework-customizations/theme/options/demo.php:273
+msgid "Optgroup Label"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:81
+msgid "Optional alternate logo shown once the header sticks on scroll (requires Sticky Header in Header &rarr; Layout). Handy for a compact or dark variant. Leave empty to keep the main logo."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:560
+msgid "Optional background image for this section."
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:75
+msgid "Optional high-resolution version of the logo, served to Retina / high-DPI screens via srcset. Upload one at exactly twice the display size of the main logo."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:400
+msgid "Optional image displayed above the title."
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:87
+msgid "Optional logo shown on small screens (below 768px). Leave empty to use the main logo everywhere."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:84
+msgid "Optional text shown next to the arrow icon. Leave empty for icon-only."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:82
+msgid "Optional. Leave blank for the default message."
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:86
+msgid "Options for the header on this page. "
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:50
+msgid "Original"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:395
+msgid "Our site is undergoing scheduled maintenance. Please check back shortly."
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:42
+msgid "Outer padding above the footer content. Blank uses the theme default."
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:50
+msgid "Outer padding below the footer content. Blank uses the theme default."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:140
+#: inc/includes/header-footer-option-helpers.php:291
+msgid "Outline"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:863
+msgid "Outline In"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:862
+msgid "Outline Out"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-settings.php:19
+msgid "Overall Footer Layout"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:502
+msgid "Overlay"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:32
+msgid "Overlay Color"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:37
+msgid "Overlay Opacity"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:26
+#: inc/includes/header-footer-option-helpers.php:567
+msgid "Overlay opacity over the background image (0 = transparent, 100 = solid). Only used when a background image is set."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:872
+msgid "Overline From Center"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:871
+msgid "Overline From Left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:873
+msgid "Overline From Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:870
+msgid "Overline Reveal"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:583
+msgid "Padding"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:49
+msgid "Padding Bottom"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:41
+msgid "Padding Top"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:571
+msgid "Page"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:139
+msgid "Page Background Color"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:144
+msgid "Page Background Image"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:74
+msgid "Page Options"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:204
+msgid "Page Settings"
+msgstr ""
+
+#: inc/includes/onboarding.php:129
+msgid "Page templates included: %s — pick one from the Page editor → Template box."
+msgstr ""
+
+#: framework-customizations/theme/options/pages-settings.php:7
+msgid "Pages"
+msgstr ""
+
+#: framework-customizations/theme/options/pages-settings.php:19
+msgid "Pages Defaults"
+msgstr ""
+
+#: framework-customizations/theme/options/pages-settings.php:11
+msgid "Pages Settings"
+msgstr ""
+
+#: template-parts/content-page.php:63
+#: template-parts/content-single.php:33
+#: template-parts/content-standard.php:29
+#: template-parts/content.php:58
+msgid "Pages:"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:89
+msgid "Pagination"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:77
+#: framework-customizations/theme/options/demo.php:75
+msgid "Password"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1072
+#: framework-customizations/theme/options/demo.php:1033
+msgid "Password in Group"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:218
+msgid "Pasted verbatim before &lt;/body&gt; closes."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:202
+msgid "Pasted verbatim before &lt;/head&gt;. Wrap JS in &lt;script&gt; tags."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:210
+msgid "Pasted verbatim immediately after &lt;body&gt; opens. Used for tag-manager &lt;noscript&gt; fallbacks."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:277
+msgid "Performance"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:281
+msgid "Performance Tweaks"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1129
+#: framework-customizations/theme/options/demo-2.php:1183
+#: framework-customizations/theme/options/demo-2.php:1235
+#: framework-customizations/theme/options/demo-2.php:1310
+#: framework-customizations/theme/options/demo.php:1090
+#: framework-customizations/theme/options/demo.php:1145
+#: framework-customizations/theme/options/demo.php:1197
+#: framework-customizations/theme/options/demo.php:1272
+msgid "Phone"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:116
+#: inc/includes/header-footer-option-helpers.php:146
+#: inc/includes/header-footer-option-helpers.php:266
+#: inc/includes/header-footer-option-helpers.php:297
+msgid "Phone Number"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:346
+msgid "Pick a regular WordPress page to render in place of the default 404.php template."
+msgstr ""
+
+#: framework-customizations/theme/options/general-social.php:40
+msgid "Pick an icon for this profile."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:141
+#: inc/includes/header-footer-option-helpers.php:292
+msgid "Pill (Rounded)"
+msgstr ""
+
+#: inc/includes/settings-export-import.php:308
+msgid "Please choose a .json design file to import first."
+msgstr ""
+
+#: inc/includes/onboarding.php:76
+msgid "Point the front page at a page you build with the page builder (or keep the blog)."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:780
+msgid "Pop"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1353
+#: framework-customizations/theme/options/demo.php:1315
+msgid "Popover"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1379
+#: framework-customizations/theme/options/demo.php:1343
+msgid "Popover (Tabs)"
+msgstr ""
+
+#: inc/includes/onboarding.php:82
+msgid "Populate the footer"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:66
+msgid "Position"
+msgstr ""
+
+#: comments.php:100
+msgid "Post Comment"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:57
+msgid "Post Content"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-settings.php:59
+msgid "Post Footer"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:71
+#: framework-customizations/theme/options/blog-single.php:47
+msgid "Post Meta"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/post.php:13
+msgid "Post Settings"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-settings.php:55
+msgid "Post-Footer"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-settings.php:28
+msgid "Posts Listing"
+msgstr ""
+
+#: inc/helpers.php:224
+msgid "Posts navigation"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-settings.php:33
+msgid "Pre Footer"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-settings.php:29
+msgid "Pre-Footer"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:538
+msgid "Pre-filled with the custom-picker half active (<code>custom => \"#0d3c54\"</code>). Switch by editing this entry's <code>value</code> — set <code>predefined</code> instead to see the preset half load selected."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:552
+msgid "Pre-filled with the preset half active (<code>predefined => \"bg-primary\"</code>). On load the trigger paints itself with the matching preset color + label; the dropdown marks the same option as selected."
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:517
+msgid "Predefined Colors"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:511
+msgid "Predefined Colors (pre-filled)"
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:528
+msgid "Predefined Colors + Color Picker"
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:550
+msgid "Predefined Colors + Color Picker (Compact)"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:544
+msgid "Predefined Colors + Color Picker (Compact, pre-filled)"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:522
+msgid "Predefined Colors + Color Picker (pre-filled)"
+msgstr ""
+
+#: framework-customizations/theme/options/general-preloader.php:42
+#: framework-customizations/theme/options/general-settings.php:91
+#: framework-customizations/theme/options/general-settings.php:95
+msgid "Preloader"
+msgstr ""
+
+#: framework-customizations/theme/options/general-preloader.php:53
+msgid "Preloader Background"
+msgstr ""
+
+#: inc/includes/blog.php:328
+msgid "Previous"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:89
+#: framework-customizations/theme/options/post-options.php:46
+msgid "Previous / Next Navigation"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1146
+#: framework-customizations/theme/options/demo-2.php:1161
+#: framework-customizations/theme/options/demo-2.php:1200
+#: framework-customizations/theme/options/demo-2.php:1215
+#: framework-customizations/theme/options/demo-2.php:1271
+#: framework-customizations/theme/options/demo-2.php:1286
+#: framework-customizations/theme/options/demo-2.php:1327
+#: framework-customizations/theme/options/demo-2.php:1342
+#: framework-customizations/theme/options/demo.php:1107
+#: framework-customizations/theme/options/demo.php:1123
+#: framework-customizations/theme/options/demo.php:1162
+#: framework-customizations/theme/options/demo.php:1177
+#: framework-customizations/theme/options/demo.php:1233
+#: framework-customizations/theme/options/demo.php:1248
+#: framework-customizations/theme/options/demo.php:1289
+#: framework-customizations/theme/options/demo.php:1304
+msgid "Price"
+msgstr ""
+
+#: inc/menus.php:43
+msgid "Primary"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:61
+#: inc/menus.php:16
+msgid "Primary menu"
+msgstr ""
+
+#: inc/includes/local-avatar.php:94
+msgid "Profile Photo"
+msgstr ""
+
+#: framework-customizations/theme/options/bingo-reviews-options.php:109
+#: framework-customizations/theme/options/casino-reviews-options.php:109
+msgid "Pros"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:776
+msgid "Pulse"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:777
+msgid "Pulse Grow"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:778
+msgid "Pulse Shrink"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:779
+msgid "Push"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:498
+#: framework-customizations/theme/options/demo-2.php:588
+#: framework-customizations/theme/options/demo.php:504
+msgid "RGBA Color Picker"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:832
+msgid "Radial In"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:831
+msgid "Radial Out"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:351
+#: framework-customizations/theme/options/demo.php:357
+msgid "Radio"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:357
+#: framework-customizations/theme/options/demo.php:363
+msgid "Radio 1 Custom Text"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:358
+#: framework-customizations/theme/options/demo.php:364
+msgid "Radio 2 Custom Text"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:359
+#: framework-customizations/theme/options/demo.php:365
+msgid "Radio 3 Custom Text"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:369
+#: framework-customizations/theme/options/demo.php:375
+msgid "Radio Text"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:871
+#: framework-customizations/theme/options/demo.php:841
+msgid "Range Slider"
+msgstr ""
+
+#: framework-customizations/theme/options/bingo-reviews-options.php:53
+#: framework-customizations/theme/options/casino-reviews-options.php:53
+msgid "Rating"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:84
+msgid "Read More Text"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:86
+#: inc/includes/blog.php:151
+msgid "Read more"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:205
+msgid "Reading Width (no sidebar)"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:80
+#: framework-customizations/theme/options/blog-single.php:56
+msgid "Reading time"
+msgstr ""
+
+#: template-parts/content-none.php:21
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr ""
+
+#: 404.php:62
+msgid "Recent posts"
+msgstr ""
+
+#: framework-customizations/theme/options/general-fonts.php:31
+msgid "Recommended modern format."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:833
+msgid "Rectangle In"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:834
+msgid "Rectangle Out"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:50
+msgid "Regular (400)"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:80
+msgid "Relate By"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:67
+#: framework-customizations/theme/options/post-options.php:45
+msgid "Related Posts"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:74
+msgid "Related Posts Count"
+msgstr ""
+
+#: inc/includes/blog.php:302
+msgid "Related posts"
+msgstr ""
+
+#: inc/includes/local-avatar.php:106
+msgid "Remove"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:301
+msgid "Remove RSD / WLW link tags"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:313
+msgid "Remove WordPress version meta tag"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:296
+msgid "Removes WP oEmbed JSON/XML discovery links and the legacy wp-embed.js loader."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:290
+msgid "Removes emoji detection script + styles from every page."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:221
+msgid "Render a page-builder layout inside this footer column — for bespoke designs the standard elements can't express."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:349
+msgid "Render a page-builder layout inside this slot — for bespoke header designs the standard elements can't express."
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:133
+msgid "Repeating pattern layered above the site background color/image. Pick a preset, or use \"Custom\" to upload your own tiling image."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:475
+#: framework-customizations/theme/options/misc.php:489
+msgid "Reset All Theme Settings"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:471
+msgid "Reset Settings"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1001
+#: inc/helpers-shortcode-options.php:1002
+#: inc/helpers-shortcode-options.php:1003
+#: inc/helpers-shortcode-options.php:1649
+#: inc/helpers-shortcode-options.php:1650
+#: inc/helpers-shortcode-options.php:1651
+#: inc/helpers-shortcode-options.php:1670
+#: inc/helpers-shortcode-options.php:1671
+#: inc/helpers-shortcode-options.php:1672
+#: inc/helpers-shortcode-options.php:1877
+#: inc/helpers-shortcode-options.php:1878
+#: inc/helpers-shortcode-options.php:1879
+#: inc/helpers-shortcode-options.php:1897
+#: inc/helpers-shortcode-options.php:1898
+#: inc/helpers-shortcode-options.php:1899
+msgid "Responsive Breakpoints"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:868
+msgid "Reveal"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:434
+msgid "Reveal the \"Demo\" tab — a reference showcase of every option type, for developers. Keep off on production sites. Save once to apply."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:107
+#: framework-customizations/theme/options/demo.php:105
+msgid "Rich Text Editor"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:67
+#: framework-customizations/theme/options/blog-single.php:27
+#: framework-customizations/theme/options/post-options.php:40
+#: framework-customizations/theme/options/posts/page.php:124
+#: inc/helpers-shortcode-options.php:990
+#: inc/helpers-shortcode-options.php:1045
+#: inc/helpers-shortcode-options.php:1088
+#: inc/helpers-shortcode-options.php:1131
+#: inc/helpers-shortcode-options.php:1174
+#: inc/helpers-shortcode-options.php:1940
+#: inc/helpers-shortcode-options.php:1973
+msgid "Right"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:53
+msgid "Right Sidebar"
+msgstr ""
+
+#: inc/hooks.php:263
+#: inc/includes/header-footer-option-helpers.php:34
+msgid "Right Sidebar Area"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:528
+msgid "Right to left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:861
+msgid "Ripple In"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:860
+msgid "Ripple Out"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:405
+msgid "Roles that bypass the splash"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1360
+#: framework-customizations/theme/options/demo.php:1323
+msgid "Romb"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:783
+msgid "Rotate"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1337
+msgid "Rotating Entrances"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:864
+msgid "Round Corners"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:200
+msgid "Rounded"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:714
+#: framework-customizations/theme/options/demo.php:684
+msgid "Same composite, scoped to the margin column. The padding subtree is force-reset to defaults on save."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:720
+#: framework-customizations/theme/options/demo.php:690
+msgid "Same composite, scoped to the padding column."
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:706
+msgid "Same control with a custom unit list and <code>separate => true</code>, so <code>to_string()</code> emits a space — \"24 inches\" — for human measurements rather than CSS. Also shows the optional min/step number attributes."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:518
+msgid "Same option type as in the other demo page but with an initial swatch selected so the load-from-saved-value path is visible. Saved value remains a single hex string."
+msgstr ""
+
+#: inc/includes/settings-export-import.php:285
+msgid "Save this site's design (colors, typography, header, footer, spacing, custom CSS) to a portable .json file, or apply a design file to this site. Operational settings (analytics, performance, maintenance, 404, custom scripts) and uploaded images are not included."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:217
+#: inc/includes/header-footer-option-helpers.php:345
+msgid "Saved Layout"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:540
+msgid "Saved value is <code>{ predefined: \"\", custom: \"\" }</code>. The JS keeps the two halves mutually exclusive — picking a swatch clears <code>custom</code>; opening the picker clears <code>predefined</code>. Switch <code>picker</code> to <code>rgba-color-picker</code> for alpha."
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:108
+msgid "Screen width below which the inline menu collapses to the hamburger drawer."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:455
+msgid "Scroll"
+msgstr ""
+
+#: framework-customizations/theme/options/general-scroll.php:34
+msgid "Scroll Progress Bar"
+msgstr ""
+
+#: framework-customizations/theme/options/general-scroll.php:42
+msgid "Scroll Progress Bar Color"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:48
+msgid "Scroll to Top"
+msgstr ""
+
+#: inc/includes/misc.php:138
+msgid "Scroll to top"
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:104
+#: framework-customizations/theme/options/general-settings.php:108
+msgid "Scrolling"
+msgstr ""
+
+#: inc/includes/header-builder.php:230
+#: inc/includes/header-footer-option-helpers.php:117
+#: inc/includes/header-footer-option-helpers.php:267
+#: searchform.php:6
+msgid "Search"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:81
+msgid "Search \"No Results\" Message"
+msgstr ""
+
+#: inc/post-types.php:94
+msgid "Search Footer Presets"
+msgstr ""
+
+#: inc/post-types.php:76
+msgid "Search Header Presets"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:71
+msgid "Search Results Layout"
+msgstr ""
+
+#: inc/includes/blog.php:428
+msgid "Search results for:"
+msgstr ""
+
+#: inc/includes/header-builder.php:229
+msgid "Search..."
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:892
+msgid "Second Image"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:62
+#: inc/menus.php:17
+msgid "Secondary menu"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:212
+#: framework-customizations/theme/options/demo-2.php:271
+#: framework-customizations/theme/options/demo.php:218
+#: framework-customizations/theme/options/demo.php:277
+msgid "Sed ut perspiciatis"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:42
+#: framework-customizations/theme/options/demo-2.php:55
+#: framework-customizations/theme/options/demo-2.php:85
+#: framework-customizations/theme/options/demo-2.php:115
+#: framework-customizations/theme/options/demo-2.php:130
+#: framework-customizations/theme/options/demo-2.php:144
+#: framework-customizations/theme/options/demo-2.php:165
+#: framework-customizations/theme/options/demo-2.php:186
+#: framework-customizations/theme/options/demo-2.php:223
+#: framework-customizations/theme/options/demo-2.php:245
+#: framework-customizations/theme/options/demo-2.php:282
+#: framework-customizations/theme/options/demo-2.php:299
+#: framework-customizations/theme/options/demo-2.php:313
+#: framework-customizations/theme/options/demo-2.php:327
+#: framework-customizations/theme/options/demo-2.php:344
+#: framework-customizations/theme/options/demo-2.php:364
+#: framework-customizations/theme/options/demo-2.php:382
+#: framework-customizations/theme/options/demo-2.php:417
+#: framework-customizations/theme/options/demo-2.php:430
+#: framework-customizations/theme/options/demo-2.php:443
+#: framework-customizations/theme/options/demo-2.php:455
+#: framework-customizations/theme/options/demo-2.php:468
+#: framework-customizations/theme/options/demo-2.php:480
+#: framework-customizations/theme/options/demo-2.php:493
+#: framework-customizations/theme/options/demo-2.php:506
+#: framework-customizations/theme/options/demo-2.php:569
+#: framework-customizations/theme/options/demo-2.php:596
+#: framework-customizations/theme/options/demo-2.php:673
+#: framework-customizations/theme/options/demo-2.php:772
+#: framework-customizations/theme/options/demo-2.php:804
+#: framework-customizations/theme/options/demo-2.php:817
+#: framework-customizations/theme/options/demo-2.php:845
+#: framework-customizations/theme/options/demo-2.php:867
+#: framework-customizations/theme/options/demo-2.php:880
+#: framework-customizations/theme/options/demo-2.php:899
+#: framework-customizations/theme/options/demo-2.php:937
+#: framework-customizations/theme/options/demo-2.php:949
+#: framework-customizations/theme/options/demo-2.php:968
+#: framework-customizations/theme/options/demo-2.php:981
+#: framework-customizations/theme/options/demo-2.php:1001
+#: framework-customizations/theme/options/demo-2.php:1014
+#: framework-customizations/theme/options/demo-2.php:1029
+#: framework-customizations/theme/options/demo-2.php:1067
+#: framework-customizations/theme/options/demo-2.php:1080
+#: framework-customizations/theme/options/demo-2.php:1101
+#: framework-customizations/theme/options/demo-2.php:1114
+#: framework-customizations/theme/options/demo-2.php:1137
+#: framework-customizations/theme/options/demo-2.php:1191
+#: framework-customizations/theme/options/demo-2.php:1262
+#: framework-customizations/theme/options/demo-2.php:1318
+#: framework-customizations/theme/options/demo.php:40
+#: framework-customizations/theme/options/demo.php:53
+#: framework-customizations/theme/options/demo.php:83
+#: framework-customizations/theme/options/demo.php:113
+#: framework-customizations/theme/options/demo.php:128
+#: framework-customizations/theme/options/demo.php:150
+#: framework-customizations/theme/options/demo.php:171
+#: framework-customizations/theme/options/demo.php:192
+#: framework-customizations/theme/options/demo.php:229
+#: framework-customizations/theme/options/demo.php:251
+#: framework-customizations/theme/options/demo.php:288
+#: framework-customizations/theme/options/demo.php:305
+#: framework-customizations/theme/options/demo.php:319
+#: framework-customizations/theme/options/demo.php:333
+#: framework-customizations/theme/options/demo.php:350
+#: framework-customizations/theme/options/demo.php:370
+#: framework-customizations/theme/options/demo.php:388
+#: framework-customizations/theme/options/demo.php:423
+#: framework-customizations/theme/options/demo.php:436
+#: framework-customizations/theme/options/demo.php:449
+#: framework-customizations/theme/options/demo.php:461
+#: framework-customizations/theme/options/demo.php:474
+#: framework-customizations/theme/options/demo.php:486
+#: framework-customizations/theme/options/demo.php:499
+#: framework-customizations/theme/options/demo.php:512
+#: framework-customizations/theme/options/demo.php:575
+#: framework-customizations/theme/options/demo.php:663
+#: framework-customizations/theme/options/demo.php:742
+#: framework-customizations/theme/options/demo.php:774
+#: framework-customizations/theme/options/demo.php:787
+#: framework-customizations/theme/options/demo.php:815
+#: framework-customizations/theme/options/demo.php:837
+#: framework-customizations/theme/options/demo.php:850
+#: framework-customizations/theme/options/demo.php:869
+#: framework-customizations/theme/options/demo.php:906
+#: framework-customizations/theme/options/demo.php:918
+#: framework-customizations/theme/options/demo.php:937
+#: framework-customizations/theme/options/demo.php:950
+#: framework-customizations/theme/options/demo.php:970
+#: framework-customizations/theme/options/demo.php:982
+#: framework-customizations/theme/options/demo.php:997
+#: framework-customizations/theme/options/demo.php:1028
+#: framework-customizations/theme/options/demo.php:1041
+#: framework-customizations/theme/options/demo.php:1062
+#: framework-customizations/theme/options/demo.php:1075
+#: framework-customizations/theme/options/demo.php:1098
+#: framework-customizations/theme/options/demo.php:1153
+#: framework-customizations/theme/options/demo.php:1224
+#: framework-customizations/theme/options/demo.php:1280
+msgid "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:191
+#: framework-customizations/theme/options/demo.php:197
+msgid "Select"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:153
+#: inc/includes/header-footer-option-helpers.php:304
+msgid "Select Menu"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:250
+#: framework-customizations/theme/options/demo.php:256
+msgid "Select Multiple"
+msgstr ""
+
+#: framework-customizations/theme/options/header-logo.php:48
+msgid "Select Yes to hide the Tagline"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:117
+msgid "Select Yes to hide the tagline."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:189
+#: inc/includes/header-footer-option-helpers.php:340
+msgid "Select a registered widget area."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:166
+#: inc/includes/header-footer-option-helpers.php:317
+msgid "Select a theme menu location."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1239
+msgid "Select animation."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:125
+msgid "Select footer element."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:276
+msgid "Select header element."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1636
+#: inc/helpers-shortcode-options.php:1864
+msgid "Select spacing method."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:544
+msgid "Select the overlay color opacity in %"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:567
+msgid "Select your link source."
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:52
+msgid "Semibold (600)"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:383
+msgid "Serves a 503 splash page to visitors. Admin pages and allowlisted roles always pass through."
+msgstr ""
+
+#: inc/includes/onboarding.php:75
+msgid "Set a static homepage"
+msgstr ""
+
+#: inc/includes/onboarding.php:58
+msgid "Set logo"
+msgstr ""
+
+#: inc/includes/onboarding.php:62
+msgid "Set the colour palette and typography in Theme Settings — every element inherits them."
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:39
+msgid "Set the columns and style"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:892
+msgid "Shadow"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:896
+msgid "Shadow Radial"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:887
+msgid "Shadow and Glow Transition"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:84
+msgid "Shared category"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:85
+msgid "Shared tag"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:198
+msgid "Sharp (square)"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:228
+#: framework-customizations/theme/options/demo.php:234
+msgid "Short Select"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:47
+#: framework-customizations/theme/options/demo.php:45
+msgid "Short Text"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:23
+#: framework-customizations/theme/options/blog-archives.php:31
+#: framework-customizations/theme/options/blog-archives.php:38
+#: framework-customizations/theme/options/blog-index.php:42
+#: framework-customizations/theme/options/blog-single.php:34
+#: framework-customizations/theme/options/blog-single.php:63
+#: framework-customizations/theme/options/blog-single.php:70
+#: framework-customizations/theme/options/blog-single.php:92
+#: framework-customizations/theme/options/post-options.php:20
+msgid "Show"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:148
+msgid "Show \"Light\" / \"Dark\" / \"Auto\" text alongside the icon."
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:179
+msgid "Show Breadcrumbs"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:77
+msgid "Show Breadcrumbs on Pages"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:189
+msgid "Show Comments"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:433
+msgid "Show Demo Options"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:84
+msgid "Show Featured Image on Pages"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:61
+msgid "Show a fixed-position scroll-to-top button on every page."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:75
+msgid "Show after scrolling"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-widgets.php:24
+msgid "Show footer widgets?"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:357
+msgid "Show recent posts (default template only)"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:352
+msgid "Show search form (default template only)"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:147
+msgid "Show text label"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:28
+msgid "Show the category / tag / taxonomy description under the title."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:775
+msgid "Shrink"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:835
+msgid "Shutter In Horizontal"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:837
+msgid "Shutter In Vertical"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:836
+msgid "Shutter Out Horizontal"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:838
+msgid "Shutter Out Vertical"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:19
+#: framework-customizations/theme/options/general-settings.php:78
+#: framework-customizations/theme/options/general-settings.php:82
+#: framework-customizations/theme/options/post-options.php:33
+msgid "Sidebar"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:117
+msgid "Sidebar Position"
+msgstr ""
+
+#: framework-customizations/theme/options/general-sidebar.php:53
+msgid "Sidebar Width"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:20
+msgid "Sidebar for single posts. \"Inherit\" uses the General → Layout default."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-settings.php:37
+#: framework-customizations/theme/options/blog-settings.php:41
+msgid "Single Post"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:435
+#: framework-customizations/theme/options/demo.php:441
+msgid "Single Upload"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:448
+#: framework-customizations/theme/options/demo-2.php:942
+#: framework-customizations/theme/options/demo.php:454
+#: framework-customizations/theme/options/demo.php:911
+msgid "Single Upload (Images Only)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:786
+msgid "Sink"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:127
+msgid "Site Background"
+msgstr ""
+
+#: framework-customizations/theme/options/header-settings.php:19
+msgid "Site Identity"
+msgstr ""
+
+#: framework-customizations/theme/options/bingo-reviews-options.php:69
+#: framework-customizations/theme/options/casino-reviews-options.php:69
+msgid "Site Offer"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:30
+msgid "Site Title"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:60
+msgid "Site Title Color"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:36
+msgid "Site Title Font Size"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:44
+msgid "Site Title Font Weight"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:99
+msgid "Site Top/Bottom Margin"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:63
+msgid "Site Width Mode"
+msgstr ""
+
+#: template-parts/header-builder.php:59
+#: template-parts/header-builder.php:259
+msgid "Site menu"
+msgstr ""
+
+#: inc/init.php:135
+msgid "Site temporarily unavailable"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:40
+msgid "Site-Wide Footer Preset"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:33
+msgid "Site-Wide Header Preset"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1398
+#: framework-customizations/theme/options/demo.php:1362
+msgid "Size"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:789
+msgid "Skew"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:791
+msgid "Skew Backward"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:790
+msgid "Skew Forward"
+msgstr ""
+
+#: header.php:16
+msgid "Skip to content"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:861
+#: framework-customizations/theme/options/demo.php:831
+msgid "Slider"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1361
+msgid "Sliding Entrances"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1401
+#: framework-customizations/theme/options/demo.php:1365
+#: inc/helpers-shortcode-options.php:1007
+msgid "Small"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:71
+#: framework-customizations/theme/options/posts/page.php:25
+msgid "Small (220px)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:714
+#: inc/helpers-shortcode-options.php:1008
+msgid "Small devices (landscape phones, 576px and up)"
+msgstr ""
+
+#: framework-customizations/theme/options/general-scroll.php:26
+msgid "Smooth Scroll for Anchor Links"
+msgstr ""
+
+#: framework-customizations/theme/options/social-settings.php:15
+msgid "Social"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:118
+#: inc/includes/header-footer-option-helpers.php:268
+msgid "Social Icons"
+msgstr ""
+
+#: framework-customizations/theme/options/social-settings.php:19
+msgid "Social Profiles"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:201
+msgid "Soft"
+msgstr ""
+
+#: template-parts/content-none.php:29
+msgid "Sorry, but nothing matched your search terms. Please try again with some different keywords."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:273
+msgid "Spacer"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1630
+#: inc/helpers-shortcode-options.php:1858
+msgid "Spacing"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:706
+#: framework-customizations/theme/options/demo.php:676
+msgid "Spacing (Margin + Padding)"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:711
+#: framework-customizations/theme/options/demo.php:681
+msgid "Spacing (Margin Only)"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:717
+#: framework-customizations/theme/options/demo.php:687
+msgid "Spacing (Padding Only)"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:100
+msgid "Spacing above and below the boxed container."
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:181
+msgid "Spacious"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1407
+msgid "Specials"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:912
+msgid "Speech Bubbles"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:99
+msgid "Square icon (512&times;512 recommended). Synced two-way with the WordPress Site Icon (Settings &rarr; General / Customize &rarr; Site Identity), so browsers, tabs and mobile bookmarks pick it up. Leave empty to use the existing Site Icon."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1361
+#: framework-customizations/theme/options/demo.php:1324
+msgid "Squares"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:122
+msgid "Static (scrolls away with the page)"
+msgstr ""
+
+#: framework-customizations/theme/options/bingo-reviews-options.php:99
+#: framework-customizations/theme/options/casino-reviews-options.php:99
+msgid "Stats"
+msgstr ""
+
+#: inc/helpers.php:427
+msgid "Sticky"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:123
+msgid "Sticky (follows scroll)"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:124
+msgid "Sticky + Shrink on scroll"
+msgstr ""
+
+#: framework-customizations/theme/options/general-sidebar.php:69
+msgid "Sticky Sidebar"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:125
+msgid "Sticky, hide on scroll down / reveal up"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:80
+msgid "Sticky-Header Logo"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:742
+msgid "Structured box-shadow builder with a 300px live preview and generated CSS string. Consume with <code>FW_Option_Type_Box_Shadow::to_css( $val )</code>."
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:712
+msgid "Structured box-shadow builder: X / Y / blur / spread / color / inset, with a 300px live preview on top and the generated CSS string below. Consume with <code>FW_Option_Type_Box_Shadow::to_css( $val )</code>."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1393
+#: framework-customizations/theme/options/demo.php:1357
+#: framework-customizations/theme/options/footer-widgets.php:38
+#: framework-customizations/theme/options/general-fonts.php:47
+msgid "Style"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1389
+#: framework-customizations/theme/options/demo.php:1353
+msgid "Subtitle"
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:199
+msgid "Subtle (default)"
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:524
+msgid "Swatch grid backed by a hidden &lt;select&gt;. Saved value is a single hex string (e.g. <code>#3f51b5</code>) or empty when nothing is selected. Palette comes from <code>unysonplus_option_color_palette()</code>, which reads Theme Settings → General → Colors and falls back to a built-in default. <code>blank => true</code> lets the user click an already-selected swatch to deselect."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:825
+msgid "Sweep To Bottom"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:824
+msgid "Sweep To Left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:823
+msgid "Sweep To Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:826
+msgid "Sweep To Top"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:170
+#: framework-customizations/theme/options/demo-2.php:1302
+#: framework-customizations/theme/options/demo.php:176
+#: framework-customizations/theme/options/demo.php:1264
+msgid "Switch"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:69
+msgid "Synced two-way with the WordPress Custom Logo (Appearance &rarr; Customize &rarr; Site Identity): set it here and it updates there, or set it there and it appears here. Leave empty to use whatever Custom Logo is set."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1055
+#: framework-customizations/theme/options/demo.php:137
+msgid "Syntax-highlighted code field (WordPress CodeMirror). The top-level \"mode\" key selects the language: css, javascript, htmlmixed, php, json or xml."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:234
+#: inc/includes/header-footer-option-helpers.php:362
+msgid "Tablet (768–991px)"
+msgstr ""
+
+#: inc/includes/sub-includes/featured-content.php:423
+msgid "Tag Name"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:126
+msgid "Tagline Color"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:120
+msgid "Tagline Text"
+msgstr ""
+
+#: framework-customizations/theme/options/blog-single.php:54
+msgid "Tags"
+msgstr ""
+
+#: inc/helpers.php:310
+msgid "Tags: "
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:589
+#: inc/helpers-shortcode-options.php:611
+#: inc/helpers-shortcode-options.php:633
+#: inc/helpers-shortcode-options.php:653
+msgid "Target attribute. How the link will be opened."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:27
+msgid "Term Description"
+msgstr ""
+
+#: framework-customizations/theme/options/bingo-reviews-options.php:129
+#: framework-customizations/theme/options/casino-reviews-options.php:129
+msgid "Terms Apply"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:34
+#: framework-customizations/theme/options/demo-2.php:891
+#: framework-customizations/theme/options/demo-2.php:1021
+#: framework-customizations/theme/options/demo.php:32
+#: framework-customizations/theme/options/demo.php:861
+#: framework-customizations/theme/options/demo.php:989
+#: inc/includes/header-footer-option-helpers.php:120
+#: inc/includes/header-footer-option-helpers.php:171
+#: inc/includes/header-footer-option-helpers.php:270
+#: inc/includes/header-footer-option-helpers.php:322
+#: inc/includes/header-footer-option-helpers.php:570
+msgid "Text"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1194
+msgid "Text Alignment"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:29
+msgid "Text Color"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1059
+#: framework-customizations/theme/options/demo.php:1020
+msgid "Text in Group"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1093
+#: framework-customizations/theme/options/demo.php:1054
+msgid "Text in Multi"
+msgstr ""
+
+#: framework-customizations/theme/options/header-logo.php:21
+msgid "Text logo color"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:96
+#: framework-customizations/theme/options/demo-2.php:1034
+#: framework-customizations/theme/options/demo.php:94
+#: framework-customizations/theme/options/demo.php:1002
+msgid "Textarea"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1106
+#: framework-customizations/theme/options/demo.php:1067
+msgid "Textarea in Multi"
+msgstr ""
+
+#: inc/includes/settings-export-import.php:247
+msgid "That file is not a valid Unyson+ theme-settings export."
+msgstr ""
+
+#: inc/includes/settings-export-import.php:246
+msgid "That file is too large (maximum 5 MB)."
+msgstr ""
+
+#: inc/includes/settings-export-import.php:113
+#: inc/includes/settings-export-import.php:161
+msgid "The Unyson framework is not active."
+msgstr ""
+
+#: inc/init.php:137
+msgid "The active theme (Unyson+) requires the UnysonPlus plugin, which is not active. Install or activate it to bring the site back online."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1431
+msgid "The delay before the animation starts. "
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1441
+msgid "The distance to start the animation (related to the browser bottom)."
+msgstr ""
+
+#: framework-customizations/theme/options/demo.php:719
+msgid "The full button builder used by Theme Settings → General → Buttons. Collapsible presets, each with Default / Hover / Active / Focus / Disabled state tabs (colors, spacing, border, box-shadow), a Font control, a transition, and a custom-CSS box. Each preset compiles to a <code>.btn-{slug}</code> class."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:749
+msgid "The full button builder: collapsible presets with Default / Hover / Active / Focus / Disabled state tabs (colors, spacing, border, box-shadow), a Font control, transition, and custom CSS. Each preset compiles to a <code>.btn-{slug}</code> class."
+msgstr ""
+
+#: framework-customizations/theme/options/header-logo.php:34
+msgid "The logo's width. Input value in pixel without the 'px' sign. i.e.: <strong>260</strong>"
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:193
+msgid "The main typography of the site's content."
+msgstr ""
+
+#: framework-customizations/theme/options/general-fonts.php:24
+msgid "The name you will pick in the font selectors, e.g. \"Brand Sans\"."
+msgstr ""
+
+#: inc/init.php:138
+msgid "The site is undergoing maintenance and will be back shortly."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-archives.php:20
+msgid "The title block at the top of archive / search pages."
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:32
+msgid "Theme Layout"
+msgstr ""
+
+#: inc/includes/settings-export-import.php:243
+msgid "Theme settings imported — the design has been applied."
+msgstr ""
+
+#: framework-customizations/theme/options/general-sidebar.php:43
+msgid "Theme-wide default for where the sidebar renders on pages/posts. Individual posts/pages can override via their own meta options."
+msgstr ""
+
+#: framework-customizations/theme/options/general-settings.php:14
+msgid "They are stored independently of the theme (so they survive a theme switch) and are shared with the page builder, which is why they live outside Theme Settings."
+msgstr ""
+
+#: inc/static.php:298
+msgid "They still print on their own, but check their wp_enqueue_style() dependencies."
+msgstr ""
+
+#: framework-customizations/theme/options/general-layout.php:110
+msgid "Thickness of the decorative border."
+msgstr ""
+
+#: framework-customizations/theme/options/general-scroll.php:35
+msgid "Thin gradient bar at the top of the viewport that fills as the user scrolls."
+msgstr ""
+
+#: framework-customizations/theme/options/general-typography.php:194
+msgid "This includes the paragraphs and lists."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:487
+msgid "This restores every option on every Theme Settings tab to its default value. This cannot be undone."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:218
+#: framework-customizations/theme/options/demo-2.php:277
+#: framework-customizations/theme/options/demo.php:224
+#: framework-customizations/theme/options/demo.php:283
+msgid "Three"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1388
+#: framework-customizations/theme/options/demo.php:1352
+#: framework-customizations/theme/options/misc.php:388
+msgid "Title"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:44
+msgid "Title Position"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:136
+msgid "Toggle button position"
+msgstr ""
+
+#: inc/includes/misc.php:221
+msgid "Toggle color mode"
+msgstr ""
+
+#: inc/includes/header-builder.php:26
+#: template-parts/header-builder.php:225
+msgid "Toggle navigation"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:48
+#: inc/helpers-shortcode-options.php:1936
+#: inc/helpers-shortcode-options.php:1972
+msgid "Top"
+msgstr ""
+
+#: framework-customizations/theme/options/header-settings.php:54
+#: framework-customizations/theme/options/header-settings.php:58
+msgid "Top Bar"
+msgstr ""
+
+#: framework-customizations/theme/options/header-topbar.php:25
+msgid "Top Bar — Center Column"
+msgstr ""
+
+#: framework-customizations/theme/options/header-topbar.php:24
+msgid "Top Bar — Left Column"
+msgstr ""
+
+#: framework-customizations/theme/options/header-topbar.php:26
+msgid "Top Bar — Right Column"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:587
+msgid "Top Border Color"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:593
+msgid "Top Border Width"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:51
+#: inc/helpers-shortcode-options.php:426
+msgid "Top Center"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:50
+#: inc/helpers-shortcode-options.php:425
+msgid "Top Left"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:52
+#: inc/helpers-shortcode-options.php:427
+msgid "Top Right"
+msgstr ""
+
+#: inc/menus.php:25
+msgid "Top left menu"
+msgstr ""
+
+#: inc/menus.php:28
+msgid "Top right menu"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:525
+msgid "Top to bottom"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:529
+msgid "Top to left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:530
+msgid "Top to right"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:142
+msgid "Top-left"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:143
+msgid "Top-right"
+msgstr ""
+
+#: framework-customizations/theme/options/header-menu.php:44
+msgid "Top/bottom padding inside each menu link."
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:51
+msgid "Top: standard horizontal header. Vertical Left/Right: fixed side rail with logo + menu. Off-Canvas Only: hamburger always visible, no top bar. Overlay Fullscreen: hamburger opens a fullscreen menu."
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:89
+msgid "Transparent"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:126
+msgid "Transparent over the first section"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:859
+msgid "Trim"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:320
+msgid "Turns off the /xmlrpc.php endpoint. Disable only if no apps depend on it (Jetpack, mobile apps)."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:217
+#: framework-customizations/theme/options/demo-2.php:276
+#: framework-customizations/theme/options/demo.php:223
+#: framework-customizations/theme/options/demo.php:282
+msgid "Two"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1454
+msgid "Type <b>infinite</b> for infinite loop."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:759
+#: framework-customizations/theme/options/demo.php:729
+#: framework-customizations/theme/options/general-settings.php:41
+#: framework-customizations/theme/options/general-settings.php:45
+msgid "Typography"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:777
+#: framework-customizations/theme/options/demo.php:747
+msgid "Typography V2"
+msgstr ""
+
+#: framework-customizations/theme/options/general-social.php:30
+msgid "URL"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:74
+#: framework-customizations/theme/options/demo.php:72
+msgid "Unbounded number input. Saved as float."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:866
+msgid "Underline From Center"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:865
+msgid "Underline From Left"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:867
+msgid "Underline From Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:869
+msgid "Underline Reveal"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:723
+#: framework-customizations/theme/options/demo.php:693
+msgid "Unit Input"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:729
+#: framework-customizations/theme/options/demo.php:699
+msgid "Unit Input (separate units)"
+msgstr ""
+
+#: inc/classes/class-unysonplus-plugin-installer.php:76
+msgid "Unyson+ Theme"
+msgstr ""
+
+#: inc/classes/class-unysonplus-plugin-installer.php:142
+msgid "UnysonPlus could not be installed from GitHub."
+msgstr ""
+
+#: inc/classes/class-unysonplus-plugin-installer.php:202
+msgid "UnysonPlus installation failed:"
+msgstr ""
+
+#: inc/classes/class-unysonplus-plugin-installer.php:198
+msgid "UnysonPlus installed and activated — the Unyson+ Theme is now fully enabled."
+msgstr ""
+
+#: inc/includes/onboarding.php:182
+#: inc/static.php:295
+msgid "UnysonPlus theme"
+msgstr ""
+
+#: inc/includes/onboarding.php:55
+msgid "Upload a logo and set the site title/tagline so the header looks finished."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:196
+msgid "Upload a logo for the footer (can differ from header logo)."
+msgstr ""
+
+#: inc/includes/local-avatar.php:110
+msgid "Upload an image to use as your avatar. When set, it replaces Gravatar everywhere on the site. Leave empty to fall back to Gravatar."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:645
+msgid "Upload your media file or select from Media Library."
+msgstr ""
+
+#: framework-customizations/theme/options/header-logo.php:27
+msgid "Upload your website logo"
+msgstr ""
+
+#: inc/includes/sub-includes/featured-content.php:399
+msgid "Use a <a href=\"%1$s\">tag</a> to feature your posts. If no posts match the tag, <a href=\"%2$s\">sticky posts</a> will be displayed instead."
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:41
+msgid "Use a Footer Preset across the whole site by default. Per-content selections still override this. \"Default\" uses the footer configured under Theme Settings → Footer."
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:34
+msgid "Use a Header Preset across the whole site by default. Per-content selections (Header & Footer box on a page/post) still override this. \"Default\" uses the header configured under Theme Settings → Header."
+msgstr ""
+
+#: inc/includes/header-footer-presets.php:486
+msgid "Use a different footer on this content. Default uses the site footer."
+msgstr ""
+
+#: inc/includes/header-footer-presets.php:479
+msgid "Use a different header on this content. Default uses the site header."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:345
+msgid "Use this page as the 404"
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:61
+msgid "Used when a page has no per-page Hero Header image set."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1514
+msgid "User Visibility"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1637
+#: inc/helpers-shortcode-options.php:1865
+msgid "Using custom method will add new CSS classes for each element."
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:64
+msgid "Vertical Header Width"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:446
+msgid "Vertical Tile (Repeat Y Axis)"
+msgstr ""
+
+#: inc/post-types.php:92
+msgid "View Footer Preset"
+msgstr ""
+
+#: inc/post-types.php:74
+msgid "View Header Preset"
+msgstr ""
+
+#: inc/includes/blog.php:272
+msgid "View all posts"
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:152
+#: inc/helpers-shortcode-options.php:1488
+msgid "Visibility"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1470
+msgid "Visible for Logged in user"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1471
+msgid "Visible for Logged out user"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1469
+msgid "Visible for all"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1499
+msgid "Visible on all devices"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1504
+msgid "Visible only on Extra Large devices. (x > 1200px)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1500
+msgid "Visible only on Extra Small devices. (x < 577px)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1503
+msgid "Visible only on Large devices. (992px > x < 1201px)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1502
+msgid "Visible only on Medium devices. (767px > x < 993px)"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1501
+msgid "Visible only on Small devices. (576px > x < 768px)"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1362
+#: framework-customizations/theme/options/demo.php:1325
+msgid "Waves"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:390
+#: inc/includes/misc.php:472
+msgid "We'll be right back"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:1165
+#: framework-customizations/theme/options/demo-2.php:1219
+#: framework-customizations/theme/options/demo-2.php:1290
+#: framework-customizations/theme/options/demo-2.php:1346
+#: framework-customizations/theme/options/demo.php:1127
+#: framework-customizations/theme/options/demo.php:1181
+#: framework-customizations/theme/options/demo.php:1252
+#: framework-customizations/theme/options/demo.php:1308
+msgid "Webcam"
+msgstr ""
+
+#: framework-customizations/theme/options/general-fonts.php:38
+msgid "Weight"
+msgstr ""
+
+#: inc/includes/onboarding.php:101
+msgid "Welcome to %s"
+msgstr ""
+
+#: inc/includes/onboarding.php:183
+msgid "Welcome! A short setup checklist will help your new site look complete."
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:126
+msgid "What new visitors see before they click the toggle."
+msgstr ""
+
+#: framework-customizations/theme/options/blog-index.php:72
+msgid "Which meta to show under each post in the listing."
+msgstr ""
+
+#: framework-customizations/theme/options/general-pages.php:48
+msgid "Which named template should the default page.php behave like? Per-page Template selections still override this."
+msgstr ""
+
+#: framework-customizations/theme/options/posts/page.php:134
+msgid "Wide (100%)"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:121
+#: inc/includes/header-footer-option-helpers.php:185
+#: inc/includes/header-footer-option-helpers.php:271
+#: inc/includes/header-footer-option-helpers.php:336
+msgid "Widget Area"
+msgstr ""
+
+#: framework-customizations/theme/options/general-image-sizes.php:34
+#: framework-customizations/theme/options/header-logo.php:31
+msgid "Width"
+msgstr ""
+
+#: framework-customizations/theme/options/header-layout.php:65
+msgid "Width of the fixed side rail (when Header Layout Mode = Vertical Left/Right)."
+msgstr ""
+
+#: framework-customizations/theme/options/general-sidebar.php:54
+msgid "Width of the sidebar column (when Sidebar Position is Left or Right)."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-box.php:18
+msgid "With Box"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-box.php:11
+msgid "Without Box"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:797
+msgid "Wobble Bottom"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:792
+msgid "Wobble Horizontal"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:798
+msgid "Wobble Skew"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:794
+msgid "Wobble To Bottom Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:795
+msgid "Wobble To Top Right"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:796
+msgid "Wobble Top"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:793
+msgid "Wobble Vertical"
+msgstr ""
+
+#: framework-customizations/theme/options/woocommerce-settings.php:25
+#: framework-customizations/theme/options/woocommerce-settings.php:29
+msgid "WooCommerce"
+msgstr ""
+
+#: framework-customizations/theme/options/woocommerce-settings.php:18
+msgid "WooCommerce shop &amp; catalog settings are managed by the WooCommerce extension."
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:337
+#: framework-customizations/theme/options/demo.php:343
+msgid "World"
+msgstr ""
+
+#: framework-customizations/theme/options/demo-2.php:174
+#: framework-customizations/theme/options/demo.php:180
+#: framework-customizations/theme/options/footer-copyright.php:35
+#: framework-customizations/theme/options/footer-widgets.php:17
+#: framework-customizations/theme/options/general-pages.php:79
+#: framework-customizations/theme/options/general-pages.php:86
+#: framework-customizations/theme/options/general-scroll.php:30
+#: framework-customizations/theme/options/general-scroll.php:38
+#: framework-customizations/theme/options/general-sidebar.php:73
+#: framework-customizations/theme/options/general-social.php:46
+#: framework-customizations/theme/options/header-identity.php:115
+#: framework-customizations/theme/options/header-logo.php:45
+#: framework-customizations/theme/options/misc.php:437
+#: framework-customizations/theme/options/posts/page.php:161
+#: framework-customizations/theme/options/posts/page.php:168
+#: framework-customizations/theme/options/posts/page.php:175
+#: framework-customizations/theme/options/posts/page.php:184
+#: framework-customizations/theme/options/posts/page.php:194
+#: inc/helpers-shortcode-options.php:507
+#: inc/includes/header-footer-option-helpers.php:534
+msgid "Yes"
+msgstr ""
+
+#: inc/includes/settings-export-import.php:108
+msgid "You are not allowed to export theme settings."
+msgstr ""
+
+#: inc/includes/settings-export-import.php:156
+msgid "You are not allowed to import theme settings."
+msgstr ""
+
+#: inc/classes/class-unysonplus-plugin-installer.php:88
+msgid "You do not have permission to install plugins on this site."
+msgstr ""
+
+#: comments.php:105
+msgid "You may use these <abbr title=\"HyperText Markup Language\">HTML</abbr> tags and attributes:"
+msgstr ""
+
+#: framework-customizations/theme/options/header-identity.php:31
+msgid "Your website's name (used as the text logo when no image is uploaded)."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1383
+msgid "Zoom Entrances"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1247
+msgid "bounce"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1263
+msgid "bounceIn"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1264
+msgid "bounceInDown"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1265
+msgid "bounceInLeft"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1266
+msgid "bounceInRight"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1267
+msgid "bounceInUp"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:578
+msgid "e.g. #adb5bd"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:38
+msgid "e.g. #adb5bd. Default link color for the entire footer."
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:32
+msgid "e.g. #ffffff. Default text color for the entire footer."
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:596
+#: inc/includes/header-footer-option-helpers.php:608
+msgid "e.g. 1px"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:555
+msgid "e.g. rgba(33, 37, 41, 1)"
+msgstr ""
+
+#: framework-customizations/theme/options/footer-layout.php:10
+msgid "e.g. rgba(33, 37, 41, 1). Applied to the entire footer wrapper."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1287
+msgid "fadeIn"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1288
+msgid "fadeInDown"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1289
+msgid "fadeInDownBig"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1290
+msgid "fadeInLeft"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1291
+msgid "fadeInLeftBig"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1292
+msgid "fadeInRight"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1293
+msgid "fadeInRightBig"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1294
+msgid "fadeInUp"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1295
+msgid "fadeInUpBig"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1248
+msgid "flash"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1319
+msgid "flip"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1320
+msgid "flipInX"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1321
+msgid "flipInY"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1322
+msgid "flipOutX"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1323
+msgid "flipOutY"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1410
+msgid "hinge"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1255
+msgid "jello"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1331
+msgid "lightSpeedIn"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1332
+msgid "lightSpeedOut"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1249
+msgid "pulse"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1411
+msgid "rollIn"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1412
+msgid "rollOut"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1340
+msgid "rotateIn"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1341
+msgid "rotateInDownLeft"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1342
+msgid "rotateInDownRight"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1343
+msgid "rotateInUpLeft"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1344
+msgid "rotateInUpRight"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1250
+msgid "rubberBand"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1251
+msgid "shake"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1365
+msgid "slideInDown"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1366
+msgid "slideInLeft"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1367
+msgid "slideInRight"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1364
+msgid "slideInUp"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1252
+msgid "swing"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1253
+msgid "tada"
+msgstr ""
+
+#: inc/static.php:296
+msgid "these stylesheet handles could not be folded into the theme cascade (missing or cyclic dependency):"
+msgstr ""
+
+#: inc/classes/class-unysonplus-plugin-installer.php:77
+msgid "this theme requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active. The theme’s features stay disabled until then."
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1254
+msgid "wobble"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1386
+msgid "zoomIn"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1387
+msgid "zoomInDown"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1388
+msgid "zoomInLeft"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1389
+msgid "zoomInRight"
+msgstr ""
+
+#: inc/helpers-shortcode-options.php:1390
+msgid "zoomInUp"
+msgstr ""
+
+#: inc/includes/header-footer-option-helpers.php:75
+#: inc/includes/header-footer-presets.php:403
+msgid "— Select a layout —"
+msgstr ""
+
+#: framework-customizations/theme/options/misc.php:20
+msgid "— Use default 404 template —"
+msgstr ""
+
+#: comments.php:38
+msgctxt "comments title"
+msgid "%1$s thought on &ldquo;%2$s&rdquo;"
+msgid_plural "%1$s thoughts on &ldquo;%2$s&rdquo;"
+msgstr[0] ""
+msgstr[1] ""
+
+#: comments.php:34
+msgctxt "comments title"
+msgid "One thought on &ldquo;%s&rdquo;"
+msgstr ""
+
+#: inc/includes/sub-includes/featured-content.php:401
+#: inc/includes/sub-includes/featured-content.php:411
+#: inc/includes/sub-includes/featured-content.php:476
+msgctxt "featured content default tag slug"
+msgid "featured"
+msgstr ""
+
+#: searchform.php:4
+msgctxt "placeholder"
+msgid "Search &hellip;"
+msgstr ""

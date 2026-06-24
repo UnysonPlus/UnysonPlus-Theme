@@ -52,8 +52,17 @@ function unysonplus_footer_resolve_tokens( $text ) {
                 return fw_dynamic_content()->resolve( $text );
         }
 
-        // Plugin inactive — keep the year working standalone.
-        return str_replace( '{{current_year}}', date_i18n( 'Y' ), $text );
+        // Plugin inactive — resolve a small set of common tokens standalone so the
+        // footer never shows a literal {{token}}. These IDs MUST match the plugin's
+        // Dynamic Content tag ids (framework/includes/dynamic-content/tags/core.php)
+        // so the SAME token works whether the plugin is active (full engine, many
+        // more tags) or not (this fallback).
+        return strtr( $text, array(
+                '{{current_year}}'   => date_i18n( 'Y' ),
+                '{{copyright_year}}' => date_i18n( 'Y' ),
+                '{{site_name}}'      => get_bloginfo( 'name' ),
+                '{{site_tagline}}'   => get_bloginfo( 'description' ),
+        ) );
 }
 endif;
 
@@ -223,8 +232,8 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
         if ( ! empty( $section_class ) ) $classes[] = $section_class;
         ?>
         <div class="<?php echo esc_attr( implode( ' ', $classes ) ) . $attr['class']; // phpcs:ignore — $attr['class'] is pre-escaped ?>">
-                <div class="<?php echo esc_attr( $attr['container'] ); ?> footer-section__inner">
-                        <div class="row footer-row">
+                <div class="<?php echo esc_attr( unysonplus_fw_container_class( $attr['container'] ) ); ?> footer-section__inner">
+                        <div class="fw-row footer-row">
                                 <?php
                                 for ( $i = 1; $i <= $col_count; $i++ ) {
                                         $col_data  = isset( $columns[ $i ] ) ? $columns[ $i ] : array();
@@ -381,11 +390,11 @@ function unysonplus_render_footer_fallback() {
 
         if ( ! empty( $active ) ) {
                 $count     = count( $active );
-                $col_class = 'col-md-' . max( 2, intval( 12 / $count ) );
+                $col_class = 'fw-col-md-' . max( 2, intval( 12 / $count ) );
                 ?>
                 <div class="footer-section footer-section--widgets">
-                        <div class="container">
-                                <div class="row">
+                        <div class="fw-container">
+                                <div class="fw-row">
                                         <?php foreach ( $active as $id ) : ?>
                                                 <div class="<?php echo esc_attr( $col_class ); ?>">
                                                         <?php dynamic_sidebar( $id ); ?>
@@ -399,7 +408,7 @@ function unysonplus_render_footer_fallback() {
 
         ?>
         <div class="footer-section footer-section--copyright footer-fallback">
-                <div class="container">
+                <div class="fw-container">
                         <p>
                                 <?php
                                 printf(

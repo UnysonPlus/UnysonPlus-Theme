@@ -5,14 +5,14 @@ if(empty($hide_footer_widgets))	{
 	if( is_array($footer_widgets) && ! empty($footer_widgets['enabled']) && $footer_widgets['enabled'] == 'yes' ) :
 		$footer_widgets = $footer_widgets['yes'];
 		$column_count = $footer_widgets['style']['selected'];
-		$class[]	= $footer_widgets['container'];
+		$class[]	= unysonplus_fw_container_class( $footer_widgets['container'] );
 		$class[]	= '';
 		$attr = array();
 		if( !empty($class))			$attr['class'] = join(' ', $class);
 		?>
 		<div class="widgets">
 			<div <?php echo unysonplus_attr_to_html($attr); ?>>
-			<div class="row">
+			<div class="fw-row">
 				<?php
 				switch ($column_count) {
 					case 'col-md-12':
@@ -55,7 +55,7 @@ if(empty($hide_footer_widgets))	{
 							break;
 				}  
 				for( $i = 0; $i < count($column); $i++ ) : ?>
-					<div class="<?php echo $column[$i] . ' ' . 'widget-' . ( $i + 1 ); ?>">
+					<div class="<?php echo str_replace( 'col-md', 'fw-col-md', $column[$i] ) . ' widget-' . ( $i + 1 ); ?>">
 							<?php dynamic_sidebar( 'footer-'. ( $i + 1 ) ); ?>
 					</div>
 				<?php endfor; ?>

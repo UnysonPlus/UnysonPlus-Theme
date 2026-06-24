@@ -43,7 +43,7 @@ if(!function_exists('unysonplus_container_start')) :
         if ( function_exists('fw_ext_page_builder_is_builder_post') 
                 && !fw_ext_page_builder_is_builder_post(get_the_ID()) ) {
 
-                echo '<div class="container"><div class="row">';
+                echo '<div class="fw-container"><div class="fw-row">';
         }
 
         }
@@ -253,9 +253,9 @@ function unysonplus_post_nav() {
 
 ?>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
+<div class="fw-container">
+    <div class="fw-row">
+        <div class="fw-col-md-12">
 
         <nav class="navigation post-navigation" role="navigation">
 
@@ -263,20 +263,20 @@ function unysonplus_post_nav() {
                 <?php printf( __( '%s navigation', 'unysonplus' ), $post_type ); ?>
             </div>
 
-            <div class="nav-links row mb-4">
+            <div class="nav-links fw-row mb-4">
 
                 <?php if ( $previous ) : ?>
                     <?php previous_post_link(
-                        '<div class="meta-nav col-md-6">%link</div>',
+                        '<div class="meta-nav fw-col-md-6">%link</div>',
                         '<h5 class="previous">Previous ' . esc_html( $post_type ) . '</h5><h4>%title</h4>'
                     ); ?>
                 <?php else : ?>
-                    <div class="meta-nav col-md-6"></div>
+                    <div class="meta-nav fw-col-md-6"></div>
                 <?php endif; ?>
 
                 <?php if ( $next ) : ?>
                     <?php next_post_link(
-                        '<div class="meta-nav text-md-end col-md-6">%link</div>',
+                        '<div class="meta-nav text-md-end fw-col-md-6">%link</div>',
                         '<h5 class="next">Next ' . esc_html( $post_type ) . '</h5><h4>%title</h4>'
                     ); ?>
                 <?php endif; ?>

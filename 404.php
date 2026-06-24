@@ -18,9 +18,9 @@ $show_recent_posts = function_exists( 'unysonplus_misc_get' ) && ( unysonplus_mi
 
 get_header(); ?>
 
-<div class="container">
-	<div class="row">
-		<main id="main" class="site-main content-area col-md" role="main">
+<div class="fw-container">
+	<div class="fw-row">
+		<main id="main" class="site-main content-area fw-col-md" role="main">
 
 			<?php if ( $replacement_id ) :
 				$replacement = get_post( $replacement_id );

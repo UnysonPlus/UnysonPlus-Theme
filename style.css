@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.2.30
+Version: 2.2.32
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -1733,4 +1733,25 @@ body.page-layout-landing #colophon { display: none; }
 	a, .entry-content a { color: #000 !important; text-decoration: underline; }
 	.entry-content a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.85em; word-break: break-all; }
 	img { max-width: 100% !important; }
+}
+
+/* ========================================================================
+   13. REDUCED MOTION  (respect the OS "reduce motion" accessibility setting)
+   ========================================================================
+   Honors prefers-reduced-motion: near-instant transitions/animations, no
+   smooth scrolling, and the preloader / scroll-progress bar stop easing.
+   The WCAG-recommended catch-all plus a few theme-specific overrides. JS that
+   scrolls smoothly checks the same media query at runtime. */
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+	html { scroll-behavior: auto !important; }
+	/* Preloader disappears instantly instead of fading. */
+	.preloader { transition: none !important; }
+	/* Scroll-progress bar still indicates position, just without easing. */
+	.scroll-progress, .scroll-progress-bar { transition: none !important; }
 }

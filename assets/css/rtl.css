@@ -1,0 +1,43 @@
+/*
+ * RTL overlay — UnysonPlus Theme
+ * --------------------------------------------------------------------------
+ * Loaded ONLY on RTL locales (is_rtl()), AFTER style.css. It mirrors the
+ * handful of PHYSICAL left/right declarations the theme's own CSS uses.
+ * Everything else flips automatically:
+ *   - Bootstrap 5 logical utilities (ms-*/me-*/ps-*/pe-*/text-start/text-end,
+ *     float-start/float-end) follow the document direction.
+ *   - WordPress sets dir="rtl" on <html> via language_attributes().
+ * So this file stays tiny on purpose — it is NOT a full mirror of style.css.
+ *
+ * Intentionally NOT flipped (explicit user choices keep their literal side):
+ *   .has-text-align-left / .has-text-align-right
+ *   body.site-boxed--left / .site-boxed--right
+ *   body.layout-vertical-left / .layout-vertical-right
+ * --------------------------------------------------------------------------
+ */
+
+/* WordPress image / block float alignment */
+.alignleft  { float: right; margin: 0.25rem 0 1rem 1.5rem; }
+.alignright { float: left;  margin: 0.25rem 1.5rem 1rem 0; }
+
+/* Blockquote accent border moves to the start edge (right in RTL) */
+.wp-block-quote { border-left: 0; border-right: 4px solid var(--color-primary); }
+
+/* Post navigation: the "next" link sits on the start edge (left in RTL) */
+.post-navigation .nav-next { text-align: left; margin-left: 0; margin-right: auto; }
+
+/* Header builder — the "end" column pushes to the RTL start edge (left) */
+.header-col--end { margin-left: 0; margin-right: auto; }
+
+/* Primary-menu dropdown caret: room + chevron move to the left */
+.primary-menu .menu-item-has-children > a { padding-right: 0; padding-left: 2rem; }
+.primary-menu .menu-item-has-children > a::after { right: auto; left: 0.75rem; }
+
+/* Primary-menu inline notice hint */
+.primary-menu-notice__hint { margin-left: 0; margin-right: 0.25rem; }
+
+/* Comments: nested threads indent from the right; inline spacers flip */
+.comment-list .children { padding-left: 0; padding-right: 1.5rem; }
+.comment-reply-title small { margin-left: 0; margin-right: 0.75rem; }
+#cancel-comment-reply-link { margin-left: 0; margin-right: 0.75rem; }
+.comment-metadata .edit-link::before { margin-right: 0; margin-left: 0.5rem; }

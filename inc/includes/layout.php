@@ -688,7 +688,7 @@ function unysonplus_render_page_hero() {
 		<?php if ( $hero['overlay_color'] && $hero['overlay_opacity'] > 0 ) : ?>
 			<div class="page-hero__overlay" style="background-color: <?php echo esc_attr( $hero['overlay_color'] ); ?>; opacity: <?php echo esc_attr( $hero['overlay_opacity'] / 100 ); ?>;"></div>
 		<?php endif; ?>
-		<div class="page-hero__inner container">
+		<div class="page-hero__inner fw-container">
 			<?php if ( ! unysonplus_should_hide_page_title() ) : ?>
 				<h1 class="entry-title page-hero__title"><?php the_title(); ?></h1>
 			<?php endif; ?>
@@ -845,10 +845,31 @@ function unysonplus_is_page_builder_post() {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_fw_container_class' ) ) :
+/**
+ * Normalize a container keyword to the UnysonPlus plugin's frontend-grid class
+ * (frontend-grid.min.css ships .fw-container*). The theme uses the plugin grid
+ * for layout, so legacy/saved values ('container' / 'container-fluid') from the
+ * header/footer settings are mapped to their fw- equivalents at output time —
+ * no option/DB migration needed. Anything already fw-prefixed or custom passes
+ * through untouched.
+ *
+ * @param string $value Container keyword (e.g. 'container', 'container-fluid').
+ * @return string fw- grid container class.
+ */
+function unysonplus_fw_container_class( $value = 'container' ) {
+	switch ( $value ) {
+		case 'container':       return 'fw-container';
+		case 'container-fluid': return 'fw-container-fluid';
+		default:                return $value;
+	}
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_main_wrapper_open' ) ) :
 /**
  * Opens the standard content wrapper:
- *   <div class="container"><div class="with-sidebar [has-sidebar]">
+ *   <div class="fw-container"><div class="with-sidebar [has-sidebar]">
  *     <main id="main" class="site-main {extra}" role="main">
  *
  * Page-builder posts get NO wrapper at all (the builder controls
@@ -870,8 +891,9 @@ function unysonplus_main_wrapper_open( $extra_main_classes = '' ) {
 			$wrapper_classes[] = 'layout-width-' . $width;
 		}
 
-		// Width=full skips the .container constraint so content can go edge-to-edge.
-		$container_class = ( $width === 'full' ) ? 'container-fluid' : 'container';
+		// Width=full skips the container constraint so content can go edge-to-edge.
+		// Layout uses the UnysonPlus plugin's frontend-grid (.fw-container*).
+		$container_class = ( $width === 'full' ) ? 'fw-container-fluid' : 'fw-container';
 		echo '<div class="' . esc_attr( $container_class ) . '"><div class="' . esc_attr( implode( ' ', $wrapper_classes ) ) . '">';
 	}
 

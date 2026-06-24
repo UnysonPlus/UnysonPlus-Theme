@@ -16,27 +16,49 @@ if ( empty( $unysonplus_theme_version ) ) {
         $unysonplus_theme_version = '1.0';
 }
 
-wp_enqueue_script(
-        'font-awesome',
-        'https://kit.fontawesome.com/9b0e88a93e.js',
-        array(),
-        null,
-        array( 'strategy' => 'defer', 'in_footer' => false )
-);
+// Font Awesome icons. The kit URL is overridable so the theme isn't hard-wired
+// to one external account (a liability for a distributable theme + an external
+// request per page view). Override priority: the UNYSONPLUS_FONTAWESOME_KIT
+// constant (wp-config) → the 'unysonplus_fontawesome_kit_url' filter. Return an
+// empty value from either to DISABLE Font Awesome entirely (e.g. when
+// self-hosting icons or relying on an icon font shipped by a plugin).
+$unysonplus_fa_kit = defined( 'UNYSONPLUS_FONTAWESOME_KIT' )
+        ? UNYSONPLUS_FONTAWESOME_KIT
+        : 'https://kit.fontawesome.com/9b0e88a93e.js';
+$unysonplus_fa_kit = apply_filters( 'unysonplus_fontawesome_kit_url', $unysonplus_fa_kit );
 
-add_filter( 'script_loader_tag', function ( $tag, $handle ) {
-        if ( 'font-awesome' === $handle && false === strpos( $tag, 'crossorigin' ) ) {
-                $tag = str_replace( ' src=', ' crossorigin="anonymous" src=', $tag );
-        }
-        return $tag;
-}, 10, 2 );
+if ( ! empty( $unysonplus_fa_kit ) ) {
+        wp_enqueue_script(
+                'font-awesome',
+                $unysonplus_fa_kit,
+                array(),
+                null,
+                array( 'strategy' => 'defer', 'in_footer' => false )
+        );
 
-// Bootstrap 5 CSS is now shipped by the unysonplus plugin
-// (`framework/static/css/bootstrap.min.css`, enqueued at priority 5 by
-// `framework/includes/bootstrap.php`). The plugin's enqueue also includes
-// a `wp_style_is( 'bootstrap', 'registered' )` dedup check — if a future
-// scenario needs the theme to ship its own Bootstrap CSS again, we can
-// add the enqueue back here and the plugin will step aside.
+        add_filter( 'script_loader_tag', function ( $tag, $handle ) {
+                if ( 'font-awesome' === $handle && false === strpos( $tag, 'crossorigin' ) ) {
+                        $tag = str_replace( ' src=', ' crossorigin="anonymous" src=', $tag );
+                }
+                return $tag;
+        }, 10, 2 );
+}
+
+// Bootstrap 5 CSS. The plugin may ship it (enqueued at priority 5 as handle
+// 'bootstrap'); prefer that to avoid a double load. But the theme MUST NOT
+// depend on the plugin for its grid/container/spacing — some plugin builds
+// don't bundle Bootstrap, which left the front end with no `.container`
+// (content flush to the viewport edges). So the theme ships its own copy and
+// enqueues it only when nothing else already provided the 'bootstrap' handle.
+if ( ! wp_style_is( 'bootstrap', 'enqueued' ) && ! wp_style_is( 'bootstrap', 'registered' ) ) {
+        wp_enqueue_style(
+                'bootstrap',
+                get_template_directory_uri() . '/assets/css/bootstrap.min.css',
+                array(),
+                '5.3.3',
+                'all'
+        );
+}
 
 wp_enqueue_script(
         'bootstrap',
@@ -46,13 +68,28 @@ wp_enqueue_script(
         true
 );
 
+// parent-style depends on 'bootstrap' so the theme's tokens/overrides always
+// cascade AFTER Bootstrap, whether Bootstrap came from the plugin or the theme.
 wp_enqueue_style(
         'parent-style',
         get_template_directory_uri() . '/style.css',
-        array(),
+        array( 'bootstrap' ),
         $unysonplus_theme_version,
         'all'
 );
+
+// RTL overlay — only on RTL locales. Mirrors the theme's physical directional
+// rules; Bootstrap's logical utilities + dir="rtl" handle everything else.
+// Loads AFTER parent-style (it's in the "after theme" cascade layer below).
+if ( is_rtl() ) {
+        wp_enqueue_style(
+                'unysonplus-rtl',
+                get_template_directory_uri() . '/assets/css/rtl.css',
+                array( 'parent-style' ),
+                $unysonplus_theme_version,
+                'all'
+        );
+}
 
 wp_enqueue_script(
         'theme',
@@ -190,7 +227,7 @@ if ( ! function_exists( 'unysonplus_order_theme_stylesheets' ) ) {
                 if ( ! isset( $styles->registered['parent-style'] ) ) { return; }
 
                 // Layers that must load AFTER the theme stylesheet.
-                $after_theme = array( 'unysonplus-presets', 'unysonplus-dynamic', 'unysonplus-hf-custom', 'unysonplus-hf-custom-inline', 'child-style' );
+                $after_theme = array( 'unysonplus-rtl', 'unysonplus-presets', 'unysonplus-dynamic', 'unysonplus-hf-custom', 'unysonplus-hf-custom-inline', 'child-style' );
 
                 // parent-style depends on every other enqueued stylesheet except the
                 // "after theme" layer, so it prints right after the framework CSS.
@@ -233,7 +270,7 @@ if ( ! function_exists( 'unysonplus_order_theme_stylesheets' ) ) {
                 // registered by the time this runs, per the early return above).
                 if ( isset( $styles->registered['child-style'] ) ) {
                         $child_deps = array( 'parent-style' );
-                        foreach ( array( 'unysonplus-presets', 'unysonplus-dynamic', 'unysonplus-hf-custom', 'unysonplus-hf-custom-inline' ) as $handle ) {
+                        foreach ( array( 'unysonplus-rtl', 'unysonplus-presets', 'unysonplus-dynamic', 'unysonplus-hf-custom', 'unysonplus-hf-custom-inline' ) as $handle ) {
                                 if ( isset( $styles->registered[ $handle ] ) ) { $child_deps[] = $handle; }
                         }
                         $styles->registered['child-style']->deps = array_values( array_unique(

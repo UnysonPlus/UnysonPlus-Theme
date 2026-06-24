@@ -147,7 +147,19 @@
 			// Desktop: submenus open on HOVER (and keyboard :focus-within) via CSS
 			// — see .primary-menu .menu-item-has-children:hover > .sub-menu. The
 			// parent link is left alone so a click navigates to its own page,
-			// matching the header-builder nav behaviour.
+			// matching the header-builder nav behaviour. The navwalker prints a
+			// static aria-expanded="false" on the parent link; keep it ACCURATE
+			// for screen readers by syncing it to the real open state (focus +
+			// hover) so assistive tech announces expanded/collapsed correctly.
+			var setExpanded = function ( open ) {
+				anchor.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+			};
+			parent.addEventListener( 'focusin',  function () { setExpanded( true ); } );
+			parent.addEventListener( 'focusout', function ( e ) {
+				if ( ! parent.contains( e.relatedTarget ) ) { setExpanded( false ); }
+			} );
+			parent.addEventListener( 'mouseenter', function () { setExpanded( true ); } );
+			parent.addEventListener( 'mouseleave', function () { setExpanded( false ); } );
 		} );
 
 		document.addEventListener( 'click', function ( e ) {
