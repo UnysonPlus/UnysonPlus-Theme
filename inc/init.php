@@ -71,7 +71,6 @@ class Theme_Includes {
         self::include_child_first('/helpers-shortcode-get-option.php');
         self::include_child_first('/hooks.php');
         self::include_child_first('/menus.php');
-        self::include_child_first('/tgm-plugins.php');
         //self::include_child_first('/customizer.php');
         //self::include_child_first('/hooks-structure.php');
         //self::include_child_first('/template-tags.php');
@@ -95,17 +94,19 @@ class Theme_Includes {
      * @internal
      */
     private static function bootstrap_without_framework(): void {
-        // TGMPA already registers UnysonPlus as a required plugin (see
-        // inc/classes/tgm-plugins.php). Load it directly so the one-click
-        // installer + nag notice still appear even though the rest of the
-        // (framework-dependent) theme is skipped. TGMPA itself has no FW deps.
-        $tgmpa_class = self::get_parent_path('/classes/class-tgm-plugin-activation.php');
-        $tgmpa_reg   = self::get_parent_path('/classes/tgm-plugins.php');
-        if (file_exists($tgmpa_class)) require_once $tgmpa_class;
-        if (file_exists($tgmpa_reg))   require_once $tgmpa_reg;
-
-        // Belt-and-suspenders: a plain admin notice in case TGMPA is unavailable.
-        add_action('admin_notices', [__CLASS__, '_notice_requires_unysonplus']);
+        // Self-contained installer for the required UnysonPlus plugin. Replaces
+        // TGM-Plugin-Activation (abandoned since 2017; it kept breaking on modern
+        // WP / PHP 8). It shows an admin notice with an "Install UnysonPlus"
+        // button that fetches the plugin from its GitHub master archive — the
+        // same source the plugin's own updater uses — installs it via WP core's
+        // Plugin_Upgrader, and activates it. Registered only here (plugin absent).
+        $installer = self::get_parent_path('/classes/class-unysonplus-plugin-installer.php');
+        if (file_exists($installer)) {
+            require_once $installer;
+            if (class_exists('UnysonPlus_Plugin_Installer')) {
+                UnysonPlus_Plugin_Installer::init();
+            }
+        }
 
         // The front-end templates call theme/framework helpers that we just
         // skipped, so rendering them would fatal (HTTP 500). Short-circuit with
@@ -136,9 +137,9 @@ class Theme_Includes {
             ? esc_html__('The active theme (Unyson+) requires the UnysonPlus plugin, which is not active. Install or activate it to bring the site back online.', 'unysonplus')
             : esc_html__('The site is undergoing maintenance and will be back shortly.', 'unysonplus');
         $action  = $is_admin_user
-            ? '<p style="margin-top:1.5rem"><a href="' . esc_url(admin_url('themes.php?page=tgmpa-install-plugins'))
+            ? '<p style="margin-top:1.5rem"><a href="' . esc_url(admin_url('index.php'))
                 . '" style="display:inline-block;padding:.6rem 1.1rem;background:#0d6efd;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">'
-                . esc_html__('Install UnysonPlus', 'unysonplus') . '</a></p>'
+                . esc_html__('Go to the dashboard to install UnysonPlus', 'unysonplus') . '</a></p>'
             : '';
 
         echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -150,23 +151,6 @@ class Theme_Includes {
             . $action
             . '</div></body></html>';
         exit;
-    }
-
-    /**
-     * Fallback admin notice shown when the UnysonPlus plugin is missing.
-     *
-     * @internal
-     */
-    public static function _notice_requires_unysonplus(): void {
-        if (!current_user_can('install_plugins') && !current_user_can('activate_plugins')) {
-            return;
-        }
-        $install_url = admin_url('themes.php?page=tgmpa-install-plugins');
-        echo '<div class="notice notice-error"><p><strong>'
-            . esc_html__('Unyson+ Theme', 'unysonplus') . '</strong> &mdash; '
-            . esc_html__('this theme requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active. The theme’s features stay disabled until then.', 'unysonplus')
-            . ' <a href="' . esc_url($install_url) . '">'
-            . esc_html__('Install UnysonPlus', 'unysonplus') . '</a></p></div>';
     }
 
     private static function get_rel_path(string $append = ''): string {
