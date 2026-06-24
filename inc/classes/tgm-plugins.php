@@ -68,7 +68,13 @@ function unysonplus_register_required_plugins() {
         array(
             'name'      => 'UnysonPlus',
             'slug'      => 'unysonplus',
-            'source'    => 'https://github.com/UnysonPlus/UnysonPlus/releases/latest/download/UnysonPlus.zip',
+            // Pull the plugin straight from the master branch archive (where the
+            // stable release lives). The previous `releases/latest/download/
+            // UnysonPlus.zip` URL 404'd because the GitHub releases carry no
+            // uploaded .zip asset. This branch archive extracts to
+            // `UnysonPlus-master/`, which TGMPA renames to the `unysonplus` slug
+            // on install (maybe_adjust_source_dir → upgrader_source_selection).
+            'source'    => 'https://github.com/UnysonPlus/UnysonPlus/archive/refs/heads/master.zip',
             'required'  => true,
             'version'   => '', // optional, leave blank for latest
             'force_activation'   => false,
