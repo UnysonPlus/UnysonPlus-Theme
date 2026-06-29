@@ -2,18 +2,10 @@
 	die( 'Forbidden' );
 }
 
-// Color palette / buttons / borders / spacing presets are owned by the plugin
-// (stored theme-independently, shared with the page builder). The Colors tab below
-// points there so they're discoverable from Theme Settings.
-$colors_settings_url = function_exists( 'sc_theme_settings_url' )
-	? sc_theme_settings_url( 'colors' )
-	: admin_url( 'admin.php?page=fw-extensions&sub-page=extension&extension=shortcodes' );
-
-$colors_pointer_html = '<div style="max-width:70ch">'
-	. '<p><strong>' . esc_html__( 'Color palette, buttons, borders &amp; spacing presets are managed in the Unyson+ plugin.', 'unysonplus' ) . '</strong></p>'
-	. '<p>' . esc_html__( 'They are stored independently of the theme (so they survive a theme switch) and are shared with the page builder, which is why they live outside Theme Settings.', 'unysonplus' ) . '</p>'
-	. '<p><a class="button button-primary" href="' . esc_url( $colors_settings_url ) . '">' . esc_html__( 'Open Color &amp; Button Settings', 'unysonplus' ) . '</a></p>'
-	. '</div>';
+// The Color / Button / Border / Spacing / Table presets are provided by the
+// plugin as a dedicated "Components" section in this same Theme Settings page
+// (see the plugin's includes/theme-settings-presets.php), stored theme-scoped.
+// The old General → Colors pointer tab is therefore retired.
 
 $options = [
 	'general_settings_container' => [
@@ -53,23 +45,6 @@ $options = [
 								'type'    => 'box',
 								'options' => [
 									fw()->theme->get_options( 'general-fonts' ),
-								],
-							],
-						],
-					],
-					'tab_colors' => [
-						'title'   => __( 'Colors', 'unysonplus' ),
-						'type'    => 'tab',
-						'options' => [
-							'colors_box' => [
-								'title'   => __( 'Colors &amp; Buttons', 'unysonplus' ),
-								'type'    => 'box',
-								'options' => [
-									'colors_pointer' => [
-										'type'  => 'html-full',
-										'label' => false,
-										'html'  => $colors_pointer_html,
-									],
 								],
 							],
 						],
