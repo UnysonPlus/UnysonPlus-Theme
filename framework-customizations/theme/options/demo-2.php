@@ -1117,6 +1117,70 @@ $options = [
 			],
 		],
 	],
+	'demo_popover_2' => [
+		'label'         => __( 'Popover', 'unysonplus' ),
+		'type'          => 'popover',
+		'value'         => 'a',
+		'desc'          => __( 'Collapses an option into a compact trigger that expands an in-flow panel on click (like the color picker dropdown, but anchored inline — not the modal "popup" type). With a single inner option the value passes straight through, so it is a drop-in for that option without the inline clutter.', 'unysonplus' ),
+		'help'          => __( 'Click the field to reveal the hosted control; pick a value and it collapses again, showing the selection. The "summary" map turns the saved value into the friendly label on the trigger.', 'unysonplus' ),
+		'summary'       => [
+			'a' => __( 'Dots', 'unysonplus' ),
+			'b' => __( 'Romb', 'unysonplus' ),
+			'c' => __( 'Squares', 'unysonplus' ),
+			'd' => __( 'Waves', 'unysonplus' ),
+		],
+		'inner-options' => [
+			'pattern' => [
+				'type'    => 'image-picker',
+				'label'   => false,
+				'value'   => 'a',
+				'choices' => [
+					'a' => get_template_directory_uri() . '/images/patterns/dots_pattern_preview.jpg',
+					'b' => get_template_directory_uri() . '/images/patterns/romb_pattern_preview.jpg',
+					'c' => get_template_directory_uri() . '/images/patterns/square_pattern_preview.jpg',
+					'd' => get_template_directory_uri() . '/images/patterns/waves_pattern_preview.jpg',
+				],
+			],
+		],
+	],
+	'demo_popover_tabs_2' => [
+		'label'         => __( 'Popover (Tabs)', 'unysonplus' ),
+		'type'          => 'popover',
+		'trigger_label' => __( 'Edit settings…', 'unysonplus' ),
+		'desc'          => __( 'A popover hosting several options organized into tabs (like Background Pro). Multiple options / tabs → the value is a hash keyed by inner option id; the tab grouping is purely visual. Option ids must be unique across all tabs.', 'unysonplus' ),
+		'help'          => __( 'Click to open, switch tabs to reach each group of controls. The trigger keeps a static label here because there is no single value to summarise.', 'unysonplus' ),
+		'tabs'          => [
+			'content' => [
+				'label'   => __( 'Content', 'unysonplus' ),
+				'options' => [
+					'title'    => [ 'type' => 'text', 'label' => __( 'Title', 'unysonplus' ), 'value' => '' ],
+					'subtitle' => [ 'type' => 'text', 'label' => __( 'Subtitle', 'unysonplus' ), 'value' => '' ],
+				],
+			],
+			'style' => [
+				'label'   => __( 'Style', 'unysonplus' ),
+				'options' => [
+					'color' => [ 'type' => 'color-picker', 'label' => __( 'Color', 'unysonplus' ), 'value' => '#2271b1' ],
+					'size'  => [
+						'type'    => 'select',
+						'label'   => __( 'Size', 'unysonplus' ),
+						'value'   => 'md',
+						'choices' => [
+							'sm' => __( 'Small', 'unysonplus' ),
+							'md' => __( 'Medium', 'unysonplus' ),
+							'lg' => __( 'Large', 'unysonplus' ),
+						],
+					],
+				],
+			],
+			'advanced' => [
+				'label'   => __( 'Advanced', 'unysonplus' ),
+				'options' => [
+					'css_class' => [ 'type' => 'text', 'label' => __( 'CSS Class', 'unysonplus' ), 'value' => '' ],
+				],
+			],
+		],
+	],
 	'demo_multi_picker_select_2'       => [
 		'type'         => 'multi-picker',
 		'label'        => false,
@@ -1293,13 +1357,77 @@ $options = [
 		],
 		'show_borders' => false,
 	],
+	'demo_multi_picker_popover_2'      => [
+		'type'         => 'multi-picker',
+		'label'        => __( 'Multi Picker: Popover', 'unysonplus' ),
+		'desc'         => __( 'The same Image Picker multi-picker, collapsed behind a compact trigger (popover display mode, "popover" => true). Click the trigger to choose; picking an image reveals its options inside the panel, and the trigger reflects the current pick. Keeps a section tidy when the picker has many tiles.', 'unysonplus' ),
+		'popover'      => true,
+		'picker'       => [
+			'gadget' => [
+				'label'   => false,
+				'type'    => 'image-picker',
+				'choices' => [
+					'phone'  => [
+						'label' => __( 'Phone', 'unysonplus' ),
+						'small' => [
+							'height' => 70,
+							'src'    => get_template_directory_uri() . '/images/image-picker-demo/thumb1.jpg'
+						],
+						'large' => [
+							'height' => 214,
+							'src'    => get_template_directory_uri() . '/images/image-picker-demo/tooltip1.jpg'
+						],
+					],
+					'laptop' => [
+						'label' => __( 'Laptop', 'unysonplus' ),
+						'small' => [
+							'height' => 70,
+							'src'    => get_template_directory_uri() . '/images/image-picker-demo/thumb2.jpg'
+						],
+						'large' => [
+							'height' => 214,
+							'src'    => get_template_directory_uri() . '/images/image-picker-demo/tooltip2.jpg'
+						],
+					]
+				],
+			]
+		],
+		'choices'      => [
+			'phone'  => [
+				'price'  => [
+					'type'  => 'text',
+					'label' => __( 'Price', 'unysonplus' ),
+				],
+				'memory' => [
+					'type'    => 'select',
+					'label'   => __( 'Memory', 'unysonplus' ),
+					'choices' => [
+						'16' => __( '16Gb', 'unysonplus' ),
+						'32' => __( '32Gb', 'unysonplus' ),
+						'64' => __( '64Gb', 'unysonplus' ),
+					]
+				]
+			],
+			'laptop' => [
+				'price'  => [
+					'type'  => 'text',
+					'label' => __( 'Price', 'unysonplus' ),
+				],
+				'webcam' => [
+					'type'  => 'switch',
+					'label' => __( 'Webcam', 'unysonplus' ),
+				]
+			],
+		],
+		'show_borders' => false,
+	],
 	'demo_multi_picker_switch_2'       => [
 		'type'         => 'multi-picker',
 		'label'        => false,
 		'desc'         => false,
 		'picker'       => [
 			'gadget' => [
-				'label'        => __( 'Switch', 'unysonplus' ),
+				'label'        => __( 'Multi Picker: Switch', 'unysonplus' ),
 				'type'         => 'switch',
 				'right-choice' => [
 					'value' => 'laptop',
@@ -1348,69 +1476,5 @@ $options = [
 			],
 		],
 		'show_borders' => false,
-	],
-	'demo_popover_2' => [
-		'label'         => __( 'Popover', 'unysonplus' ),
-		'type'          => 'popover',
-		'value'         => 'a',
-		'desc'          => __( 'Collapses an option into a compact trigger that expands an in-flow panel on click (like the color picker dropdown, but anchored inline — not the modal "popup" type). With a single inner option the value passes straight through, so it is a drop-in for that option without the inline clutter.', 'unysonplus' ),
-		'help'          => __( 'Click the field to reveal the hosted control; pick a value and it collapses again, showing the selection. The "summary" map turns the saved value into the friendly label on the trigger.', 'unysonplus' ),
-		'summary'       => [
-			'a' => __( 'Dots', 'unysonplus' ),
-			'b' => __( 'Romb', 'unysonplus' ),
-			'c' => __( 'Squares', 'unysonplus' ),
-			'd' => __( 'Waves', 'unysonplus' ),
-		],
-		'inner-options' => [
-			'pattern' => [
-				'type'    => 'image-picker',
-				'label'   => false,
-				'value'   => 'a',
-				'choices' => [
-					'a' => get_template_directory_uri() . '/images/patterns/dots_pattern_preview.jpg',
-					'b' => get_template_directory_uri() . '/images/patterns/romb_pattern_preview.jpg',
-					'c' => get_template_directory_uri() . '/images/patterns/square_pattern_preview.jpg',
-					'd' => get_template_directory_uri() . '/images/patterns/waves_pattern_preview.jpg',
-				],
-			],
-		],
-	],
-	'demo_popover_tabs_2' => [
-		'label'         => __( 'Popover (Tabs)', 'unysonplus' ),
-		'type'          => 'popover',
-		'trigger_label' => __( 'Edit settings…', 'unysonplus' ),
-		'desc'          => __( 'A popover hosting several options organized into tabs (like Background Pro). Multiple options / tabs → the value is a hash keyed by inner option id; the tab grouping is purely visual. Option ids must be unique across all tabs.', 'unysonplus' ),
-		'help'          => __( 'Click to open, switch tabs to reach each group of controls. The trigger keeps a static label here because there is no single value to summarise.', 'unysonplus' ),
-		'tabs'          => [
-			'content' => [
-				'label'   => __( 'Content', 'unysonplus' ),
-				'options' => [
-					'title'    => [ 'type' => 'text', 'label' => __( 'Title', 'unysonplus' ), 'value' => '' ],
-					'subtitle' => [ 'type' => 'text', 'label' => __( 'Subtitle', 'unysonplus' ), 'value' => '' ],
-				],
-			],
-			'style' => [
-				'label'   => __( 'Style', 'unysonplus' ),
-				'options' => [
-					'color' => [ 'type' => 'color-picker', 'label' => __( 'Color', 'unysonplus' ), 'value' => '#2271b1' ],
-					'size'  => [
-						'type'    => 'select',
-						'label'   => __( 'Size', 'unysonplus' ),
-						'value'   => 'md',
-						'choices' => [
-							'sm' => __( 'Small', 'unysonplus' ),
-							'md' => __( 'Medium', 'unysonplus' ),
-							'lg' => __( 'Large', 'unysonplus' ),
-						],
-					],
-				],
-			],
-			'advanced' => [
-				'label'   => __( 'Advanced', 'unysonplus' ),
-				'options' => [
-					'css_class' => [ 'type' => 'text', 'label' => __( 'CSS Class', 'unysonplus' ), 'value' => '' ],
-				],
-			],
-		],
 	],
 ];
