@@ -43,64 +43,9 @@ $options = [
 				'type'    => 'box',
 				'options' => [
 
-					/* --- Scroll to Top --- */
-					'tab_scroll_top' => [
-						'title'   => __( 'Scroll to Top', 'unysonplus' ),
-						'type'    => 'tab',
-						'options' => [
-							'box' => [
-								'title'   => __( 'Floating Scroll-to-Top Button', 'unysonplus' ),
-								'type'    => 'box',
-								'options' => [
-									'misc_scroll_top' => [
-										'type'          => 'multi',
-										'label'         => false,
-										'inner-options' => [
-											'scroll_top_enable' => [
-												'label' => __( 'Enable', 'unysonplus' ),
-												'desc'  => __( 'Show a fixed-position scroll-to-top button on every page.', 'unysonplus' ),
-												'type'  => 'switch',
-												'value' => 'no',
-											],
-											'scroll_top_position' => [
-												'label' => __( 'Position', 'unysonplus' ),
-												'type'  => 'radio',
-												'value' => 'right',
-												'choices' => [
-													'right' => __( 'Bottom-right', 'unysonplus' ),
-													'left'  => __( 'Bottom-left', 'unysonplus' ),
-												],
-											],
-											'scroll_top_offset' => [
-												'label' => __( 'Show after scrolling', 'unysonplus' ),
-												'desc'  => __( 'Distance scrolled before the button appears. px is an absolute distance; vh is a fraction of the screen height (100vh = one full screen).', 'unysonplus' ),
-												'type'  => 'unit-input',
-												'units' => [ 'px', 'vh' ],
-												'value' => [ 'value' => '300', 'unit' => 'px' ],
-												'min'   => 0,
-											],
-											'scroll_top_text' => [
-												'label' => __( 'Button label', 'unysonplus' ),
-												'desc'  => __( 'Optional text shown next to the arrow icon. Leave empty for icon-only.', 'unysonplus' ),
-												'type'  => 'text',
-												'value' => '',
-											],
-											'scroll_top_bg_color' => [
-												'label' => __( 'Background color', 'unysonplus' ),
-												'type'  => 'color-picker',
-												'value' => '',
-											],
-											'scroll_top_text_color' => [
-												'label' => __( 'Icon / text color', 'unysonplus' ),
-												'type'  => 'color-picker',
-												'value' => '#ffffff',
-											],
-										],
-									],
-								],
-							],
-						],
-					],
+					// Scroll to Top moved to the top-level "Site-wide UX" tab
+					// (inc/includes/site-wide-ux.php). Its `misc_scroll_top` storage key is
+					// unchanged, so unysonplus_misc_get( 'scroll_top_*' ) still resolves.
 
 					/* --- Dark Mode --- */
 					'tab_dark_mode' => [

@@ -22,6 +22,14 @@ if ( class_exists( 'WooCommerce' ) ) {
 	$options[] = fw()->theme->get_options( 'woocommerce-settings' );
 }
 
+// Site-wide UX tab (Preloader · Scrolling · Scroll to Top) — only when the Animation
+// Engine plugin is INACTIVE. When it's active, the engine registers its own richer
+// "Site-wide UX" tab and the theme injects its unique sub-tabs into it instead
+// (inc/includes/site-wide-ux.php), so the two never collide.
+if ( ! ( function_exists( 'fw_ext' ) && fw_ext( 'animation-engine' ) ) ) {
+	$options[] = fw()->theme->get_options( 'site-wide-ux-settings' );
+}
+
 $options[] = fw()->theme->get_options( 'misc' );
 
 /**

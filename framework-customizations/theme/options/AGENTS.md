@@ -19,8 +19,14 @@ builder doc).
 
 `framework-customizations/theme/options/` — `settings.php` aggregates the tabs:
 
-- **General** — split into sub-tabs (order: Layout, Typography, Colors, Sidebar, Preloader, Scrolling,
-  Image Sizes):
+> **Leaf-file naming pattern (REQUIRED for maintenance):** a leaf option file is prefixed with the
+> **tab that owns it** — e.g. `general-*.php` for the General tab, `site-wide-ux-*.php` for the
+> Site-wide UX tab, `header-*.php`, `footer-*.php`. When a feature MOVES to a different tab, rename
+> its leaf file to the new prefix (and update the `get_options()` references) — but KEEP the internal
+> `$options` array key / storage id unchanged (renaming the file never changes the DB key, so the
+> render getters stay valid). This keeps files easy to find by tab.
+
+- **General** — split into sub-tabs (order: Layout, Typography, Colors, Sidebar, Image Sizes):
   - **Layout** — `general-layout.php` (`general_layout`: site width/bg + pattern, container max-width/
     gutter, spacing scale, border **roundness** → `--radius`/`--radius-sm/md/lg`, prose reading width).
   - **Typography** — `general-typography.php` (`typography`: h1–h6 + body family/size/line-height/

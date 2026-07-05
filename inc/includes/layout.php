@@ -513,8 +513,20 @@ add_filter( 'body_class', 'unysonplus_layout_body_classes', 20 );
  * Preloader
  * ============================================================ */
 
+if ( ! function_exists( 'unysonplus_engine_preloader_active' ) ) :
+/**
+ * The Animation Engine plugin extension ships a richer preloader (Theme Settings →
+ * Animations → Preloader). When that extension is active it OWNS the preloader, and
+ * the theme's own (spinner / logo) preloader stands down so the two never stack.
+ */
+function unysonplus_engine_preloader_active() {
+	return function_exists( 'fw_ext' ) && fw_ext( 'animation-engine' );
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_render_preloader' ) ) :
 function unysonplus_render_preloader() {
+	if ( unysonplus_engine_preloader_active() ) { return; }
 	$style = unysonplus_layout_get( 'layout_preloader_style', 'none' );
 	if ( $style === 'none' ) { return; }
 
@@ -549,6 +561,9 @@ add_action( 'wp_body_open', 'unysonplus_render_preloader', 1 );
 if ( ! function_exists( 'unysonplus_render_scroll_progress' ) ) :
 function unysonplus_render_scroll_progress() {
 	if ( unysonplus_layout_get( 'layout_scroll_progress', 'no' ) !== 'yes' ) { return; }
+	// Defer to the Animation Engine's Scroll Progress (16 styles) when IT is enabled,
+	// so the two bars never stack. (The theme's basic bar still shows if the engine's is off.)
+	if ( function_exists( 'upw_scrollprog_enabled' ) && upw_scrollprog_enabled() ) { return; }
 	?>
 	<div class="scroll-progress" aria-hidden="true"><div class="scroll-progress__bar"></div></div>
 	<?php

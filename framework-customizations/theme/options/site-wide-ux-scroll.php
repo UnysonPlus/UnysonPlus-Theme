@@ -3,15 +3,15 @@
 }
 
 /**
- * General → Scrolling sub-tab.
+ * Site-wide UX → Scrolling sub-tab (leaf).
  *
- * Scroll-related UX polish — smooth anchor scrolling and the scroll-progress
- * bar. Split out of the old General → Layout "UX Polish" section into its own
- * tab.
+ * Scroll-related UX polish — smooth anchor scrolling and a basic scroll-progress bar.
+ * Composed into the "Site-wide UX" tab (site-wide-ux-settings.php).
  *
- * Stored under the `general_scroll` multi key. `unysonplus_layout_get()` merges
- * `general_layout` + `general_sidebar` + `general_preloader` + `general_scroll`,
- * so reads of `layout_smooth_scroll` / `layout_scroll_progress*` are unchanged.
+ * Naming: leaf option files are prefixed with the tab that owns them (site-wide-ux-*).
+ * Stored under the `general_scroll` multi key — KEPT for back-compat (renaming the FILE never
+ * changes the storage key), so `unysonplus_layout_get( 'layout_smooth_scroll' /
+ * 'layout_scroll_progress*' )` is unchanged.
  */
 
 $options = [

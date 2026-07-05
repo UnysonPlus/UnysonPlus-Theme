@@ -62,32 +62,9 @@ $options = [
 							],
 						],
 					],
-					'tab_preloader' => [
-						'title'   => __( 'Preloader', 'unysonplus' ),
-						'type'    => 'tab',
-						'options' => [
-							'preloader_box' => [
-								'title'   => __( 'Preloader', 'unysonplus' ),
-								'type'    => 'box',
-								'options' => [
-									fw()->theme->get_options( 'general-preloader' ),
-								],
-							],
-						],
-					],
-					'tab_scroll' => [
-						'title'   => __( 'Scrolling', 'unysonplus' ),
-						'type'    => 'tab',
-						'options' => [
-							'scroll_box' => [
-								'title'   => __( 'Scrolling', 'unysonplus' ),
-								'type'    => 'box',
-								'options' => [
-									fw()->theme->get_options( 'general-scroll' ),
-								],
-							],
-						],
-					],
+					// Preloader + Scrolling moved to the top-level "Site-wide UX" tab
+					// (inc/includes/site-wide-ux.php) — consolidated with Scroll to Top and,
+					// when the Animation Engine is active, merged into its richer tab.
 					'tab_image_sizes' => [
 						'title'   => __( 'Image Sizes', 'unysonplus' ),
 						'type'    => 'tab',

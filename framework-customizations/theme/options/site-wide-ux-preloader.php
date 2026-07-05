@@ -3,14 +3,14 @@
 }
 
 /**
- * General → Preloader sub-tab.
+ * Site-wide UX → Preloader sub-tab (leaf).
  *
- * Full-screen loading splash shown until the page finishes loading. Split out of
- * the old General → Layout "UX Polish" section into its own tab.
+ * Full-screen loading splash shown until the page finishes loading. Composed into the
+ * "Site-wide UX" tab (site-wide-ux-settings.php).
  *
- * Stored under the `general_preloader` multi key. `unysonplus_layout_get()`
- * merges `general_layout` + `general_sidebar` + `general_preloader`, so reads of
- * `layout_preloader_*` are unchanged.
+ * Naming: leaf option files are prefixed with the tab that owns them (site-wide-ux-*).
+ * Stored under the `general_preloader` multi key — KEPT for back-compat (renaming the FILE
+ * never changes the storage key), so `unysonplus_layout_get( 'layout_preloader_*' )` is unchanged.
  *
  * Image-picker previews live at assets/svg/layout/*.svg.
  */
