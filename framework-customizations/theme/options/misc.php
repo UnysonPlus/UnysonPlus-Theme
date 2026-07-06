@@ -101,6 +101,11 @@ $options = [
 						],
 					],
 
+					/* --- Media (Custom Image Sizes) is now provided by the Unyson+ plugin
+					   (Miscellaneous → Media), so its schema + behaviour live together in
+					   the framework and work under any theme. See the shortcodes extension's
+					   includes/theme-settings/miscellaneous-media.php + -handlers.php. --- */
+
 					/* --- Developer Tools --- */
 					'tab_dev_tools' => [
 						'title'   => __( 'Developer Tools', 'unysonplus' ),

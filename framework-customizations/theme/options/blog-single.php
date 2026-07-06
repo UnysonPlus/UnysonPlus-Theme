@@ -85,6 +85,26 @@ $options = [
 					'tag'      => __( 'Shared tag', 'unysonplus' ),
 				],
 			],
+			'single_related_style' => [
+				'label'   => __( 'Related Posts Style', 'unysonplus' ),
+				'type'    => 'select',
+				'value'   => 'grid',
+				'choices' => [
+					'grid'     => __( 'Grid (cards)', 'unysonplus' ),
+					'list'     => __( 'List (rows)', 'unysonplus' ),
+					'carousel' => __( 'Carousel (scroll)', 'unysonplus' ),
+				],
+			],
+			'single_related_ratio' => [
+				'label'   => __( 'Related Image Ratio', 'unysonplus' ),
+				'type'    => 'select',
+				'value'   => '16-9',
+				'choices' => [
+					'16-9' => '16:9',
+					'4-3'  => '4:3',
+					'1-1'  => '1:1 (square)',
+				],
+			],
 			'single_post_nav' => [
 				'label'        => __( 'Previous / Next Navigation', 'unysonplus' ),
 				'type'         => 'switch',

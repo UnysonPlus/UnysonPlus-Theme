@@ -75,10 +75,135 @@ function unysonplus_header_layout_get( $key, $default = '' ) {
 		$cache = is_array( $raw ) ? $raw : array();
 	}
 
+	// `header_mode` is now an inline multi-picker: [ 'mode' => 'top', '<mode>' => [ … ] ].
+	// Tolerate the legacy scalar shape (a bare 'top'/'vertical-left'/… string) so
+	// pre-migration installs still resolve.
+	$hm = isset( $cache['header_mode'] ) ? $cache['header_mode'] : null;
+
+	if ( $key === 'header_mode' ) {
+		if ( is_array( $hm ) ) {
+			return ( isset( $hm['mode'] ) && $hm['mode'] !== '' ) ? $hm['mode'] : $default;
+		}
+		return ( is_string( $hm ) && $hm !== '' ) ? $hm : $default;
+	}
+
+	// Reveal-housed keys (`vertical_width`; `header_design` for the Top mode) live under
+	// the active mode's sub-array; fall back to the legacy flat key, then the default.
+	// (The flat toggle keys — header_border / header_shadow / header_uppercase_nav /
+	// header_glass — are served by the generic $cache[$key] tail below.)
+	if ( in_array( $key, array( 'vertical_width', 'header_design', 'overlay_style', 'vertical_side' ), true ) && is_array( $hm ) ) {
+		$mode = ( isset( $hm['mode'] ) && $hm['mode'] !== '' ) ? $hm['mode'] : 'top';
+		if ( isset( $hm[ $mode ][ $key ] ) && $hm[ $mode ][ $key ] !== '' && $hm[ $mode ][ $key ] !== null ) {
+			$rv = $hm[ $mode ][ $key ];
+			// header_design is now a multi-picker: [ 'design' => 'pill', 'pill' => [ … ] ].
+			// Return the chosen design SLUG; tolerate the legacy scalar shape.
+			if ( 'header_design' === $key && is_array( $rv ) ) {
+				return ( isset( $rv['design'] ) && $rv['design'] !== '' ) ? $rv['design'] : $default;
+			}
+			// overlay_style is a popover multi-picker: [ 'style' => 'panel'|'radial' ].
+			// Return the chosen style slug; tolerate the legacy scalar shape.
+			if ( 'overlay_style' === $key && is_array( $rv ) ) {
+				return ( isset( $rv['style'] ) && $rv['style'] !== '' ) ? $rv['style'] : $default;
+			}
+			// vertical_side is a popover multi-picker: [ 'side' => 'left'|'right' ].
+			if ( 'vertical_side' === $key && is_array( $rv ) ) {
+				return ( isset( $rv['side'] ) && $rv['side'] !== '' ) ? $rv['side'] : $default;
+			}
+			return $rv;
+		}
+	}
+
 	if ( ! array_key_exists( $key, $cache ) ) { return $default; }
 	$val = $cache[ $key ];
 	if ( $val === '' || $val === null ) { return $default; }
 	return $val;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_header_is_vertical' ) ) :
+/**
+ * Whether the header is in a Vertical (side-rail) mode. Vertical-Left and
+ * Vertical-Right were merged into one 'vertical' mode with a Left/Right side
+ * picker; the legacy split modes are still recognised (pre-migration installs).
+ */
+function unysonplus_header_is_vertical() {
+	$mode = unysonplus_header_layout_get( 'header_mode', 'top' );
+	return in_array( $mode, array( 'vertical', 'vertical-left', 'vertical-right' ), true );
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_header_vertical_side' ) ) :
+/**
+ * Resolve the side the vertical rail sits on: 'left' | 'right'. Reads the new
+ * vertical_side picker; falls back to the legacy vertical-left / vertical-right
+ * mode value, then 'left'.
+ */
+function unysonplus_header_vertical_side() {
+	$mode = unysonplus_header_layout_get( 'header_mode', 'top' );
+	if ( 'vertical-right' === $mode ) { return 'right'; }
+	if ( 'vertical-left'  === $mode ) { return 'left'; }
+	$side = unysonplus_header_layout_get( 'vertical_side', 'left' );
+	return in_array( $side, array( 'left', 'right' ), true ) ? $side : 'left';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_header_design_options' ) ) :
+/**
+ * The active Header Design's revealed sub-options (roundness / shadow / inset / gap).
+ * Reads the nested multi-picker at header_layout → header_mode → <mode> → header_design.
+ *
+ * @return array e.g. [ 'pill_radius' => 'full', 'pill_inset' => 'none', 'pill_shadow' => 'medium' ]; empty when none.
+ */
+function unysonplus_header_design_options() {
+	$raw = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'header_layout', array() ) : array();
+	$hm  = ( is_array( $raw ) && isset( $raw['header_mode'] ) ) ? $raw['header_mode'] : null;
+	if ( ! is_array( $hm ) ) {
+		return array();
+	}
+	$mode = ( isset( $hm['mode'] ) && $hm['mode'] !== '' ) ? $hm['mode'] : 'top';
+	$hd   = isset( $hm[ $mode ]['header_design'] ) ? $hm[ $mode ]['header_design'] : null;
+	if ( ! is_array( $hd ) || empty( $hd['design'] ) ) {
+		return array();
+	}
+	$slug = $hd['design'];
+	return ( isset( $hd[ $slug ] ) && is_array( $hd[ $slug ] ) ) ? $hd[ $slug ] : array();
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_header_design_css_vars' ) ) :
+/**
+ * Map the active Header Design's sub-option choices to the CSS custom properties its
+ * partial consumes (--header-design-radius / -inset / -shadow / -gap). Only the active
+ * design's vars are returned; the partial defaults cover the rest.
+ *
+ * @return array<string,string>
+ */
+function unysonplus_header_design_css_vars() {
+	$design = function_exists( 'unysonplus_header_layout_get' ) ? unysonplus_header_layout_get( 'header_design', 'classic' ) : 'classic';
+	$opts   = function_exists( 'unysonplus_header_design_options' ) ? unysonplus_header_design_options() : array();
+	$vars   = array();
+
+	$pick = function ( $map, $key, $fallback ) use ( $opts ) {
+		$v = isset( $opts[ $key ] ) ? $opts[ $key ] : '';
+		return isset( $map[ $v ] ) ? $map[ $v ] : $fallback;
+	};
+	$shadow = array(
+		'soft'   => '0 4px 16px -10px rgba(15, 23, 42, .22)',
+		'medium' => '0 8px 24px -12px rgba(15, 23, 42, .30)',
+		'strong' => '0 14px 34px -12px rgba(15, 23, 42, .42)',
+	);
+
+	if ( 'pill' === $design ) {
+		$vars['--header-design-radius'] = $pick( array( 'full' => '999px', 'large' => '1.5rem', 'medium' => '.75rem' ), 'pill_radius', '999px' );
+		$vars['--header-design-inset']  = $pick( array( 'none' => '0px', 'small' => '1.5rem', 'large' => '4rem' ), 'pill_inset', '0px' );
+		$vars['--header-design-shadow'] = $pick( $shadow, 'pill_shadow', $shadow['medium'] );
+	} elseif ( 'card' === $design ) {
+		$vars['--header-design-radius'] = $pick( array( 'small' => '8px', 'medium' => '14px', 'large' => '22px' ), 'card_radius', '14px' );
+		$vars['--header-design-shadow'] = $pick( $shadow, 'card_shadow', $shadow['medium'] );
+	} elseif ( 'centered' === $design ) {
+		$vars['--header-design-gap'] = $pick( array( 'tight' => '.25rem', 'normal' => '.5rem', 'roomy' => '1rem' ), 'centered_gap', '.5rem' );
+	}
+	return $vars;
 }
 endif;
 
@@ -221,11 +346,15 @@ if ( ! function_exists( 'unysonplus_pages_get' ) ) :
 function unysonplus_pages_get( $key, $default = '' ) {
 	static $cache = null;
 	if ( $cache === null ) {
+		// Read-transparent merge of the Pages sub-tab groups (like unysonplus_layout_get):
+		// Defaults (general_pages) + Layout (pages_layout) + Hero (pages_hero) share one
+		// flat key space, so reads stay key-name stable across the split.
+		$cache = array();
 		if ( function_exists( 'fw_get_db_settings_option' ) ) {
-			$raw   = fw_get_db_settings_option( 'general_pages', array() );
-			$cache = is_array( $raw ) ? $raw : array();
-		} else {
-			$cache = array();
+			foreach ( array( 'general_pages', 'pages_layout', 'pages_hero' ) as $grp ) {
+				$raw = fw_get_db_settings_option( $grp, array() );
+				if ( is_array( $raw ) ) { $cache = array_merge( $cache, $raw ); }
+			}
 		}
 	}
 	if ( ! array_key_exists( $key, $cache ) ) { return $default; }
@@ -292,10 +421,17 @@ function unysonplus_resolve_layout( $key, $default = null ) {
 	}
 
 	// 1. Per-page meta override (Phase 2).
+	// Header visibility is a single source of truth: the per-page `page_header`
+	// select (Global / Transparent / Hidden). 'd-none' = hidden; anything else
+	// (incl. 'transparent') = shown. This replaces the old redundant
+	// `hide_site_header` switch.
+	if ( $key === 'hide_header' ) {
+		$ph = unysonplus_get_page_meta( 'page_header' );
+		if ( $ph !== null ) { return ( $ph === 'd-none' ); }
+	}
 	$meta_map = array(
 		'sidebar'     => 'sidebar_override',
 		'width'       => 'content_width',
-		'hide_header' => 'hide_site_header',
 		'hide_footer' => 'hide_site_footer',
 		'hide_title'  => 'hide_page_title',
 	);
@@ -303,7 +439,7 @@ function unysonplus_resolve_layout( $key, $default = null ) {
 		$meta = unysonplus_get_page_meta( $meta_map[ $key ] );
 		if ( $meta !== null ) {
 			// Switches store boolean true/false in Unyson multi containers.
-			if ( in_array( $key, array( 'hide_header', 'hide_footer', 'hide_title' ), true ) ) {
+			if ( in_array( $key, array( 'hide_footer', 'hide_title' ), true ) ) {
 				if ( is_bool( $meta ) )   { return $meta; }
 				if ( $meta === 'yes' )    { return true; }
 				if ( $meta === 'no' )     { return false; }
@@ -319,6 +455,10 @@ function unysonplus_resolve_layout( $key, $default = null ) {
 	// 3. Global Pages default (Phase 3) — only meaningful on pages.
 	if ( is_page() ) {
 		if ( $key === 'sidebar' ) {
+			// Explicit Pages → Layout → Default Sidebar wins; else the Default Page
+			// Layout mapping (the legacy quick-picker) still applies.
+			$explicit = unysonplus_pages_get( 'default_sidebar', 'inherit' );
+			if ( in_array( $explicit, array( 'none', 'left', 'right' ), true ) ) { return $explicit; }
 			$layout_pref = unysonplus_pages_get( 'default_page_layout', '' );
 			$layout_to_sidebar = array(
 				'sidebar-right' => 'right',
@@ -331,6 +471,8 @@ function unysonplus_resolve_layout( $key, $default = null ) {
 			}
 		}
 		if ( $key === 'width' ) {
+			$explicit = unysonplus_pages_get( 'default_content_width', 'default' );
+			if ( in_array( $explicit, array( 'narrow', 'wide', 'full' ), true ) ) { return $explicit; }
 			$layout_pref = unysonplus_pages_get( 'default_page_layout', '' );
 			$layout_to_width = array(
 				'full-width'   => 'full',
@@ -339,6 +481,21 @@ function unysonplus_resolve_layout( $key, $default = null ) {
 			if ( isset( $layout_to_width[ $layout_pref ] ) ) {
 				return $layout_to_width[ $layout_pref ];
 			}
+		}
+	}
+
+	// 3.5. Per-context sidebar default (General → Sidebar): more specific than the
+	// global default below, so it wins for its context. Each context Inherits (falls
+	// through) unless set to none/left/right. Pages are covered by step 3 above.
+	if ( $key === 'sidebar' ) {
+		$ctx = null;
+		if ( is_singular( 'post' ) )            { $ctx = 'post'; }
+		elseif ( is_search() )                  { $ctx = 'search'; }
+		elseif ( is_404() )                     { $ctx = '404'; }
+		elseif ( is_home() || is_archive() )    { $ctx = 'archive'; }
+		if ( $ctx !== null ) {
+			$cv = unysonplus_layout_get( 'layout_sidebar_context_' . $ctx, 'inherit' );
+			if ( in_array( $cv, array( 'none', 'left', 'right' ), true ) ) { return $cv; }
 		}
 	}
 
@@ -440,6 +597,60 @@ function unysonplus_migrate_width_mode() {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_migrate_overlay_style' ) ) :
+/**
+ * Schema migration (v6): the Overlay Style option became a popover multi-picker,
+ * so its saved value changed from a scalar ('panel'|'radial') to the picker shape
+ * [ 'style' => … ]. Wrap any legacy scalar in place so the settings UI shows the
+ * right tile. The front-end getter tolerates both shapes regardless. Idempotent.
+ */
+function unysonplus_migrate_overlay_style() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) || ! function_exists( 'fw_set_db_settings_option' ) ) {
+		return;
+	}
+	$hl = fw_get_db_settings_option( 'header_layout', array() );
+	if ( ! is_array( $hl ) || ! isset( $hl['header_mode']['overlay']['overlay_style'] ) ) { return; }
+	$v = $hl['header_mode']['overlay']['overlay_style'];
+	if ( is_string( $v ) && $v !== '' ) {
+		$hl['header_mode']['overlay']['overlay_style'] = array( 'style' => $v );
+		fw_set_db_settings_option( 'header_layout', $hl );
+	}
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_migrate_vertical_merge' ) ) :
+/**
+ * Schema migration (v7): Vertical-Left and Vertical-Right header modes were
+ * merged into a single 'vertical' mode with a Left/Right side picker. Convert a
+ * stored 'vertical-left'/'vertical-right' mode into 'vertical' + vertical_side,
+ * carrying the saved rail width across. Reads/writes the RAW option store
+ * (FW_WP_Option) so the legacy mode isn't lost to picker normalisation first,
+ * and so the other modes' saved sub-options are preserved untouched. Idempotent.
+ */
+function unysonplus_migrate_vertical_merge() {
+	if ( ! class_exists( 'FW_WP_Option' ) ) { return; }
+	$theme_id = ( function_exists( 'fw' ) && fw()->theme ) ? fw()->theme->manifest->get_id() : 'unysonplus';
+	$opt      = 'fw_theme_settings_options:' . $theme_id;
+	$hl       = FW_WP_Option::get( $opt, 'header_layout' );
+	if ( ! is_array( $hl ) || ! isset( $hl['header_mode']['mode'] ) ) { return; }
+
+	$mode = $hl['header_mode']['mode'];
+	if ( $mode !== 'vertical-left' && $mode !== 'vertical-right' ) { return; }
+
+	$side  = ( $mode === 'vertical-right' ) ? 'right' : 'left';
+	$width = isset( $hl['header_mode'][ $mode ]['vertical_width'] ) ? $hl['header_mode'][ $mode ]['vertical_width'] : null;
+
+	$hl['header_mode']['mode'] = 'vertical';
+	if ( ! isset( $hl['header_mode']['vertical'] ) || ! is_array( $hl['header_mode']['vertical'] ) ) {
+		$hl['header_mode']['vertical'] = array();
+	}
+	$hl['header_mode']['vertical']['vertical_side'] = array( 'side' => $side );
+	if ( $width !== null ) { $hl['header_mode']['vertical']['vertical_width'] = $width; }
+
+	FW_WP_Option::set( $opt, 'header_layout', $hl );
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_layout_body_classes' ) ) :
 function unysonplus_layout_body_classes( $classes ) {
 	// Site width mode (read from the multi-picker; legacy flat tolerated).
@@ -467,9 +678,35 @@ function unysonplus_layout_body_classes( $classes ) {
 	// Header layout mode (now owned by Header → Layout; legacy general_layout
 	// value is the fallback for pre-migration installs).
 	$header_mode = unysonplus_header_layout_get( 'header_mode', unysonplus_layout_get( 'layout_header_mode', 'top' ) );
-	$valid_modes = array( 'top', 'vertical-left', 'vertical-right', 'off-canvas-only', 'overlay' );
-	if ( ! in_array( $header_mode, $valid_modes, true ) ) { $header_mode = 'top'; }
-	$classes[] = 'layout-' . $header_mode;
+	if ( unysonplus_header_is_vertical() ) {
+		// Merged Vertical mode: layout-vertical + a side hook (layout-vertical-left
+		// / -right) so the shared vertical.css positions the rail on the chosen side.
+		$classes[] = 'layout-vertical';
+		$classes[] = 'layout-vertical-' . unysonplus_header_vertical_side();
+	} else {
+		$valid_modes = array( 'top', 'off-canvas-only', 'overlay' );
+		if ( ! in_array( $header_mode, $valid_modes, true ) ) { $header_mode = 'top'; }
+		$classes[] = 'layout-' . $header_mode;
+	}
+
+	// Header → Menu: item style (hover/active treatment on top-level nav items).
+	// 'none' is the bare default and needs no class; style.css keys the rest off
+	// body.menu-style-<slug>.
+	$menu_opts  = fw_get_db_settings_option( 'header_menu', array() );
+	$menu_style = ( is_array( $menu_opts ) && ! empty( $menu_opts['menu_item_style'] ) ) ? (string) $menu_opts['menu_item_style'] : 'none';
+	$menu_style = preg_replace( '/[^a-z0-9\-]/', '', strtolower( $menu_style ) );
+	if ( in_array( $menu_style, array( 'underline', 'underline-grow', 'pill', 'box', 'outline', 'bottom-bar', 'top-bar', 'highlight' ), true ) ) {
+		$classes[] = 'menu-style-' . $menu_style;
+	}
+
+		// Dropdown panel design (overall submenu-box treatment). 'classic' is the
+		// bare default and needs no class; style.css keys the rest off
+		// body.dropdown-style-<slug>.
+		$dropdown_style = ( is_array( $menu_opts ) && ! empty( $menu_opts['menu_dropdown_style'] ) ) ? (string) $menu_opts['menu_dropdown_style'] : 'classic';
+		$dropdown_style = preg_replace( '/[^a-z0-9\-]/', '', strtolower( $dropdown_style ) );
+		if ( in_array( $dropdown_style, array( 'elevated', 'bordered', 'minimal', 'top-accent' ), true ) ) {
+			$classes[] = 'dropdown-style-' . $dropdown_style;
+		}
 
 	// Resolved sidebar position (cascade-aware: per-page meta > template > global > default).
 	$sidebar = unysonplus_resolve_layout( 'sidebar', 'right' );
@@ -479,6 +716,27 @@ function unysonplus_layout_body_classes( $classes ) {
 	// Sticky sidebar (desktop only; CSS gates the breakpoint).
 	if ( unysonplus_layout_get( 'layout_sidebar_sticky', 'no' ) === 'yes' ) {
 		$classes[] = 'sidebar-sticky';
+	}
+
+	// Sidebar responsive behavior (General → Sidebar → Responsive & Sticky).
+	// Collapse breakpoint (lg = 992px default, md = 768px).
+	$collapse = unysonplus_layout_get( 'layout_sidebar_collapse_bp', 'lg' );
+	$classes[] = 'sidebar-collapse-' . ( $collapse === 'md' ? 'md' : 'lg' );
+	// Sidebar above content when stacked.
+	if ( unysonplus_layout_get( 'layout_sidebar_mobile_order', 'below' ) === 'above' ) {
+		$classes[] = 'sidebar-mobile-above';
+	}
+	// Hide sidebar on stacked (mobile) layouts.
+	if ( unysonplus_layout_get( 'layout_sidebar_mobile_hide', 'no' ) === 'yes' ) {
+		$classes[] = 'sidebar-hide-mobile';
+	}
+
+	// General → Base: custom scrollbar is opt-in (only when a color is set), so the
+	// bare ::-webkit-scrollbar rule doesn't restyle every default scrollbar.
+	$base_opts = fw_get_db_settings_option( 'general_base', array() );
+	if ( is_array( $base_opts ) ) {
+		$sb = isset( $base_opts['base_scrollbar_color'] ) ? unysonplus_preset_color_to_css( $base_opts['base_scrollbar_color'] ) : '';
+		if ( $sb !== '' ) { $classes[] = 'custom-scrollbar'; }
 	}
 
 	// Resolved content width (only emits when not 'default').
@@ -498,8 +756,10 @@ function unysonplus_layout_body_classes( $classes ) {
 		}
 	}
 
-	// Preloader (active while page loads; JS removes after window.load)
-	if ( unysonplus_layout_get( 'layout_preloader_style', 'none' ) !== 'none' ) {
+	// Preloader (active while page loads; JS removes after window.load).
+	// Skip when the Animation Engine owns the preloader (see unysonplus_render_preloader).
+	if ( unysonplus_layout_get( 'layout_preloader_style', 'none' ) !== 'none'
+		&& ! ( function_exists( 'unysonplus_engine_preloader_active' ) && unysonplus_engine_preloader_active() ) ) {
 		$classes[] = 'preloader-active';
 	}
 
@@ -671,10 +931,28 @@ function unysonplus_get_page_hero_data() {
 	$valid_heights = array( 'auto', 'small', 'medium', 'large', 'fullscreen' );
 	if ( ! in_array( $height, $valid_heights, true ) ) { $height = 'auto'; }
 
-	$overlay_color   = fw_get_db_post_option( $pid, 'header_overlay_color' );
+	// Overlay colour: per-page meta, else the global Hero default (Pages → Page
+	// Title / Hero → Default Overlay Color, a compact preset resolved to CSS).
+	$overlay_color = fw_get_db_post_option( $pid, 'header_overlay_color' );
+	// The per-page field is now a compact preset ({predefined,custom}); resolve
+	// it. An empty/unset value falls back to the global Hero overlay preset.
+	if ( function_exists( 'unysonplus_preset_color_to_css' ) ) {
+		$resolved = unysonplus_preset_color_to_css( $overlay_color );
+		if ( $resolved === '' ) {
+			$resolved = unysonplus_preset_color_to_css( unysonplus_pages_get( 'default_hero_overlay_color', '' ) );
+		}
+		$overlay_color = $resolved;
+	} elseif ( $overlay_color === null || $overlay_color === '' ) {
+		$gc = unysonplus_pages_get( 'default_hero_overlay_color', '' );
+		$overlay_color = is_string( $gc ) ? $gc : '';
+	}
 	$overlay_opacity = (int) fw_get_db_post_option( $pid, 'header_overlay_opacity' );
-	$position        = fw_get_db_post_option( $pid, 'header_content_position' );
-	if ( ! in_array( $position, array( 'top', 'center', 'bottom' ), true ) ) { $position = 'center'; }
+	if ( $overlay_opacity <= 0 ) { $overlay_opacity = (int) unysonplus_pages_get( 'default_hero_overlay_opacity', 0 ); }
+	$position = fw_get_db_post_option( $pid, 'header_content_position' );
+	if ( ! in_array( $position, array( 'top', 'center', 'bottom' ), true ) ) {
+		$position = unysonplus_pages_get( 'default_hero_align', 'center' );
+		if ( ! in_array( $position, array( 'top', 'center', 'bottom' ), true ) ) { $position = 'center'; }
+	}
 
 	return array(
 		'url'             => $url,
@@ -746,7 +1024,11 @@ function unysonplus_build_page_custom_css( $pid ) {
 	$parts = array();
 
 	$bg = fw_get_db_post_option( $pid, 'page_bg_color' );
-	if ( $bg ) {
+	// Compact preset ({predefined,custom}) → CSS color; tolerates a legacy string.
+	if ( function_exists( 'unysonplus_preset_color_to_css' ) ) {
+		$bg = unysonplus_preset_color_to_css( $bg );
+	}
+	if ( is_string( $bg ) && $bg !== '' ) {
 		$parts[] = 'body{--page-bg-color:' . $bg . ';background-color:' . $bg . ';}';
 	}
 

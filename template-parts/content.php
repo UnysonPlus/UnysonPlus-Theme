@@ -18,6 +18,7 @@ $layout       = function_exists( 'unysonplus_blog_current_layout' ) ? unysonplus
 $show_image   = $bp_get( 'blog_featured_image', 'yes' ) !== 'no';
 $ratio        = $bp_get( 'blog_image_ratio', '16-9' );
 $content_type = $bp_get( 'blog_content', 'excerpt' );
+$show_badge   = $bp_get( 'blog_category_badge', 'no' ) === 'yes' && function_exists( 'unysonplus_blog_primary_category' );
 
 $card_class = ( $layout === 'list' ) ? 'post-entry post-entry--list' : 'post-entry post-entry--card';
 $is_builder = function_exists( 'fw_ext_page_builder_is_builder_post' ) && fw_ext_page_builder_is_builder_post( get_the_ID() );
@@ -29,9 +30,12 @@ $is_builder = function_exists( 'fw_ext_page_builder_is_builder_post' ) && fw_ext
 	?>
 
 	<?php if ( $show_image && has_post_thumbnail() && ! post_password_required() ) : ?>
-		<a class="post-thumb post-thumb--ratio-<?php echo esc_attr( $ratio ); ?>" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
-			<?php the_post_thumbnail( 'large', array( 'alt' => the_title_attribute( array( 'echo' => false ) ) ) ); ?>
-		</a>
+		<div class="post-thumb-wrap">
+			<a class="post-thumb post-thumb--ratio-<?php echo esc_attr( $ratio ); ?>" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
+				<?php the_post_thumbnail( 'large', array( 'alt' => the_title_attribute( array( 'echo' => false ) ) ) ); ?>
+			</a>
+			<?php if ( $show_badge ) { echo unysonplus_blog_primary_category(); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in helper */ } ?>
+		</div>
 	<?php endif; ?>
 
 	<div class="post-entry__body">

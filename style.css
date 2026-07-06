@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.2.38
+Version:           2.3.8
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -29,7 +29,7 @@ Tags:           bootstrap, unyson, custom-header, custom-menu, featured-images, 
 	--font-body:          system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 	--font-heading:       inherit;
 
-	--header-bg:          #ffffff;
+	--header-bg:          transparent; /* unset Main Header Background = no fill; set a colour to override */
 	--header-min-height:  80px;
 	--header-sticky-bg:   rgba(255, 255, 255, 0.95);
 	--header-shadow:      0 2px 8px rgba(0, 0, 0, 0.08);
@@ -47,9 +47,16 @@ Tags:           bootstrap, unyson, custom-header, custom-menu, featured-images, 
 
 	--menu-link-color:    var(--color-text);
 	--menu-link-hover:    var(--color-primary);
+	--menu-item-bg:       transparent;
+	--menu-item-hover-bg: rgba(0, 0, 0, 0.05);
 	--menu-link-pad-x:    1rem;
 	--menu-link-pad-y:    0.5rem;
 	--menu-dropdown-bg:   #ffffff;
+	--menu-dropdown-link: var(--color-text);
+	--menu-dropdown-link-hover: var(--menu-link-hover);
+	--menu-dropdown-item-hover-bg: rgba(0, 0, 0, 0.05);
+	--menu-dropdown-width: 220px;
+	--menu-dropdown-radius: var(--radius);
 	--menu-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 
 	--drawer-width:       min(360px, 85vw);
@@ -82,6 +89,10 @@ body.admin-bar { --admin-bar-offset: 32px; }
 
 body {
 	font-family: var(--font-body);
+	/* Body size / rhythm from Typography (revert = keep the UA/Bootstrap default when unset). */
+	font-size: var(--body-font-size, revert);
+	line-height: var(--body-line-height, revert);
+	letter-spacing: var(--body-letter-spacing, revert);
 	color: var(--color-text);
 	background-color: var(--color-bg);
 }
@@ -99,17 +110,57 @@ a:hover, a:focus-visible { color: var(--menu-link-hover); text-decoration: under
    `.entry-content a` would override every classed link (buttons like
    `.toplist-offers__btn`, `.btn`, shortcode links, etc.). Per the clean-DOM
    convention, genuine prose links carry no class, so they still match. */
-.entry-content :is(p, li) a:not([class]) { color: var(--body-link-color, var(--color-primary)); }
-.entry-content :is(p, li) a:not([class]):is(:hover, :focus-visible) { color: var(--body-link-hover, var(--body-link-color, var(--menu-link-hover))); }
+.entry-content :is(p, li) a:not([class]) {
+	color: var(--body-link-color, var(--color-primary));
+	text-decoration: var(--body-link-decoration, none);
+}
+.entry-content :is(p, li) a:not([class]):is(:hover, :focus-visible) {
+	color: var(--body-link-hover, var(--body-link-color, var(--menu-link-hover)));
+	text-decoration: var(--body-link-decoration-hover, underline);
+}
 a.btn:hover, a.btn:focus-visible { text-decoration: none; }
 
+/* Keyboard focus ring — color/width configurable via General → Base (default 2px primary). */
 :focus-visible {
-	outline: 2px solid var(--color-primary);
+	outline: var(--focus-width, 2px) solid var(--focus-color, var(--color-primary));
 	outline-offset: 2px;
 }
 
-/* Heading family */
+/* Text selection (General → Base) — vars unset ⇒ browser default. */
+::selection { background-color: var(--selection-bg); color: var(--selection-color); }
+::-moz-selection { background-color: var(--selection-bg); color: var(--selection-color); }
+
+/* Custom scrollbar (General → Base) — opt-in via body.custom-scrollbar so default
+   scrollbars are untouched unless a Scrollbar Color is set. */
+body.custom-scrollbar { scrollbar-color: var(--scrollbar-color) transparent; scrollbar-width: thin; }
+body.custom-scrollbar ::-webkit-scrollbar { width: var(--scrollbar-width, 10px); height: var(--scrollbar-width, 10px); }
+body.custom-scrollbar ::-webkit-scrollbar-track { background: transparent; }
+body.custom-scrollbar ::-webkit-scrollbar-thumb { background: var(--scrollbar-color); border-radius: 10px; }
+
+/* Responsive container max-widths (General → Layout). Each var unset ⇒ Bootstrap
+   default for that range. `body .container` outranks Bootstrap's `.container`
+   regardless of stylesheet order; `.container-fluid` is intentionally untouched. */
+@media (min-width: 992px) {
+	body .container { max-width: var(--container-max-desktop); }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+	body .container { max-width: var(--container-max-tablet); }
+}
+@media (max-width: 767.98px) {
+	body .container { max-width: var(--container-max-mobile); }
+}
+
+/* Headings — driven by Typography tokens (Preset scale or per-heading overrides).
+   Each property `revert`s to the UA / Bootstrap default when its token is unset, so
+   an untouched install looks exactly as before; the per-heading family falls back to
+   the global --font-heading (Heading Font / preset). */
 h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
+h1 { font-family: var(--h1-font-family, var(--font-heading)); font-size: var(--h1-font-size, revert); line-height: var(--h1-line-height, revert); letter-spacing: var(--h1-letter-spacing, revert); font-weight: var(--h1-font-weight, revert); color: var(--h1-color, revert); }
+h2 { font-family: var(--h2-font-family, var(--font-heading)); font-size: var(--h2-font-size, revert); line-height: var(--h2-line-height, revert); letter-spacing: var(--h2-letter-spacing, revert); font-weight: var(--h2-font-weight, revert); color: var(--h2-color, revert); }
+h3 { font-family: var(--h3-font-family, var(--font-heading)); font-size: var(--h3-font-size, revert); line-height: var(--h3-line-height, revert); letter-spacing: var(--h3-letter-spacing, revert); font-weight: var(--h3-font-weight, revert); color: var(--h3-color, revert); }
+h4 { font-family: var(--h4-font-family, var(--font-heading)); font-size: var(--h4-font-size, revert); line-height: var(--h4-line-height, revert); letter-spacing: var(--h4-letter-spacing, revert); font-weight: var(--h4-font-weight, revert); color: var(--h4-color, revert); }
+h5 { font-family: var(--h5-font-family, var(--font-heading)); font-size: var(--h5-font-size, revert); line-height: var(--h5-line-height, revert); letter-spacing: var(--h5-letter-spacing, revert); font-weight: var(--h5-font-weight, revert); color: var(--h5-color, revert); }
+h6 { font-family: var(--h6-font-family, var(--font-heading)); font-size: var(--h6-font-size, revert); line-height: var(--h6-line-height, revert); letter-spacing: var(--h6-letter-spacing, revert); font-weight: var(--h6-font-weight, revert); color: var(--h6-color, revert); }
 
 /* ========================================================================
    3. WORDPRESS REQUIRED CLASSES
@@ -289,6 +340,116 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 @media (max-width: 991.98px) { .posts-list--masonry.posts-cols-3, .posts-list--masonry.posts-cols-4 { column-count: 2; } }
 @media (max-width: 575.98px) { .posts-list--masonry { column-count: 1 !important; } }
 
+/* Featured-image wrapper (positioning context for the category badge). */
+.post-thumb-wrap { position: relative; }
+.post-cat-badge {
+	position: absolute; top: .75rem; left: .75rem; z-index: 2;
+	display: inline-block; padding: .25rem .625rem;
+	font-size: .72rem; font-weight: 700; letter-spacing: .02em; line-height: 1;
+	color: #fff; text-decoration: none; border-radius: 999px;
+	background: var(--color-primary, #0d6efd);
+	box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .18);
+}
+.post-cat-badge:hover { filter: brightness(1.08); color: #fff; }
+
+/* ---- Image hover modes (default is zoom, set in .post-thumb above) ------ */
+.posts-list--hover-none .post-thumb:hover img { transform: none; }
+.posts-list--hover-lift .post-thumb:hover img { transform: none; }
+.posts-list--hover-lift .post-entry { transition: transform .3s var(--ease-out, ease), box-shadow .3s var(--ease-out, ease); }
+.posts-list--hover-lift .post-entry:hover { transform: translateY(-.375rem); }
+
+/* ---- Card styles --------------------------------------------------------- */
+.posts-list--card-boxed .post-entry,
+.posts-list--card-bordered .post-entry {
+	border-radius: var(--post-card-radius, var(--radius-lg, 14px));
+	overflow: hidden;
+	box-sizing: border-box;
+	position: relative;
+}
+.posts-list--card-boxed .post-entry {
+	background: var(--color-surface, #fff);
+	box-shadow: var(--post-card-shadow, 0 .25rem 1.25rem rgba(0, 0, 0, .07));
+}
+.posts-list--card-bordered .post-entry { border: 1px solid var(--color-border, rgba(0, 0, 0, .1)); }
+.posts-list--card-boxed .post-entry__body,
+.posts-list--card-bordered .post-entry__body { padding: var(--post-card-pad, 1.25rem 1.375rem 1.5rem); }
+
+/* Card Design: accent border drawn on hover (radius/shadow/padding come from the
+   --post-card-* custom properties emitted on the wrapper by inc/includes/blog.php). */
+.posts-list--card-accent .post-entry::before {
+	content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 3;
+	background: var(--color-primary, #0d6efd);
+	transform: scaleX(0); transform-origin: left center;
+	transition: transform .3s var(--ease-out, ease);
+}
+.posts-list--card-accent .post-entry:hover::before { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+	.posts-list--card-accent .post-entry::before { transition: none; }
+}
+.posts-list--card-boxed.posts-list--list .post-entry--list,
+.posts-list--card-bordered.posts-list--list .post-entry--list { gap: 0; }
+.posts-list--card-boxed.posts-list--hover-lift .post-entry:hover,
+.posts-list--card-bordered.posts-list--hover-lift .post-entry:hover { box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .12); }
+
+/* Overlay card: content sits over the image with a gradient scrim. */
+.posts-list--card-overlay .post-entry {
+	position: relative; border-radius: var(--radius-lg, 14px); overflow: hidden;
+	display: flex; align-items: flex-end; min-height: 20rem;
+}
+.posts-list--card-overlay .post-thumb-wrap { position: absolute; inset: 0; }
+.posts-list--card-overlay .post-thumb,
+.posts-list--card-overlay .post-thumb--ratio-16-9,
+.posts-list--card-overlay .post-thumb--ratio-4-3,
+.posts-list--card-overlay .post-thumb--ratio-1-1 { aspect-ratio: auto; height: 100%; border-radius: 0; }
+.posts-list--card-overlay .post-thumb img { height: 100%; }
+.posts-list--card-overlay .post-entry::after {
+	content: ""; position: absolute; inset: 0; z-index: 1;
+	background: linear-gradient(to top, rgba(0, 0, 0, .82) 0%, rgba(0, 0, 0, .35) 45%, rgba(0, 0, 0, 0) 75%);
+}
+.posts-list--card-overlay .post-entry__body { position: relative; z-index: 2; padding: 1.5rem; color: #fff; }
+.posts-list--card-overlay .entry-title a,
+.posts-list--card-overlay .entry-meta,
+.posts-list--card-overlay .entry-meta a,
+.posts-list--card-overlay .entry-summary { color: #fff; }
+.posts-list--card-overlay .entry-summary { opacity: .9; }
+
+/* ---- Meta above the title ------------------------------------------------ */
+.posts-list--meta-above .entry-header { display: flex; flex-direction: column; }
+.posts-list--meta-above .entry-header .entry-meta { order: -1; margin-top: 0; margin-bottom: .35rem; }
+
+/* ---- Sticky highlight ---------------------------------------------------- */
+.posts-list--sticky-hl .post-entry.sticky {
+	background: var(--color-section-alt, #f7f9ff);
+	border-radius: var(--radius-lg, 14px);
+	box-shadow: inset 0 0 0 1px var(--color-primary, #0d6efd);
+}
+.posts-list--sticky-hl.posts-list--card-boxed .post-entry.sticky,
+.posts-list--sticky-hl.posts-list--card-bordered .post-entry.sticky { box-shadow: inset 0 0 0 2px var(--color-primary, #0d6efd); }
+
+/* ---- Feature the first post (grid / masonry, page 1) --------------------- */
+@media (min-width: 768px) {
+	.posts-list--first-featured.posts-list--grid > .post-entry:first-child { grid-column: 1 / -1; }
+	.posts-list--first-featured.posts-list--grid > .post-entry:first-child.post-entry--card { display: grid; grid-template-columns: minmax(0, 55%) 1fr; gap: 0; align-items: stretch; }
+	.posts-list--first-featured.posts-list--card-boxed .post-entry:first-child .post-entry__body,
+	.posts-list--first-featured.posts-list--card-bordered .post-entry:first-child .post-entry__body { align-self: center; }
+	.posts-list--first-featured .post-entry:first-child .entry-title { font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
+}
+
+/* ---- Load More ----------------------------------------------------------- */
+.posts-loadmore { display: flex; justify-content: center; margin-top: clamp(2rem, 4vw, 3rem); }
+.posts-loadmore__btn { min-width: 12rem; text-align: center; }
+.posts-loadmore.is-loading .posts-loadmore__btn { opacity: .6; pointer-events: none; }
+.posts-loadmore.is-loading .posts-loadmore__btn::after {
+	content: ""; display: inline-block; width: .85em; height: .85em; margin-left: .5em;
+	vertical-align: -.1em; border: 2px solid currentColor; border-right-color: transparent;
+	border-radius: 50%; animation: upw-spin .6s linear infinite;
+}
+@keyframes upw-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+	.posts-loadmore.is-loading .posts-loadmore__btn::after { animation-duration: 1.4s; }
+	.posts-list--hover-lift .post-entry { transition: none; }
+}
+
 /* ========================================================================
    SINGLE POST — Theme Settings → Blog → Single Post (inc/includes/blog.php).
    ======================================================================== */
@@ -321,6 +482,86 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .post-navigation .nav-next { text-align: right; margin-left: auto; }
 .post-navigation .nav-label { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--color-muted, #6c757d); }
 .post-navigation .nav-title { font-weight: 600; }
+
+/* ---- Related-posts styles (grid / list / carousel) ---------------------- */
+.related-posts--list .related-posts__grid { display: block; }
+.related-posts--list .related-post { display: grid; grid-template-columns: minmax(0, 30%) 1fr; gap: 1.25rem; align-items: center; padding: .9rem 0; border-bottom: 1px solid var(--color-border, #eee); }
+.related-posts--list .related-post .post-thumb { margin: 0; }
+.related-posts--carousel .related-posts__grid {
+	display: grid; grid-auto-flow: column; grid-auto-columns: minmax(15rem, 1fr);
+	gap: clamp(1rem, 2vw, 1.5rem); overflow-x: auto; scroll-snap-type: x mandatory;
+	padding-bottom: .5rem; scrollbar-width: thin;
+}
+.related-posts--carousel .related-post { scroll-snap-align: start; }
+
+/* ---- Single hero header ------------------------------------------------- */
+.single-hero {
+	position: relative; display: flex; background-size: cover; background-position: center;
+	margin-bottom: clamp(1.75rem, 4vw, 3rem); border-radius: var(--radius-lg, 14px); overflow: hidden;
+}
+.single-hero--small      { min-height: 300px; }
+.single-hero--medium     { min-height: 440px; }
+.single-hero--large      { min-height: 600px; }
+.single-hero--fullscreen { min-height: 100vh; }
+.single-hero--align-top    { align-items: flex-start; }
+.single-hero--align-center { align-items: center; }
+.single-hero--align-bottom { align-items: flex-end; }
+.single-hero__overlay { position: absolute; inset: 0; z-index: 1; }
+.single-hero__inner { position: relative; z-index: 2; width: 100%; padding: clamp(1.75rem, 4vw, 3rem); color: #fff; }
+.single-hero__title { color: #fff; margin: 0 0 .5rem; text-wrap: balance; }
+.single-hero__inner .entry-meta,
+.single-hero__inner .entry-meta a { color: rgba(255, 255, 255, .9); }
+.single-hero__inner .single-breadcrumbs,
+.single-hero__inner .single-breadcrumbs a { color: rgba(255, 255, 255, .85); }
+
+/* ---- Breadcrumbs -------------------------------------------------------- */
+.single-breadcrumbs { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; font-size: .8125rem; color: var(--color-muted, #6c757d); margin-bottom: .75rem; }
+.single-breadcrumbs a { color: inherit; text-decoration: none; }
+.single-breadcrumbs a:hover { color: var(--color-primary, #0d6efd); }
+.single-breadcrumbs .crumb-sep { opacity: .5; }
+.single-breadcrumbs .is-current { color: inherit; opacity: .8; }
+
+/* ---- Reading progress bar ---------------------------------------------- */
+.reading-progress { position: fixed; top: var(--admin-bar-offset, 0px); left: 0; right: 0; height: 3px; z-index: 1040; background: transparent; pointer-events: none; }
+.reading-progress__fill { display: block; height: 100%; width: 0; background: var(--color-primary, #0d6efd); transition: width .1s linear; }
+
+/* ---- Table of contents -------------------------------------------------- */
+.post-toc {
+	margin: 0 0 2rem; padding: 1.1rem 1.35rem; border-radius: var(--radius-md, 10px);
+	background: var(--color-section-alt, #f7f9ff); border: 1px solid var(--color-border, rgba(0, 0, 0, .07));
+}
+.post-toc__title { margin: 0 0 .6rem; font-weight: 700; font-size: .95rem; }
+.post-toc__list { margin: 0; padding: 0; list-style: none; }
+.post-toc__item { margin: .3rem 0; line-height: 1.4; }
+.post-toc__item--h3 { padding-left: 1rem; font-size: .925rem; }
+.post-toc__item a { color: var(--color-body, inherit); text-decoration: none; }
+.post-toc__item a:hover { color: var(--color-primary, #0d6efd); text-decoration: underline; }
+
+/* ---- Share buttons ------------------------------------------------------ */
+.post-share { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 1.5rem 0; }
+.post-share__label { font-weight: 700; font-size: .85rem; margin-right: .25rem; }
+.post-share__btn {
+	display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .8rem;
+	font-size: .8125rem; font-weight: 600; line-height: 1; border-radius: 999px; cursor: pointer;
+	text-decoration: none; border: 1px solid var(--color-border, rgba(0, 0, 0, .12));
+	background: var(--color-surface, #fff); color: var(--color-body, inherit); transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.post-share__btn:hover { background: var(--color-primary, #0d6efd); border-color: var(--color-primary, #0d6efd); color: #fff; }
+.post-share__btn.is-copied { background: var(--color-success, #1a9c5b); border-color: var(--color-success, #1a9c5b); color: #fff; }
+
+/* ---- Tag row ------------------------------------------------------------ */
+.post-tags { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.75rem 0; }
+.post-tag {
+	display: inline-block; padding: .3rem .7rem; font-size: .8rem; font-weight: 600; line-height: 1;
+	text-decoration: none; border-radius: 999px; color: var(--color-muted, #555);
+	background: var(--color-section-alt, #f1f3f5); transition: background .15s ease, color .15s ease;
+}
+.post-tag:hover { background: var(--color-primary, #0d6efd); color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+	.reading-progress__fill { transition: none; }
+	.related-posts--carousel .related-posts__grid { scroll-behavior: auto; }
+}
 
 /* ========================================================================
    ARCHIVES & SEARCH — Theme Settings → Blog → Archives & Search.
@@ -367,19 +608,26 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .header-topbar a { color: inherit; }
 .header-topbar a:hover { opacity: 0.85; }
 
+/* Three zones via flexbox (robust — no grid justify-self quirks). The side columns
+   grow and pin their content to the OUTER edges; the center takes only its content
+   width and sits in the middle. An empty side still grows (so left + right stay at
+   the edges); an empty center collapses. All three columns are always rendered — the
+   empty center is what lets a lone Center column self-center. */
 .header-topbar .header-row {
-	display: grid;
-	grid-template-columns: 1fr auto 1fr;
-	align-items: center;
+	display: flex;
+	align-items: var(--header-valign, center);
 	gap: 1rem;
 }
-.header-topbar .header-col--start  { justify-self: start;  min-width: 0; }
-.header-topbar .header-col--center { justify-self: center; min-width: 0; }
-.header-topbar .header-col--end    { justify-self: end;    min-width: 0; }
+.header-topbar .header-col--start  { flex: 1 1 0;    justify-content: flex-start; min-width: 0; }
+.header-topbar .header-col--center { flex: 0 1 auto; justify-content: center;     min-width: 0; }
+.header-topbar .header-col--end    { flex: 1 1 0;    justify-content: flex-end;   min-width: 0; }
 
 @media (max-width: 767.98px) {
-	.header-topbar .header-row { grid-template-columns: 1fr; gap: 0.25rem; text-align: center; }
-	.header-topbar .header-col { justify-self: center; }
+	.header-topbar .header-row { flex-direction: column; gap: 0.25rem; text-align: center; }
+	.header-topbar .header-col { flex: 0 0 auto; justify-content: center; }
+	/* Hide Top / Bottom Bar on Mobile (Header → Layout → Mobile). */
+	.site-header.header-hide-topbar-m    .header-topbar    { display: none; }
+	.site-header.header-hide-bottombar-m .header-bottombar { display: none; }
 }
 
 /* --- Main header --- */
@@ -393,17 +641,100 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 
 .header-main .header-row {
 	display: flex;
-	align-items: center;
+	align-items: var(--header-valign, center);
 	gap: 1rem;
 	min-height: var(--header-min-height);
 }
-.header-col { display: flex; align-items: center; gap: 1rem; min-width: 0; }
-.header-col--start  { flex-shrink: 0; }
-.header-col--center { display: none; flex: 1 1 auto; justify-content: center; }  /* shown on lg+ via media query below */
-.header-col--end    { margin-left: auto; gap: 0.75rem; }
+/* --header-valign / --header-element-gap come from Header → Layout (Vertical
+   Alignment / Element Gap); unset = the centred defaults below. */
+.header-col { display: flex; align-items: var(--header-valign, center); gap: var(--header-element-gap, 1rem); min-width: 0; }
+/* These belong to the MAIN header's flex row only — scoped to .header-main so they
+   don't leak into the Top Bar / Bottom Bar grids (where margin-left:auto on --end
+   was overriding the grid's justify-self:end, pulling the right column inward). */
+.header-main .header-col--start  { flex-shrink: 0; }
+.header-main .header-col--center { display: none; flex: 1 1 auto; justify-content: center; }  /* shown on lg+ via media query below */
+.header-main .header-col--end    { margin-left: auto; gap: var(--header-element-gap, 0.75rem); }
 @media (min-width: 992px) {
-	.header-col--center { display: flex; }
+	.header-main .header-col--center { display: flex; }
 }
+
+/* ========================================================================
+   Social icons (Social tab → Social Icon Style). The renderer adds
+   .social-style-<shape> + .social-fx-<fx> + .social-brand on the wrapper;
+   size/gap/colors come from the --social-* vars (theme-vars.php). Shared by
+   the header Social Icons element and the footer. Every default is a no-op so
+   an unstyled set (style = Bare, no colors) renders as plain inline glyphs.
+   ======================================================================== */
+.header-social-icons {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--social-gap, 0.5rem);
+}
+.header-social-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--social-icon-color, currentColor);
+	text-decoration: none;
+	line-height: 1;
+	transition: color var(--transition-fast), background-color var(--transition-fast),
+		border-color var(--transition-fast), transform var(--transition-fast), filter var(--transition-fast);
+}
+.header-social-icon:hover { color: var(--social-icon-hover-color, var(--social-icon-color, currentColor)); }
+.header-social-icon i { line-height: 1; }
+
+/* Bare — glyph only, sized by --social-size (defaults to a sensible glyph size). */
+.social-style-bare .header-social-icon i,
+.social-style-bare .header-social-icon__label { font-size: var(--social-size, 1.25rem); }
+
+/* Chip shapes — a fixed square box; the glyph is ~half the box. */
+.social-style-circle .header-social-icon,
+.social-style-circle-outline .header-social-icon,
+.social-style-rounded .header-social-icon,
+.social-style-square .header-social-icon,
+.social-style-square-outline .header-social-icon {
+	width: var(--social-size, 2.25rem);
+	height: var(--social-size, 2.25rem);
+}
+.social-style-circle .header-social-icon i,
+.social-style-circle-outline .header-social-icon i,
+.social-style-rounded .header-social-icon i,
+.social-style-square .header-social-icon i,
+.social-style-square-outline .header-social-icon i { font-size: calc(var(--social-size, 2.25rem) * 0.46); }
+
+.social-style-circle .header-social-icon,
+.social-style-circle-outline .header-social-icon { border-radius: 50%; }
+.social-style-rounded .header-social-icon { border-radius: var(--radius, 0.375rem); }
+
+/* Filled chips */
+.social-style-circle .header-social-icon,
+.social-style-rounded .header-social-icon,
+.social-style-square .header-social-icon { background-color: var(--social-icon-bg, rgba(0, 0, 0, 0.06)); }
+/* Outline chips */
+.social-style-circle-outline .header-social-icon,
+.social-style-square-outline .header-social-icon { border: 1px solid currentColor; background-color: transparent; }
+
+/* Hover background for any chip style */
+.social-style-circle .header-social-icon:hover,
+.social-style-circle-outline .header-social-icon:hover,
+.social-style-rounded .header-social-icon:hover,
+.social-style-square .header-social-icon:hover,
+.social-style-square-outline .header-social-icon:hover {
+	background-color: var(--social-icon-hover-bg, var(--social-icon-bg, rgba(0, 0, 0, 0.06)));
+}
+
+/* Hover effects */
+.social-fx-lift  .header-social-icon:hover { transform: translateY(-2px); }
+.social-fx-scale .header-social-icon:hover { transform: scale(1.12); }
+.social-fx-fill  .header-social-icon:hover { background-color: var(--social-icon-hover-bg, var(--color-primary)); color: #fff; }
+
+/* Brand colors — each icon uses its network's --social-brand (set inline). */
+.social-brand .header-social-icon { background-color: var(--social-brand, var(--social-icon-bg, rgba(0, 0, 0, 0.06))); color: #fff; }
+.social-brand.social-style-circle-outline .header-social-icon,
+.social-brand.social-style-square-outline .header-social-icon { background-color: transparent; border-color: var(--social-brand, currentColor); color: var(--social-brand, currentColor); }
+.social-brand.social-style-bare .header-social-icon { background: none; color: var(--social-brand, currentColor); }
+.social-brand .header-social-icon:hover { filter: brightness(1.12); }
 
 /* --- Brand / logo --- */
 .site-title,
@@ -442,13 +773,23 @@ body.unyson.page-builder .site-content { padding-block: 0; }
    never hidden with nothing to replace it. Sticky swap fires when theme.js adds
    .sticky to #masthead; the mobile swap takes over below 768px. */
 .site-logo--sticky,
-.site-logo--mobile { display: none; }
+.site-logo--mobile,
+.site-logo--transparent { display: none; }
 #masthead.sticky .has-sticky-logo .site-logo--default { display: none; }
 #masthead.sticky .has-sticky-logo .site-logo--sticky { display: block; }
+/* Transparent-header logo: shown while the header is transparent AND not yet stuck
+   (Behavior = Transparent, or a per-page Transparent header). Once stuck it repaints
+   solid, so the default / sticky logo takes back over. */
+.site-header--transparent:not(.is-stuck) .has-transparent-logo .site-logo--default,
+body.transparent .site-header:not(.is-stuck) .has-transparent-logo .site-logo--default { display: none; }
+.site-header--transparent:not(.is-stuck) .has-transparent-logo .site-logo--transparent,
+body.transparent .site-header:not(.is-stuck) .has-transparent-logo .site-logo--transparent { display: block; }
 @media (max-width: 767.98px) {
 	.has-mobile-logo .site-logo--mobile { display: block; }
 	.has-mobile-logo .site-logo--default { display: none; }
 	#masthead.sticky .has-mobile-logo .site-logo--sticky { display: none; }
+	/* Mobile logo wins over the transparent variant on small screens. */
+	.has-mobile-logo .site-logo--transparent { display: none; }
 }
 
 /* --- Primary navigation (renders inline inside a header slot) --- */
@@ -468,9 +809,10 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 	align-items: center;
 	padding: var(--menu-link-pad-y) var(--menu-link-pad-x);
 	color: var(--menu-link-color);
+	background-color: var(--menu-item-bg, transparent);
 	font-weight: 500;
 	border-radius: var(--radius);
-	transition: color var(--transition-fast), background-color var(--transition-fast);
+	transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .primary-menu .menu-item > a:hover,
 .primary-menu .menu-item > a:focus-visible,
@@ -478,8 +820,96 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .primary-menu .current-menu-ancestor > a {
 	color: var(--menu-link-hover);
 	text-decoration: none;
-	background-color: rgba(0, 0, 0, 0.04);
 }
+
+/* ============================================================
+   Menu item styles (Header → Menu → Menu Item Style)
+   A body.menu-style-<name> class (see unysonplus_layout_body_classes) selects the
+   hover / current-page treatment applied to TOP-LEVEL primary-menu items. The
+   fills (pill / box / highlight) use --menu-item-hover-bg; underline + the bars
+   use --menu-link-hover as the accent. 'none' needs no rule (base color only).
+   ============================================================ */
+
+/* Relative positioning for the ::before treatments (underline-grow + bars). */
+body.menu-style-underline-grow .primary-menu > .menu-item > a,
+body.menu-style-bottom-bar     .primary-menu > .menu-item > a,
+body.menu-style-top-bar        .primary-menu > .menu-item > a { position: relative; }
+
+/* Underline (animated) — a bar grows in from the center. */
+body.menu-style-underline-grow .primary-menu > .menu-item > a::before {
+	content: "";
+	position: absolute;
+	left: var(--menu-link-pad-x);
+	right: var(--menu-link-pad-x);
+	bottom: 0.25rem;
+	height: 2px;
+	background-color: var(--menu-link-hover);
+	transform: scaleX(0);
+	transform-origin: center;
+	transition: transform var(--transition-fast);
+}
+body.menu-style-underline-grow .primary-menu > .menu-item > a:hover::before,
+body.menu-style-underline-grow .primary-menu > .menu-item > a:focus-visible::before,
+body.menu-style-underline-grow .primary-menu > .current-menu-item > a::before,
+body.menu-style-underline-grow .primary-menu > .current-menu-ancestor > a::before { transform: scaleX(1); }
+
+/* Underline (static) — a simple rule appears on hover / current. */
+body.menu-style-underline .primary-menu > .menu-item > a:hover,
+body.menu-style-underline .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-underline .primary-menu > .current-menu-item > a,
+body.menu-style-underline .primary-menu > .current-menu-ancestor > a {
+	box-shadow: inset 0 -2px 0 var(--menu-link-hover);
+}
+
+/* Pill / Box / Highlight — filled background from --menu-item-hover-bg. */
+body.menu-style-pill .primary-menu > .menu-item > a { border-radius: 999px; }
+body.menu-style-pill      .primary-menu > .menu-item > a:hover,
+body.menu-style-pill      .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-pill      .primary-menu > .current-menu-item > a,
+body.menu-style-pill      .primary-menu > .current-menu-ancestor > a,
+body.menu-style-box       .primary-menu > .menu-item > a:hover,
+body.menu-style-box       .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-box       .primary-menu > .current-menu-item > a,
+body.menu-style-box       .primary-menu > .current-menu-ancestor > a,
+body.menu-style-highlight .primary-menu > .menu-item > a:hover,
+body.menu-style-highlight .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-highlight .primary-menu > .current-menu-item > a,
+body.menu-style-highlight .primary-menu > .current-menu-ancestor > a {
+	background-color: var(--menu-item-hover-bg);
+}
+
+/* Outline — a bordered box on hover / current. */
+body.menu-style-outline .primary-menu > .menu-item > a { border: 1px solid transparent; }
+body.menu-style-outline .primary-menu > .menu-item > a:hover,
+body.menu-style-outline .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-outline .primary-menu > .current-menu-item > a,
+body.menu-style-outline .primary-menu > .current-menu-ancestor > a {
+	border-color: var(--menu-link-hover);
+	background-color: transparent;
+}
+
+/* Bottom / Top accent bar — a thick rule flush to one edge. */
+body.menu-style-bottom-bar .primary-menu > .menu-item > a::before,
+body.menu-style-top-bar    .primary-menu > .menu-item > a::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background-color: var(--menu-link-hover);
+	transform: scaleX(0);
+	transition: transform var(--transition-fast);
+}
+body.menu-style-bottom-bar .primary-menu > .menu-item > a::before { bottom: 0; }
+body.menu-style-top-bar    .primary-menu > .menu-item > a::before { top: 0; }
+body.menu-style-bottom-bar .primary-menu > .menu-item > a:hover::before,
+body.menu-style-bottom-bar .primary-menu > .menu-item > a:focus-visible::before,
+body.menu-style-bottom-bar .primary-menu > .current-menu-item > a::before,
+body.menu-style-bottom-bar .primary-menu > .current-menu-ancestor > a::before,
+body.menu-style-top-bar .primary-menu > .menu-item > a:hover::before,
+body.menu-style-top-bar .primary-menu > .menu-item > a:focus-visible::before,
+body.menu-style-top-bar .primary-menu > .current-menu-item > a::before,
+body.menu-style-top-bar .primary-menu > .current-menu-ancestor > a::before { transform: scaleX(1); }
 
 /* Dropdowns */
 .primary-menu .menu-item-has-children > a { padding-right: 2rem; position: relative; }
@@ -502,10 +932,10 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 	position: absolute;
 	top: 100%;
 	left: 0;
-	min-width: 220px;
+	min-width: var(--menu-dropdown-width, 220px);
 	background-color: var(--menu-dropdown-bg);
 	box-shadow: var(--menu-dropdown-shadow);
-	border-radius: var(--radius);
+	border-radius: var(--menu-dropdown-radius, var(--radius));
 	opacity: 0;
 	visibility: hidden;
 	transform: translateY(0.25rem);
@@ -522,12 +952,46 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .primary-menu .sub-menu .menu-item > a {
 	display: block;
 	padding: 0.5rem 1rem;
-	color: var(--color-text);
+	color: var(--menu-dropdown-link, var(--color-text));
 	border-radius: 0;
+	transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+.primary-menu .sub-menu .menu-item > a:hover,
+.primary-menu .sub-menu .menu-item > a:focus-visible,
+.primary-menu .sub-menu .current-menu-item > a,
+.primary-menu .sub-menu .current-menu-ancestor > a {
+	color: var(--menu-dropdown-link-hover, var(--menu-link-hover));
+	background-color: var(--menu-dropdown-item-hover-bg, rgba(0, 0, 0, 0.05));
+	text-decoration: none;
 }
 .primary-menu .sub-menu .sub-menu {
 	top: 0;
 	left: 100%;
+}
+
+/* ============================================================
+   Dropdown designs (Header → Menu → Dropdown → Dropdown Design)
+   Overall submenu-panel treatment; body.dropdown-style-<name> (see
+   unysonplus_layout_body_classes) keys off the value. 'classic' is the base
+   rule above. The drawer's inline accordion resets these (see below), so a
+   design never leaks into the mobile menu.
+   ============================================================ */
+body.dropdown-style-elevated .primary-menu .sub-menu {
+	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+	border: 0;
+}
+body.dropdown-style-bordered .primary-menu .sub-menu {
+	box-shadow: none;
+	border: 1px solid var(--color-border);
+}
+body.dropdown-style-minimal .primary-menu .sub-menu {
+	box-shadow: none;
+	border: 0;
+}
+body.dropdown-style-top-accent .primary-menu .sub-menu {
+	border-top: 3px solid var(--menu-link-hover);
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 
 /* --- Mobile menu toggle (hidden on lg+ by default; layout modes override) --- */
@@ -591,6 +1055,16 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .primary-navigation-drawer.is-open .primary-navigation-drawer__scrim { opacity: 1; }
 .primary-navigation-drawer.is-open .primary-navigation-drawer__panel { transform: translateX(0); }
 
+/* Mobile Menu Side = Left (Header → Layout → Mobile). The side drawer slides in
+   from the left instead of the right. */
+.primary-navigation-drawer--left .primary-navigation-drawer__panel {
+	right: auto;
+	left: 0;
+	transform: translateX(-100%);
+	box-shadow: 2px 0 16px rgba(0, 0, 0, 0.15);
+}
+.primary-navigation-drawer--left.is-open .primary-navigation-drawer__panel { transform: translateX(0); }
+
 .primary-navigation-drawer__close {
 	position: absolute;
 	top: 0.75rem;
@@ -638,6 +1112,8 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 	visibility: visible;
 	transform: none;
 	box-shadow: none;
+	border: 0;
+	border-radius: 0;
 	background-color: transparent;
 	padding: 0 0 0 1rem;
 	max-height: 0;
@@ -1100,7 +1576,7 @@ body.menu-drawer-open { overflow: hidden; }
 	--color-muted:        #adb5bd;
 	--color-border:       rgba(255, 255, 255, 0.12);
 
-	--header-bg:          #212529;
+	--header-bg:          transparent; /* unset = no fill (shows the dark page behind); a set colour overrides */
 	--header-sticky-bg:   rgba(33, 37, 41, 0.95);
 	--header-shadow:      0 2px 8px rgba(0, 0, 0, 0.4);
 
@@ -1376,22 +1852,42 @@ body.sidebar-left  .with-sidebar.has-sidebar {
    When sidebar-left is active, flip the visual order. */
 body.sidebar-left .with-sidebar.has-sidebar > .sidebar { order: -1; }
 
-/* Mobile: stack regardless of choice. */
+/* Stacking (General → Sidebar → Responsive & Sticky). The layout stacks at the
+   chosen breakpoint — body.sidebar-collapse-lg (992px, default) or -md (768px).
+   sidebar-mobile-above flips the sidebar above content; sidebar-hide-mobile drops it. */
 @media (max-width: 991.98px) {
-	.with-sidebar.has-sidebar {
+	body.sidebar-collapse-lg .with-sidebar.has-sidebar {
 		grid-template-columns: minmax(0, 1fr) !important;
 	}
-	.with-sidebar.has-sidebar > .sidebar { order: 0; margin-top: 2rem; }
+	body.sidebar-collapse-lg .with-sidebar.has-sidebar > .sidebar { order: 0; margin-top: 2rem; }
+	body.sidebar-collapse-lg.sidebar-mobile-above .with-sidebar.has-sidebar > .sidebar { order: -1; margin-top: 0; margin-bottom: 2rem; }
+	body.sidebar-collapse-lg.sidebar-hide-mobile .with-sidebar.has-sidebar > .sidebar { display: none; }
+}
+@media (max-width: 767.98px) {
+	body.sidebar-collapse-md .with-sidebar.has-sidebar {
+		grid-template-columns: minmax(0, 1fr) !important;
+	}
+	body.sidebar-collapse-md .with-sidebar.has-sidebar > .sidebar { order: 0; margin-top: 2rem; }
+	body.sidebar-collapse-md.sidebar-mobile-above .with-sidebar.has-sidebar > .sidebar { order: -1; margin-top: 0; margin-bottom: 2rem; }
+	body.sidebar-collapse-md.sidebar-hide-mobile .with-sidebar.has-sidebar > .sidebar { display: none; }
 }
 
-/* Sidebar visual baseline */
+/* Sidebar visual baseline. Styling vars (bg/padding/border/radius, widget spacing +
+   title) come from General → Sidebar → Styling (theme-vars.php); each defaults to a
+   no-op so an unstyled sidebar looks exactly as before. */
 .sidebar {
 	min-width: 0; /* lets grid track shrink */
+	background-color: var(--sidebar-bg, transparent);
+	padding: var(--sidebar-padding, 0);
+	border: var(--sidebar-border-width, 0) solid var(--sidebar-border-color, var(--color-border));
+	border-radius: var(--sidebar-radius, 0);
 }
-.sidebar .widget + .widget { margin-top: 1.5rem; }
+.sidebar .widget + .widget { margin-top: var(--widget-spacing, 1.5rem); }
 .sidebar .widget-title {
-	font-size: 1rem;
-	font-weight: 600;
+	font-size: var(--widget-title-size, 1rem);
+	font-weight: var(--widget-title-weight, 600);
+	text-transform: var(--widget-title-transform, none);
+	color: var(--widget-title-color, inherit);
 	margin: 0 0 0.75rem;
 	letter-spacing: 0.02em;
 }
@@ -1406,216 +1902,13 @@ body.sidebar-left .with-sidebar.has-sidebar > .sidebar { order: -1; }
 }
 .sidebar .widget ul li:last-child { border-bottom: 0; }
 
+
 /* ========================================================================
-   14. ALTERNATE HEADER LAYOUTS  (Phase 6)
-   Body classes: layout-top (default) / layout-vertical-left / layout-vertical-right /
-                 layout-off-canvas-only / layout-overlay
-   Mobile collapse: below 992px viewport, all non-top modes revert to top behavior.
+   14. ALTERNATE HEADER LAYOUTS — moved to per-mode stylesheets
+   assets/css/header/modes/{vertical,off-canvas,overlay-panel,overlay-radial}.css,
+   loaded only for the active mode by inc/static.php. The shared drawer base
+   (mobile menu) stays above; only mode-specific rules moved out.
    ======================================================================== */
-
-/* ---------- A. Vertical layouts (side rail) ---------- */
-@media (min-width: 992px) {
-	body.layout-vertical-left  .site,
-	body.layout-vertical-right .site {
-		display: grid;
-		grid-template-rows: auto minmax(0, 1fr) auto;
-	}
-	body.layout-vertical-left .site {
-		grid-template-columns: var(--vertical-header-width) minmax(0, 1fr);
-		grid-template-areas:
-			"header content"
-			"header content"
-			"header footer";
-	}
-	body.layout-vertical-right .site {
-		grid-template-columns: minmax(0, 1fr) var(--vertical-header-width);
-		grid-template-areas:
-			"content header"
-			"content header"
-			"footer  header";
-	}
-	body.layout-vertical-left .site > #masthead,
-	body.layout-vertical-right .site > #masthead { grid-area: header; }
-	body.layout-vertical-left .site > #content,
-	body.layout-vertical-right .site > #content { grid-area: content; }
-	body.layout-vertical-left .site > #colophon,
-	body.layout-vertical-right .site > #colophon { grid-area: footer; }
-
-	/* Skip-link sits in the .site grid; pull it out of flow so it doesn't claim a cell. */
-	body.layout-vertical-left .site > .skip-link,
-	body.layout-vertical-right .site > .skip-link { position: absolute; }
-
-	/* Side-rail header: fixed full height, scrollable if menu is long */
-	body.layout-vertical-left .site-header,
-	body.layout-vertical-right .site-header {
-		position: sticky;
-		top: var(--admin-bar-offset);
-		align-self: start;
-		height: calc(100vh - var(--admin-bar-offset));
-		overflow-y: auto;
-		min-height: 0;
-	}
-	body.layout-vertical-left  .site-header { border-right: 1px solid var(--color-border); }
-	body.layout-vertical-right .site-header { border-left:  1px solid var(--color-border); }
-
-	/* Reflow header internals: stack slots vertically */
-	body.layout-vertical-left  .site-header .header-main,
-	body.layout-vertical-right .site-header .header-main {
-		min-height: 100vh;
-		display: flex;
-		flex-direction: column;
-		padding: 1.5rem 1.25rem;
-		align-items: stretch;
-	}
-	body.layout-vertical-left  .site-header .header-main > .container,
-	body.layout-vertical-right .site-header .header-main > .container,
-	body.layout-vertical-left  .site-header .header-main > .container-fluid,
-	body.layout-vertical-right .site-header .header-main > .container-fluid {
-		width: 100%;
-		max-width: 100%;
-		padding-left: 0;
-		padding-right: 0;
-		flex: 1 1 auto;
-		display: flex;
-		flex-direction: column;
-	}
-	body.layout-vertical-left  .site-header .header-row,
-	body.layout-vertical-right .site-header .header-row {
-		flex-direction: column;
-		align-items: stretch;
-		gap: 1.5rem;
-		min-height: 0;
-		flex: 1 1 auto;
-	}
-	body.layout-vertical-left  .header-col,
-	body.layout-vertical-right .header-col {
-		flex-direction: column;
-		align-items: stretch;
-		gap: 0.5rem;
-		margin-left: 0;
-	}
-	body.layout-vertical-left  .header-col--center,
-	body.layout-vertical-right .header-col--center { display: flex; flex: 1 1 auto; }
-	body.layout-vertical-left  .header-col--end,
-	body.layout-vertical-right .header-col--end { margin-top: auto; }
-
-	/* Primary menu becomes a vertical list inside the rail */
-	body.layout-vertical-left  .primary-navigation,
-	body.layout-vertical-right .primary-navigation { display: block; width: 100%; }
-	body.layout-vertical-left  .primary-menu,
-	body.layout-vertical-right .primary-menu {
-		flex-direction: column;
-		align-items: stretch;
-		gap: 0.125rem;
-	}
-	body.layout-vertical-left  .primary-menu .menu-item,
-	body.layout-vertical-right .primary-menu .menu-item { width: 100%; }
-	body.layout-vertical-left  .primary-menu .menu-item > a,
-	body.layout-vertical-right .primary-menu .menu-item > a {
-		display: block;
-		padding: 0.625rem 0.875rem;
-	}
-	/* Dropdowns: open inline (no absolute positioning in side rail) */
-	body.layout-vertical-left  .primary-menu .sub-menu,
-	body.layout-vertical-right .primary-menu .sub-menu {
-		position: static;
-		opacity: 1;
-		visibility: visible;
-		transform: none;
-		box-shadow: none;
-		background-color: transparent;
-		padding: 0 0 0 1rem;
-		min-width: 0;
-	}
-	body.layout-vertical-left  .primary-menu .menu-item-has-children > a::after,
-	body.layout-vertical-right .primary-menu .menu-item-has-children > a::after { display: none; }
-
-	/* Hamburger hidden in vertical mode (menu is in the rail) */
-	body.layout-vertical-left  .menu-toggle,
-	body.layout-vertical-right .menu-toggle { display: none; }
-
-	/* Topbar hidden in vertical mode (it's a horizontal-header concept) */
-	body.layout-vertical-left  .header-topbar,
-	body.layout-vertical-right .header-topbar { display: none; }
-}
-
-/* ---------- B. Off-Canvas Only (hamburger always visible, no top menu bar) ---------- */
-body.layout-off-canvas-only .header-col--center { display: none; }
-body.layout-off-canvas-only .menu-toggle        { display: inline-flex; }
-
-/* ---------- C. Overlay Fullscreen (hamburger always; menu fills the viewport) ---------- */
-body.layout-overlay .header-col--center { display: none; }
-body.layout-overlay .menu-toggle        { display: inline-flex; }
-
-/* Overlay drawer variant — full-screen centered menu */
-.primary-navigation-drawer--overlay .primary-navigation-drawer__scrim {
-	background-color: var(--color-bg);
-	opacity: 1;
-}
-.primary-navigation-drawer--overlay .primary-navigation-drawer__panel {
-	position: absolute;
-	inset: 0;
-	width: 100%;
-	max-width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	background-color: transparent;
-	box-shadow: none;
-	padding: 4rem 2rem;
-}
-.primary-navigation-drawer--overlay.is-open .primary-navigation-drawer__panel { transform: none; }
-.primary-navigation-drawer--overlay .primary-navigation-drawer__close {
-	top: 1.25rem;
-	right: 1.25rem;
-	font-size: 2.5rem;
-	width: 48px;
-	height: 48px;
-}
-.primary-navigation-drawer--overlay .primary-menu {
-	flex-direction: column;
-	align-items: center;
-	gap: 1rem;
-	margin-top: 0;
-	max-width: 100%;
-	text-align: center;
-}
-.primary-navigation-drawer--overlay .primary-menu .menu-item { width: auto; position: relative; }
-.primary-navigation-drawer--overlay .primary-menu .menu-item > a {
-	font-size: clamp(1.5rem, 4vw, 2.5rem);
-	font-weight: 600;
-	border-bottom: 0;
-	padding: 0.25rem 1rem;
-}
-.primary-navigation-drawer--overlay .primary-menu .submenu-toggle { display: none; }
-.primary-navigation-drawer--overlay .primary-menu .sub-menu {
-	position: static;
-	opacity: 1;
-	visibility: visible;
-	transform: none;
-	box-shadow: none;
-	background-color: transparent;
-	max-height: none;
-	padding: 0.5rem 0 1rem;
-	text-align: center;
-}
-.primary-navigation-drawer--overlay .primary-menu .sub-menu .menu-item > a {
-	font-size: 1.125rem;
-	font-weight: 400;
-	padding: 0.375rem 1rem;
-}
-
-/* ---------- D. Mobile collapse (vertical modes revert to top below 992px) ---------- */
-@media (max-width: 991.98px) {
-	body.layout-vertical-left  .site-header,
-	body.layout-vertical-right .site-header {
-		position: static;
-		height: auto;
-		overflow: visible;
-		border: 0;
-	}
-}
 
 /* ========================================================================
    9. UTILITIES

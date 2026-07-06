@@ -105,6 +105,13 @@ function unysonplus_render_header_element( $element ) {
                 case 'divider':
                         echo '<span class="header-divider" role="separator" aria-orientation="vertical"></span>';
                         break;
+
+                default:
+                        // Addon-registered element types (see the unysonplus_hf_elements
+                        // filter). Render via a per-type action, plus a generic catch-all.
+                        do_action( 'unysonplus_render_hf_element_' . $type, $settings, $element, 'header' );
+                        do_action( 'unysonplus_render_hf_element', $type, $settings, $element, 'header' );
+                        break;
         }
 }
 endif;
@@ -122,12 +129,29 @@ if ( ! function_exists( 'unysonplus_render_header_column' ) ) :
  *                         that alignment lives on the outer wrapper.
  */
 function unysonplus_render_header_column( $elements, $align = 'start' ) {
+        // Let addons inject / reorder elements at render time (optional). $align is
+        // the zone: 'start' | 'center' | 'end' (= left / center / right).
+        $elements = apply_filters( 'unysonplus_hf_column_elements', $elements, 'header', $align );
+
         if ( empty( $elements ) || ! is_array( $elements ) ) return;
 
         foreach ( $elements as $element ) {
                 if ( empty( $element['element_type']['element'] ) ) continue;
                 $type = $element['element_type']['element'];
-                echo '<div class="header-element header-element--' . esc_attr( $type ) . esc_attr( unysonplus_element_visibility_classes( $element ) ) . '">';
+
+                // Per-element CSS Class (addable-popup field): sanitize each token so a
+                // user can safely target this element wrapper with custom CSS.
+                $extra_class = '';
+                if ( ! empty( $element['element_css_class'] ) ) {
+                        $safe = array();
+                        foreach ( preg_split( '/\s+/', trim( (string) $element['element_css_class'] ) ) as $cls ) {
+                                $cls = sanitize_html_class( $cls );
+                                if ( $cls !== '' ) { $safe[] = $cls; }
+                        }
+                        if ( $safe ) { $extra_class = ' ' . implode( ' ', $safe ); }
+                }
+
+                echo '<div class="header-element header-element--' . esc_attr( $type ) . esc_attr( unysonplus_element_visibility_classes( $element ) ) . esc_attr( $extra_class ) . '">';
                 unysonplus_render_header_element( $element );
                 echo '</div>';
         }
@@ -198,8 +222,8 @@ function unysonplus_render_cta_button( $settings ) {
         $text = ! empty( $settings['cta_text'] ) ? $settings['cta_text'] : 'Get Started';
         $link = ! empty( $settings['cta_link'] ) ? $settings['cta_link'] : '#';
 
-        // Colors are emitted to the generated CSS file via a per-instance hash
-        // class (see inc/includes/hf-custom-css.php) — no inline styles here.
+        // Style + size ride the theme's button preset classes (btn btn-{preset}
+        // btn-{size}) from Theme Settings > General > Buttons — no inline styles here.
         $classes = function_exists( 'unysonplus_cta_button_classes' )
                 ? unysonplus_cta_button_classes( $settings )
                 : 'header-cta-btn';
@@ -235,21 +259,116 @@ function unysonplus_render_search() {
 endif;
 
 
+if ( ! function_exists( 'unysonplus_social_brand_color' ) ) :
+/**
+ * Brand hex for a social network, matched by the profile's name (lowercased). Used
+ * by the "Use Brand Colors" style option. Unknown networks return '' (fall back to
+ * the configured Icon/Background colors).
+ *
+ * @param string $name
+ * @return string hex or ''
+ */
+function unysonplus_social_brand_color( $name ) {
+        $key = preg_replace( '/[^a-z0-9]/', '', strtolower( (string) $name ) );
+        $map = array(
+                'facebook' => '#1877f2', 'fb' => '#1877f2',
+                'x' => '#000000', 'twitter' => '#1da1f2',
+                'instagram' => '#e4405f', 'ig' => '#e4405f',
+                'youtube' => '#ff0000', 'linkedin' => '#0a66c2',
+                'tiktok' => '#000000', 'pinterest' => '#bd081c',
+                'github' => '#181717', 'whatsapp' => '#25d366',
+                'telegram' => '#0088cc', 'dribbble' => '#ea4c89',
+                'behance' => '#1769ff', 'discord' => '#5865f2',
+                'reddit' => '#ff4500', 'vimeo' => '#1ab7ea',
+                'snapchat' => '#fffc00', 'twitch' => '#9146ff',
+                'spotify' => '#1db954', 'medium' => '#000000',
+                'threads' => '#000000', 'mastodon' => '#6364ff',
+                'tumblr' => '#36465d', 'soundcloud' => '#ff5500',
+                'email' => '#0d6efd', 'mail' => '#0d6efd',
+        );
+        return isset( $map[ $key ] ) ? $map[ $key ] : '';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_social_fa_class' ) ) :
+/**
+ * Fallback Font Awesome (v6 brands) class for a social network, matched by the
+ * profile name — used when a profile has no explicit icon set, so a profile named
+ * "Facebook" / "X" / "Instagram" shows the right glyph out of the box (the theme
+ * loads a FA6 kit on the front end). Unknown networks return ''.
+ *
+ * @param string $name
+ * @return string e.g. 'fab fa-facebook-f', or ''
+ */
+function unysonplus_social_fa_class( $name ) {
+        $key = preg_replace( '/[^a-z0-9]/', '', strtolower( (string) $name ) );
+        $map = array(
+                'facebook' => 'fab fa-facebook-f', 'fb' => 'fab fa-facebook-f',
+                'x' => 'fab fa-x-twitter', 'twitter' => 'fab fa-twitter',
+                'instagram' => 'fab fa-instagram', 'ig' => 'fab fa-instagram',
+                'youtube' => 'fab fa-youtube', 'linkedin' => 'fab fa-linkedin-in',
+                'tiktok' => 'fab fa-tiktok', 'pinterest' => 'fab fa-pinterest-p',
+                'github' => 'fab fa-github', 'whatsapp' => 'fab fa-whatsapp',
+                'telegram' => 'fab fa-telegram', 'dribbble' => 'fab fa-dribbble',
+                'behance' => 'fab fa-behance', 'discord' => 'fab fa-discord',
+                'reddit' => 'fab fa-reddit-alien', 'vimeo' => 'fab fa-vimeo-v',
+                'snapchat' => 'fab fa-snapchat', 'twitch' => 'fab fa-twitch',
+                'spotify' => 'fab fa-spotify', 'medium' => 'fab fa-medium',
+                'threads' => 'fab fa-threads', 'mastodon' => 'fab fa-mastodon',
+                'tumblr' => 'fab fa-tumblr', 'soundcloud' => 'fab fa-soundcloud',
+                'email' => 'fas fa-envelope', 'mail' => 'fas fa-envelope',
+        );
+        return isset( $map[ $key ] ) ? $map[ $key ] : '';
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_render_social_icons' ) ) :
 function unysonplus_render_social_icons() {
         if ( ! function_exists( 'fw_get_db_settings_option' ) ) return;
         $social_profiles = fw_get_db_settings_option( 'social_profiles' );
         if ( empty( $social_profiles ) || ! is_array( $social_profiles ) ) return;
 
-        echo '<div class="header-social-icons">';
+        // Global icon style (Social tab → social_style). Stored flat (groups aren't stored).
+        $style = fw_get_db_settings_option( 'social_style', array() );
+        $style = is_array( $style ) ? $style : array();
+        $shape = ! empty( $style['social_icon_style'] ) ? preg_replace( '/[^a-z-]/', '', $style['social_icon_style'] ) : 'bare';
+        $fx    = ! empty( $style['social_icon_hover_fx'] ) ? preg_replace( '/[^a-z-]/', '', $style['social_icon_hover_fx'] ) : 'none';
+        $brand = ! empty( $style['social_icon_brand'] ) && $style['social_icon_brand'] === 'yes';
+
+        $wrap = array( 'header-social-icons', 'social-icons', 'social-style-' . $shape );
+        if ( $fx !== 'none' ) { $wrap[] = 'social-fx-' . $fx; }
+        if ( $brand )         { $wrap[] = 'social-brand'; }
+
+        // icon-v2 packs loader (enqueues the pack CSS for a picked icon so it renders).
+        $packs = ( function_exists( 'fw' ) && isset( fw()->backend ) && method_exists( fw()->backend, 'option_type' ) )
+                ? ( isset( fw()->backend->option_type( 'icon-v2' )->packs_loader ) ? fw()->backend->option_type( 'icon-v2' )->packs_loader : null )
+                : null;
+
+        echo '<div class="' . esc_attr( implode( ' ', $wrap ) ) . '">';
         foreach ( $social_profiles as $profile ) {
                 if ( empty( $profile['link'] ) ) continue;
-                $name = ! empty( $profile['name'] ) ? $profile['name'] : '';
-                echo '<a href="' . esc_url( $profile['link'] ) . '" class="header-social-icon" target="_blank" rel="noopener noreferrer" title="' . esc_attr( $name ) . '">';
-                if ( ! empty( $profile['icon']['icon-class'] ) ) {
-                        echo '<i class="' . esc_attr( $profile['icon']['icon-class'] ) . '"></i>';
+                $name    = ! empty( $profile['name'] ) ? $profile['name'] : '';
+                $new_tab = ! isset( $profile['new_tab'] ) || $profile['new_tab'] !== 'no';
+                $target  = $new_tab ? ' target="_blank" rel="noopener noreferrer"' : '';
+
+                if ( $packs && ! empty( $profile['icon'] ) ) {
+                        $packs->enqueue_pack_for_icon( $profile['icon'] );
+                }
+
+                $brand_attr = '';
+                if ( $brand ) {
+                        $hex = unysonplus_social_brand_color( $name );
+                        if ( $hex !== '' ) { $brand_attr = ' style="--social-brand:' . esc_attr( $hex ) . '"'; }
+                }
+
+                // Icon: the picked one, else a name-matched Font Awesome fallback.
+                $icon_class = ! empty( $profile['icon']['icon-class'] ) ? $profile['icon']['icon-class'] : unysonplus_social_fa_class( $name );
+
+                echo '<a href="' . esc_url( $profile['link'] ) . '" class="header-social-icon"' . $target . $brand_attr . ' aria-label="' . esc_attr( $name ) . '" title="' . esc_attr( $name ) . '">';
+                if ( $icon_class !== '' ) {
+                        echo '<i class="' . esc_attr( $icon_class ) . '" aria-hidden="true"></i>';
                 } else {
-                        echo esc_html( $name );
+                        echo '<span class="header-social-icon__label">' . esc_html( $name ) . '</span>';
                 }
                 echo '</a>';
         }

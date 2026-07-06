@@ -1,0 +1,26 @@
+/**
+ * Header Design: Centered  (Header → Layout → Header Design, Top mode)
+ *
+ * Stacks the main header row vertically and centers it — a centered logo above
+ * centered navigation (the classic centered-logo / editorial look). Loaded ONLY when
+ * this design is active. NOTE: CSS can restyle but not move elements between slots —
+ * for a nav-logo-nav SPLIT instead, keep Classic and place the logo in the center
+ * column with menus in the left/right columns.
+ */
+.site-header--design-centered .header-main .header-row {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--header-design-gap, .5rem);
+	text-align: center;
+}
+.site-header--design-centered .header-main .header-col {
+	flex: 0 1 auto;
+	width: auto;
+	justify-content: center;
+}
+/* Center the nav's own flex list too, so long menus wrap centered. */
+.site-header--design-centered .header-main .menu {
+	justify-content: center;
+	flex-wrap: wrap;
+}

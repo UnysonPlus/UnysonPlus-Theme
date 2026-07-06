@@ -85,9 +85,142 @@ function unysonplus_hf_choices() {
 endif;
 
 
+if ( ! function_exists( 'unysonplus_hf_cta_button_options' ) ) :
+/**
+ * Leaf options for the CTA Button element, shared by the header + footer element
+ * popups (so the two stay in sync).
+ *
+ * Button Style + Button Size reuse the Button shortcode's `button-style-picker`
+ * choices (sc_get_button_style_choices() / sc_get_button_size_choices()), which are
+ * sourced from Theme Settings → General → Buttons. A header/footer CTA therefore
+ * rides the theme's button design system — rendered as `btn {style} {size}` (e.g.
+ * `btn btn-primary btn-lg`) with live previews in the picker — instead of one-off
+ * background/text colors. Mirrors the flip-box shortcode's Style/Size pickers.
+ *
+ * The `button-style-picker` option type is part of the core framework (always
+ * available with the plugin active); only the choice helpers belong to the
+ * shortcodes extension, so they're function_exists-guarded with a plain-select
+ * fallback for Style when that extension isn't active.
+ *
+ * @return array
+ */
+function unysonplus_hf_cta_button_options() {
+	$opts = array(
+		'cta_text' => array( 'label' => __( 'Button Text', 'unysonplus' ), 'type' => 'text', 'value' => 'Get Started' ),
+		'cta_link' => array( 'label' => __( 'Button Link', 'unysonplus' ), 'type' => 'text', 'value' => '#' ),
+	);
+
+	if ( function_exists( 'sc_get_button_style_choices' ) ) {
+		$style_choices = sc_get_button_style_choices();
+		$opts['cta_style'] = array(
+			'label'   => __( 'Button Style', 'unysonplus' ),
+			'desc'    => __( 'Sourced from Theme Settings → General → Buttons (colors + outline presets). Each option previews the real button.', 'unysonplus' ),
+			'type'    => 'button-style-picker',
+			'choices' => $style_choices,
+			'value'   => ( is_array( $style_choices ) && $style_choices ) ? (string) key( $style_choices ) : '',
+		);
+	} else {
+		// Shortcodes styling helper unavailable — basic style select fallback.
+		$opts['cta_style'] = array(
+			'label'   => __( 'Button Style', 'unysonplus' ),
+			'type'    => 'select',
+			'value'   => 'filled',
+			'choices' => array(
+				'filled'  => __( 'Filled', 'unysonplus' ),
+				'outline' => __( 'Outline', 'unysonplus' ),
+				'pill'    => __( 'Pill (Rounded)', 'unysonplus' ),
+			),
+		);
+	}
+
+	if ( function_exists( 'sc_get_button_size_choices' ) ) {
+		$size_choices = sc_get_button_size_choices();
+		$opts['cta_size'] = array(
+			'label'        => __( 'Button Size', 'unysonplus' ),
+			'desc'         => __( 'Sourced from Theme Settings → General → Buttons → Sizes.', 'unysonplus' ),
+			'type'         => 'button-style-picker',
+			'choices'      => $size_choices,
+			'value'        => ( is_array( $size_choices ) && $size_choices ) ? (string) key( $size_choices ) : '',
+			// Size classes carry no color, so ride them on a primary button —
+			// otherwise the preview is an unstyled, background-less `.btn`.
+			'preview_base' => 'btn btn-primary',
+		);
+	}
+
+	return $opts;
+}
+endif;
+
+
 /* ============================================================
  * Element pickers (the popup shown when you click "Add" in a column)
  * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_hf_registered_elements' ) ) :
+/**
+ * Addon-registered header / footer elements. Plugins or a child theme add a new
+ * draggable element to the Add-element popup via the `unysonplus_hf_elements`
+ * filter — the USER then places it in any column and orders it like any built-in
+ * element (no forced position). Example (e.g. a WooCommerce cart):
+ *
+ *   add_filter( 'unysonplus_hf_elements', function ( $els ) {
+ *       $els['cart'] = array(
+ *           'label'   => __( 'Cart', 'my-addon' ),
+ *           'context' => 'both',   // 'header' | 'footer' | 'both'
+ *           'options' => array(    // option schema shown in the element modal
+ *               'cart_show_count' => array( 'type' => 'switch', 'label' => 'Show count', 'value' => 'yes' ),
+ *           ),
+ *       );
+ *       return $els;
+ *   } );
+ *
+ * Render it by hooking (fires from unysonplus_render_{header,footer}_element):
+ *
+ *   add_action( 'unysonplus_render_hf_element_cart', function ( $settings, $element, $where ) {
+ *       echo my_addon_cart_html( $settings );   // $where = 'header' | 'footer'
+ *   }, 10, 3 );
+ *
+ * @param string $context 'header' | 'footer' — only elements for this context are returned.
+ * @return array<string,array{label:string,options:array}>
+ */
+function unysonplus_hf_registered_elements( $context = 'header' ) {
+	$els = apply_filters( 'unysonplus_hf_elements', array() );
+	if ( ! is_array( $els ) ) { return array(); }
+
+	$out = array();
+	foreach ( $els as $slug => $el ) {
+		if ( ! is_string( $slug ) || $slug === '' || ! is_array( $el ) || empty( $el['label'] ) ) { continue; }
+		$ctx = isset( $el['context'] ) ? $el['context'] : 'both';
+		if ( $ctx === 'both' || $ctx === $context ) {
+			$out[ sanitize_key( $slug ) ] = array(
+				'label'   => $el['label'],
+				'options' => ( isset( $el['options'] ) && is_array( $el['options'] ) ) ? $el['options'] : array(),
+			);
+		}
+	}
+	return $out;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_merge_registered_elements' ) ) :
+/**
+ * Fold addon-registered elements into a built popup array: their labels join the
+ * element dropdown, their option schemas become the element's reveal.
+ *
+ * @param array  $popup   The popup array (element_type multi-picker + siblings).
+ * @param string $context 'header' | 'footer'.
+ * @return array
+ */
+function unysonplus_hf_merge_registered_elements( $popup, $context ) {
+	foreach ( unysonplus_hf_registered_elements( $context ) as $slug => $el ) {
+		$popup['element_type']['picker']['element']['choices'][ $slug ] = $el['label'];
+		if ( ! empty( $el['options'] ) ) {
+			$popup['element_type']['choices'][ $slug ] = $el['options'];
+		}
+	}
+	return $popup;
+}
+endif;
 
 if ( ! function_exists( 'unysonplus_footer_element_popup' ) ) :
 function unysonplus_footer_element_popup() {
@@ -126,22 +259,7 @@ function unysonplus_footer_element_popup() {
 				),
 			),
 			'choices' => array(
-				'cta_button' => array(
-					'cta_text'       => array( 'label' => __( 'Button Text', 'unysonplus' ),       'type' => 'text',         'value' => 'Get Started' ),
-					'cta_link'       => array( 'label' => __( 'Button Link', 'unysonplus' ),       'type' => 'text',         'value' => '#' ),
-					'cta_bg_color'   => array( 'label' => __( 'Button Background', 'unysonplus' ),  'type' => 'color-picker', 'value' => '#0d6efd' ),
-					'cta_text_color' => array( 'label' => __( 'Button Text Color', 'unysonplus' ), 'type' => 'color-picker', 'value' => '#ffffff' ),
-					'cta_style'      => array(
-						'label'   => __( 'Button Style', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => 'filled',
-						'choices' => array(
-							'filled'  => __( 'Filled', 'unysonplus' ),
-							'outline' => __( 'Outline', 'unysonplus' ),
-							'pill'    => __( 'Pill (Rounded)', 'unysonplus' ),
-						),
-					),
-				),
+				'cta_button' => unysonplus_hf_cta_button_options(),
 				'phone' => array(
 					'phone_number' => array( 'label' => __( 'Phone Number', 'unysonplus' ), 'type' => 'text', 'value' => '' ),
 				),
@@ -235,7 +353,14 @@ function unysonplus_footer_element_popup() {
 				'hide-md' => __( 'Desktop (≥ 992px)', 'unysonplus' ),
 			),
 		),
+		'element_css_class' => array(
+			'type'  => 'text',
+			'label' => __( 'CSS Class', 'unysonplus' ),
+			'desc'  => __( 'Extra class(es) added to this element wrapper, for custom CSS targeting.', 'unysonplus' ),
+			'value' => '',
+		),
 	);
+	$popup = unysonplus_hf_merge_registered_elements( $popup, 'footer' );
 	return $popup;
 }
 endif;
@@ -277,22 +402,7 @@ function unysonplus_header_element_popup() {
 				),
 			),
 			'choices' => array(
-				'cta_button' => array(
-					'cta_text'       => array( 'label' => __( 'Button Text', 'unysonplus' ),       'type' => 'text',         'value' => 'Get Started' ),
-					'cta_link'       => array( 'label' => __( 'Button Link', 'unysonplus' ),       'type' => 'text',         'value' => '#' ),
-					'cta_bg_color'   => array( 'label' => __( 'Button Background', 'unysonplus' ),  'type' => 'color-picker', 'value' => '#0d6efd' ),
-					'cta_text_color' => array( 'label' => __( 'Button Text Color', 'unysonplus' ), 'type' => 'color-picker', 'value' => '#ffffff' ),
-					'cta_style'      => array(
-						'label'   => __( 'Button Style', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => 'filled',
-						'choices' => array(
-							'filled'  => __( 'Filled', 'unysonplus' ),
-							'outline' => __( 'Outline', 'unysonplus' ),
-							'pill'    => __( 'Pill (Rounded)', 'unysonplus' ),
-						),
-					),
-				),
+				'cta_button' => unysonplus_hf_cta_button_options(),
 				'phone' => array(
 					'phone_number' => array( 'label' => __( 'Phone Number', 'unysonplus' ), 'type' => 'text', 'value' => '' ),
 				),
@@ -363,7 +473,14 @@ function unysonplus_header_element_popup() {
 				'hide-md' => __( 'Desktop (≥ 992px)', 'unysonplus' ),
 			),
 		),
+		'element_css_class' => array(
+			'type'  => 'text',
+			'label' => __( 'CSS Class', 'unysonplus' ),
+			'desc'  => __( 'Extra class(es) added to this element wrapper, for custom CSS targeting.', 'unysonplus' ),
+			'value' => '',
+		),
 	);
+	$popup = unysonplus_hf_merge_registered_elements( $popup, 'header' );
 	return $popup;
 }
 endif;
@@ -422,6 +539,28 @@ function unysonplus_footer_column( $label, $defaults = array() ) {
 		'desc'          => false,
 		'template'      => unysonplus_footer_row_template(),
 		'popup-options' => unysonplus_footer_element_popup(),
+	);
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_columns_note' ) ) :
+/**
+ * A short hint explaining the zone-based alignment of a header/footer row's
+ * Left / Center / Right columns. Shared by the Top Bar, Main Header and Bottom Bar
+ * so the behaviour is discoverable (content aligns to the column it sits in; empty
+ * columns collapse). Rendered as an `html-full` note above the columns.
+ *
+ * @return array
+ */
+function unysonplus_hf_columns_note() {
+	$html = '<div style="box-sizing:border-box;max-width:100%;padding:10px 12px;background:#f6f7f7;border-left:3px solid #2271b1;border-radius:4px;font-size:12.5px;line-height:1.55;color:#50575e;overflow-wrap:break-word;">'
+		. '<strong>' . esc_html__( 'How the columns align', 'unysonplus' ) . '</strong> — '
+		. esc_html__( 'elements align to the column they sit in: Left → left, Center → centered, Right → right. Empty columns collapse, so filling only one column aligns everything to that side (e.g. put everything in the Center column to center the whole row).', 'unysonplus' )
+		. '</div>';
+	return array(
+		'type'  => 'html-full',
+		'label' => false,
+		'html'  => $html,
 	);
 }
 endif;
@@ -523,6 +662,15 @@ if ( ! function_exists( 'unysonplus_hf_custom_styling' ) ) :
  * @return array the {prefix}_custom_styling multi-picker definition
  */
 function unysonplus_hf_custom_styling( $prefix ) {
+	// Preset-linked colour control (tracks Theme Settings → Colors), house style.
+	// Falls back to a plain picker if the shortcodes helper isn't loaded. Resolved
+	// to CSS by inc/includes/hf-custom-css.php (which tolerates the legacy string).
+	$cfield = function ( $label, $desc, $kind = 'text', $picker = 'color-picker' ) {
+		if ( function_exists( 'sc_color_field_compact' ) ) {
+			return sc_color_field_compact( array( 'label' => $label, 'desc' => $desc, 'kind' => $kind, 'picker' => $picker ) );
+		}
+		return array( 'label' => $label, 'desc' => $desc, 'type' => ( $picker === 'rgba-color-picker' ? 'rgba-color-picker' : 'color-picker' ), 'value' => '' );
+	};
 	return array(
 		'type'   => 'multi-picker',
 		'label'  => false,
@@ -534,7 +682,7 @@ function unysonplus_hf_custom_styling( $prefix ) {
 				'right-choice' => array( 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ),
 				'left-choice'  => array( 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ),
 				'value'        => 'no',
-				'desc'         => __( 'Enable to override the global footer styling for this section.', 'unysonplus' ),
+				'desc'         => __( 'Enable to set a custom background, text, borders and spacing for this section (overrides the global styling).', 'unysonplus' ),
 			),
 		),
 		'choices' => array(
@@ -548,11 +696,11 @@ function unysonplus_hf_custom_styling( $prefix ) {
 						'container-fluid' => __( 'Full Width', 'unysonplus' ),
 					),
 				),
-				$prefix . '_bg_color' => array(
-					'label' => __( 'Background Color', 'unysonplus' ),
-					'type'  => 'rgba-color-picker',
-					'value' => '',
-					'desc'  => __( 'e.g. rgba(33, 37, 41, 1)', 'unysonplus' ),
+				$prefix . '_bg_color' => $cfield(
+					__( 'Background Color', 'unysonplus' ),
+					__( 'Pick a palette preset or a custom colour (supports transparency).', 'unysonplus' ),
+					'bg',
+					'rgba-color-picker'
 				),
 				$prefix . '_bg_image' => array(
 					'label' => __( 'Background Image', 'unysonplus' ),
@@ -571,11 +719,10 @@ function unysonplus_hf_custom_styling( $prefix ) {
 					'type'  => 'typography-v2',
 					'desc'  => __( 'Font family, size, weight, line-height, letter-spacing and color for this section\'s text.', 'unysonplus' ),
 				),
-				$prefix . '_link_color' => array(
-					'label' => __( 'Link Color', 'unysonplus' ),
-					'type'  => 'color-picker',
-					'value' => '',
-					'desc'  => __( 'e.g. #adb5bd', 'unysonplus' ),
+				$prefix . '_link_color' => $cfield(
+					__( 'Link Color', 'unysonplus' ),
+					__( 'Colour of links in this section.', 'unysonplus' ),
+					'text'
 				),
 				$prefix . '_padding' => array(
 					'type'  => 'spacing',
@@ -583,11 +730,10 @@ function unysonplus_hf_custom_styling( $prefix ) {
 					'label' => __( 'Padding', 'unysonplus' ),
 					'desc'  => __( 'Inner spacing for this section (responsive). Applied as utility classes.', 'unysonplus' ),
 				),
-				$prefix . '_border_top_color' => array(
-					'label' => __( 'Top Border Color', 'unysonplus' ),
-					'type'  => 'color-picker',
-					'value' => '',
-					'desc'  => __( 'Leave empty for no border.', 'unysonplus' ),
+				$prefix . '_border_top_color' => $cfield(
+					__( 'Top Border Color', 'unysonplus' ),
+					__( 'Leave empty for no border.', 'unysonplus' ),
+					'text'
 				),
 				$prefix . '_border_top_width' => array(
 					'label' => __( 'Top Border Width', 'unysonplus' ),
@@ -595,11 +741,10 @@ function unysonplus_hf_custom_styling( $prefix ) {
 					'value' => '',
 					'desc'  => __( 'e.g. 1px', 'unysonplus' ),
 				),
-				$prefix . '_border_bottom_color' => array(
-					'label' => __( 'Bottom Border Color', 'unysonplus' ),
-					'type'  => 'color-picker',
-					'value' => '',
-					'desc'  => __( 'Leave empty for no border.', 'unysonplus' ),
+				$prefix . '_border_bottom_color' => $cfield(
+					__( 'Bottom Border Color', 'unysonplus' ),
+					__( 'Leave empty for no border.', 'unysonplus' ),
+					'text'
 				),
 				$prefix . '_border_bottom_width' => array(
 					'label' => __( 'Bottom Border Width', 'unysonplus' ),

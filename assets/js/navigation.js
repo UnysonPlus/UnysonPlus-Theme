@@ -199,12 +199,77 @@
 		io.observe( sentinel );
 	}
 
+	/* ---------- Ring overlays (Radial + Concentric): index the menu items ---------- */
+	// Sets --count + --i on the primary menu so the CSS can position each top-level
+	// item (by angle for Radial, by ring size for Concentric). Radial houses the menu
+	// inside a .__disc wrapper; Concentric puts the <ul> straight in the panel — so we
+	// key off the <ul> itself and set --count on it (custom props inherit to the <li>).
+	// No-op unless a ring overlay variant is active.
+	function initRingMenus() {
+		// Every overlay style (Panel / Radial / Concentric) gets --i + --count so the
+		// Color Modes can spread the palette across items (rings, disc labels, or list).
+		Array.prototype.forEach.call(
+			document.querySelectorAll( '.primary-navigation-drawer--overlay .primary-menu' ),
+			function ( ul ) {
+				var count = ul.children.length;
+				ul.style.setProperty( '--count', count );
+				// Radial's disc::before divider reads --count too, and can't inherit it
+				// from the <ul> (a child) — set it on the disc wrapper when present.
+				var disc = ul.closest( '.primary-navigation-drawer__disc' );
+				if ( disc ) { disc.style.setProperty( '--count', count ); }
+				// Concentric makes the whole ring band the link, so the label text has to
+				// live in its own span that can be positioned at the band midpoint.
+				var concentric = !! ul.closest( '.primary-navigation-drawer--concentric' );
+				Array.prototype.forEach.call( ul.children, function ( li, idx ) {
+					li.style.setProperty( '--i', idx );
+					if ( concentric ) { wrapConcentricLabel( li ); }
+				} );
+			}
+		);
+		sizeConcentricRings();
+	}
+
+	// Wrap a concentric item's <a> label text in <span class="cc-label"> (once), so
+	// the label can be positioned at the band midpoint while the <a> itself is the
+	// full-viewport clipped hit-disc. Finds the item's DIRECT <a> (not sub-menu links).
+	function wrapConcentricLabel( li ) {
+		var a = null;
+		Array.prototype.some.call( li.children, function ( c ) {
+			if ( c.tagName === 'A' ) { a = c; return true; }
+			return false;
+		} );
+		if ( ! a || a.querySelector( '.cc-label' ) ) { return; }
+		var span = document.createElement( 'span' );
+		span.className = 'cc-label';
+		while ( a.firstChild ) { span.appendChild( a.firstChild ); }
+		a.appendChild( span );
+	}
+
+	// Concentric needs the exact drawer DIAGONAL (px) so the outer ring reaches the
+	// far corner and the rings divide the diagonal evenly (filling the screen). CSS
+	// can't compute hypot(w,h), so we set --reach here and refresh it on resize. The
+	// drawer sits below the WP admin bar (--admin-bar-offset), so subtract that from
+	// the height — this keeps the rings and the %-positioned labels in agreement.
+	function sizeConcentricRings() {
+		var offRaw = getComputedStyle( document.body ).getPropertyValue( '--admin-bar-offset' );
+		var off = parseInt( offRaw, 10 ) || 0;
+		var h = window.innerHeight - off;
+		var reach = Math.ceil( Math.sqrt(
+			window.innerWidth * window.innerWidth + h * h
+		) ) + 2; // +2px safety so the far corner is fully covered, not on the arc edge
+		Array.prototype.forEach.call(
+			document.querySelectorAll( '.primary-navigation-drawer--concentric .primary-menu' ),
+			function ( ul ) { ul.style.setProperty( '--reach', reach + 'px' ); }
+		);
+	}
+
 	/* ---------- Boot ---------- */
 	function init() {
 		stripBootstrapDropdownAttrs();
 		bindDrawer();
 		bindDropdowns();
 		bindStickyShadow();
+		initRingMenus();
 	}
 
 	if ( document.readyState === 'loading' ) {
@@ -212,4 +277,7 @@
 	} else {
 		init();
 	}
+
+	// Keep the concentric rings sized to the viewport as it changes.
+	window.addEventListener( 'resize', sizeConcentricRings );
 })();

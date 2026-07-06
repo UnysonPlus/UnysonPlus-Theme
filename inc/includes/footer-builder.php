@@ -144,6 +144,12 @@ function unysonplus_render_footer_element( $element ) {
                                 unysonplus_render_builder_section( $settings );
                         }
                         break;
+
+                default:
+                        // Addon-registered element types (see the unysonplus_hf_elements filter).
+                        do_action( 'unysonplus_render_hf_element_' . $type, $settings, $element, 'footer' );
+                        do_action( 'unysonplus_render_hf_element', $type, $settings, $element, 'footer' );
+                        break;
         }
 }
 endif;
@@ -159,12 +165,28 @@ function unysonplus_render_footer_column( $column_data, $col_class ) {
 
         if ( empty( $column_data ) ) return;
 
+        // Let addons inject / reorder footer elements at render time (optional).
+        $column_data = apply_filters( 'unysonplus_hf_column_elements', $column_data, 'footer', '' );
+        if ( empty( $column_data ) || ! is_array( $column_data ) ) return;
+
         echo '<div class="' . esc_attr( $col_class ) . '">';
         echo '<div class="footer-column">';
         foreach ( $column_data as $element ) {
                 if ( empty( $element['element_type']['element'] ) ) continue;
                 $type = $element['element_type']['element'];
-                echo '<div class="footer-element footer-element--' . esc_attr( $type ) . esc_attr( function_exists( 'unysonplus_element_visibility_classes' ) ? unysonplus_element_visibility_classes( $element ) : '' ) . '">';
+
+                // Per-element CSS Class (addable-popup field) — sanitized tokens on the wrapper.
+                $extra_class = '';
+                if ( ! empty( $element['element_css_class'] ) ) {
+                        $safe = array();
+                        foreach ( preg_split( '/\s+/', trim( (string) $element['element_css_class'] ) ) as $cls ) {
+                                $cls = sanitize_html_class( $cls );
+                                if ( $cls !== '' ) { $safe[] = $cls; }
+                        }
+                        if ( $safe ) { $extra_class = ' ' . implode( ' ', $safe ); }
+                }
+
+                echo '<div class="footer-element footer-element--' . esc_attr( $type ) . esc_attr( function_exists( 'unysonplus_element_visibility_classes' ) ? unysonplus_element_visibility_classes( $element ) : '' ) . esc_attr( $extra_class ) . '">';
                 unysonplus_render_footer_element( $element );
                 echo '</div>';
         }

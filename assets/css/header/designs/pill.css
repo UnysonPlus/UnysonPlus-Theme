@@ -1,0 +1,31 @@
+/**
+ * Header Design: Floating Pill  (Header → Layout → Header Design, Top mode)
+ *
+ * The inner nav row floats inside the header as an inset rounded pill with a soft
+ * shadow (Rival / Travely). Roundness / Side Inset / Shadow come from the design's
+ * sub-options as CSS custom properties (theme-vars.php); the values here are the
+ * fallback defaults. Loaded ONLY when this design is active. Inherits --header-bg.
+ */
+.site-header--design-pill .header-main {
+	background: transparent;
+	/* Side Inset padded on the outer bar so the fw-container keeps its auto-centering. */
+	padding-left: var(--header-design-inset, 0px);
+	padding-right: var(--header-design-inset, 0px);
+}
+.site-header--design-pill .header-main > [class*="fw-container"] {
+	margin-top: .75rem;
+	margin-bottom: .75rem;
+	padding: .35rem 1.25rem;
+	background: var(--header-bg, #fff);
+	border-radius: var(--header-design-radius, 999px);
+	box-shadow: var(--header-design-shadow, 0 8px 24px -12px rgba(15, 23, 42, .30));
+}
+/* Neutralize the base .is-stuck white-bar repaint so only the pill reads when stuck. */
+.site-header--design-pill.header-sticky.is-stuck:not(.site-header--transparent) {
+	background: transparent;
+	box-shadow: none;
+}
+.site-header--design-pill.is-stuck .header-main > [class*="fw-container"] {
+	margin-top: .4rem;
+	margin-bottom: .4rem;
+}

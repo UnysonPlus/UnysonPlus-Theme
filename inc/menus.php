@@ -13,9 +13,14 @@ function unysonplus_register_menus() {
 
     $menus = array();
 
-    $menus['primary']   = __( 'Primary menu', 'unysonplus' );
-    $menus['secondary'] = __( 'Secondary menu', 'unysonplus' );
-    $menus['footer']    = __( 'Footer menu', 'unysonplus' );
+    $menus['primary']    = __( 'Primary menu', 'unysonplus' );
+    $menus['secondary']  = __( 'Secondary menu', 'unysonplus' );
+    $menus['footer']     = __( 'Footer menu', 'unysonplus' );
+    // Dedicated menus for the fullscreen/off-canvas header modes — so their menu
+    // can differ from the header's Primary nav. Each falls back to Primary when
+    // no menu is assigned (see unysonplus_drawer_nav_menu()).
+    $menus['overlay']    = __( 'Overlay menu (Overlay header mode)', 'unysonplus' );
+    $menus['off-canvas'] = __( 'Off-Canvas menu (Off-Canvas header mode)', 'unysonplus' );
 
     if ( function_exists( 'fw_get_db_settings_option' ) ) {
         $header_topbar = fw_get_db_settings_option( 'header_topbar' );
@@ -70,6 +75,29 @@ function unysonplus_register_menus() {
             'link_after'      => '</span>',
             'item_spacing'    => 'discard',
         ),
+        // Overlay / Off-Canvas drawers: same markup contract as Primary
+        // (container .primary-navigation + ul.primary-menu) so the drawer CSS/JS
+        // — including the radial layout — target them unchanged.
+        'overlay'   => array(
+            'theme_location'       => 'overlay',
+            'depth'                => 4,
+            'container'            => 'nav',
+            'container_class'      => 'primary-navigation',
+            'container_aria_label' => __( 'Overlay', 'unysonplus' ),
+            'menu_class'           => 'primary-menu',
+            'item_spacing'         => 'discard',
+            'fallback_cb'          => false,
+        ),
+        'off-canvas' => array(
+            'theme_location'       => 'off-canvas',
+            'depth'                => 4,
+            'container'            => 'nav',
+            'container_class'      => 'primary-navigation',
+            'container_aria_label' => __( 'Off-canvas', 'unysonplus' ),
+            'menu_class'           => 'primary-menu',
+            'item_spacing'         => 'discard',
+            'fallback_cb'          => false,
+        ),
     );
 }
 add_action( 'after_setup_theme', 'unysonplus_register_menus' );
@@ -114,5 +142,22 @@ function unysonplus_nav_menu( $menu_type ) {
             esc_url( admin_url( 'nav-menus.php?action=locations' ) )
         )
     );
+}
+endif;
+
+
+/**
+ * Render a header drawer/overlay menu that has its own dedicated location
+ * ('overlay' / 'off-canvas'). Uses that location when a menu is assigned to it;
+ * otherwise falls back to the Primary menu so existing sites keep working
+ * without configuring a second menu.
+ */
+if ( ! function_exists( 'unysonplus_drawer_nav_menu' ) ) :
+function unysonplus_drawer_nav_menu( $location ) {
+    if ( $location && has_nav_menu( $location ) ) {
+        unysonplus_nav_menu( $location );
+    } else {
+        unysonplus_nav_menu( 'primary' );
+    }
 }
 endif;

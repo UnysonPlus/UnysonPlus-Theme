@@ -1,5 +1,103 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { die( 'Forbidden' ); }
 
+if ( ! function_exists( 'unysonplus_background_pro_css_vars' ) ) :
+/**
+ * Turn a Background Pro option value into a set of CSS custom properties
+ * ({$prefix}-color / -image / -position / -repeat / -attachment / -size). The
+ * image layer stacks on top of the gradient (image, gradient) so both show.
+ * Mirrors the Site Background parsing (see below) but with a configurable prefix
+ * so any surface can consume a Background Pro. Video is not applied.
+ *
+ * @param array  $bg     Background Pro option value.
+ * @param string $prefix e.g. '--overlay-bg'.
+ * @return array<string,string> var => value
+ */
+function unysonplus_background_pro_css_vars( $bg, $prefix ) {
+	$out = array();
+	if ( ! is_array( $bg ) || ! $bg || ! function_exists( 'fw_akg' ) ) { return $out; }
+
+	$color_val = fw_akg( 'color/value', $bg );
+	if ( is_array( $color_val ) && function_exists( 'unysonplus_get_option_color_picker' ) ) {
+		$color = unysonplus_get_option_color_picker( $color_val );
+		if ( is_string( $color ) && '' !== $color ) { $out[ $prefix . '-color' ] = $color; }
+	}
+
+	$images  = array();
+	$img_url = fw_akg( 'image/src/url', $bg );
+	if ( $img_url ) {
+		$images[] = 'url(' . esc_url_raw( $img_url ) . ')';
+		$pos      = fw_akg( 'image/position', $bg, 'center center' );
+		$rep      = fw_akg( 'image/repeat', $bg, 'no-repeat' );
+		$att      = fw_akg( 'image/attachment', $bg, 'scroll' );
+		$size_sel = fw_akg( 'image/size/selected', $bg, 'cover' );
+		$size     = ( 'custom' === $size_sel ) ? fw_akg( 'image/size/custom', $bg, 'auto' ) : $size_sel;
+		if ( $pos )  { $out[ $prefix . '-position' ]   = $pos; }
+		if ( $rep )  { $out[ $prefix . '-repeat' ]     = $rep; }
+		if ( $att )  { $out[ $prefix . '-attachment' ] = $att; }
+		if ( $size ) { $out[ $prefix . '-size' ]       = $size; }
+	}
+
+	$stops = fw_akg( 'gradient/data/stops', $bg );
+	if ( is_array( $stops ) && count( $stops ) >= 2
+		&& class_exists( 'FW_Option_Type_Gradient_V2' )
+		&& method_exists( 'FW_Option_Type_Gradient_V2', 'to_css' ) ) {
+		$grad = FW_Option_Type_Gradient_V2::to_css( fw_akg( 'gradient/data', $bg ) );
+		if ( $grad ) { $images[] = $grad; }
+	}
+
+	if ( $images ) { $out[ $prefix . '-image' ] = implode( ', ', $images ); }
+	return $out;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_preset_color_to_css' ) ) :
+/**
+ * Resolve a compact preset-colour value to a CSS colour string.
+ * Accepts the { predefined:'bg-red'|'text-red', custom:'#hex' } shape from
+ * sc_color_field_compact (predefined → live-linked var(--color-<slug>)), or a
+ * legacy plain hex / rgba string (passed through). Returns '' when empty.
+ *
+ * @param mixed $value
+ * @return string
+ */
+function unysonplus_preset_color_to_css( $value ) {
+	if ( is_array( $value ) ) {
+		if ( ! empty( $value['predefined'] ) ) {
+			$slug = preg_replace( '/^(?:text|bg)-/', '', (string) $value['predefined'] );
+			$slug = preg_replace( '/[^a-z0-9\-]/', '', strtolower( $slug ) );
+			return $slug !== '' ? 'var(--color-' . $slug . ')' : '';
+		}
+		return ! empty( $value['custom'] ) ? (string) $value['custom'] : '';
+	}
+	return is_string( $value ) ? $value : '';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_preset_color_to_hex' ) ) :
+/**
+ * Resolve a compact preset-colour value to an actual hex / rgba (presets via the
+ * live palette map) — for luma / contrast checks that need real channel values.
+ *
+ * @param mixed $value
+ * @return string
+ */
+function unysonplus_preset_color_to_hex( $value ) {
+	if ( is_array( $value ) ) {
+		if ( ! empty( $value['predefined'] ) ) {
+			$slug = preg_replace( '/^(?:text|bg)-/', '', (string) $value['predefined'] );
+			$slug = preg_replace( '/[^a-z0-9\-]/', '', strtolower( $slug ) );
+			if ( $slug !== '' && function_exists( 'unysonplus_color_preset_slug_map' ) ) {
+				$map = unysonplus_color_preset_slug_map();
+				if ( ! empty( $map[ $slug ] ) ) { return (string) $map[ $slug ]; }
+			}
+			return '';
+		}
+		return ! empty( $value['custom'] ) ? (string) $value['custom'] : '';
+	}
+	return is_string( $value ) ? $value : '';
+}
+endif;
+
 /**
  * Design-token CSS custom properties that style.css consumes (colors, header,
  * footer, layout). All values are GLOBAL (same on every page).
@@ -59,10 +157,10 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			'--color-muted'       => '#6c757d',
 			'--color-bg'          => '#ffffff',
 
-			'--font-body'         => 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-			'--font-heading'      => 'inherit',
+			// NOTE: --font-body / --font-heading are owned by css-tokens.php (Typography
+			// presets / pairing); style.css :root supplies the plugin-inactive fallback.
 
-			'--header-bg'         => '#ffffff',
+			'--header-bg'         => 'transparent', // unset Main Header Background = no fill (shows the page behind); a set colour overrides this below
 			'--header-min-height' => '80px',
 			'--header-sticky-bg'  => 'rgba(255,255,255,0.95)',
 			'--header-z'          => '1030',
@@ -76,9 +174,16 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			'--footer-pad-top'    => '2rem',
 			'--footer-pad-bottom' => '1.5rem',
 
-			'--menu-link-color'   => 'var(--color-text)',
-			'--menu-link-hover'   => 'var(--color-primary)',
-			'--menu-dropdown-bg'  => '#ffffff',
+			'--menu-link-color'            => 'var(--color-text)',
+			'--menu-link-hover'            => 'var(--color-primary)',
+			'--menu-item-bg'               => 'transparent',
+			'--menu-item-hover-bg'         => 'rgba(0, 0, 0, 0.05)',
+			'--menu-dropdown-bg'           => '#ffffff',
+			'--menu-dropdown-link'         => 'var(--color-text)',
+			'--menu-dropdown-link-hover'   => 'var(--menu-link-hover)',
+			'--menu-dropdown-item-hover-bg'=> 'rgba(0, 0, 0, 0.05)',
+			'--menu-dropdown-width'        => '220px',
+			'--menu-dropdown-radius'       => 'var(--radius)',
 
 			'--site-max-width'    => '1320px',
 
@@ -119,7 +224,7 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 		/* General → Layout / Sidebar / Preloader (the tab was split into three
 		 * storage keys; merge them so the reads below are key-name stable). */
 		$layout = array();
-		foreach ( array( 'general_layout', 'general_sidebar', 'general_preloader', 'general_scroll' ) as $layout_opt ) {
+		foreach ( array( 'general_layout', 'general_sidebar', 'general_preloader', 'general_scroll', 'general_base' ) as $layout_opt ) {
 			$layout_raw = fw_get_db_settings_option( $layout_opt, array() );
 			if ( is_array( $layout_raw ) ) { $layout = array_merge( $layout, $layout_raw ); }
 		}
@@ -221,14 +326,50 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			// Content/sidebar gap + reading (prose) width.
 			if ( ( $v = $lget( 'layout_sidebar_gap' ) ) !== '' )  { $out['--content-sidebar-gap'] = unysonplus_css_length( $v ); }
 			if ( ( $v = $lget( 'layout_prose_width' ) ) !== '' )  { $out['--prose-max-width']      = unysonplus_css_length( $v ); }
+
+			// Sidebar styling + sticky offset (General → Sidebar). Colors run through
+			// the preset resolver; lengths through unysonplus_css_length.
+			if ( ( $v = $lget( 'layout_sidebar_sticky_offset' ) ) !== '' ) { $out['--sticky-sidebar-top'] = unysonplus_css_length( $v ); }
+			$sbg = unysonplus_preset_color_to_css( $lget( 'layout_sidebar_bg' ) );
+			if ( $sbg !== '' ) { $out['--sidebar-bg'] = $sbg; }
+			if ( ( $v = $lget( 'layout_sidebar_padding' ) ) !== '' )      { $out['--sidebar-padding']      = unysonplus_css_length( $v ); }
+			if ( ( $v = $lget( 'layout_sidebar_border_width' ) ) !== '' ) { $out['--sidebar-border-width'] = unysonplus_css_length( $v ); }
+			$sbc = unysonplus_preset_color_to_css( $lget( 'layout_sidebar_border_color' ) );
+			if ( $sbc !== '' ) { $out['--sidebar-border-color'] = $sbc; }
+			if ( ( $v = $lget( 'layout_sidebar_radius' ) ) !== '' )       { $out['--sidebar-radius']       = unysonplus_css_length( $v ); }
+			if ( ( $v = $lget( 'layout_sidebar_widget_spacing' ) ) !== '' ) { $out['--widget-spacing']     = unysonplus_css_length( $v ); }
+			if ( ( $v = $lget( 'layout_sidebar_widget_title_size' ) ) !== '' ) { $out['--widget-title-size'] = unysonplus_css_length( $v ); }
+			if ( ( $v = $lget( 'layout_sidebar_widget_title_weight' ) ) !== '' ) { $out['--widget-title-weight'] = preg_replace( '/[^0-9]/', '', (string) $v ); }
+			if ( $lget( 'layout_sidebar_widget_title_uppercase' ) === 'yes' ) { $out['--widget-title-transform'] = 'uppercase'; }
+			$wtc = unysonplus_preset_color_to_css( $lget( 'layout_sidebar_widget_title_color' ) );
+			if ( $wtc !== '' ) { $out['--widget-title-color'] = $wtc; }
+
+			// General → Base: selection / scrollbar / focus outline (all opt-in).
+			$sel_bg = unysonplus_preset_color_to_css( $lget( 'base_selection_bg' ) );
+			if ( $sel_bg !== '' ) { $out['--selection-bg'] = $sel_bg; }
+			$sel_fg = unysonplus_preset_color_to_css( $lget( 'base_selection_color' ) );
+			if ( $sel_fg !== '' ) { $out['--selection-color'] = $sel_fg; }
+			$sb_color = unysonplus_preset_color_to_css( $lget( 'base_scrollbar_color' ) );
+			if ( $sb_color !== '' ) { $out['--scrollbar-color'] = $sb_color; }
+			if ( ( $v = $lget( 'base_scrollbar_width' ) ) !== '' ) { $out['--scrollbar-width'] = unysonplus_css_length( $v ); }
+			$focus_c = unysonplus_preset_color_to_css( $lget( 'base_focus_color' ) );
+			if ( $focus_c !== '' ) { $out['--focus-color'] = $focus_c; }
+			if ( ( $v = $lget( 'base_focus_width' ) ) !== '' ) { $out['--focus-width'] = unysonplus_css_length( $v ); }
+
+			// General → Layout: responsive container max-widths (per device).
+			if ( ( $v = $lget( 'layout_container_width_desktop' ) ) !== '' ) { $out['--container-max-desktop'] = unysonplus_css_length( $v ); }
+			if ( ( $v = $lget( 'layout_container_width_tablet' ) ) !== '' )  { $out['--container-max-tablet']  = unysonplus_css_length( $v ); }
+			if ( ( $v = $lget( 'layout_container_width_mobile' ) ) !== '' )  { $out['--container-max-mobile']  = unysonplus_css_length( $v ); }
 		}
 
 		// Header layout — container, min_height, bg_color, topbar.
 		$header_layout = fw_get_db_settings_option( 'header_layout', array() );
 		if ( is_array( $header_layout ) ) {
-			if ( ! empty( $header_layout['bg_color'] ) ) {
-				$out['--header-bg']        = $header_layout['bg_color'];
-				$out['--header-sticky-bg'] = unysonplus_color_with_alpha( $header_layout['bg_color'], 0.95 );
+			$hbg = isset( $header_layout['bg_color'] ) ? unysonplus_preset_color_to_css( $header_layout['bg_color'] ) : '';
+			if ( $hbg !== '' ) {
+				$out['--header-bg']        = $hbg;
+				// color-mix keeps the ~95% sticky tint working for a preset var() too.
+				$out['--header-sticky-bg'] = 'color-mix(in srgb, ' . $hbg . ' 95%, transparent)';
 			}
 			$hmh = unysonplus_css_length( isset( $header_layout['min_height'] ) ? $header_layout['min_height'] : '' );
 			if ( $hmh !== '' ) { $out['--header-min-height'] = $hmh; }
@@ -236,14 +377,59 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			$hmh_mobile = unysonplus_css_length( isset( $header_layout['mobile_min_height'] ) ? $header_layout['mobile_min_height'] : '' );
 			if ( $hmh_mobile !== '' ) { $out['--header-min-height-mobile'] = $hmh_mobile; }
 
-			// Vertical header rail width (moved here from General → Layout; falls
-			// back to the legacy general_layout key for pre-migration installs).
-			$vw_raw = ! empty( $header_layout['vertical_width'] )
-				? $header_layout['vertical_width']
-				: ( isset( $layout['layout_vertical_width'] ) ? $layout['layout_vertical_width'] : '' );
+			// Sticky-shrink logo height (Behavior = Sticky + Shrink); CSS falls back to 40px.
+			$shrink = unysonplus_css_length( isset( $header_layout['sticky_shrink_height'] ) ? $header_layout['sticky_shrink_height'] : '' );
+			if ( $shrink !== '' ) { $out['--header-shrink-logo'] = $shrink; }
+
+			// Header row vertical alignment + element gap (all header rows/columns).
+			$valign_map = array( 'top' => 'flex-start', 'center' => 'center', 'bottom' => 'flex-end' );
+			$valign = isset( $header_layout['header_valign'] ) ? (string) $header_layout['header_valign'] : '';
+			if ( isset( $valign_map[ $valign ] ) && $valign !== 'center' ) { $out['--header-valign'] = $valign_map[ $valign ]; }
+			$egap = unysonplus_css_length( isset( $header_layout['header_element_gap'] ) ? $header_layout['header_element_gap'] : '' );
+			if ( $egap !== '' ) { $out['--header-element-gap'] = $egap; }
+
+			// Vertical header rail width. Now housed inside the header_mode multi-picker's
+			// Vertical reveals — the accessor resolves the active mode's value (and the
+			// legacy flat key); fall back to the older general_layout key too.
+			$vw_raw = function_exists( 'unysonplus_header_layout_get' )
+				? unysonplus_header_layout_get( 'vertical_width', isset( $layout['layout_vertical_width'] ) ? $layout['layout_vertical_width'] : '' )
+				: ( ! empty( $header_layout['vertical_width'] ) ? $header_layout['vertical_width'] : ( isset( $layout['layout_vertical_width'] ) ? $layout['layout_vertical_width'] : '' ) );
 			$vw = unysonplus_css_length( $vw_raw );
 			if ( $vw !== '' ) { $out['--vertical-header-width'] = $vw; }
 
+			// NOTE: Header Design sub-option CSS vars (--header-design-*) are emitted as
+			// an inline style on the <header> in template-parts/header-builder.php instead
+			// of here — that is rendered per-request (always fresh) and doesn't depend on
+			// the cached generated CSS file this :root block is written into.
+
+			// Overlay Fullscreen background (Background Pro: color + gradient + image).
+			// Housed in the header_mode → overlay reveal; applies to both Panel and Radial.
+			$ov_bg = ( isset( $header_layout['header_mode']['overlay']['overlay_background'] ) && is_array( $header_layout['header_mode']['overlay']['overlay_background'] ) )
+				? $header_layout['header_mode']['overlay']['overlay_background'] : array();
+			if ( $ov_bg && function_exists( 'unysonplus_background_pro_css_vars' ) ) {
+				$out = array_merge( $out, unysonplus_background_pro_css_vars( $ov_bg, '--overlay-bg' ) );
+			}
+
+			// Radial disc fill (Background Pro, Video disabled). Housed in the
+			// overlay_style → radial reveal; consumed as --radial-disc-color / -image.
+			// (Concentric has no fill of its own — its rings use --overlay-bg-* above.)
+			$rd_bg = ( isset( $header_layout['header_mode']['overlay']['overlay_style']['radial']['radial_disc_bg'] ) && is_array( $header_layout['header_mode']['overlay']['overlay_style']['radial']['radial_disc_bg'] ) )
+				? $header_layout['header_mode']['overlay']['overlay_style']['radial']['radial_disc_bg'] : array();
+			if ( $rd_bg && function_exists( 'unysonplus_background_pro_css_vars' ) ) {
+				$out = array_merge( $out, unysonplus_background_pro_css_vars( $rd_bg, '--radial-disc' ) );
+			}
+
+			// Concentric ring opacity (slider 0-100). Emitted as --cc-bg-opacity (0-1);
+			// only when < 100, since 100 = the solid default the CSS already assumes.
+			$cc_op = fw_akg( 'header_mode/overlay/overlay_bg_opacity', $header_layout, 100 );
+			$cc_op = is_numeric( $cc_op ) ? (int) $cc_op : 100;
+			if ( $cc_op >= 0 && $cc_op < 100 ) {
+				$out['--cc-bg-opacity'] = round( $cc_op / 100, 3 );
+			}
+
+			// Duotone second colour → --cc-duotone-color (compact preset or legacy hex).
+			$cc_dc_color = unysonplus_preset_color_to_css( fw_akg( 'header_mode/overlay/overlay_duotone_color', $header_layout ) );
+			if ( $cc_dc_color !== '' ) { $out['--cc-duotone-color'] = $cc_dc_color; }
 		}
 
 		// Top Bar / Bottom Bar styling (bg, typography, link, borders) is compiled
@@ -312,12 +498,8 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 		if ( ! empty( $typography['body']['color'] ) ) {
 			$out['--color-text'] = $typography['body']['color'];
 		}
-		if ( ! empty( $typography['body']['family'] ) ) {
-			$out['--font-body'] = "'" . $typography['body']['family'] . "', " . $out['--font-body'];
-		}
-		if ( ! empty( $typography['h1']['family'] ) ) {
-			$out['--font-heading'] = "'" . $typography['h1']['family'] . "', " . $out['--font-body'];
-		}
+		// (--font-body / --font-heading + the heading scale come from css-tokens.php
+		// — the Typography preset / pairing — not here.)
 		// Body/content link colors (Typography). Emitted only when set; style.css
 		// falls back to --color-primary so unset = current behavior.
 		if ( ! empty( $typography['body_link'] ) ) {
@@ -326,17 +508,70 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 		if ( ! empty( $typography['body_link_hover'] ) ) {
 			$out['--body-link-hover'] = $typography['body_link_hover'];
 		}
+		// Body link underline (Typography → Body Link Underline). Drives the
+		// text-decoration on prose links in both states; default 'hover' matches the
+		// style.css fallbacks (none / underline), so it only emits when overridden.
+		$blu = ! empty( $typography['body_link_underline'] ) ? $typography['body_link_underline'] : 'hover';
+		if ( $blu === 'always' ) {
+			$out['--body-link-decoration']       = 'underline';
+			$out['--body-link-decoration-hover'] = 'underline';
+		} elseif ( $blu === 'never' ) {
+			$out['--body-link-decoration']       = 'none';
+			$out['--body-link-decoration-hover'] = 'none';
+		}
 
 		// Header → Menu styling (maps to the --menu-* tokens consumed by style.css).
+		// Colors run through the preset resolver (predefined → a live-linked
+		// var(--color-slug), custom → hex, legacy plain-hex string → passthrough).
 		$menu = fw_get_db_settings_option( 'header_menu', array() );
 		if ( is_array( $menu ) ) {
-			if ( ! empty( $menu['menu_link_color'] ) )       { $out['--menu-link-color'] = $menu['menu_link_color']; }
-			if ( ! empty( $menu['menu_link_hover_color'] ) ) { $out['--menu-link-hover'] = $menu['menu_link_hover_color']; }
-			if ( ! empty( $menu['menu_dropdown_bg'] ) )      { $out['--menu-dropdown-bg'] = $menu['menu_dropdown_bg']; }
+			// Top-level items.
+			$mlc = unysonplus_preset_color_to_css( isset( $menu['menu_link_color'] ) ? $menu['menu_link_color'] : '' );
+			if ( $mlc !== '' ) { $out['--menu-link-color'] = $mlc; }
+			$mhc = unysonplus_preset_color_to_css( isset( $menu['menu_link_hover_color'] ) ? $menu['menu_link_hover_color'] : '' );
+			if ( $mhc !== '' ) { $out['--menu-link-hover'] = $mhc; }
+			$mib = unysonplus_preset_color_to_css( isset( $menu['menu_item_bg'] ) ? $menu['menu_item_bg'] : '' );
+			if ( $mib !== '' ) { $out['--menu-item-bg'] = $mib; }
+			$mihb = unysonplus_preset_color_to_css( isset( $menu['menu_item_hover_bg'] ) ? $menu['menu_item_hover_bg'] : '' );
+			if ( $mihb !== '' ) { $out['--menu-item-hover-bg'] = $mihb; }
 			$mpx = unysonplus_css_length( isset( $menu['menu_link_padding_x'] ) ? $menu['menu_link_padding_x'] : '' );
 			if ( $mpx !== '' ) { $out['--menu-link-pad-x'] = $mpx; }
 			$mpy = unysonplus_css_length( isset( $menu['menu_link_padding_y'] ) ? $menu['menu_link_padding_y'] : '' );
 			if ( $mpy !== '' ) { $out['--menu-link-pad-y'] = $mpy; }
+
+			// Dropdown / submenu.
+			$mdd = unysonplus_preset_color_to_css( isset( $menu['menu_dropdown_bg'] ) ? $menu['menu_dropdown_bg'] : '' );
+			if ( $mdd !== '' ) { $out['--menu-dropdown-bg'] = $mdd; }
+			$mdl = unysonplus_preset_color_to_css( isset( $menu['menu_dropdown_link'] ) ? $menu['menu_dropdown_link'] : '' );
+			if ( $mdl !== '' ) { $out['--menu-dropdown-link'] = $mdl; }
+			$mdlh = unysonplus_preset_color_to_css( isset( $menu['menu_dropdown_link_hover'] ) ? $menu['menu_dropdown_link_hover'] : '' );
+			if ( $mdlh !== '' ) { $out['--menu-dropdown-link-hover'] = $mdlh; }
+			$mdih = unysonplus_preset_color_to_css( isset( $menu['menu_dropdown_item_hover_bg'] ) ? $menu['menu_dropdown_item_hover_bg'] : '' );
+			if ( $mdih !== '' ) { $out['--menu-dropdown-item-hover-bg'] = $mdih; }
+			$mdw = unysonplus_css_length( isset( $menu['menu_dropdown_width'] ) ? $menu['menu_dropdown_width'] : '' );
+			if ( $mdw !== '' ) { $out['--menu-dropdown-width'] = $mdw; }
+			$mdr = unysonplus_css_length( isset( $menu['menu_dropdown_radius'] ) ? $menu['menu_dropdown_radius'] : '' );
+			if ( $mdr !== '' ) { $out['--menu-dropdown-radius'] = $mdr; }
+		}
+
+		// Social icon style (Social tab → social_style). Size/gap → lengths; colors →
+		// the preset resolver. Shape / brand / hover-fx ride wrapper classes (set in
+		// unysonplus_render_social_icons), not vars.
+		$social = fw_get_db_settings_option( 'social_style', array() );
+		if ( is_array( $social ) ) {
+			$ss = ( isset( $social['group_social_style'] ) && is_array( $social['group_social_style'] ) ) ? $social['group_social_style'] : $social;
+			$sz = unysonplus_css_length( isset( $ss['social_icon_size'] ) ? $ss['social_icon_size'] : '' );
+			if ( $sz !== '' ) { $out['--social-size'] = $sz; }
+			$sg = unysonplus_css_length( isset( $ss['social_icon_gap'] ) ? $ss['social_icon_gap'] : '' );
+			if ( $sg !== '' ) { $out['--social-gap'] = $sg; }
+			$sc = unysonplus_preset_color_to_css( isset( $ss['social_icon_color'] ) ? $ss['social_icon_color'] : '' );
+			if ( $sc !== '' ) { $out['--social-icon-color'] = $sc; }
+			$sb = unysonplus_preset_color_to_css( isset( $ss['social_icon_bg'] ) ? $ss['social_icon_bg'] : '' );
+			if ( $sb !== '' ) { $out['--social-icon-bg'] = $sb; }
+			$shc = unysonplus_preset_color_to_css( isset( $ss['social_icon_hover_color'] ) ? $ss['social_icon_hover_color'] : '' );
+			if ( $shc !== '' ) { $out['--social-icon-hover-color'] = $shc; }
+			$shb = unysonplus_preset_color_to_css( isset( $ss['social_icon_hover_bg'] ) ? $ss['social_icon_hover_bg'] : '' );
+			if ( $shb !== '' ) { $out['--social-icon-hover-bg'] = $shb; }
 		}
 
 		return $out;

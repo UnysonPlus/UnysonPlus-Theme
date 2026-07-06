@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 78" preserveAspectRatio="xMidYMid meet">
+  <rect width="80" height="60" fill="#eaeef2"/>
+  <rect x="0" y="0" width="20" height="60" fill="#2c3138"/>
+  <circle cx="10" cy="10" r="4" fill="#eaeef2"/>
+  <rect x="4" y="20" width="12" height="3" fill="#a8b1ba"/>
+  <rect x="4" y="27" width="12" height="3" fill="#a8b1ba"/>
+  <rect x="4" y="34" width="12" height="3" fill="#a8b1ba"/>
+  <rect x="4" y="41" width="12" height="3" fill="#a8b1ba"/>
+  <rect x="26" y="10" width="48" height="4" fill="#a8b1ba"/>
+  <rect x="26" y="18" width="48" height="4" fill="#a8b1ba"/>
+  <rect x="26" y="26" width="35" height="4" fill="#a8b1ba"/>
+  <text x="40" y="73" text-anchor="middle" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="9" font-weight="600" fill="#50575e">Vertical Menu</text>
+</svg>

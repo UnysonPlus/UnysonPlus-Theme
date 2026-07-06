@@ -29,6 +29,19 @@ $options = [
 							],
 						],
 					],
+					'tab_base' => [
+						'title'   => __( 'Base', 'unysonplus' ),
+						'type'    => 'tab',
+						'options' => [
+							'base_box' => [
+								'title'   => __( 'Base / Global Styling', 'unysonplus' ),
+								'type'    => 'box',
+								'options' => [
+									fw()->theme->get_options( 'general-base' ),
+								],
+							],
+						],
+					],
 					'tab_typography' => [
 						'title'   => __( 'Typography', 'unysonplus' ),
 						'type'    => 'tab',
@@ -65,19 +78,8 @@ $options = [
 					// Preloader + Scrolling moved to the top-level "Site-wide UX" tab
 					// (inc/includes/site-wide-ux.php) — consolidated with Scroll to Top and,
 					// when the Animation Engine is active, merged into its richer tab.
-					'tab_image_sizes' => [
-						'title'   => __( 'Image Sizes', 'unysonplus' ),
-						'type'    => 'tab',
-						'options' => [
-							'image_sizes_box' => [
-								'title'   => __( 'Custom Image Sizes', 'unysonplus' ),
-								'type'    => 'box',
-								'options' => [
-									fw()->theme->get_options( 'general-image-sizes' ),
-								],
-							],
-						],
-					],
+					// Image Sizes moved to Miscellaneous → Media (a media/technical concern,
+					// not a site-wide design one). Storage key `theme_image_sizes` unchanged.
 					/*
 					 * Color Presets, Spacing/Gap, Font Sizes, Buttons, Borders and
 					 * Tables presets are now owned by the PLUGIN and edited at

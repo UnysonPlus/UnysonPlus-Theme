@@ -182,19 +182,18 @@
 .header-bottombar a:hover { opacity: .85; }
 
 .header-bottombar .header-row {
-	display: grid;
-	grid-template-columns: 1fr auto 1fr;
+	display: flex;
 	align-items: center;
 	gap: 1rem;
 	min-height: 2.75rem;
 }
-.header-bottombar .header-col--start  { justify-self: start;  min-width: 0; }
-.header-bottombar .header-col--center { justify-self: center; min-width: 0; }
-.header-bottombar .header-col--end    { justify-self: end;    min-width: 0; }
+.header-bottombar .header-col--start  { flex: 1 1 0;    justify-content: flex-start; min-width: 0; }
+.header-bottombar .header-col--center { flex: 0 1 auto; justify-content: center;     min-width: 0; }
+.header-bottombar .header-col--end    { flex: 1 1 0;    justify-content: flex-end;   min-width: 0; }
 
 @media (max-width: 767.98px) {
-	.header-bottombar .header-row { grid-template-columns: 1fr; gap: .25rem; text-align: center; }
-	.header-bottombar .header-col { justify-self: center; }
+	.header-bottombar .header-row { flex-direction: column; gap: .25rem; text-align: center; }
+	.header-bottombar .header-col { flex: 0 0 auto; justify-content: center; }
 }
 
 /* =========================================================
@@ -246,15 +245,51 @@
 	box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .08);
 }
 
-/* Sticky + shrink */
+/* Sticky + shrink — the shrunk logo height is configurable (Header → Layout →
+   Shrunk Logo Height → --header-shrink-logo), defaulting to 40px. Covers both the
+   theme logo (.site-logo) and the Site Logo shortcode (.sc-site-logo__img). */
 .site-header[data-hf-behavior="sticky-shrink"] { transition: padding .2s ease; }
 .site-header[data-hf-behavior="sticky-shrink"].is-stuck { padding-top: .25rem; padding-bottom: .25rem; }
-.site-header[data-hf-behavior="sticky-shrink"] .sc-site-logo__img { transition: max-height .2s ease; }
-.site-header[data-hf-behavior="sticky-shrink"].is-stuck .sc-site-logo__img { max-height: 40px; }
+.site-header[data-hf-behavior="sticky-shrink"] .sc-site-logo__img,
+.site-header[data-hf-behavior="sticky-shrink"] .site-logo { transition: max-height .2s ease; }
+.site-header[data-hf-behavior="sticky-shrink"].is-stuck .sc-site-logo__img,
+.site-header[data-hf-behavior="sticky-shrink"].is-stuck .site-logo { max-height: var(--header-shrink-logo, 40px); }
 
 /* Hide on scroll down (header-behaviors.js toggles .is-hidden) */
 .site-header[data-hf-behavior="hide-on-scroll"] { transition: transform .3s ease; will-change: transform; }
 .site-header[data-hf-behavior="hide-on-scroll"].is-hidden { transform: translateY(-100%); }
+
+/* =========================================================
+ * Chrome toggles  (Header → Layout switches — compose with any design/behavior)
+ * Always loaded (tiny, class-gated). Placed AFTER the sticky base rule (above) so the
+ * glass background wins over the .is-stuck white repaint by source order.
+ * ========================================================= */
+
+/* Border — a hairline rule under the header (inset shadow: no height / layout shift). */
+.site-header--border { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .16); }
+.site-header--border.is-stuck { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .22); }
+
+/* Shadow — a soft drop shadow lifting the header off the page. */
+.site-header--shadow { box-shadow: 0 6px 22px -10px rgba(15, 23, 42, .28); }
+.site-header--shadow.is-stuck { box-shadow: 0 10px 28px -8px rgba(15, 23, 42, .34); }
+
+/* Border + Shadow together — box-shadow doesn't stack across selectors, so compose. */
+.site-header--border.site-header--shadow { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .16), 0 6px 22px -10px rgba(15, 23, 42, .28); }
+.site-header--border.site-header--shadow.is-stuck { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .22), 0 10px 28px -8px rgba(15, 23, 42, .34); }
+
+/* Uppercase navigation — primary menu links. */
+.site-header--uppercase-nav .header-main .menu-item > a { text-transform: uppercase; letter-spacing: .04em; }
+
+/* Translucent / Glass — frosted, semi-transparent header background. */
+.site-header--glass {
+	background: color-mix(in srgb, var(--header-bg, #fff) 72%, transparent);
+	-webkit-backdrop-filter: saturate(1.4) blur(10px);
+	backdrop-filter: saturate(1.4) blur(10px);
+}
+/* Keep glass translucent when stuck (base rule would otherwise repaint it solid). */
+.site-header--glass.header-sticky.is-stuck:not(.site-header--transparent) {
+	background: color-mix(in srgb, var(--header-bg, #fff) 78%, transparent);
+}
 
 /* =========================================================
  * Responsive — per-element visibility + collapse breakpoint + mobile height

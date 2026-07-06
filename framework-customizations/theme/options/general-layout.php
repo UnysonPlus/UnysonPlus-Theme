@@ -29,13 +29,18 @@ $uri = get_template_directory_uri();
 $svg = $uri . '/assets/svg/layout';
 $pat = $uri . '/images/patterns';
 
+// Cache-bust the preview SVGs by theme version so edits to them (e.g. the
+// Site Width Mode labels) show up without a manual hard-refresh.
+$svg_ver = wp_get_theme( get_template() )->get( 'Version' );
+
 /* Build the image-picker `choices` array for any pair of {value => svg-filename}. */
-$picker = function ( array $pairs, $height_small = 70, $height_large = 140 ) use ( $svg ) {
+$picker = function ( array $pairs, $height_small = 70, $height_large = 140 ) use ( $svg, $svg_ver ) {
 	$out = [];
 	foreach ( $pairs as $value => $file ) {
+		$src = $svg . '/' . $file . ( $svg_ver ? '?v=' . rawurlencode( $svg_ver ) : '' );
 		$out[ $value ] = [
-			'small' => [ 'height' => $height_small, 'src' => $svg . '/' . $file ],
-			'large' => [ 'height' => $height_large, 'src' => $svg . '/' . $file ],
+			'small' => [ 'height' => $height_small, 'src' => $src ],
+			'large' => [ 'height' => $height_large, 'src' => $src ],
 		];
 	}
 	return $out;
@@ -67,7 +72,7 @@ $options = [
 									'full'   => 'width-full.svg',
 									'boxed'  => 'width-boxed.svg',
 									'framed' => 'width-framed.svg',
-								] ),
+								], 125, 250 ),
 							],
 						],
 						'value'   => [ 'mode' => 'full' ],
@@ -187,6 +192,33 @@ $options = [
 						'type'  => 'unit-input',
 						'units' => [ 'rem', 'px', 'em' ],
 						'value' => [ 'value' => '', 'unit' => 'rem' ],
+						'min'   => 0,
+					],
+
+					/* Responsive container max-widths — cap the fixed-width `.container`
+					   per device. Each blank = the Bootstrap default for that range. */
+					'layout_container_width_desktop' => [
+						'label' => __( 'Container Width — Desktop', 'unysonplus' ),
+						'desc'  => __( 'Max width of the fixed-width container on desktop (≥ 992px). Leave blank for the Bootstrap default (1320px).', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'px', 'rem', 'em', '%' ],
+						'value' => [ 'value' => '', 'unit' => 'px' ],
+						'min'   => 0,
+					],
+					'layout_container_width_tablet' => [
+						'label' => __( 'Container Width — Tablet', 'unysonplus' ),
+						'desc'  => __( 'Max width of the container on tablets (768–991px). Leave blank for the default.', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'px', 'rem', 'em', '%' ],
+						'value' => [ 'value' => '', 'unit' => 'px' ],
+						'min'   => 0,
+					],
+					'layout_container_width_mobile' => [
+						'label' => __( 'Container Width — Mobile', 'unysonplus' ),
+						'desc'  => __( 'Max width of the container on phones (< 768px). Leave blank for full width (default).', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'px', 'rem', 'em', '%' ],
+						'value' => [ 'value' => '', 'unit' => 'px' ],
 						'min'   => 0,
 					],
 					'layout_roundness' => [

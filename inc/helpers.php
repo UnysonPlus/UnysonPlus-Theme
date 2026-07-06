@@ -118,6 +118,15 @@ if(! function_exists('unysonplus_logo')) :
                                         'class' => 'site-logo site-logo--mobile img-fluid',
                                 ) );
                         }
+                        // Transparent-header variant — shown while the header is transparent
+                        // and not yet stuck (see .site-logo--transparent in style.css).
+                        if ( ! empty( $header_logo['transparent_image']['url'] ) ) {
+                                $logo .= fw_html_tag( 'img', array(
+                                        'src'   => $header_logo['transparent_image']['url'],
+                                        'alt'   => $unysonplus_logo_alt,
+                                        'class' => 'site-logo site-logo--transparent img-fluid',
+                                ) );
+                        }
                 } elseif ( ( $custom_logo_id = get_theme_mod( 'custom_logo' ) ) && ( $custom_logo_url = wp_get_attachment_url( $custom_logo_id ) ) ) {
                         $img_attr = [];
                         $img_attr['src']    = $custom_logo_url;
@@ -151,8 +160,9 @@ if(! function_exists('unysonplus_logo')) :
                 //}
                 // Wrapper flags so style.css can gate the sticky / mobile logo swaps.
                 $unysonplus_brand_class = array( 'site-title', 'navbar-brand' );
-                if ( ! empty( $header_logo['sticky_image']['url'] ) ) { $unysonplus_brand_class[] = 'has-sticky-logo'; }
-                if ( ! empty( $header_logo['mobile_image']['url'] ) ) { $unysonplus_brand_class[] = 'has-mobile-logo'; }
+                if ( ! empty( $header_logo['sticky_image']['url'] ) )      { $unysonplus_brand_class[] = 'has-sticky-logo'; }
+                if ( ! empty( $header_logo['mobile_image']['url'] ) )      { $unysonplus_brand_class[] = 'has-mobile-logo'; }
+                if ( ! empty( $header_logo['transparent_image']['url'] ) ) { $unysonplus_brand_class[] = 'has-transparent-logo'; }
                 echo fw_html_tag( $tag, array( 'class' => join( ' ', $unysonplus_brand_class ) ),
                         fw_html_tag( 'a', $unysonplus_brand_link_attr, $logo)
                  );

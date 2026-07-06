@@ -56,23 +56,7 @@ $options = [
 					'boxed-narrow'   => __( 'Boxed Narrow', 'unysonplus' ),
 				],
 			],
-			'default_page_header_image' => [
-				'label' => __( 'Default Hero Header Image', 'unysonplus' ),
-				'desc'  => __( 'Used when a page has no per-page Hero Header image set.', 'unysonplus' ),
-				'type'  => 'upload',
-				'value' => [],
-			],
-			'default_page_header_height' => [
-				'label'   => __( 'Default Hero Header Height', 'unysonplus' ),
-				'type'    => 'radio',
-				'value'   => 'auto',
-				'choices' => [
-					'auto'   => __( 'Auto', 'unysonplus' ),
-					'small'  => __( 'Small (220px)', 'unysonplus' ),
-					'medium' => __( 'Medium (380px)', 'unysonplus' ),
-					'large'  => __( 'Large (560px)', 'unysonplus' ),
-				],
-			],
+			// (Hero image / height moved to Pages → Page Title / Hero — `pages-hero.php`.)
 			'pages_show_breadcrumbs' => [
 				'label'        => __( 'Show Breadcrumbs on Pages', 'unysonplus' ),
 				'type'         => 'switch',

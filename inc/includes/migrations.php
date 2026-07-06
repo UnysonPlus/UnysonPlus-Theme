@@ -22,7 +22,7 @@
  */
 
 if ( ! defined( 'UNYSONPLUS_SCHEMA_VERSION' ) ) {
-	define( 'UNYSONPLUS_SCHEMA_VERSION', 3 );
+	define( 'UNYSONPLUS_SCHEMA_VERSION', 7 );
 }
 
 if ( ! function_exists( 'unysonplus_schema_migrations' ) ) :
@@ -37,6 +37,10 @@ function unysonplus_schema_migrations() {
 		1 => 'unysonplus_migrate_layout_settings',  // General → Layout split (sidebar / preloader / scroll) + header_mode / vertical_width move
 		2 => 'unysonplus_migrate_header_layout',    // header_layout blob → header_topbar / header_main / header_bottombar
 		3 => 'unysonplus_migrate_width_mode',       // Site Width Mode flat → multi-picker; drop layout_container_max_width
+		4 => 'unysonplus_migrate_header_preset_to_toggles', // header_layout.header_preset (bordered/elevated) → header_border / header_shadow toggles
+		5 => 'unysonplus_migrate_header_design_to_multipicker', // Top header_design scalar → multi-picker shape [ 'design' => … ]
+		6 => 'unysonplus_migrate_overlay_style',    // Overlay Style scalar → popover multi-picker shape [ 'style' => … ]
+		7 => 'unysonplus_migrate_vertical_merge',   // Vertical-Left/Right modes → merged 'vertical' mode + vertical_side picker
 	);
 }
 endif;

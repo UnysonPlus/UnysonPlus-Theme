@@ -14,6 +14,13 @@
  */
 
 $options = [
+	// Quick-start: fill the columns with a ready-made top bar, then edit the elements.
+	'topbar_presets' => [
+		'type'         => 'preset-loader',
+		'label'        => __( 'Top Bar Presets', 'unysonplus' ),
+		'desc'         => __( 'Populate the columns below with sample top-bar content in one click, then fine-tune each element.', 'unysonplus' ),
+		'preset_group' => 'header_topbar',
+	],
 	'header_topbar' => [
 		'type'          => 'multi',
 		'label'         => false,
@@ -21,6 +28,7 @@ $options = [
 			'group_topbar' => [
 				'type'    => 'group',
 				'options' => [
+					'topbar_columns_note' => unysonplus_hf_columns_note(),
 					'topbar_left'   => unysonplus_header_column( __( 'Top Bar — Left Column', 'unysonplus' ) ),
 					'topbar_center' => unysonplus_header_column( __( 'Top Bar — Center Column', 'unysonplus' ) ),
 					'topbar_right'  => unysonplus_header_column( __( 'Top Bar — Right Column', 'unysonplus' ) ),

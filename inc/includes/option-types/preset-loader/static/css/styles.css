@@ -1,0 +1,93 @@
+/* preset-loader option type — a "quick start" card grid + actions. */
+
+/* Highlight the whole option so it reads as a special "quick start" panel,
+   distinct from the normal options around it. */
+.fw-backend-option-type-preset-loader {
+	background: #f8fdff;
+	border: 1px solid #d6ebf5;
+	border-radius: 8px;
+}
+
+.fw-preset-loader-cards {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 14px;
+}
+
+.fw-preset-card {
+	flex: 1 1 150px;
+	min-width: 140px;
+	max-width: 220px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	text-align: left;
+	padding: 12px 14px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.fw-preset-card:hover {
+	border-color: #2271b1;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
+}
+.fw-preset-card.is-selected {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	background: #f0f6fc;
+}
+.fw-preset-card.is-disabled,
+.fw-preset-card:disabled {
+	opacity: .55;
+	cursor: not-allowed;
+	box-shadow: none;
+}
+.fw-preset-card.is-disabled:hover {
+	border-color: #dcdcde;
+}
+
+.fw-preset-card__name {
+	font-weight: 600;
+	font-size: 13px;
+	color: #1d2327;
+}
+.fw-preset-card__desc {
+	font-size: 11.5px;
+	line-height: 1.4;
+	color: #646970;
+}
+.fw-preset-card--custom {
+	border-style: dashed;
+}
+
+.fw-preset-loader-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+.fw-preset-upload-label {
+	position: relative;
+	cursor: pointer;
+	margin: 0;
+}
+.fw-preset-loader-status {
+	font-size: 12px;
+	color: #646970;
+}
+.fw-preset-loader-status.is-error { color: #d63638; }
+.fw-preset-loader-status.is-busy  { color: #2271b1; }
+
+.fw-preset-loader-note {
+	margin: 10px 0 0;
+	font-size: 11.5px;
+	color: #8c8f94;
+	font-style: italic;
+}
+.fw-preset-loader-empty {
+	color: #646970;
+	font-style: italic;
+}

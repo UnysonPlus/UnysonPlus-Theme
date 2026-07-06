@@ -157,14 +157,17 @@ if(!function_exists('_action_theme_process_google_fonts')) {
                 // on null" warnings on every settings save. Header / footer
                 // per-section typography loads its own Google fonts via
                 // inc/includes/hf-custom-css.php.
+                // Effective heading + body (+ per-heading) families from the Typography
+                // preset / pairing — so a chosen preset's Google fonts are loaded too.
                 $include_from_google = array();
-                $typographys = fw_get_db_settings_option( 'typography' );
-                if ( is_array( $typographys ) ) {
-                        foreach ( array( 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ) as $key ) {
-                                $family = isset( $typographys[ $key ]['family'] ) ? $typographys[ $key ]['family'] : '';
-                                if ( $family !== '' && isset( $google_fonts[ $family ] ) ) {
-                                        $include_from_google[ $family ] = $google_fonts[ $family ];
-                                }
+                $families = array();
+                if ( function_exists( 'unysonplus_typography_config' ) ) {
+                        $cfg = unysonplus_typography_config( fw_get_db_settings_option( 'typography', array() ) );
+                        $families = isset( $cfg['google'] ) ? $cfg['google'] : array();
+                }
+                foreach ( $families as $family ) {
+                        if ( $family !== '' && isset( $google_fonts[ $family ] ) ) {
+                                $include_from_google[ $family ] = $google_fonts[ $family ];
                         }
                 }
 
@@ -495,6 +498,7 @@ if (! function_exists('unysonplus_include_custom_option_types')) :
         /** @internal */
         function unysonplus_include_custom_option_types() {
                 require_once dirname(__FILE__) . '/includes/option-types/fw-multi-inline/class-fw-option-type-fw-multi-inline.php';
+                require_once dirname(__FILE__) . '/includes/option-types/preset-loader/class-fw-option-type-preset-loader.php';
         }
 add_action('fw_option_types_init', 'unysonplus_include_custom_option_types');
 endif;

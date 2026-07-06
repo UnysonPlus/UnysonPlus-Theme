@@ -88,6 +88,12 @@ $options = [
 				'type'        => 'upload',
 				'images_only' => true,
 			],
+			'transparent_image' => [
+				'label'       => __( 'Transparent-Header Logo', 'unysonplus' ),
+				'desc'        => __( 'Optional logo shown while the header is transparent / overlaying the hero (Header &rarr; Layout &rarr; Behavior = Transparent, or a per-page Transparent header). Usually a light/white variant. Swaps back to the main logo once the header sticks. Leave empty to keep the main logo.', 'unysonplus' ),
+				'type'        => 'upload',
+				'images_only' => true,
+			],
 			'alt' => [
 				'label' => __( 'Logo Alt Text', 'unysonplus' ),
 				'type'  => 'text',

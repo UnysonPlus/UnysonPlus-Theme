@@ -118,6 +118,66 @@ wp_enqueue_style(
         'all'
 );
 
+// Header Design — load ONLY the active design's CSS partial (Header → Layout → Header
+// Design, Top mode). Unused designs never ship; 'classic' is the base bar and has no
+// partial. Theme-owned; mirrors the Animation Engine's on-demand asset pattern without
+// depending on that extension (the header is a core feature).
+if ( function_exists( 'unysonplus_header_layout_get' ) ) {
+        $unysonplus_header_design = sanitize_file_name( (string) unysonplus_header_layout_get( 'header_design', 'classic' ) );
+        if ( $unysonplus_header_design !== '' && $unysonplus_header_design !== 'classic' ) {
+                $unysonplus_design_rel = '/assets/css/header/designs/' . $unysonplus_header_design . '.css';
+                if ( file_exists( get_template_directory() . $unysonplus_design_rel ) ) {
+                        wp_enqueue_style(
+                                'unysonplus-header-design-' . $unysonplus_header_design,
+                                get_template_directory_uri() . $unysonplus_design_rel,
+                                array( 'unysonplus-hf-builder' ),
+                                $unysonplus_theme_version,
+                                'all'
+                        );
+                }
+        }
+
+        // Per-mode header CSS — each layout mode's rules live in their own
+        // stylesheet (assets/css/header/modes/*.css) and load ONLY for the active
+        // mode, so a page never ships the CSS for modes it isn't using. The shared
+        // base (rows/columns/toggle + the mobile drawer) stays in style.css /
+        // header-footer-builder.css. Top designs (pill/card/centered) load via the
+        // header/designs/*.css block above; Top-Classic needs no mode CSS.
+        $unysonplus_header_mode = unysonplus_header_layout_get( 'header_mode', 'top' );
+        $unysonplus_mode_css    = '';
+        if ( function_exists( 'unysonplus_header_is_vertical' ) && unysonplus_header_is_vertical() ) {
+                $unysonplus_mode_css = 'vertical'; // merged Vertical mode (legacy -left/-right too)
+        } else {
+                switch ( $unysonplus_header_mode ) {
+                        case 'off-canvas-only': $unysonplus_mode_css = 'off-canvas';   break;
+                        case 'overlay':
+                                $unysonplus_overlay_style = unysonplus_header_layout_get( 'overlay_style', 'panel' );
+                                if ( $unysonplus_overlay_style === 'radial' ) {
+                                        $unysonplus_mode_css = 'overlay-radial';
+                                } elseif ( $unysonplus_overlay_style === 'concentric' ) {
+                                        $unysonplus_mode_css = 'overlay-concentric';
+                                } else {
+                                        $unysonplus_mode_css = 'overlay-panel';
+                                }
+                                break;
+                }
+        }
+        if ( $unysonplus_mode_css !== '' ) {
+                $unysonplus_mode_rel = '/assets/css/header/modes/' . $unysonplus_mode_css . '.css';
+                if ( file_exists( get_template_directory() . $unysonplus_mode_rel ) ) {
+                        wp_enqueue_style(
+                                'unysonplus-header-mode-' . $unysonplus_mode_css,
+                                get_template_directory_uri() . $unysonplus_mode_rel,
+                                // Depend on parent-style so the mode CSS prints AFTER style.css and
+                                // can override the shared drawer base (e.g. the radial menu items).
+                                array( 'parent-style', 'unysonplus-hf-builder' ),
+                                $unysonplus_theme_version,
+                                'all'
+                        );
+                }
+        }
+}
+
 wp_enqueue_script(
         'unysonplus-header-behaviors',
         get_template_directory_uri() . '/assets/js/header-behaviors.js',
@@ -149,7 +209,8 @@ if ( function_exists( 'unysonplus_misc_get' ) && unysonplus_misc_get( 'dark_mode
 // feature is active so the stack classifier always runs.
 $unysonplus_needs_layout_js =
         ( function_exists( 'unysonplus_layout_get' ) && (
-                unysonplus_layout_get( 'layout_preloader_style', 'none' ) !== 'none' ||
+                ( unysonplus_layout_get( 'layout_preloader_style', 'none' ) !== 'none'
+                        && ! ( function_exists( 'unysonplus_engine_preloader_active' ) && unysonplus_engine_preloader_active() ) ) ||
                 unysonplus_layout_get( 'layout_scroll_progress', 'no' ) === 'yes'
         ) ) ||
         ( function_exists( 'unysonplus_misc_get' ) && (

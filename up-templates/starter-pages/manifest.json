@@ -1,0 +1,18 @@
+[
+  {
+    "slug": "landing",
+    "title": "Starter — Landing Page"
+  },
+  {
+    "slug": "about",
+    "title": "Starter — About Page"
+  },
+  {
+    "slug": "pricing",
+    "title": "Starter — Pricing Page"
+  },
+  {
+    "slug": "contact",
+    "title": "Starter — Contact Page"
+  }
+]

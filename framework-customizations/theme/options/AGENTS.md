@@ -26,11 +26,16 @@ builder doc).
 > `$options` array key / storage id unchanged (renaming the file never changes the DB key, so the
 > render getters stay valid). This keeps files easy to find by tab.
 
-- **General** — split into sub-tabs (order: Layout, Typography, Colors, Sidebar, Image Sizes):
+- **General** — split into sub-tabs (order: Layout, Base, Typography, Colors, Sidebar):
   - **Layout** — `general-layout.php` (`general_layout`: site width/bg + pattern, container max-width/
     gutter, spacing scale, border **roundness** → `--radius`/`--radius-sm/md/lg`, prose reading width).
-  - **Typography** — `general-typography.php` (`typography`: h1–h6 + body family/size/line-height/
-    letter-spacing/color, `body_link*`, `font_sizes`) **+ Custom Fonts box** `general-fonts.php`
+  - **Typography** — `general-typography.php` (`typography`): a **Typography Preset** (`typography_preset`
+    — curated heading+body pairing + size scale, like the Color Presets) drives `--font-heading`/
+    `--font-body` + the h1–h6 scale; **Custom** uses `heading_font` + `body` + optional per-heading
+    `h1`–`h6` overrides, plus `body_link*`. Resolved by `inc/includes/css-tokens.php`
+    (`unysonplus_typography_presets()` / `unysonplus_typography_config()`); headings are CONSUMED in
+    style.css (`h1{font-size:var(--h1-font-size,revert);…}`). Google fonts for the effective families
+    load via `inc/hooks.php`. **+ Custom Fonts box** `general-fonts.php`
     (`custom_fonts` addable-box: self-hosted family + .woff2/.woff + weight/style → @font-face &
     picker registration, see `inc/includes/custom-fonts.php`).
   - **Colors** — pointer only (`html-full` note): the palette / buttons / borders / spacing presets
@@ -41,9 +46,11 @@ builder doc).
   - **Preloader** — `general-preloader.php` (`general_preloader`: preloader style + bg color).
   - **Scrolling** — `general-scroll.php` (`general_scroll`: smooth anchor scroll, scroll-progress bar
     + color).
-  - **Image Sizes** — `general-image-sizes.php` (`theme_image_sizes` addable-box: name/width/height/
-    crop). Schema only; the sizes are registered with `add_image_size()` on `after_setup_theme` by
-    `inc/includes/image-sizes.php` (NOT in the options file, which loads only on the settings screen).
+  - **Image Sizes** — MOVED to the plugin. It's now **Miscellaneous → Media**, provided by the
+    Unyson+ shortcodes extension (`includes/theme-settings/miscellaneous-media.php` schema +
+    `-handlers.php` behaviour: `add_image_size()` on `init` + the `image_size_names_choose` picker
+    filter). Stored under the same `theme_image_sizes` key, so no migration. The theme no longer
+    ships `general-image-sizes.php` / `inc/includes/image-sizes.php`.
 
   All wrapped in `group` containers for editor organization — groups flatten, leaf keys stay flat.
   The Sidebar/Preloader/Scrolling split is **read-transparent**: `unysonplus_layout_get()` merges

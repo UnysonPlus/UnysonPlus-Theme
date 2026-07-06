@@ -1,0 +1,23 @@
+/**
+ * Header Design: Elevated Card  (Header → Layout → Header Design, Top mode)
+ *
+ * The inner nav row becomes an inset rounded rectangle "card" with a drop shadow
+ * (MediCare). Corner Radius / Shadow come from the design's sub-options as CSS custom
+ * properties (theme-vars.php); the values here are the fallback defaults. Loaded ONLY
+ * when this design is active. Inherits --header-bg; composes with sticky/transparent.
+ */
+.site-header--design-card .header-main {
+	background: transparent;
+}
+.site-header--design-card .header-main > [class*="fw-container"] {
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	padding: .5rem 1.5rem;
+	background: var(--header-bg, #fff);
+	border-radius: var(--header-design-radius, 14px);
+	box-shadow: var(--header-design-shadow, 0 12px 30px -14px rgba(15, 23, 42, .32));
+}
+.site-header--design-card.header-sticky.is-stuck:not(.site-header--transparent) {
+	background: transparent;
+	box-shadow: none;
+}

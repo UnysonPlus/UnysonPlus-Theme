@@ -1,0 +1,142 @@
+/**
+ * Header mode: VERTICAL (left / right) — fixed side-rail layout.
+ * Loaded only when Header → Layout is Vertical Left/Right (inc/static.php).
+ * Keyed on body.layout-vertical-left / -right (set by unysonplus_layout_body_classes()).
+ */
+
+/* ---------- A. Vertical layouts (side rail) ---------- */
+@media (min-width: 992px) {
+	body.layout-vertical-left  .site,
+	body.layout-vertical-right .site {
+		display: grid;
+		grid-template-rows: auto minmax(0, 1fr) auto;
+	}
+	body.layout-vertical-left .site {
+		grid-template-columns: var(--vertical-header-width) minmax(0, 1fr);
+		grid-template-areas:
+			"header content"
+			"header content"
+			"header footer";
+	}
+	body.layout-vertical-right .site {
+		grid-template-columns: minmax(0, 1fr) var(--vertical-header-width);
+		grid-template-areas:
+			"content header"
+			"content header"
+			"footer  header";
+	}
+	body.layout-vertical-left .site > #masthead,
+	body.layout-vertical-right .site > #masthead { grid-area: header; }
+	body.layout-vertical-left .site > #content,
+	body.layout-vertical-right .site > #content { grid-area: content; }
+	body.layout-vertical-left .site > #colophon,
+	body.layout-vertical-right .site > #colophon { grid-area: footer; }
+
+	/* Skip-link sits in the .site grid; pull it out of flow so it doesn't claim a cell. */
+	body.layout-vertical-left .site > .skip-link,
+	body.layout-vertical-right .site > .skip-link { position: absolute; }
+
+	/* Side-rail header: fixed full height, scrollable if menu is long */
+	body.layout-vertical-left .site-header,
+	body.layout-vertical-right .site-header {
+		position: sticky;
+		top: var(--admin-bar-offset);
+		align-self: start;
+		height: calc(100vh - var(--admin-bar-offset));
+		overflow-y: auto;
+		min-height: 0;
+	}
+	body.layout-vertical-left  .site-header { border-right: 1px solid var(--color-border); }
+	body.layout-vertical-right .site-header { border-left:  1px solid var(--color-border); }
+
+	/* Reflow header internals: stack slots vertically */
+	body.layout-vertical-left  .site-header .header-main,
+	body.layout-vertical-right .site-header .header-main {
+		min-height: 100%;
+		display: flex;
+		flex-direction: column;
+		padding: 1.5rem 1.25rem;
+		align-items: stretch;
+	}
+	body.layout-vertical-left  .site-header .header-main > .container,
+	body.layout-vertical-right .site-header .header-main > .container,
+	body.layout-vertical-left  .site-header .header-main > .container-fluid,
+	body.layout-vertical-right .site-header .header-main > .container-fluid {
+		width: 100%;
+		max-width: 100%;
+		padding-left: 0;
+		padding-right: 0;
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+	}
+	body.layout-vertical-left  .site-header .header-row,
+	body.layout-vertical-right .site-header .header-row {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 1.5rem;
+		min-height: 0;
+		flex: 1 1 auto;
+	}
+	body.layout-vertical-left  .header-col,
+	body.layout-vertical-right .header-col {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.5rem;
+		margin-left: 0;
+	}
+	body.layout-vertical-left  .header-col--center,
+	body.layout-vertical-right .header-col--center { display: flex; flex: 1 1 auto; }
+	body.layout-vertical-left  .header-col--end,
+	body.layout-vertical-right .header-col--end { margin-top: auto; }
+
+	/* Primary menu becomes a vertical list inside the rail */
+	body.layout-vertical-left  .primary-navigation,
+	body.layout-vertical-right .primary-navigation { display: block; width: 100%; }
+	body.layout-vertical-left  .primary-menu,
+	body.layout-vertical-right .primary-menu {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.125rem;
+	}
+	body.layout-vertical-left  .primary-menu .menu-item,
+	body.layout-vertical-right .primary-menu .menu-item { width: 100%; }
+	body.layout-vertical-left  .primary-menu .menu-item > a,
+	body.layout-vertical-right .primary-menu .menu-item > a {
+		display: block;
+		padding: 0.625rem 0.875rem;
+	}
+	/* Dropdowns: open inline (no absolute positioning in side rail) */
+	body.layout-vertical-left  .primary-menu .sub-menu,
+	body.layout-vertical-right .primary-menu .sub-menu {
+		position: static;
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+		box-shadow: none;
+		background-color: transparent;
+		padding: 0 0 0 1rem;
+		min-width: 0;
+	}
+	body.layout-vertical-left  .primary-menu .menu-item-has-children > a::after,
+	body.layout-vertical-right .primary-menu .menu-item-has-children > a::after { display: none; }
+
+	/* Hamburger hidden in vertical mode (menu is in the rail) */
+	body.layout-vertical-left  .menu-toggle,
+	body.layout-vertical-right .menu-toggle { display: none; }
+
+	/* Topbar hidden in vertical mode (it's a horizontal-header concept) */
+	body.layout-vertical-left  .header-topbar,
+	body.layout-vertical-right .header-topbar { display: none; }
+}
+
+/* ---------- D. Mobile collapse (vertical modes revert to top below 992px) ---------- */
+@media (max-width: 991.98px) {
+	body.layout-vertical-left  .site-header,
+	body.layout-vertical-right .site-header {
+		position: static;
+		height: auto;
+		overflow: visible;
+		border: 0;
+	}
+}

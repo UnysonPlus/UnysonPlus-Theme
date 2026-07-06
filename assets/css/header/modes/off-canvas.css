@@ -1,0 +1,8 @@
+/**
+ * Header mode: OFF-CANVAS ONLY — hamburger always visible, no inline menu bar.
+ * Loaded only when Header → Layout is Off-Canvas Only. Keyed on body.layout-off-canvas-only.
+ */
+
+/* ---------- B. Off-Canvas Only (hamburger always visible, no top menu bar) ---------- */
+body.layout-off-canvas-only .header-col--center { display: none; }
+body.layout-off-canvas-only .menu-toggle        { display: inline-flex; }

@@ -425,15 +425,39 @@ $options = [
 		),
 	],
 	'demo_icon'                      => [
-		'label' => __( 'Icon', 'unysonplus' ),
+		'label' => __( 'Icon (legacy)', 'unysonplus' ),
 		'type'  => 'icon',
 		'value' => 'fa fa-linux',
-		'desc'  => __( 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+		'desc'  => __( 'The original Font Awesome 4 icon picker. Kept for back-compat; new options should use Icon v2 below.',
 			'unysonplus' ),
 		'help'  => sprintf( "%s \n\n'\"<br/><br/>\n\n <b>%s</b>",
 			__( 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
 				'unysonplus' ),
 			__( 'Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium',
+				'unysonplus' )
+		),
+	],
+	// Modern icon control. Multi-pack (Font Awesome, Dashicons, Entypo, Typicons,
+	// Linearicons, Linecons, Unycon), searchable, with custom image upload +
+	// favourites. Value is a structured array, not a bare class string.
+	// Size keys: `preview_size` (small|medium|large) sizes the swatch on the
+	// options page; `popup_size` (small|medium|large) sizes the picker modal —
+	// `popup_size` is the key the option type actually reads.
+	'demo_icon_v2'                   => [
+		'label'        => __( 'Icon v2', 'unysonplus' ),
+		'type'         => 'icon-v2',
+		'value'        => [
+			'type'       => 'icon-font',
+			'icon-class' => 'fa fa-star',
+		],
+		'preview_size' => 'medium',
+		'popup_size'   => 'medium',
+		'desc'         => __( 'Modern, searchable multi-pack icon picker with custom image upload and favourites. Preselected here with a Font Awesome star.',
+			'unysonplus' ),
+		'help'         => sprintf( "%s \n\n'\"<br/><br/>\n\n <b>%s</b>",
+			__( 'Search across every installed icon pack, upload your own image, or star icons as favourites for quick reuse.',
+				'unysonplus' ),
+			__( 'Icons can be recoloured and resized wherever the option is consumed, unlike a pasted emoji.',
 				'unysonplus' )
 		),
 	],

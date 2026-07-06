@@ -109,20 +109,33 @@ function unysonplus_hf_typography_css( $typo ) {
 		}
 		if ( $fam !== '' ) { $d[] = 'font-family:' . $fam; }
 	}
+	// Size: keep decimals + allow an explicit unit (e.g. "1.2rem"); a bare number is px.
 	if ( isset( $typo['size'] ) && $typo['size'] !== '' && $typo['size'] !== false ) {
-		$d[] = 'font-size:' . (int) $typo['size'] . 'px';
+		$d[] = 'font-size:' . ( is_numeric( $typo['size'] ) ? ( $typo['size'] + 0 ) . 'px' : unysonplus_hf_css_val( $typo['size'] ) );
 	}
-	if ( ! empty( $typo['weight'] ) ) {
-		$d[] = 'font-weight:' . preg_replace( '/[^0-9a-z]/', '', strtolower( (string) $typo['weight'] ) );
+	// Weight / style — prefer the Google-font `variation` (e.g. 700 / 700italic), then
+	// the standard-font style + weight fields. (Previously `variation` was ignored, so a
+	// bold Google font applied the family but not the weight.)
+	$fv      = ! empty( $typo['variation'] ) ? (string) $typo['variation'] : '';
+	$fstyle  = '';
+	$fweight = 0;
+	if ( $fv !== '' ) {
+		if ( stripos( $fv, 'italic' ) !== false ) { $fstyle = 'italic'; }
+		$fweight = (int) $fv;
+	} else {
+		if ( ! empty( $typo['style'] ) && $typo['style'] !== 'normal' ) { $fstyle = (string) $typo['style']; }
+		if ( ! empty( $typo['weight'] ) ) { $fweight = (int) $typo['weight']; }
 	}
-	if ( ! empty( $typo['style'] ) && $typo['style'] !== 'normal' ) {
-		$d[] = 'font-style:' . preg_replace( '/[^a-z]/', '', strtolower( (string) $typo['style'] ) );
+	if ( $fweight > 0 )         { $d[] = 'font-weight:' . $fweight; }
+	if ( $fstyle === 'italic' ) { $d[] = 'font-style:italic'; }
+	// Line-height is UNITLESS (a ratio like 1.5) — NOT px. (Previously `(int)1.5`
+	// became `line-height:1px`, crushing the text.)
+	if ( isset( $typo['line-height'] ) && is_numeric( $typo['line-height'] ) && $typo['line-height'] !== '' ) {
+		$d[] = 'line-height:' . ( $typo['line-height'] + 0 );
 	}
-	if ( isset( $typo['line-height'] ) && $typo['line-height'] !== '' && $typo['line-height'] !== false ) {
-		$d[] = 'line-height:' . (int) $typo['line-height'] . 'px';
-	}
-	if ( isset( $typo['letter-spacing'] ) && $typo['letter-spacing'] !== '' && $typo['letter-spacing'] !== false ) {
-		$d[] = 'letter-spacing:' . (int) $typo['letter-spacing'] . 'px';
+	// Letter-spacing: keep decimals, in px.
+	if ( isset( $typo['letter-spacing'] ) && is_numeric( $typo['letter-spacing'] ) && $typo['letter-spacing'] !== '' ) {
+		$d[] = 'letter-spacing:' . ( $typo['letter-spacing'] + 0 ) . 'px';
 	}
 	if ( ! empty( $typo['color'] ) ) {
 		$d[] = 'color:' . unysonplus_hf_css_val( $typo['color'] );
@@ -145,6 +158,14 @@ if ( ! function_exists( 'unysonplus_hf_build_css' ) ) :
 function unysonplus_hf_build_css() {
 	$css = '';
 
+	// Resolve a colour value → CSS. Handles the compact preset shape
+	// { predefined, custom } (predefined → live var(--color-slug)) and the legacy
+	// rgba/hex string, so old saves keep working after the pickers were upgraded.
+	$color = function ( $v ) {
+		$c = function_exists( 'unysonplus_preset_color_to_css' ) ? unysonplus_preset_color_to_css( $v ) : ( is_string( $v ) ? $v : '' );
+		return unysonplus_hf_css_val( $c );
+	};
+
 	foreach ( unysonplus_hf_style_sections() as $section ) {
 		$cs = unysonplus_hf_enabled_styling( $section['styling'] );
 		if ( $cs === null ) { continue; }
@@ -156,7 +177,7 @@ function unysonplus_hf_build_css() {
 
 		// Background: color and/or image. When an image is set, fold the overlay
 		// (color + opacity) into a linear-gradient so no overlay element is needed.
-		$bg_color = ! empty( $cs[ $p . '_bg_color' ] ) ? unysonplus_hf_css_val( $cs[ $p . '_bg_color' ] ) : '';
+		$bg_color = isset( $cs[ $p . '_bg_color' ] ) ? $color( $cs[ $p . '_bg_color' ] ) : '';
 		$bg_image = '';
 		if ( ! empty( $cs[ $p . '_bg_image' ]['url'] ) ) {
 			$bg_image = esc_url_raw( $cs[ $p . '_bg_image' ]['url'] );
@@ -184,10 +205,10 @@ function unysonplus_hf_build_css() {
 
 		// Borders.
 		$bt_w = ! empty( $cs[ $p . '_border_top_width' ] )    ? unysonplus_hf_css_val( $cs[ $p . '_border_top_width' ] )    : '';
-		$bt_c = ! empty( $cs[ $p . '_border_top_color' ] )    ? unysonplus_hf_css_val( $cs[ $p . '_border_top_color' ] )    : '';
+		$bt_c = isset( $cs[ $p . '_border_top_color' ] )      ? $color( $cs[ $p . '_border_top_color' ] )                  : '';
 		if ( $bt_w !== '' && $bt_c !== '' ) { $decl[] = 'border-top:' . $bt_w . ' solid ' . $bt_c; }
 		$bb_w = ! empty( $cs[ $p . '_border_bottom_width' ] ) ? unysonplus_hf_css_val( $cs[ $p . '_border_bottom_width' ] ) : '';
-		$bb_c = ! empty( $cs[ $p . '_border_bottom_color' ] ) ? unysonplus_hf_css_val( $cs[ $p . '_border_bottom_color' ] ) : '';
+		$bb_c = isset( $cs[ $p . '_border_bottom_color' ] )   ? $color( $cs[ $p . '_border_bottom_color' ] )               : '';
 		if ( $bb_w !== '' && $bb_c !== '' ) { $decl[] = 'border-bottom:' . $bb_w . ' solid ' . $bb_c; }
 
 		if ( ! empty( $decl ) ) {
@@ -195,8 +216,9 @@ function unysonplus_hf_build_css() {
 		}
 
 		// Link color (child anchors).
-		if ( ! empty( $cs[ $p . '_link_color' ] ) ) {
-			$css .= $sel . ' a{color:' . unysonplus_hf_css_val( $cs[ $p . '_link_color' ] ) . '}';
+		$lc = isset( $cs[ $p . '_link_color' ] ) ? $color( $cs[ $p . '_link_color' ] ) : '';
+		if ( $lc !== '' ) {
+			$css .= $sel . ' a{color:' . $lc . '}';
 		}
 	}
 
@@ -215,48 +237,35 @@ endif;
 
 if ( ! function_exists( 'unysonplus_cta_button_classes' ) ) :
 /**
- * Classes for a header CTA button element (structural style-type class + a
- * per-instance color hash class). No inline styles — colors live in the
- * generated file (see unysonplus_cta_button_css()). Shared by the renderer and
- * the CSS generator so the hash matches.
+ * Classes for a header/footer CTA button element. The CTA now rides the theme's
+ * button design system: `btn` + the Button Style preset class (e.g. `btn-primary`,
+ * `btn-outline-primary`) + the Button Size class (e.g. `btn-lg`), all sourced from
+ * Theme Settings → General → Buttons. Those classes carry all the color/size CSS
+ * (from the generated button-preset stylesheet), so there are no per-instance
+ * inline styles or hash classes here. `header-cta-btn` is kept as a semantic hook.
+ *
+ * Tolerates the legacy `filled`/`outline`/`pill` value from the old plain-select
+ * (mapped to a base `.btn`) so a pre-existing CTA doesn't render class-less.
  *
  * @param array $settings cta_button element settings
  * @return string
  */
 function unysonplus_cta_button_classes( $settings ) {
-	$style_type = ! empty( $settings['cta_style'] ) ? $settings['cta_style'] : 'filled';
-	$classes    = array( 'header-cta-btn' );
-	if ( $style_type === 'outline' ) { $classes[] = 'header-cta-btn--outline'; }
-	if ( $style_type === 'pill' )    { $classes[] = 'header-cta-btn--pill'; }
-	$classes[] = 'header-cta-btn--c' . unysonplus_hf_hash( unysonplus_cta_button_signature( $settings ) );
-	return implode( ' ', $classes );
-}
-endif;
+	$classes = array( 'header-cta-btn', 'btn' );
 
-if ( ! function_exists( 'unysonplus_cta_button_signature' ) ) :
-/** The color/style props that determine a CTA's generated rule. */
-function unysonplus_cta_button_signature( $settings ) {
-	$bg    = ! empty( $settings['cta_bg_color'] ) ? $settings['cta_bg_color'] : '#0d6efd';
-	$color = ! empty( $settings['cta_text_color'] ) ? $settings['cta_text_color'] : '#ffffff';
-	$style = ! empty( $settings['cta_style'] ) ? $settings['cta_style'] : 'filled';
-	return $bg . '|' . $color . '|' . $style;
-}
-endif;
-
-if ( ! function_exists( 'unysonplus_cta_button_css' ) ) :
-/** The CSS rule body for one CTA button's color hash class. */
-function unysonplus_cta_button_css( $settings ) {
-	$bg    = unysonplus_hf_css_val( ! empty( $settings['cta_bg_color'] ) ? $settings['cta_bg_color'] : '#0d6efd' );
-	$color = unysonplus_hf_css_val( ! empty( $settings['cta_text_color'] ) ? $settings['cta_text_color'] : '#ffffff' );
-	$style = ! empty( $settings['cta_style'] ) ? $settings['cta_style'] : 'filled';
-
-	if ( $style === 'outline' ) {
-		return 'border:2px solid ' . $bg . ';color:' . $bg . ';background:transparent';
+	$style = ! empty( $settings['cta_style'] ) ? (string) $settings['cta_style'] : '';
+	// A `btn-*` value is a real preset class; the legacy filled/outline/pill words
+	// aren't classes, so they're ignored (bare `.btn` is a sensible default).
+	if ( strpos( $style, 'btn-' ) === 0 ) {
+		$classes[] = preg_replace( '/[^a-zA-Z0-9_-]/', '', $style );
 	}
-	if ( $style === 'pill' ) {
-		return 'background:' . $bg . ';color:' . $color . ';border-radius:50px';
+
+	$size = ! empty( $settings['cta_size'] ) ? (string) $settings['cta_size'] : '';
+	if ( strpos( $size, 'btn-' ) === 0 ) {
+		$classes[] = preg_replace( '/[^a-zA-Z0-9_-]/', '', $size );
 	}
-	return 'background:' . $bg . ';color:' . $color;
+
+	return implode( ' ', array_values( array_unique( array_filter( $classes ) ) ) );
 }
 endif;
 
@@ -347,18 +356,14 @@ function unysonplus_hf_build_global_css() {
 		if ( $st ) { $css .= '.scroll-to-top{' . implode( ';', $st ) . '}'; }
 	}
 
-	// Per-instance: CTA buttons + footer logos across the global configs.
+	// Per-instance: footer logos across the global configs. (CTA buttons no longer
+	// need a per-instance rule — they ride the theme's `btn btn-{preset}` classes.)
 	$seen = array();
 	foreach ( unysonplus_hf_collect_elements() as $el ) {
 		$type     = $el['element_type']['element'];
 		$settings = ! empty( $el['element_type'][ $type ] ) ? $el['element_type'][ $type ] : array();
 
-		if ( $type === 'cta_button' ) {
-			$hash = unysonplus_hf_hash( unysonplus_cta_button_signature( $settings ) );
-			if ( isset( $seen[ 'cta' . $hash ] ) ) { continue; }
-			$seen[ 'cta' . $hash ] = true;
-			$css .= '.header-cta-btn--c' . $hash . '{' . unysonplus_cta_button_css( $settings ) . '}';
-		} elseif ( $type === 'footer_logo' ) {
+		if ( $type === 'footer_logo' ) {
 			$w = function_exists( 'unysonplus_css_length' )
 				? unysonplus_css_length( ! empty( $settings['footer_logo_width'] ) ? $settings['footer_logo_width'] : '' )
 				: ( ! empty( $settings['footer_logo_width'] ) ? $settings['footer_logo_width'] : '' );

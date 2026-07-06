@@ -254,3 +254,22 @@ div:has(> .fw-backend-option-type-addable-popup[id$="_right"]) > .fw-backend-opt
     font-weight: 600;
 }
 
+
+/* html-full notes (e.g. the header/footer "How the columns align" hint) are a
+   shrink-to-fit (width-type auto) option, so a long single line expands past the
+   box and triggers a horizontal scrollbar. Pin the option + its inner to the full
+   column width and let the text wrap. */
+.fw-backend-option-type-html-full,
+.fw-backend-option-type-html-full > .fw-backend-option-input,
+.fw-backend-option-type-html-full > .fw-backend-option-input > .fw-inner {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.fw-backend-option-type-html-full .fw-inner > * {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}

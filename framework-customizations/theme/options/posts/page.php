@@ -3,16 +3,82 @@
 }
 
 /*
- * Field groups for the consolidated "Page Settings" box (rendered as tabs).
- * Hoisted to variables so the tab structure below stays readable. The option
- * IDs are unchanged from when these lived in separate meta boxes, so existing
- * saved post meta and the runtime consumers (inc/includes/layout.php for the
- * hero header, framework dynamic-css for page_custom_css) keep working.
+ * Per-page settings — one consolidated "Page Settings" postbox under the
+ * builder, laid out as tabs that MIRROR the global Pages tab
+ * (Theme Settings → Pages): Layout / Page Title-Hero / Header & Footer /
+ * Elements / General / Custom Code. Every field defaults to a "Global /
+ * inherit" value so an untouched page follows the site-wide cascade
+ * (unysonplus_resolve_layout / unysonplus_pages_get); a page only diverges
+ * where the editor deliberately overrides.
+ *
+ * The option IDs are unchanged from when these lived in separate side/normal
+ * meta boxes, so existing saved post meta and the runtime consumers
+ * (inc/includes/layout.php for the hero header + layout cascade,
+ * inc/hooks.php + template-parts/header-builder.php for header behavior,
+ * framework dynamic-css for page_custom_css) keep working.
  */
+
+if ( ! function_exists( 'unysonplus_page_meta_color' ) ) :
+	/**
+	 * Compact color-preset field for the per-page meta, guarded so the theme
+	 * still loads if the shortcodes styling helper is absent. Falls back to a
+	 * plain color-picker (whose stored string the resolvers tolerate).
+	 */
+	function unysonplus_page_meta_color( $label, $desc = '', $kind = 'bg', $picker = 'color-picker' ) {
+		if ( function_exists( 'sc_color_field_compact' ) ) {
+			return sc_color_field_compact( array(
+				'label'  => $label,
+				'desc'   => $desc,
+				'kind'   => $kind,
+				'picker' => $picker,
+			) );
+		}
+		return array( 'label' => $label, 'desc' => $desc, 'type' => $picker, 'value' => '' );
+	}
+endif;
+
+/* --- Layout ----------------------------------------------------------- */
+$layout_options = [
+	'sidebar_override' => [
+		'label'   => __( 'Sidebar Position', 'unysonplus' ),
+		'desc'    => __( 'Override the sidebar for this page only. "Global" follows the template / Pages default.', 'unysonplus' ),
+		'type'    => 'select',
+		'value'   => 'default',
+		'choices' => [
+			'default' => __( 'Global (template / Pages default)', 'unysonplus' ),
+			'none'    => __( 'None', 'unysonplus' ),
+			'left'    => __( 'Left', 'unysonplus' ),
+			'right'   => __( 'Right', 'unysonplus' ),
+		],
+	],
+	'content_width' => [
+		'label'   => __( 'Content Width', 'unysonplus' ),
+		'type'    => 'select',
+		'value'   => 'default',
+		'choices' => [
+			'default' => __( 'Global', 'unysonplus' ),
+			'narrow'  => __( 'Narrow (~720px)', 'unysonplus' ),
+			'wide'    => __( 'Wide (100%)', 'unysonplus' ),
+			'full'    => __( 'Full (edge-to-edge)', 'unysonplus' ),
+		],
+	],
+	'page_bg_color' => unysonplus_page_meta_color(
+		__( 'Page Background Color', 'unysonplus' ),
+		__( 'Leave on the preset "Default" to inherit the site background.', 'unysonplus' ),
+		'bg'
+	),
+	'page_bg_image' => [
+		'label' => __( 'Page Background Image', 'unysonplus' ),
+		'type'  => 'upload',
+		'value' => [],
+	],
+];
+
+/* --- Page Title / Hero ------------------------------------------------ */
 $hero_header_options = [
 	'header_image' => [
 		'label' => __( 'Header Image', 'unysonplus' ),
-		'desc'  => __( 'Full-width banner image at the top of the page.', 'unysonplus' ),
+		'desc'  => __( 'Full-width banner image at the top of the page. Empty inherits the global Pages → Page Title / Hero image.', 'unysonplus' ),
 		'type'  => 'upload',
 		'value' => [],
 	],
@@ -21,21 +87,22 @@ $hero_header_options = [
 		'type'    => 'radio',
 		'value'   => 'auto',
 		'choices' => [
-			'auto'       => __( 'Auto', 'unysonplus' ),
+			'auto'       => __( 'Global', 'unysonplus' ),
 			'small'      => __( 'Small (220px)', 'unysonplus' ),
 			'medium'     => __( 'Medium (380px)', 'unysonplus' ),
 			'large'      => __( 'Large (560px)', 'unysonplus' ),
 			'fullscreen' => __( 'Fullscreen (100vh)', 'unysonplus' ),
 		],
 	],
-	'header_overlay_color' => [
-		'label' => __( 'Overlay Color', 'unysonplus' ),
-		'type'  => 'color-picker',
-		'value' => '',
-	],
+	'header_overlay_color' => unysonplus_page_meta_color(
+		__( 'Overlay Color', 'unysonplus' ),
+		__( 'Tint over the header image. Preset "Default" inherits the global hero overlay.', 'unysonplus' ),
+		'bg',
+		'rgba-color-picker'
+	),
 	'header_overlay_opacity' => [
 		'label'      => __( 'Overlay Opacity', 'unysonplus' ),
-		'desc'       => __( '0 = transparent, 100 = opaque.', 'unysonplus' ),
+		'desc'       => __( '0 = inherit global, otherwise 0 transparent → 100 opaque.', 'unysonplus' ),
 		'type'       => 'slider',
 		'value'      => 0,
 		'properties' => [ 'min' => 0, 'max' => 100, 'step' => 5 ],
@@ -43,173 +110,130 @@ $hero_header_options = [
 	'header_content_position' => [
 		'label'   => __( 'Title Position', 'unysonplus' ),
 		'type'    => 'select',
-		'value'   => 'center',
+		'value'   => 'default',
 		'choices' => [
-			'top'    => __( 'Top', 'unysonplus' ),
-			'center' => __( 'Center', 'unysonplus' ),
-			'bottom' => __( 'Bottom', 'unysonplus' ),
+			'default' => __( 'Global', 'unysonplus' ),
+			'top'     => __( 'Top', 'unysonplus' ),
+			'center'  => __( 'Center', 'unysonplus' ),
+			'bottom'  => __( 'Bottom', 'unysonplus' ),
+		],
+	],
+	'hide_page_title' => [
+		'label' => false,
+		'type'  => 'checkbox',
+		'value' => false,
+		'text'  => __( 'Hide the page title', 'unysonplus' ),
+	],
+];
+
+/* --- Header & Footer -------------------------------------------------- */
+$header_footer_options = [
+	'page_header' => [
+		'label'   => __( 'Header', 'unysonplus' ),
+		'desc'    => __( 'How the site header behaves on this page.', 'unysonplus' ),
+		'type'    => 'select',
+		'value'   => '',
+		'choices' => [
+			''            => __( 'Global (default header)', 'unysonplus' ),
+			'transparent' => __( 'Transparent (overlays the first section)', 'unysonplus' ),
+			'd-none'      => __( 'Hidden (no header on this page)', 'unysonplus' ),
+		],
+	],
+	'hide_site_footer' => [
+		'label'        => __( 'Hide Site Footer', 'unysonplus' ),
+		'desc'         => __( 'Remove the whole footer on this page.', 'unysonplus' ),
+		'type'         => 'switch',
+		'value'        => 'no',
+		'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
+		'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
+	],
+	'hide_footer_widgets' => [
+		'label'        => __( 'Hide Footer Widgets', 'unysonplus' ),
+		'desc'         => __( 'Keep the footer bar but drop its widget area on this page.', 'unysonplus' ),
+		'type'         => 'switch',
+		'value'        => 'no',
+		'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
+		'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
+	],
+];
+
+/* --- Elements --------------------------------------------------------- */
+$elements_options = [
+	'hide_featured_image' => [
+		'label'        => __( 'Hide Featured Image', 'unysonplus' ),
+		'type'         => 'switch',
+		'value'        => 'no',
+		'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
+		'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
+	],
+	'show_breadcrumbs' => [
+		'label'   => __( 'Show Breadcrumbs', 'unysonplus' ),
+		'type'    => 'select',
+		'value'   => 'default',
+		'choices' => [
+			'default' => __( 'Global', 'unysonplus' ),
+			'yes'     => __( 'Yes', 'unysonplus' ),
+			'no'      => __( 'No', 'unysonplus' ),
+		],
+	],
+	'show_comments' => [
+		'label'   => __( 'Show Comments', 'unysonplus' ),
+		'type'    => 'select',
+		'value'   => 'default',
+		'choices' => [
+			'default' => __( 'Global', 'unysonplus' ),
+			'yes'     => __( 'Yes', 'unysonplus' ),
+			'no'      => __( 'No', 'unysonplus' ),
 		],
 	],
 ];
 
+/* --- Custom Code ------------------------------------------------------ */
 $custom_code_options = [
 	'page_custom_css' => [
-		'label'      => __( 'Custom CSS (this page only)', 'unysonplus' ),
-		'desc'       => __( 'Emitted inline in &lt;head&gt;. Loaded only on this page.', 'unysonplus' ),
-		'type'       => 'code-editor',
-		'value'      => '',
-		'mode'       => 'css', // top-level key the code-editor option type reads
+		'label' => __( 'Custom CSS (this page only)', 'unysonplus' ),
+		'desc'  => __( 'Emitted inline in &lt;head&gt;. Loaded only on this page.', 'unysonplus' ),
+		'type'  => 'code-editor',
+		'value' => '',
+		'mode'  => 'css', // top-level key the code-editor option type reads
 	],
 	'page_custom_js' => [
-		'label'      => __( 'Custom JS (this page only)', 'unysonplus' ),
-		'desc'       => __( 'Emitted inline before &lt;/body&gt;. Loaded only on this page.', 'unysonplus' ),
-		'type'       => 'code-editor',
-		'value'      => '',
-		'mode'       => 'javascript',
+		'label' => __( 'Custom JS (this page only)', 'unysonplus' ),
+		'desc'  => __( 'Emitted inline before &lt;/body&gt;. Loaded only on this page.', 'unysonplus' ),
+		'type'  => 'code-editor',
+		'value' => '',
+		'mode'  => 'javascript',
 	],
 ];
 
 $options = [
-	'page_side' => [
-		'title'    => __( 'Page Options', 'unysonplus' ),
-		'type'     => 'box',
-		'context'  => 'side',
-		'priority' => 'low',
-		'options'  => [
-			'page_settings_group' => [
-				'type' => 'group',
-				'options' => [
-					'page_header' => [
-						'label'   => __( 'Header Settings', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => '',
-						'desc'    => __( 'Options for the header on this page. ',	'unysonplus' ),
-						'choices' => [
-							''  => __( 'Default', 'unysonplus' ),
-							'transparent' => __( 'Transparent', 'unysonplus' ),
-							'd-none' => __( 'Hide the header on this page', 'unysonplus' ),
-						],
-					],
-					'hide_page_title' => [
-						'label' => false,
-						'type'  => 'checkbox',
-						'value' => false,
-						'text'  => __( 'Hide Page Title', 'unysonplus' ),
-					],
-					'hide_footer_widgets' => [
-						'label' => false,
-						'type'  => 'checkbox',
-						'value' => false,
-						'text'  => __( 'Hide Footer Widgets', 'unysonplus' ),
-					],
-				],
-			],
-		],
-	],
-
-	'page_layout_overrides' => [
-		'title'    => __( 'Layout Overrides', 'unysonplus' ),
-		'type'     => 'box',
-		'context'  => 'side',
-		'priority' => 'low',
-		'options'  => [
-			'sidebar_override' => [
-				'label'   => __( 'Sidebar Position', 'unysonplus' ),
-				'type'    => 'select',
-				'value'   => 'default',
-				'choices' => [
-					'default' => __( 'Default (from template / global)', 'unysonplus' ),
-					'none'    => __( 'None', 'unysonplus' ),
-					'left'    => __( 'Left', 'unysonplus' ),
-					'right'   => __( 'Right', 'unysonplus' ),
-				],
-			],
-			'content_width' => [
-				'label'   => __( 'Content Width', 'unysonplus' ),
-				'type'    => 'select',
-				'value'   => 'default',
-				'choices' => [
-					'default' => __( 'Default', 'unysonplus' ),
-					'narrow'  => __( 'Narrow (~720px)', 'unysonplus' ),
-					'wide'    => __( 'Wide (100%)', 'unysonplus' ),
-					'full'    => __( 'Full (edge-to-edge)', 'unysonplus' ),
-				],
-			],
-			'page_bg_color' => [
-				'label' => __( 'Page Background Color', 'unysonplus' ),
-				'type'  => 'color-picker',
-				'value' => '',
-			],
-			'page_bg_image' => [
-				'label' => __( 'Page Background Image', 'unysonplus' ),
-				'type'  => 'upload',
-				'value' => [],
-			],
-		],
-	],
-
-	'page_visibility' => [
-		'title'    => __( 'Visibility', 'unysonplus' ),
-		'type'     => 'box',
-		'context'  => 'side',
-		'priority' => 'low',
-		'options'  => [
-			'hide_site_header' => [
-				'label'        => __( 'Hide Site Header', 'unysonplus' ),
-				'type'         => 'switch',
-				'value'        => 'no',
-				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
-				'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
-			],
-			'hide_site_footer' => [
-				'label'        => __( 'Hide Site Footer', 'unysonplus' ),
-				'type'         => 'switch',
-				'value'        => 'no',
-				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
-				'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
-			],
-			'hide_featured_image' => [
-				'label'        => __( 'Hide Featured Image', 'unysonplus' ),
-				'type'         => 'switch',
-				'value'        => 'no',
-				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
-				'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
-			],
-			'show_breadcrumbs' => [
-				'label'   => __( 'Show Breadcrumbs', 'unysonplus' ),
-				'type'    => 'select',
-				'value'   => 'default',
-				'choices' => [
-					'default' => __( 'Default', 'unysonplus' ),
-					'yes'     => __( 'Yes', 'unysonplus' ),
-					'no'      => __( 'No', 'unysonplus' ),
-				],
-			],
-			'show_comments' => [
-				'label'   => __( 'Show Comments', 'unysonplus' ),
-				'type'    => 'select',
-				'value'   => 'default',
-				'choices' => [
-					'default' => __( 'Default', 'unysonplus' ),
-					'yes'     => __( 'Yes', 'unysonplus' ),
-					'no'      => __( 'No', 'unysonplus' ),
-				],
-			],
-		],
-	],
-
-	// Consolidated page-content settings: one postbox under the builder with
-	// Hero Header / General / Custom Code as tabs (was three stacked boxes).
+	// One postbox under the builder; tabs mirror the global Pages tab so the
+	// per-page overrides read as "the same knobs, for this page only".
 	'page_main_settings' => [
 		'title'    => __( 'Page Settings', 'unysonplus' ),
 		'type'     => 'box',
 		'context'  => 'normal',
 		'priority' => 'default',
 		'options'  => [
+			'tab_layout' => [
+				'title'   => __( 'Layout', 'unysonplus' ),
+				'type'    => 'tab',
+				'options' => $layout_options,
+			],
 			'tab_hero_header' => [
-				'title'   => __( 'Hero Header', 'unysonplus' ),
+				'title'   => __( 'Page Title / Hero', 'unysonplus' ),
 				'type'    => 'tab',
 				'options' => $hero_header_options,
+			],
+			'tab_header_footer' => [
+				'title'   => __( 'Header / Footer', 'unysonplus' ),
+				'type'    => 'tab',
+				'options' => $header_footer_options,
+			],
+			'tab_elements' => [
+				'title'   => __( 'Elements', 'unysonplus' ),
+				'type'    => 'tab',
+				'options' => $elements_options,
 			],
 			'tab_general' => [
 				'title'   => __( 'General', 'unysonplus' ),

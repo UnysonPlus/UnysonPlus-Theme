@@ -1,0 +1,310 @@
+/**
+ * Header mode: OVERLAY — Concentric.
+ * Loaded ONLY when Header → Layout → Overlay Fullscreen + "Concentric" is chosen
+ * (enqueued after style.css in inc/static.php, so it overrides the drawer base).
+ * The primary menu becomes nested filled circles growing from a corner, ONE ring
+ * per menu item. Anti-bloat: pure CSS over the normal <ul.primary-menu> markup.
+ *
+ * The whole ring BAND is the link: each item's <a> is a full-viewport element
+ * clipped to its own disc, so the stacked smaller discs mask the inner part and
+ * only that ring's exposed band responds to hover / click. The label text is
+ * wrapped by navigation.js in <span class="cc-label"> so it can sit at the band
+ * midpoint independently of the clipped disc.
+ *
+ * navigation.js sets, per drawer:
+ *   --count   number of items  (rings = items)
+ *   --i       each item's index (0 = FIRST item = innermost ring)
+ *   --reach   the exact viewport DIAGONAL in px, so the outer ring reaches the far
+ *             corner and the rings divide the diagonal evenly (fills the screen).
+ * Labels ride the screen's corner-to-corner diagonal (via --t = t·100% offsets),
+ * which also lands each one in the middle of its own ring band — so the text is
+ * centered both in its band and along the diagonal, at any item count / width.
+ *
+ * Corner is set by a .primary-navigation-drawer--corner-* modifier (default
+ * top-right). The ring fill IS the Overlay Background (Header → Layout → Overlay
+ * → Overlay Background) — the circles cover the whole screen, so there is no
+ * separate circle-fill option; an image applies full-screen (fixed), not per ring:
+ *   --overlay-bg-*                the Overlay Background (colour / gradient / image)
+ *   --overlay-concentric-ink      the label colour                     (default #fff)
+ */
+
+/* Overlay-mode base (self-contained — the only header CSS loaded in this mode). */
+body.layout-overlay .header-col--center { display: none; }
+body.layout-overlay .menu-toggle        { display: inline-flex; }
+
+/* Backdrop: ALWAYS transparent so the rings appear to overlay the live website as
+   they expand — even when an Overlay Background is set (that fills the RINGS, not the
+   backdrop). No full-screen colour flash before the circles arrive. */
+.primary-navigation-drawer--concentric .primary-navigation-drawer__scrim {
+	background: transparent;
+	opacity: 1;
+}
+/* Sit the whole overlay BELOW the WP admin bar when present (--admin-bar-offset is
+   0 for logged-out visitors, 32/46px with the bar). The rings grow from this offset
+   corner, and navigation.js shrinks --reach by the same amount so the labels stay
+   centred in their bands. */
+.primary-navigation-drawer--concentric { top: var(--admin-bar-offset, 0px); }
+.primary-navigation-drawer--concentric .primary-navigation-drawer__panel {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	max-width: 100%;
+	transform: none;
+	box-shadow: none;
+	background: transparent;
+	overflow: hidden;
+}
+.primary-navigation-drawer--concentric.is-open .primary-navigation-drawer__panel { transform: none; }
+
+/* The menu becomes the ring stack. --reach falls back to a viewport-diagonal-ish
+   value for the (rare) no-JS case; navigation.js sets the exact px diagonal. */
+.primary-navigation-drawer--concentric .primary-menu {
+	position: absolute;
+	inset: 0;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: block;
+	--reach: 150vmax;
+}
+.primary-navigation-drawer--concentric .primary-menu > li {
+	position: absolute;
+	inset: 0;
+	/* Smaller rings must paint ON TOP of larger ones, so z-index follows ring size
+	   (small = high), NOT menu order — the first item is the smallest/innermost ring. */
+	z-index: calc(var(--count, 5) - var(--i, 0));
+	/* Each <li> fills the whole viewport and they stack by z-index, so a transparent
+	   <li> box would swallow clicks meant for the items beneath it — only the label
+	   links are interactive (re-enabled below). */
+	pointer-events: none;
+	/* This ring's radius: evenly divides the diagonal. FIRST item (i=0) = smallest
+	   inner ring; LAST item = full reach (outermost). */
+	--r: calc(var(--reach) * (var(--i, 0) + 1) / var(--count, 5));
+	--d: calc(var(--r) * 2);
+	/* Fraction of the way along the screen diagonal to the MIDDLE of this ring's band. */
+	--t: calc((var(--i, 0) + 0.5) / var(--count, 5));
+	/* Darken toward the centre — the inner (first) rings are darkest. Proportional
+	   to count so the ramp stays even at any item count. */
+	--depth: calc((var(--count, 5) - 1 - var(--i, 0)) / var(--count, 5) * 0.5);
+}
+.primary-navigation-drawer--concentric .primary-menu > li::after,
+.primary-navigation-drawer--concentric .primary-menu .sub-menu { display: none; }
+
+/* The ring — a filled circle centred on the corner. Fill = Circle Background
+   (solid colour and/or gradient); a per-ring translucent-black layer stacks on
+   top for the concentric depth so it works over a colour OR a gradient. */
+.primary-navigation-drawer--concentric .primary-menu > li::before {
+	content: "";
+	position: absolute;
+	top: calc(-1 * var(--r));
+	right: calc(-1 * var(--r));
+	width: var(--d);
+	height: var(--d);
+	border-radius: 50%;
+	/* Fill = the Overlay Background (colour + gradient + image). background-attachment:
+	   fixed anchors the image/gradient to the VIEWPORT, so it reads as one continuous
+	   full-screen background across every ring (not tiled per-circle); the per-ring
+	   translucent-black layer on top gives the concentric depth. */
+	background-color: var(--overlay-bg-color, var(--color-primary, #2563eb));
+	/* Depth layer: --cc-tone is the overlay colour (black by default = darken toward
+	   centre; Tint mode flips it to white = lighten toward centre). */
+	background-image:
+		linear-gradient(0deg, rgba(var(--cc-tone, 0, 0, 0), var(--depth)), rgba(var(--cc-tone, 0, 0, 0), var(--depth))),
+		var(--overlay-bg-image, none);
+	background-attachment: fixed;
+	background-size: cover;
+	background-position: center;
+	/* Color Mode hook: Shade leaves this as none; Aurora/Rainbow set a per-ring
+	   hue-rotate, Mono greyscales — each derived from the base Overlay Background. */
+	filter: var(--ring-filter, none);
+	/* Background Opacity: lets the page show through the rings (labels stay opaque). */
+	opacity: var(--cc-bg-opacity, 1);
+	box-shadow: 0 0 70px rgba(0, 0, 0, .35), inset 0 0 0 1px rgba(255, 255, 255, .06);
+	transform: scale(0);
+	transform-origin: center;
+	/* Per-property delay: only the entrance (transform) is staggered; the hover
+	   filter / shadow respond immediately. */
+	transition:
+		transform .55s cubic-bezier(.22, 1, .36, 1) calc(var(--i, 0) * .06s),
+		filter .3s ease,
+		box-shadow .3s ease;
+}
+.primary-navigation-drawer--concentric.is-open .primary-menu > li::before { transform: scale(1); }
+
+/* ---- Color Mode ----
+   All derived from the base Overlay Background colour + the per-ring depth shading.
+   Shade (default): one colour, no filter.
+   Aurora:  gentle hue drift through nearby tones (analogous ~140deg sweep).
+   Rainbow: full hue spectrum spun evenly across the rings (360deg).
+   Mono:    greyscale. */
+.primary-navigation-drawer--concentric.primary-navigation-drawer--cc-aurora .primary-menu > li {
+	--ring-filter: hue-rotate(calc(var(--i, 0) / var(--count, 5) * 140deg));
+}
+.primary-navigation-drawer--concentric.primary-navigation-drawer--cc-rainbow .primary-menu > li {
+	--ring-filter: hue-rotate(calc(var(--i, 0) / var(--count, 5) * 360deg));
+}
+.primary-navigation-drawer--concentric.primary-navigation-drawer--cc-mono .primary-menu > li {
+	--ring-filter: grayscale(1);
+}
+/* Tint: lighten toward the centre (white depth layer) instead of darken; because the
+   inner rings go pale, the labels + close ✕ flip to dark for contrast. */
+.primary-navigation-drawer--concentric.primary-navigation-drawer--cc-tint {
+	--cc-tone: 255, 255, 255;
+	--overlay-concentric-ink: #14151a;
+}
+.primary-navigation-drawer--concentric.primary-navigation-drawer--cc-tint .primary-navigation-drawer__close {
+	background: rgba(255, 255, 255, .4);
+}
+/* Duotone: blend the base Overlay Background colour (outer rings) into a chosen
+   Second Colour (inner rings) across the stack. */
+.primary-navigation-drawer--concentric.primary-navigation-drawer--cc-duotone .primary-menu > li::before {
+	background-color: color-mix(in srgb,
+		var(--cc-duotone-color, #ec4899) calc((var(--count, 5) - 1 - var(--i, 0)) / max(1, var(--count, 5) - 1) * 100%),
+		var(--overlay-bg-color, var(--color-primary, #2563eb)));
+}
+/* Alternating: every other ring a shade darker for a striped look. */
+.primary-navigation-drawer--concentric.primary-navigation-drawer--cc-alternating .primary-menu > li:nth-child(even) {
+	--depth: calc((var(--count, 5) - 1 - var(--i, 0)) / var(--count, 5) * 0.5 + 0.16);
+}
+/* Glass: translucent frosted rings — the page behind shows through, blurred. Pair
+   with a lower Background Opacity for more see-through. */
+.primary-navigation-drawer--concentric.primary-navigation-drawer--cc-glass .primary-menu > li::before {
+	background-color: color-mix(in srgb, var(--overlay-bg-color, var(--color-primary, #2563eb)) 55%, transparent);
+	-webkit-backdrop-filter: blur(14px);
+	backdrop-filter: blur(14px);
+}
+
+/* The LINK is the whole ring band. Each <a> is a full-viewport box clipped to its
+   own disc (radius --r at the active corner). Smaller discs sit on top (higher
+   z-index via the <li>) and mask the inner part, so each ring's exposed band is
+   exactly what receives hover / click. The .menu-item > a form matches the shared
+   drawer base's specificity (0,3,1); loading after style.css it WINS and resets
+   the base pill/border. */
+.primary-navigation-drawer--concentric .primary-menu .menu-item > a,
+.primary-navigation-drawer--concentric .primary-menu > li > a {
+	position: absolute;
+	inset: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	pointer-events: auto;
+	cursor: pointer;
+	color: var(--overlay-concentric-ink, #fff);
+	text-decoration: none;
+	-webkit-clip-path: circle(var(--r) at 100% 0);
+	clip-path: circle(var(--r) at 100% 0);
+}
+
+/* The label text (wrapped by navigation.js) — centred on the screen's corner-to-
+   corner diagonal, which also puts it in the middle of its ring band. --t·100% is
+   measured from the active corner; translate centres the text box on that point.
+   pointer-events:none so the click always registers on the whole disc <a>. */
+.primary-navigation-drawer--concentric .cc-label {
+	position: absolute;
+	right: calc(var(--t) * 100%);
+	top: calc(var(--t) * 100%);
+	transform: translate(50%, -50%);
+	pointer-events: none;
+	text-align: center;
+	white-space: nowrap;
+	font-size: clamp(.8125rem, 1.5vmin, 1.05rem);
+	font-weight: 700;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	opacity: .92;
+	transition: opacity .2s ease, letter-spacing .2s ease, text-shadow .2s ease;
+}
+/* Each label fades in RIDING its own ring: same per-ring stagger as the circle,
+   nudged a touch later so the ring has reached the label's band as it appears.
+   `backwards` fill hides it during the delay; no forwards fill so hover still wins. */
+.primary-navigation-drawer--concentric.is-open .cc-label {
+	animation: cc-label-in .4s cubic-bezier(.22, 1, .36, 1) backwards;
+	animation-delay: calc(var(--i, 0) * .06s + .18s);
+}
+@keyframes cc-label-in { from { opacity: 0; } }
+
+/* Hover / focus anywhere on the band brightens that ring and lifts its label. */
+.primary-navigation-drawer--concentric .primary-menu > li:has(> a:hover)::before,
+.primary-navigation-drawer--concentric .primary-menu > li:has(> a:focus-visible)::before {
+	/* Keep the mode's base filter (hue-rotate in Rainbow) and add the hover lift. */
+	filter: var(--ring-filter, none) brightness(1.14) saturate(1.06);
+	box-shadow: 0 0 90px rgba(0, 0, 0, .45), inset 0 0 0 1px rgba(255, 255, 255, .18);
+}
+.primary-navigation-drawer--concentric .primary-menu > li > a:hover .cc-label,
+.primary-navigation-drawer--concentric .primary-menu > li > a:focus-visible .cc-label {
+	opacity: 1;
+	letter-spacing: .18em;
+	text-shadow: 0 0 18px rgba(255, 255, 255, .35);
+}
+
+/* ---- Corner variants (default = top-right) ----
+   Each variant re-anchors the circle (li::before), the clipped hit-disc (a's
+   clip-path centre) and the label (.cc-label offset corner + translate). */
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-tl .primary-menu > li::before { right: auto; left: calc(-1 * var(--r)); }
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-tl .primary-menu > li > a {
+	-webkit-clip-path: circle(var(--r) at 0 0); clip-path: circle(var(--r) at 0 0);
+}
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-tl .cc-label {
+	right: auto; left: calc(var(--t) * 100%); transform: translate(-50%, -50%);
+}
+
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-br .primary-menu > li::before { top: auto; bottom: calc(-1 * var(--r)); }
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-br .primary-menu > li > a {
+	-webkit-clip-path: circle(var(--r) at 100% 100%); clip-path: circle(var(--r) at 100% 100%);
+}
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-br .cc-label {
+	top: auto; bottom: calc(var(--t) * 100%); transform: translate(50%, 50%);
+}
+
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-bl .primary-menu > li::before { top: auto; bottom: calc(-1 * var(--r)); right: auto; left: calc(-1 * var(--r)); }
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-bl .primary-menu > li > a {
+	-webkit-clip-path: circle(var(--r) at 0 100%); clip-path: circle(var(--r) at 0 100%);
+}
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-bl .cc-label {
+	top: auto; bottom: calc(var(--t) * 100%); right: auto; left: calc(var(--t) * 100%); transform: translate(-50%, 50%);
+}
+
+/* Close button — sits on the corner HORIZONTALLY opposite the first item, i.e. on
+   the same top/bottom edge as the growth corner but the other side (tr → top-left,
+   tl → top-right, br → bottom-left, bl → bottom-right). A translucent disc keeps the
+   ✕ legible over any ring colour; z-index lifts it above every ring. */
+.primary-navigation-drawer--concentric .primary-navigation-drawer__close {
+	position: absolute;
+	top: 1.5rem;
+	left: 1.5rem;
+	right: auto;
+	bottom: auto;
+	z-index: 100;
+	width: 3rem;
+	height: 3rem;
+	display: grid;
+	place-items: center;
+	font-size: 2rem;
+	line-height: 1;
+	color: var(--overlay-concentric-ink, #fff);
+	background: rgba(0, 0, 0, .18);
+	border: 0;
+	border-radius: 50%;
+	opacity: .85;
+	cursor: pointer;
+	transition: opacity .2s ease, background .2s ease, transform .25s ease;
+}
+.primary-navigation-drawer--concentric .primary-navigation-drawer__close:hover,
+.primary-navigation-drawer--concentric .primary-navigation-drawer__close:focus-visible {
+	opacity: 1;
+	background: rgba(0, 0, 0, .32);
+	transform: rotate(90deg);
+}
+/* Growth-corner → opposite corner for the ✕. */
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-tl .primary-navigation-drawer__close { left: auto; right: 1.5rem; }
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-br .primary-navigation-drawer__close { top: auto; bottom: 1.5rem; left: 1.5rem; right: auto; }
+.primary-navigation-drawer--concentric.primary-navigation-drawer--corner-bl .primary-navigation-drawer__close { top: auto; bottom: 1.5rem; left: auto; right: 1.5rem; }
+
+@media (prefers-reduced-motion: reduce) {
+	.primary-navigation-drawer--concentric .primary-menu > li::before { transition: filter .3s ease, box-shadow .3s ease; transform: scale(1); }
+	.primary-navigation-drawer--concentric.is-open .cc-label { animation: none; }
+	.primary-navigation-drawer--concentric .primary-navigation-drawer__close:hover,
+	.primary-navigation-drawer--concentric .primary-navigation-drawer__close:focus-visible { transform: none; }
+}

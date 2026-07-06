@@ -18,7 +18,8 @@ while ( have_posts() ) :
 
 	do_action( 'unysonplus_after_entry' );
 
-	if ( comments_open() || get_comments_number() ) {
+	if ( ( comments_open() || get_comments_number() )
+		&& ( ! function_exists( 'unysonplus_single_comments_enabled' ) || unysonplus_single_comments_enabled() ) ) {
 		comments_template();
 	}
 

@@ -1,0 +1,465 @@
+{
+  "section": {
+    "variant": "",
+    "is_fullwidth": false,
+    "background_color": "",
+    "background_image": {
+      "type": "custom",
+      "custom": "",
+      "predefined": "",
+      "data": {
+        "icon": "",
+        "css": []
+      }
+    },
+    "video": "",
+    "bleed_illustration": "",
+    "bleed_layout": {
+      "bleed_enabled": "no",
+      "yes": {
+        "bleed_bg_color": "",
+        "bleed_image": "",
+        "bleed_image_position": "center",
+        "bleed_image_side": "right",
+        "bleed_image_ratio": "5-7",
+        "bleed_vertical_align": "align-items-center",
+        "bleed_content_padding": "3rem",
+        "bleed_mobile_stacking": "content-first"
+      }
+    },
+    "bg_color": {
+      "predefined": "",
+      "custom": ""
+    },
+    "padding_top": "",
+    "padding_bottom": "",
+    "gap": "",
+    "gap_x": "",
+    "gap_y": "",
+    "min_height": {
+      "preset": "auto",
+      "custom": {
+        "custom_height": {
+          "value": "",
+          "unit": "px"
+        }
+      }
+    },
+    "content_valign": "top",
+    "background": {
+      "color": {
+        "value": {
+          "predefined": "",
+          "custom": ""
+        }
+      },
+      "gradient": {
+        "data": {
+          "type": "linear",
+          "angle": 90,
+          "stops": []
+        }
+      },
+      "image": {
+        "src": [],
+        "position": "center center",
+        "size": {
+          "selected": "cover",
+          "custom": ""
+        },
+        "repeat": "no-repeat",
+        "attachment": "scroll"
+      },
+      "video": {
+        "enabled": "no",
+        "external_url": "",
+        "source_mp4": [],
+        "source_webm": [],
+        "poster": [],
+        "fallback": [],
+        "loop": "yes",
+        "autoplay": "yes",
+        "mute": "yes",
+        "playsinline": "yes"
+      },
+      "advanced": []
+    },
+    "unique_id": "4f4ec4163b9c77d8688ebe29ae1b4108",
+    "css_id": "hero",
+    "css_class": "upw-section upw-hero upw-band-dark",
+    "custom_css": "",
+    "responsive_hide": [],
+    "custom_attrs": [],
+    "animation": {
+      "enable": "no",
+      "yes": {
+        "effect": "animate__fadeInUp",
+        "speed_preset": "",
+        "advanced_tweaks_heading": "",
+        "delay": 0,
+        "custom_duration": 0,
+        "repeat_count": 1,
+        "loop_forever": "no",
+        "replay_on_scroll": "no",
+        "easing": ""
+      }
+    }
+  },
+  "column": {
+    "full_height": "no",
+    "bg_color": {
+      "predefined": "",
+      "custom": ""
+    },
+    "spacing": {
+      "margin": {
+        "all": "",
+        "top": "",
+        "right": "",
+        "bottom": "",
+        "left": ""
+      },
+      "padding": {
+        "all": "",
+        "top": "",
+        "right": "",
+        "bottom": "",
+        "left": ""
+      },
+      "advanced": []
+    },
+    "mobile_order": "",
+    "w_phone": "default",
+    "w_tablet": "default",
+    "w_desktop": "default",
+    "offset_phone": "none",
+    "offset_tablet": "none",
+    "offset_desktop": "none",
+    "align_self": "default",
+    "content_v": "default",
+    "content_h": "default",
+    "position": "",
+    "z_index": "",
+    "border_preset": "",
+    "inner_class": "",
+    "unique_id": "cce919645289c4fb27ee7eef9e639d48",
+    "css_id": "",
+    "css_class": "",
+    "custom_css": "",
+    "responsive_hide": [],
+    "custom_attrs": [],
+    "animation": {
+      "enable": "no",
+      "yes": {
+        "effect": "animate__fadeInUp",
+        "speed_preset": "",
+        "advanced_tweaks_heading": "",
+        "delay": 0,
+        "custom_duration": 0,
+        "repeat_count": 1,
+        "loop_forever": "no",
+        "replay_on_scroll": "no",
+        "easing": ""
+      }
+    }
+  },
+  "atoms": {
+    "special_heading": {
+      "title": "Built in the open, for people who build with WordPress.",
+      "overline": "About",
+      "subtitle": "",
+      "heading": "h1",
+      "alignment": "left",
+      "overline_align": "",
+      "title_align": "",
+      "subtitle_align": "",
+      "overline_uppercase": "yes",
+      "overline_marker": "",
+      "overline_marker_position": "before",
+      "overline_container": "",
+      "element_spacing": "",
+      "block_max_width": {
+        "value": "",
+        "unit": "px"
+      },
+      "display_size": "",
+      "subtitle_size": "",
+      "subtitle_max_width": {
+        "value": "",
+        "unit": "rem"
+      },
+      "bg_color": {
+        "predefined": "",
+        "custom": ""
+      },
+      "overline_color": {
+        "predefined": "",
+        "custom": ""
+      },
+      "title_color": {
+        "predefined": "",
+        "custom": ""
+      },
+      "subtitle_color": {
+        "predefined": "",
+        "custom": ""
+      },
+      "spacing": {
+        "margin": {
+          "all": "",
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": ""
+        },
+        "padding": {
+          "all": "",
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": ""
+        },
+        "advanced": []
+      },
+      "overline_class": "",
+      "title_class": "",
+      "subtitle_class": "",
+      "unique_id": "6ab8ffdcb9529b5ea1d7186a6cf91704",
+      "css_id": "",
+      "css_class": "",
+      "custom_css": "",
+      "responsive_hide": [],
+      "custom_attrs": [],
+      "animation": {
+        "enable": "no",
+        "yes": {
+          "effect": "animate__fadeInUp",
+          "speed_preset": "",
+          "advanced_tweaks_heading": "",
+          "delay": 0,
+          "custom_duration": 0,
+          "repeat_count": 1,
+          "loop_forever": "no",
+          "replay_on_scroll": "no",
+          "easing": ""
+        }
+      }
+    },
+    "text_block": {
+      "text": "<p class=\"lead\">UnysonPlus continues the Unyson framework, modernized for current PHP and WordPress, kept capable and free.</p>",
+      "text_color": {
+        "predefined": "",
+        "custom": ""
+      },
+      "bg_color": {
+        "predefined": "",
+        "custom": ""
+      },
+      "font_size_preset": "",
+      "spacing": {
+        "margin": {
+          "all": "",
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": ""
+        },
+        "padding": {
+          "all": "",
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": ""
+        },
+        "advanced": []
+      },
+      "unique_id": "6b6ccc579d2e61d8cc17743985a3b5e0",
+      "css_id": "",
+      "css_class": "",
+      "custom_css": "",
+      "responsive_hide": [],
+      "custom_attrs": [],
+      "animation": {
+        "enable": "no",
+        "yes": {
+          "effect": "animate__fadeInUp",
+          "speed_preset": "",
+          "advanced_tweaks_heading": "",
+          "delay": 0,
+          "custom_duration": 0,
+          "repeat_count": 1,
+          "loop_forever": "no",
+          "replay_on_scroll": "no",
+          "easing": ""
+        }
+      }
+    },
+    "button": {
+      "label": "Download free<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" width=\"0.7em\" height=\"0.7em\" style=\"vertical-align:middle;margin-left:.4em\"><path d=\"M5 12h14M12 5l7 7-7 7\"/></svg>",
+      "link": "/get-started/",
+      "target": "_self",
+      "icon": {
+        "type": "none"
+      },
+      "icon_position": "after",
+      "style": "btn-primary",
+      "size": "btn-lg",
+      "width": {
+        "mode": "",
+        "custom": {
+          "custom_width": {
+            "value": "",
+            "unit": "px"
+          }
+        }
+      },
+      "alignment": "",
+      "state": "",
+      "hover_animation": "",
+      "spacing": {
+        "margin": {
+          "all": "",
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": ""
+        },
+        "padding": {
+          "all": "",
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": ""
+        },
+        "advanced": []
+      },
+      "unique_id": "ab5035f000b27e4b0117c253f6f0cab1",
+      "css_id": "",
+      "css_class": "",
+      "custom_css": "",
+      "responsive_hide": [],
+      "custom_attrs": [],
+      "animation": {
+        "enable": "no",
+        "yes": {
+          "effect": "animate__fadeInUp",
+          "speed_preset": "",
+          "advanced_tweaks_heading": "",
+          "delay": 0,
+          "custom_duration": 0,
+          "repeat_count": 1,
+          "loop_forever": "no",
+          "replay_on_scroll": "no",
+          "easing": ""
+        }
+      }
+    },
+    "icon_box": {
+      "icon": {
+        "type": "none"
+      },
+      "custom_icon": "<span class=\"ti-ic\" style=\"display:inline-grid;place-items:center;width:54px;height:54px;border-radius:12px;background:rgba(0,178,149,.12);margin-bottom:1rem;\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" width=\"1.4em\" height=\"1.4em\"><path d=\"M16 18l6-6-6-6M8 6l-6 6 6 6\"/></svg></span>",
+      "title": "Free and open",
+      "title_tag": "h4",
+      "content": "<p>GPL-licensed and public on GitHub.</p>",
+      "style": "top-title",
+      "icon_badge": "none",
+      "icon_align": "",
+      "title_align": "",
+      "content_align": "",
+      "mobile_stack": true,
+      "box_link": "",
+      "link_target": false,
+      "link_rel": "sponsored",
+      "bg_color": {
+        "predefined": "",
+        "custom": ""
+      },
+      "font_size_preset": "",
+      "title_color": {
+        "predefined": "",
+        "custom": ""
+      },
+      "content_color": {
+        "predefined": "",
+        "custom": ""
+      },
+      "icon_color": {
+        "predefined": "",
+        "custom": ""
+      },
+      "icon_badge_color": {
+        "predefined": "",
+        "custom": ""
+      },
+      "spacing": {
+        "margin": {
+          "all": "",
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": ""
+        },
+        "padding": {
+          "all": "",
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": ""
+        },
+        "advanced": []
+      },
+      "unique_id": "87c2afad35fceb8f393ebc62587c32f7",
+      "css_id": "",
+      "css_class": "",
+      "custom_css": "",
+      "responsive_hide": [],
+      "custom_attrs": [],
+      "animation": {
+        "enable": "no",
+        "yes": {
+          "effect": "animate__fadeInUp",
+          "speed_preset": "",
+          "advanced_tweaks_heading": "",
+          "delay": 0,
+          "custom_duration": 0,
+          "repeat_count": 1,
+          "loop_forever": "no",
+          "replay_on_scroll": "no",
+          "easing": ""
+        }
+      }
+    },
+    "counter": {
+      "number": "18",
+      "start": "0",
+      "prefix": "",
+      "suffix": "",
+      "decimals": "0",
+      "separator": "no",
+      "duration": "1600",
+      "easing": "ease-out",
+      "alignment": "center",
+      "unique_id": "28310457623f22bd074c327a3ca61c37",
+      "css_id": "",
+      "css_class": "",
+      "custom_css": "",
+      "responsive_hide": [],
+      "custom_attrs": [],
+      "animation": {
+        "enable": "no",
+        "yes": {
+          "effect": "animate__fadeInUp",
+          "speed_preset": "",
+          "advanced_tweaks_heading": "",
+          "delay": 0,
+          "custom_duration": 0,
+          "repeat_count": 1,
+          "loop_forever": "no",
+          "replay_on_scroll": "no",
+          "easing": ""
+        }
+      }
+    }
+  }
+}

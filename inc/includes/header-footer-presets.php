@@ -268,6 +268,27 @@ function unysonplus_migrate_header_layout() {
 		fw_set_db_settings_option( 'header_layout', $split['header_layout'] );
 	}
 
+	// ---- header_mode → inline multi-picker shape (Header → Layout) ----
+	// Additive to the blob split above; runs BEFORE the split early-return so it's
+	// not skipped on installs where the split already completed. Idempotent — the
+	// helper no-ops once header_mode is already an array.
+	$mp_global = unysonplus_header_mode_to_multipicker( fw_get_db_settings_option( 'header_layout', array() ) );
+	if ( $mp_global !== null ) {
+		fw_set_db_settings_option( 'header_layout', $mp_global );
+	}
+	if ( get_option( 'unysonplus_header_mode_mp_done' ) !== 'yes'
+	     && function_exists( 'fw_get_db_post_option' ) && function_exists( 'fw_set_db_post_option' )
+	     && post_type_exists( 'up_header' ) ) {
+		$mp_ids = get_posts( array( 'post_type' => 'up_header', 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'suppress_filters' => false ) );
+		foreach ( $mp_ids as $mp_pid ) {
+			$mp = unysonplus_header_mode_to_multipicker( fw_get_db_post_option( $mp_pid, 'header_layout' ) );
+			if ( $mp !== null ) {
+				fw_set_db_post_option( $mp_pid, 'header_layout', $mp );
+			}
+		}
+		update_option( 'unysonplus_header_mode_mp_done', 'yes', false );
+	}
+
 	// --- up_header preset post-meta (one-time scan) ---
 	if ( get_option( 'unysonplus_header_split_presets_done' ) === 'yes' ) {
 		return;
@@ -295,6 +316,151 @@ function unysonplus_migrate_header_layout() {
 	update_option( 'unysonplus_header_split_presets_done', 'yes', false );
 }
 endif;
+
+if ( ! function_exists( 'unysonplus_header_mode_to_multipicker' ) ) :
+/**
+ * Lift a legacy `header_layout` array (a scalar `header_mode` + a flat
+ * `vertical_width`) into the inline multi-picker shape:
+ *
+ *   [ 'header_mode' => [ 'mode' => 'top',
+ *                        'vertical-left'  => [ 'vertical_width' => … ],
+ *                        'vertical-right' => [ 'vertical_width' => … ] ], … ]
+ *
+ * Returns the migrated array, or null when there's nothing to lift (header_mode
+ * already an array, not an array input, or no legacy values present) so callers
+ * can skip the DB write.
+ *
+ * @param mixed $layout
+ * @return array|null
+ */
+function unysonplus_header_mode_to_multipicker( $layout ) {
+	if ( ! is_array( $layout ) ) {
+		return null;
+	}
+	$hm = isset( $layout['header_mode'] ) ? $layout['header_mode'] : null;
+	if ( is_array( $hm ) ) {
+		return null; // already in the multi-picker shape
+	}
+
+	$has_vw     = isset( $layout['vertical_width'] ) && $layout['vertical_width'] !== '' && $layout['vertical_width'] !== null;
+	$has_legacy = ( is_string( $hm ) && $hm !== '' ) || $has_vw;
+	if ( ! $has_legacy ) {
+		return null; // nothing legacy to lift (fresh install → option default applies)
+	}
+
+	$mode = ( is_string( $hm ) && $hm !== '' ) ? $hm : 'top';
+	$new  = array( 'mode' => $mode );
+	if ( $has_vw ) {
+		$new['vertical-left']  = array( 'vertical_width' => $layout['vertical_width'] );
+		$new['vertical-right'] = array( 'vertical_width' => $layout['vertical_width'] );
+	}
+	$layout['header_mode'] = $new;
+	unset( $layout['vertical_width'] );
+	return $layout;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_migrate_header_preset_to_toggles' ) ) :
+/**
+ * Schema v4: the header CHROME style `header_layout.header_preset` (a short-lived
+ * image-picker: bordered/elevated) becomes the border/shadow toggles:
+ *   bordered → header_border = 'yes';  elevated → header_shadow = 'yes'.
+ * Then `header_preset` is dropped (self-terminating). Runs on global settings + every
+ * up_header preset meta. Idempotent + guarded.
+ *
+ * NOTE: this `header_preset` (a sub-key of the `header_layout` group) is DISTINCT from
+ * the per-content `header_preset` SELECT that picks an up_header CPT — do NOT touch that.
+ */
+function unysonplus_migrate_header_preset_to_toggles() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) || ! function_exists( 'fw_set_db_settings_option' ) ) {
+		return;
+	}
+
+	$apply = function ( $layout ) {
+		if ( ! is_array( $layout ) || ! array_key_exists( 'header_preset', $layout ) ) {
+			return null; // nothing to migrate (already done / never set)
+		}
+		$preset = $layout['header_preset'];
+		if ( 'bordered' === $preset && empty( $layout['header_border'] ) ) { $layout['header_border'] = 'yes'; }
+		if ( 'elevated' === $preset && empty( $layout['header_shadow'] ) ) { $layout['header_shadow'] = 'yes'; }
+		unset( $layout['header_preset'] );
+		return $layout;
+	};
+
+	// Global settings.
+	$g = $apply( fw_get_db_settings_option( 'header_layout', array() ) );
+	if ( null !== $g ) {
+		fw_set_db_settings_option( 'header_layout', $g );
+	}
+
+	// up_header preset post-meta (one-time scan, done-flag gated).
+	if ( get_option( 'unysonplus_header_preset_toggles_done' ) === 'yes' ) {
+		return;
+	}
+	if ( function_exists( 'fw_get_db_post_option' ) && function_exists( 'fw_set_db_post_option' ) && post_type_exists( 'up_header' ) ) {
+		$ids = get_posts( array( 'post_type' => 'up_header', 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'suppress_filters' => false ) );
+		foreach ( $ids as $pid ) {
+			$m = $apply( fw_get_db_post_option( $pid, 'header_layout' ) );
+			if ( null !== $m ) {
+				fw_set_db_post_option( $pid, 'header_layout', $m );
+			}
+		}
+	}
+	update_option( 'unysonplus_header_preset_toggles_done', 'yes', false );
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_migrate_header_design_to_multipicker' ) ) :
+/**
+ * Schema v5: the Top mode's `header_design` became an inline multi-picker, so a stored
+ * scalar (e.g. 'pill') must be wrapped as [ 'design' => 'pill' ] wherever it sits under
+ * header_layout → header_mode → <mode> → header_design. Idempotent + guarded; runs on
+ * global settings + every up_header preset meta. Prevents the multi-picker editor-load
+ * "illegal string offset" when a legacy scalar reaches the option UI.
+ */
+function unysonplus_migrate_header_design_to_multipicker() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) || ! function_exists( 'fw_set_db_settings_option' ) ) {
+		return;
+	}
+
+	$apply = function ( $layout ) {
+		if ( ! is_array( $layout ) || ! isset( $layout['header_mode'] ) || ! is_array( $layout['header_mode'] ) ) {
+			return null;
+		}
+		$changed = false;
+		foreach ( $layout['header_mode'] as $mk => &$mv ) {
+			if ( 'mode' === $mk || ! is_array( $mv ) ) {
+				continue;
+			}
+			if ( isset( $mv['header_design'] ) && is_string( $mv['header_design'] ) && '' !== $mv['header_design'] ) {
+				$mv['header_design'] = array( 'design' => $mv['header_design'] );
+				$changed = true;
+			}
+		}
+		unset( $mv );
+		return $changed ? $layout : null;
+	};
+
+	$g = $apply( fw_get_db_settings_option( 'header_layout', array() ) );
+	if ( null !== $g ) {
+		fw_set_db_settings_option( 'header_layout', $g );
+	}
+
+	if ( get_option( 'unysonplus_header_design_mp_done' ) === 'yes' ) {
+		return;
+	}
+	if ( function_exists( 'fw_get_db_post_option' ) && function_exists( 'fw_set_db_post_option' ) && post_type_exists( 'up_header' ) ) {
+		foreach ( get_posts( array( 'post_type' => 'up_header', 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'suppress_filters' => false ) ) as $pid ) {
+			$m = $apply( fw_get_db_post_option( $pid, 'header_layout' ) );
+			if ( null !== $m ) {
+				fw_set_db_post_option( $pid, 'header_layout', $m );
+			}
+		}
+	}
+	update_option( 'unysonplus_header_design_mp_done', 'yes', false );
+}
+endif;
+
 // Invoked by the central schema-migration runner (inc/includes/migrations.php),
 // not hooked directly. Kept idempotent so a re-run is a safe no-op.
 
