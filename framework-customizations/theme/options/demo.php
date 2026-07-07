@@ -425,10 +425,10 @@ $options = [
 		),
 	],
 	'demo_icon'                      => [
-		'label' => __( 'Icon (legacy)', 'unysonplus' ),
+		'label' => __( 'Icon', 'unysonplus' ),
 		'type'  => 'icon',
 		'value' => 'fa fa-linux',
-		'desc'  => __( 'The original Font Awesome 4 icon picker. Kept for back-compat; new options should use Icon v2 below.',
+		'desc'  => __( 'The `icon` type is now the modern engine — the same picker as Icon v2 below (icon-v2 is a kept alias). A legacy class string like this one is auto-migrated to the new value shape.',
 			'unysonplus' ),
 		'help'  => sprintf( "%s \n\n'\"<br/><br/>\n\n <b>%s</b>",
 			__( 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
