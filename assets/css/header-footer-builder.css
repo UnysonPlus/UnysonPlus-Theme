@@ -222,7 +222,10 @@
 /* Transparent overlay over the first section; solidifies once stuck. */
 .site-header--transparent {
 	position: absolute;
-	top: 0;
+	/* Sit below the WP admin bar when logged in (--admin-bar-offset is 32/46px, else
+	   0). An absolute top:0 lands at the viewport top — BEHIND the fixed admin bar —
+	   so its top strip gets clipped; the offset drops it clear of the bar. */
+	top: var(--admin-bar-offset, 0px);
 	left: 0;
 	right: 0;
 	z-index: 1030;
@@ -233,13 +236,30 @@
 	background: #fff;
 	box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .08);
 }
+/* The router also adds .header-sticky to a transparent-overlay header (it needs it
+   for the JS is-stuck toggle), and `.site-header.header-sticky { position: sticky }`
+   (0,2,0) outranks `.site-header--transparent` (0,1,0) — so without these the header
+   stayed IN-FLOW (sticky) and pushed the content down instead of OVERLAYING the first
+   section. Re-assert the overlay positioning at a higher specificity: absolute over
+   the first section until stuck, then fixed + solid. */
+.site-header.header-sticky.site-header--transparent {
+	position: absolute;
+	top: var(--admin-bar-offset, 0px);
+}
+.site-header.header-sticky.site-header--transparent.is-stuck {
+	position: fixed;
+	top: var(--admin-bar-offset, 0px);
+}
 
 /* =========================================================
  * Builder header BEHAVIORS  (data-hf-behavior on <header>)
  * ========================================================= */
 
-/* Sticky base — reuses the existing .header-sticky → .is-stuck observer. */
-.site-header.header-sticky { position: sticky; top: 0; z-index: 1030; }
+/* Sticky base — reuses the existing .header-sticky → .is-stuck observer. Offset by
+   the WP admin-bar height when logged in (0 otherwise) so the pinned header never
+   hides under the admin bar. (This selector ties style.css's on specificity, so it
+   must carry the offset too — otherwise whichever loads last wins with top:0.) */
+.site-header.header-sticky { position: sticky; top: var(--admin-bar-offset, 0px); z-index: 1030; }
 .site-header.header-sticky.is-stuck:not(.site-header--transparent) {
 	background: #fff;
 	box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .08);
@@ -258,6 +278,13 @@
 /* Hide on scroll down (header-behaviors.js toggles .is-hidden) */
 .site-header[data-hf-behavior="hide-on-scroll"] { transition: transform .3s ease; will-change: transform; }
 .site-header[data-hf-behavior="hide-on-scroll"].is-hidden { transform: translateY(-100%); }
+/* Keyboard a11y: a header holding focus (or an open menu) is never left off-screen, even between
+   scroll ticks. Belt-and-suspenders with the JS headerBusy() guard. */
+.site-header[data-hf-behavior="hide-on-scroll"].is-hidden:focus-within { transform: none; }
+/* Reduced motion: the JS bails (header stays put), but if is-hidden is ever set, don't animate. */
+@media (prefers-reduced-motion: reduce) {
+	.site-header[data-hf-behavior="hide-on-scroll"] { transition: none; }
+}
 
 /* =========================================================
  * Chrome toggles  (Header → Layout switches — compose with any design/behavior)

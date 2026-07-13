@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version:           2.3.9
+Version:           2.3.82
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -102,7 +102,11 @@ img, video, svg { max-width: 100%; height: auto; }
 p:last-child { margin-bottom: 0; }
 
 a { color: var(--color-primary); text-decoration: none; }
-a:hover, a:focus-visible { color: var(--menu-link-hover); text-decoration: underline; }
+/* NO global hover underline — it was over-broad (nav, footer, social, buttons all inherited it).
+   CONTENT/prose links get their hover underline from the dedicated Body Link Underline rule below
+   (`--body-link-decoration-hover`, Typography → Body Link, default underline); chrome + buttons
+   signal hover by colour/fill. Keeps modern chrome clean with no per-site override. */
+a:hover, a:focus-visible { color: var(--menu-link-hover); }
 /* Body/content link colors (Typography → Body Link Color). Fall back to the base
    link color so an unset value keeps current behavior.
    Scoped to `:not([class])` so ONLY bare prose links get the body-link color —
@@ -137,17 +141,30 @@ body.custom-scrollbar ::-webkit-scrollbar { width: var(--scrollbar-width, 10px);
 body.custom-scrollbar ::-webkit-scrollbar-track { background: transparent; }
 body.custom-scrollbar ::-webkit-scrollbar-thumb { background: var(--scrollbar-color); border-radius: 10px; }
 
-/* Responsive container max-widths (General → Layout). Each var unset ⇒ Bootstrap
-   default for that range. `body .container` outranks Bootstrap's `.container`
-   regardless of stylesheet order; `.container-fluid` is intentionally untouched. */
-@media (min-width: 992px) {
-	body .container { max-width: var(--container-max-desktop); }
+/* Container Width (General → Layout → Container Width). Governs the site's BOXED
+   content width — the page-builder grid's Fixed-Width container (.fw-container, used
+   by boxed sections + the non-builder content wrapper) AND Bootstrap's .container.
+   The grid gives .fw-container a FIXED per-breakpoint width (750/970/1170px), which
+   ignores this setting; we switch it to width:100% + a responsive max-width so the
+   option actually applies — and can WIDEN past the grid default, not just shrink.
+   Full-Width containers (*-fluid) are intentionally left at 100%. Each var is emitted
+   only when the option is set (theme-vars.php); the fallbacks keep the current look
+   when blank. `body …` (0,1,1) outranks the grid's `.fw-container` (0,1,0) at any
+   breakpoint, regardless of stylesheet order. */
+body .fw-container,
+body .container {
+	width: 100%;
+	max-width: var(--container-max-desktop, 1170px);
+	margin-left: auto;
+	margin-right: auto;
 }
 @media (min-width: 768px) and (max-width: 991.98px) {
-	body .container { max-width: var(--container-max-tablet); }
+	body .fw-container,
+	body .container { max-width: var(--container-max-tablet, 45rem); }
 }
 @media (max-width: 767.98px) {
-	body .container { max-width: var(--container-max-mobile); }
+	body .fw-container,
+	body .container { max-width: var(--container-max-mobile, 100%); }
 }
 
 /* Headings — driven by Typography tokens (Preset scale or per-heading overrides).
@@ -155,12 +172,12 @@ body.custom-scrollbar ::-webkit-scrollbar-thumb { background: var(--scrollbar-co
    an untouched install looks exactly as before; the per-heading family falls back to
    the global --font-heading (Heading Font / preset). */
 h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
-h1 { font-family: var(--h1-font-family, var(--font-heading)); font-size: var(--h1-font-size, revert); line-height: var(--h1-line-height, revert); letter-spacing: var(--h1-letter-spacing, revert); font-weight: var(--h1-font-weight, revert); color: var(--h1-color, revert); }
-h2 { font-family: var(--h2-font-family, var(--font-heading)); font-size: var(--h2-font-size, revert); line-height: var(--h2-line-height, revert); letter-spacing: var(--h2-letter-spacing, revert); font-weight: var(--h2-font-weight, revert); color: var(--h2-color, revert); }
-h3 { font-family: var(--h3-font-family, var(--font-heading)); font-size: var(--h3-font-size, revert); line-height: var(--h3-line-height, revert); letter-spacing: var(--h3-letter-spacing, revert); font-weight: var(--h3-font-weight, revert); color: var(--h3-color, revert); }
-h4 { font-family: var(--h4-font-family, var(--font-heading)); font-size: var(--h4-font-size, revert); line-height: var(--h4-line-height, revert); letter-spacing: var(--h4-letter-spacing, revert); font-weight: var(--h4-font-weight, revert); color: var(--h4-color, revert); }
-h5 { font-family: var(--h5-font-family, var(--font-heading)); font-size: var(--h5-font-size, revert); line-height: var(--h5-line-height, revert); letter-spacing: var(--h5-letter-spacing, revert); font-weight: var(--h5-font-weight, revert); color: var(--h5-color, revert); }
-h6 { font-family: var(--h6-font-family, var(--font-heading)); font-size: var(--h6-font-size, revert); line-height: var(--h6-line-height, revert); letter-spacing: var(--h6-letter-spacing, revert); font-weight: var(--h6-font-weight, revert); color: var(--h6-color, revert); }
+h1 { font-family: var(--h1-font-family, var(--font-heading)); font-size: var(--h1-font-size, revert); line-height: var(--h1-line-height, revert); letter-spacing: var(--h1-letter-spacing, revert); font-weight: var(--h1-font-weight, 500); color: var(--h1-color, revert); }
+h2 { font-family: var(--h2-font-family, var(--font-heading)); font-size: var(--h2-font-size, revert); line-height: var(--h2-line-height, revert); letter-spacing: var(--h2-letter-spacing, revert); font-weight: var(--h2-font-weight, 500); color: var(--h2-color, revert); }
+h3 { font-family: var(--h3-font-family, var(--font-heading)); font-size: var(--h3-font-size, revert); line-height: var(--h3-line-height, revert); letter-spacing: var(--h3-letter-spacing, revert); font-weight: var(--h3-font-weight, 500); color: var(--h3-color, revert); }
+h4 { font-family: var(--h4-font-family, var(--font-heading)); font-size: var(--h4-font-size, revert); line-height: var(--h4-line-height, revert); letter-spacing: var(--h4-letter-spacing, revert); font-weight: var(--h4-font-weight, 500); color: var(--h4-color, revert); }
+h5 { font-family: var(--h5-font-family, var(--font-heading)); font-size: var(--h5-font-size, revert); line-height: var(--h5-line-height, revert); letter-spacing: var(--h5-letter-spacing, revert); font-weight: var(--h5-font-weight, 500); color: var(--h5-color, revert); }
+h6 { font-family: var(--h6-font-family, var(--font-heading)); font-size: var(--h6-font-size, revert); line-height: var(--h6-line-height, revert); letter-spacing: var(--h6-letter-spacing, revert); font-weight: var(--h6-font-weight, 500); color: var(--h6-color, revert); }
 
 /* ========================================================================
    3. WORDPRESS REQUIRED CLASSES
@@ -639,6 +656,22 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .header-main > .container,
 .header-main > .container-fluid { width: 100%; }
 
+/* Container Gutter (General → Layout → Container Gutter) — horizontal breathing room
+   INSIDE the boxed/content containers, site-wide: the page-builder grid's
+   .fw-container (Fixed) / .fw-container-fluid (Full) — used by header rows, footer
+   sections, page-builder sections AND the non-builder content wrapper — plus
+   Bootstrap's .container / .container-fluid. The grid ships a tight ~15px gutter that
+   ignores this setting; `body …` (0,1,1) outranks the grid's `.fw-container` (0,1,0)
+   at any stylesheet order, so the theme gutter applies consistently to Fixed AND Full
+   containers everywhere (previously it only reached the header). */
+body .fw-container,
+body .fw-container-fluid,
+body .container,
+body .container-fluid {
+	padding-left: var(--container-gutter, clamp(1.25rem, 3vw, 2rem));
+	padding-right: var(--container-gutter, clamp(1.25rem, 3vw, 2rem));
+}
+
 .header-main .header-row {
 	display: flex;
 	align-items: var(--header-valign, center);
@@ -736,6 +769,18 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .social-brand.social-style-bare .header-social-icon { background: none; color: var(--social-brand, currentColor); }
 .social-brand .header-social-icon:hover { filter: brightness(1.12); }
 
+/* Icon Text element (icon + text, optional smart link) — header & footer. */
+.header-icon-text {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	color: inherit;
+	text-decoration: none;
+	white-space: nowrap;
+}
+a.header-icon-text:hover { opacity: 0.85; }
+.header-icon-text i { font-size: 1em; line-height: 1; }
+
 /* --- Brand / logo --- */
 .site-title,
 .navbar-brand {
@@ -751,6 +796,35 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .navbar-brand:hover { color: var(--color-text); text-decoration: none; }
 .site-title img,
 .navbar-brand img { width: var(--logo-width, auto); height: auto; max-height: var(--logo-max-height, calc(var(--header-min-height) - 24px)); display: block; }
+
+/* Logo Icon + wordmark (Header → Identity → Logo Icon): an inline-SVG brand mark
+   beside the text site title. The mark's font-size sizes the SVG (1em); color +
+   size are overridable from Theme Settings (generated CSS). Default ~1.4em so the
+   mark reads slightly larger than the wordmark. */
+.site-title--has-icon a { display: inline-flex; align-items: center; gap: .5rem; }
+.site-logo__mark { display: inline-flex; align-items: center; line-height: 0; font-size: 1.4em; color: inherit; }
+.site-logo__mark svg { width: 1em; height: 1em; display: block; }
+.site-title-text { display: inline-block; }
+
+/* Logo Layout (Header → Identity → Logo Layout): how the icon / title / tagline arrange.
+   Inline = one line (default). Stacked / Eyebrow = a two-line lockup beside the icon, with
+   the tagline riding inside the lockup (below the title, or as an eyebrow above it). */
+.site-logo--stacked a,
+.site-logo--eyebrow a { align-items: center; }
+.site-logo__text { display: inline-flex; flex-direction: column; justify-content: center; line-height: 1.15; }
+.site-logo__eyebrow { display: block; font-size: .62em; letter-spacing: .22em; text-transform: uppercase; opacity: .6; font-weight: 600; }
+.site-logo__sub { display: block; font-size: .72em; opacity: .65; font-weight: 400; margin-top: 1px; }
+
+/* Logo Icon Frame (Header → Identity → Logo Icon Frame): the "app icon" tile behind the mark. */
+.site-logo__mark--framed { justify-content: center; width: 2.2em; height: 2.2em; border: 1px solid currentColor; background: rgba(127,127,127,.06); }
+.site-logo__mark--rounded  { border-radius: .5em; }
+.site-logo__mark--squircle { border-radius: 32%; }        /* iOS-style continuous rounding */
+.site-logo__mark--circle   { border-radius: 50%; }
+.site-logo__mark--square   { border-radius: 0; }
+/* Hexagon is a clip-path tile; the clip removes the border, so it reads via a slightly stronger
+   fill instead of a stroke (the frame's hairline can't survive the clip). */
+.site-logo__mark--hexagon  { border: 0; background: rgba(127,127,127,.12); -webkit-clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+.site-logo__mark--framed svg { width: .82em; height: .82em; }
 
 /* WooCommerce core ships `.woocommerce img,.woocommerce-page img{max-width:100%;height:auto}`
    (woocommerce-layout.css), which over-broadly resizes the brand logo on any page WC tags
@@ -810,6 +884,7 @@ body.transparent .site-header:not(.is-stuck) .has-transparent-logo .site-logo--t
 	padding: var(--menu-link-pad-y) var(--menu-link-pad-x);
 	color: var(--menu-link-color);
 	background-color: var(--menu-item-bg, transparent);
+	font-size: var(--menu-link-font-size, inherit);
 	font-weight: 500;
 	border-radius: var(--radius);
 	transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -831,12 +906,12 @@ body.transparent .site-header:not(.is-stuck) .has-transparent-logo .site-logo--t
    ============================================================ */
 
 /* Relative positioning for the ::before treatments (underline-grow + bars). */
-body.menu-style-underline-grow .primary-menu > .menu-item > a,
-body.menu-style-bottom-bar     .primary-menu > .menu-item > a,
-body.menu-style-top-bar        .primary-menu > .menu-item > a { position: relative; }
+body.menu-style-underline-grow .site-header .primary-menu > .menu-item > a,
+body.menu-style-bottom-bar     .site-header .primary-menu > .menu-item > a,
+body.menu-style-top-bar        .site-header .primary-menu > .menu-item > a { position: relative; }
 
 /* Underline (animated) — a bar grows in from the center. */
-body.menu-style-underline-grow .primary-menu > .menu-item > a::before {
+body.menu-style-underline-grow .site-header .primary-menu > .menu-item > a::before {
 	content: "";
 	position: absolute;
 	left: var(--menu-link-pad-x);
@@ -848,49 +923,49 @@ body.menu-style-underline-grow .primary-menu > .menu-item > a::before {
 	transform-origin: center;
 	transition: transform var(--transition-fast);
 }
-body.menu-style-underline-grow .primary-menu > .menu-item > a:hover::before,
-body.menu-style-underline-grow .primary-menu > .menu-item > a:focus-visible::before,
-body.menu-style-underline-grow .primary-menu > .current-menu-item > a::before,
-body.menu-style-underline-grow .primary-menu > .current-menu-ancestor > a::before { transform: scaleX(1); }
+body.menu-style-underline-grow .site-header .primary-menu > .menu-item > a:hover::before,
+body.menu-style-underline-grow .site-header .primary-menu > .menu-item > a:focus-visible::before,
+body.menu-style-underline-grow .site-header .primary-menu > .current-menu-item > a::before,
+body.menu-style-underline-grow .site-header .primary-menu > .current-menu-ancestor > a::before { transform: scaleX(1); }
 
 /* Underline (static) — a simple rule appears on hover / current. */
-body.menu-style-underline .primary-menu > .menu-item > a:hover,
-body.menu-style-underline .primary-menu > .menu-item > a:focus-visible,
-body.menu-style-underline .primary-menu > .current-menu-item > a,
-body.menu-style-underline .primary-menu > .current-menu-ancestor > a {
+body.menu-style-underline .site-header .primary-menu > .menu-item > a:hover,
+body.menu-style-underline .site-header .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-underline .site-header .primary-menu > .current-menu-item > a,
+body.menu-style-underline .site-header .primary-menu > .current-menu-ancestor > a {
 	box-shadow: inset 0 -2px 0 var(--menu-link-hover);
 }
 
 /* Pill / Box / Highlight — filled background from --menu-item-hover-bg. */
-body.menu-style-pill .primary-menu > .menu-item > a { border-radius: 999px; }
-body.menu-style-pill      .primary-menu > .menu-item > a:hover,
-body.menu-style-pill      .primary-menu > .menu-item > a:focus-visible,
-body.menu-style-pill      .primary-menu > .current-menu-item > a,
-body.menu-style-pill      .primary-menu > .current-menu-ancestor > a,
-body.menu-style-box       .primary-menu > .menu-item > a:hover,
-body.menu-style-box       .primary-menu > .menu-item > a:focus-visible,
-body.menu-style-box       .primary-menu > .current-menu-item > a,
-body.menu-style-box       .primary-menu > .current-menu-ancestor > a,
-body.menu-style-highlight .primary-menu > .menu-item > a:hover,
-body.menu-style-highlight .primary-menu > .menu-item > a:focus-visible,
-body.menu-style-highlight .primary-menu > .current-menu-item > a,
-body.menu-style-highlight .primary-menu > .current-menu-ancestor > a {
+body.menu-style-pill .site-header .primary-menu > .menu-item > a { border-radius: 999px; }
+body.menu-style-pill      .site-header .primary-menu > .menu-item > a:hover,
+body.menu-style-pill      .site-header .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-pill      .site-header .primary-menu > .current-menu-item > a,
+body.menu-style-pill      .site-header .primary-menu > .current-menu-ancestor > a,
+body.menu-style-box       .site-header .primary-menu > .menu-item > a:hover,
+body.menu-style-box       .site-header .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-box       .site-header .primary-menu > .current-menu-item > a,
+body.menu-style-box       .site-header .primary-menu > .current-menu-ancestor > a,
+body.menu-style-highlight .site-header .primary-menu > .menu-item > a:hover,
+body.menu-style-highlight .site-header .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-highlight .site-header .primary-menu > .current-menu-item > a,
+body.menu-style-highlight .site-header .primary-menu > .current-menu-ancestor > a {
 	background-color: var(--menu-item-hover-bg);
 }
 
 /* Outline — a bordered box on hover / current. */
-body.menu-style-outline .primary-menu > .menu-item > a { border: 1px solid transparent; }
-body.menu-style-outline .primary-menu > .menu-item > a:hover,
-body.menu-style-outline .primary-menu > .menu-item > a:focus-visible,
-body.menu-style-outline .primary-menu > .current-menu-item > a,
-body.menu-style-outline .primary-menu > .current-menu-ancestor > a {
+body.menu-style-outline .site-header .primary-menu > .menu-item > a { border: 1px solid transparent; }
+body.menu-style-outline .site-header .primary-menu > .menu-item > a:hover,
+body.menu-style-outline .site-header .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-outline .site-header .primary-menu > .current-menu-item > a,
+body.menu-style-outline .site-header .primary-menu > .current-menu-ancestor > a {
 	border-color: var(--menu-link-hover);
 	background-color: transparent;
 }
 
 /* Bottom / Top accent bar — a thick rule flush to one edge. */
-body.menu-style-bottom-bar .primary-menu > .menu-item > a::before,
-body.menu-style-top-bar    .primary-menu > .menu-item > a::before {
+body.menu-style-bottom-bar .site-header .primary-menu > .menu-item > a::before,
+body.menu-style-top-bar    .site-header .primary-menu > .menu-item > a::before {
 	content: "";
 	position: absolute;
 	left: 0;
@@ -900,16 +975,16 @@ body.menu-style-top-bar    .primary-menu > .menu-item > a::before {
 	transform: scaleX(0);
 	transition: transform var(--transition-fast);
 }
-body.menu-style-bottom-bar .primary-menu > .menu-item > a::before { bottom: 0; }
-body.menu-style-top-bar    .primary-menu > .menu-item > a::before { top: 0; }
-body.menu-style-bottom-bar .primary-menu > .menu-item > a:hover::before,
-body.menu-style-bottom-bar .primary-menu > .menu-item > a:focus-visible::before,
-body.menu-style-bottom-bar .primary-menu > .current-menu-item > a::before,
-body.menu-style-bottom-bar .primary-menu > .current-menu-ancestor > a::before,
-body.menu-style-top-bar .primary-menu > .menu-item > a:hover::before,
-body.menu-style-top-bar .primary-menu > .menu-item > a:focus-visible::before,
-body.menu-style-top-bar .primary-menu > .current-menu-item > a::before,
-body.menu-style-top-bar .primary-menu > .current-menu-ancestor > a::before { transform: scaleX(1); }
+body.menu-style-bottom-bar .site-header .primary-menu > .menu-item > a::before { bottom: 0; }
+body.menu-style-top-bar    .site-header .primary-menu > .menu-item > a::before { top: 0; }
+body.menu-style-bottom-bar .site-header .primary-menu > .menu-item > a:hover::before,
+body.menu-style-bottom-bar .site-header .primary-menu > .menu-item > a:focus-visible::before,
+body.menu-style-bottom-bar .site-header .primary-menu > .current-menu-item > a::before,
+body.menu-style-bottom-bar .site-header .primary-menu > .current-menu-ancestor > a::before,
+body.menu-style-top-bar .site-header .primary-menu > .menu-item > a:hover::before,
+body.menu-style-top-bar .site-header .primary-menu > .menu-item > a:focus-visible::before,
+body.menu-style-top-bar .site-header .primary-menu > .current-menu-item > a::before,
+body.menu-style-top-bar .site-header .primary-menu > .current-menu-ancestor > a::before { transform: scaleX(1); }
 
 /* Dropdowns */
 .primary-menu .menu-item-has-children > a { padding-right: 2rem; position: relative; }
@@ -976,19 +1051,19 @@ body.menu-style-top-bar .primary-menu > .current-menu-ancestor > a::before { tra
    rule above. The drawer's inline accordion resets these (see below), so a
    design never leaks into the mobile menu.
    ============================================================ */
-body.dropdown-style-elevated .primary-menu .sub-menu {
+body.dropdown-style-elevated .site-header .primary-menu .sub-menu {
 	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
 	border: 0;
 }
-body.dropdown-style-bordered .primary-menu .sub-menu {
+body.dropdown-style-bordered .site-header .primary-menu .sub-menu {
 	box-shadow: none;
 	border: 1px solid var(--color-border);
 }
-body.dropdown-style-minimal .primary-menu .sub-menu {
+body.dropdown-style-minimal .site-header .primary-menu .sub-menu {
 	box-shadow: none;
 	border: 0;
 }
-body.dropdown-style-top-accent .primary-menu .sub-menu {
+body.dropdown-style-top-accent .site-header .primary-menu .sub-menu {
 	border-top: 3px solid var(--menu-link-hover);
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
@@ -1156,35 +1231,96 @@ body.menu-drawer-open { overflow: hidden; }
 }
 
 /* ========================================================================
+   SCROLL SPY — Header → Layout → Scroll Spy (body.nav-scrollspy).
+   Active-item styling reuses .current-menu-item (styled for every menu preset
+   above), so nothing is needed here for the highlight. These two rules just
+   handle smooth anchor scrolling + the sticky-header landing offset.
+   ======================================================================== */
+/* Native smooth scroll for anchor jumps — but NOT when Lenis (Animation Engine →
+   Scroll Loop) owns scrolling (it adds .lenis to <html>); navigation.js adds
+   html.nav-scrollspy so this stays opt-in. Reduced-motion turns it off. */
+html.nav-scrollspy:not(.lenis) { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html.nav-scrollspy { scroll-behavior: auto; } }
+/* Land anchor targets below the sticky header. Scoped to page-builder sections
+   (they render as <section id>) so it never shifts non-section anchor targets
+   (accordion panels, tabs, etc.). */
+body.nav-scrollspy section[id] {
+	scroll-margin-top: calc(var(--header-min-height, 4rem) + var(--admin-bar-offset, 0px));
+}
+
+/* ========================================================================
    6. FOOTER
    ======================================================================== */
 .footer {
-	background-color: var(--footer-bg);
+	/* --footer-bg-color comes from the Background Pro control (Footer → Layout →
+	   Background); --footer-bg is the theme default token / dark-mode fallback. */
+	background-color: var(--footer-bg-color, var(--footer-bg));
 	color: var(--footer-color);
-	padding-top: var(--footer-pad-top);
-	padding-bottom: var(--footer-pad-bottom);
 	position: relative;
 }
+
+/* Footer border (Footer → Layout → Border). ONE shared width / style / colour, applied
+   to any combination of edges — .footer--bt (top), .footer--br (right), .footer--bb
+   (bottom), .footer--bl (left), set by the multi-select Border Sides picker. Invisible
+   until both a width and a colour are set (width falls back to 0, colour to transparent).
+   The CSS vars keep the legacy `--footer-border-top-*` names but drive every edge. Left /
+   right are vertical, so they always render as real borders (Border Extent only affects
+   the horizontal top/bottom lines). */
+.footer--bt:not(.footer--bcontained) {
+	border-top: var(--footer-border-top-width, 0) var(--footer-border-top-style, solid) var(--footer-border-top-color, transparent);
+}
+.footer--bb:not(.footer--bcontained) {
+	border-bottom: var(--footer-border-top-width, 0) var(--footer-border-top-style, solid) var(--footer-border-top-color, transparent);
+}
+.footer--bl {
+	border-left: var(--footer-border-top-width, 0) var(--footer-border-top-style, solid) var(--footer-border-top-color, transparent);
+}
+.footer--br {
+	border-right: var(--footer-border-top-width, 0) var(--footer-border-top-style, solid) var(--footer-border-top-color, transparent);
+}
+
+/* Border EXTENT = Container / Custom (Footer → Layout → Border Extent): move each active
+   HORIZONTAL border off the full-width <footer> onto a centered pseudo-element capped at
+   --footer-border-top-max, so the line aligns with the content instead of spanning edge
+   to edge. ::before = the top edge, ::after = the bottom edge. max-width only caps, so on
+   a narrow viewport the line still fits. Full Width (default) has no class. This only
+   sizes the border line — the footer sections' container width is never affected. Left /
+   right vertical borders are unaffected by extent. */
+.footer--bcontained.footer--bt::before,
+.footer--bcontained.footer--bb::after {
+	content: "";
+	display: block;
+	max-width: var(--footer-border-top-max, 100%);
+	margin-inline: auto;
+	border-top: var(--footer-border-top-width, 0) var(--footer-border-top-style, solid) var(--footer-border-top-color, transparent);
+}
+
+/* The footer's vertical padding (Footer → Layout → Padding Top/Bottom) lives on the
+   inner .footer__body wrapper (pre / main / post) — NOT the outer <footer> — so the
+   padding-bottom sits ABOVE the copyright bar (rendered after the wrapper) and the
+   copyright is flush at the footer's bottom edge with only its own .footer-section
+   padding. The actual padding declarations are emitted (scaled by Content Density) in
+   the Content Density section below; markup is in template-parts/footer-builder.php. */
 .footer a { color: var(--footer-link-color); }
 .footer a:hover { color: var(--footer-link-color); opacity: 0.85; }
 
+/* Background Pro image (+ any gradient overlay it folds in). All the placement
+   knobs come from the control; an overlay is a semi-transparent colour/gradient
+   layered into --footer-bg-image, so no separate ::before tint is needed. */
 .footer--has-bg-image {
 	background-image: var(--footer-bg-image, none);
-	background-size: cover;
-	background-position: center;
-}
-.footer--has-bg-image::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	background-color: var(--footer-bg);
-	opacity: var(--footer-overlay-opacity, 0.8);
-	pointer-events: none;
+	background-size: var(--footer-bg-size, cover);
+	background-position: var(--footer-bg-position, center center);
+	background-repeat: var(--footer-bg-repeat, no-repeat);
+	background-attachment: var(--footer-bg-attachment, scroll);
 }
 .footer--has-bg-image > * { position: relative; z-index: 1; }
 
 .footer .footer-section { padding-block: 1rem; }
 .footer .footer-section + .footer-section { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+/* The copyright now follows the .footer__body wrapper (not a sibling .footer-section),
+   so restore the divider between the footer body and the copyright bar. */
+.footer .footer__body + .footer-section { border-top: 1px solid rgba(255, 255, 255, 0.08); }
 
 .footer .widget-title {
 	color: var(--footer-link-color);
@@ -1542,6 +1678,35 @@ body.menu-drawer-open { overflow: hidden; }
 .scroll-to-top svg { display: block; width: 1.1em; height: 1.1em; }
 .scroll-to-top__label { white-space: nowrap; }
 
+/* --- Scroll-to-top designs --- */
+.scroll-to-top--square  { border-radius: 6px; }
+.scroll-to-top--pill    { border-radius: 999px; }
+.scroll-to-top--circle,
+.scroll-to-top--ring    { width: 2.75rem; height: 2.75rem; padding: 0; border-radius: 50%; justify-content: center; }
+/* Outline: transparent fill, coloured border + icon (overrides the generated bg rule). */
+.scroll-to-top--outline { background-color: transparent !important; border: 2px solid currentColor; box-shadow: none; }
+.scroll-to-top--outline:hover,
+.scroll-to-top--outline:focus-visible { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18); }
+/* Icon-only designs hide the text label. */
+.scroll-to-top--circle .scroll-to-top__label,
+.scroll-to-top--square .scroll-to-top__label,
+.scroll-to-top--ring .scroll-to-top__label { display: none; }
+
+/* Sizes */
+.scroll-to-top--size-small  { font-size: 0.8rem; padding: 0.5rem 0.7rem; }
+.scroll-to-top--size-large  { font-size: 1rem;   padding: 0.8rem 1.1rem; }
+.scroll-to-top--size-small.scroll-to-top--circle,
+.scroll-to-top--size-small.scroll-to-top--ring  { width: 2.25rem; height: 2.25rem; padding: 0; }
+.scroll-to-top--size-large.scroll-to-top--circle,
+.scroll-to-top--size-large.scroll-to-top--ring  { width: 3.25rem; height: 3.25rem; padding: 0; }
+
+/* Progress ring (design = ring): a circle that fills with scroll progress (scroll-top.js). */
+.scroll-to-top--ring { overflow: visible; }
+.scroll-to-top__ring { position: absolute; inset: -4px; pointer-events: none; }
+.scroll-to-top__ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.scroll-to-top__ring-track { fill: none; stroke: currentColor; opacity: 0.25; stroke-width: 2.5; }
+.scroll-to-top__ring-fill  { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
+
 /* --- Inline footer-builder button (back_to_top element) --- */
 .footer-back-to-top {
 	display: inline-flex;
@@ -1598,7 +1763,7 @@ body.menu-drawer-open { overflow: hidden; }
 	/* Site container backgrounds (introduced in Phase 2; must flip in dark mode
 	   or body keeps its light bg even after JS sets data-bs-theme="dark"). */
 	--site-bg-color:      #0d0e10;
-	--preloader-bg:       #1a1a1a;
+	--preloader-bg:       #ffffff;
 }
 
 /* --- Floating theme-mode toggle --- */
@@ -1692,7 +1857,7 @@ body.site-boxed--right #page { margin-right: 0; }
 /* --- Framed: decorative border around the entire viewport --- */
 body.site-framed {
 	padding: var(--site-frame-width);
-	background-color: var(--site-frame-color);
+	background-color: var(--site-frame-color, #222222);
 	min-height: 100vh;
 }
 body.site-framed #page {
@@ -1722,7 +1887,17 @@ body.unyson.page-builder .entry-content { margin-bottom: 0; }
 .posts-navigation,
 .post-navigation    { margin: calc(2rem * var(--section-spacing-scale)) 0; }
 .comments-area      { margin-top: calc(2rem * var(--section-spacing-scale)); }
-.footer             {
+/* Footer vertical padding — on the inner .footer__body (pre/main/post) so it stays
+   ABOVE the copyright bar; the copyright sits flush. See footer-builder.php. */
+.footer__body       {
+	padding-top:    calc(var(--footer-pad-top)    * var(--section-spacing-scale));
+	padding-bottom: calc(var(--footer-pad-bottom) * var(--section-spacing-scale));
+}
+/* Fallback: a footer with NO pre/main/post sections (e.g. copyright only) has no
+   .footer__body wrapper, so the padding above would have nothing to live on. Apply it
+   to the footer itself in that case. :not(:has()) guarantees it never doubles with the
+   rule above when a body IS present. */
+.footer:not(:has(.footer__body)) {
 	padding-top:    calc(var(--footer-pad-top)    * var(--section-spacing-scale));
 	padding-bottom: calc(var(--footer-pad-bottom) * var(--section-spacing-scale));
 }
@@ -1807,7 +1982,7 @@ body.preloader-active { overflow: hidden; }
 .scroll-progress__bar {
 	height: 100%;
 	width: 100%;
-	background-color: var(--scroll-progress-color);
+	background-color: var(--scroll-progress-color, var(--color-primary, #0d6efd));
 	transform: scaleX(0);
 	transform-origin: left;
 	transition: transform 80ms linear;
@@ -1879,7 +2054,7 @@ body.sidebar-left .with-sidebar.has-sidebar > .sidebar { order: -1; }
 	min-width: 0; /* lets grid track shrink */
 	background-color: var(--sidebar-bg, transparent);
 	padding: var(--sidebar-padding, 0);
-	border: var(--sidebar-border-width, 0) solid var(--sidebar-border-color, var(--color-border));
+	border: var(--sidebar-border-width, 0) var(--sidebar-border-style, solid) var(--sidebar-border-color, var(--color-border));
 	border-radius: var(--sidebar-radius, 0);
 }
 .sidebar .widget + .widget { margin-top: var(--widget-spacing, 1.5rem); }

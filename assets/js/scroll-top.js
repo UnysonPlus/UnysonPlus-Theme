@@ -34,6 +34,15 @@
 		var offset = 300;
 		var ticking = false;
 
+		// Progress-ring design: an SVG circle whose stroke fills with scroll progress.
+		var ring    = floating.querySelector( '.scroll-to-top__ring-fill' );
+		var ringLen = 0;
+		if ( ring && typeof ring.getTotalLength === 'function' ) {
+			ringLen = ring.getTotalLength();
+			ring.style.strokeDasharray  = String( ringLen );
+			ring.style.strokeDashoffset = String( ringLen );
+		}
+
 		function computeOffset() {
 			offset = offsetUnit === 'vh'
 				? ( offsetVal / 100 ) * ( window.innerHeight || document.documentElement.clientHeight || 0 )
@@ -48,6 +57,11 @@
 				floating.classList.add( 'is-visible' );
 			} else {
 				floating.classList.remove( 'is-visible' );
+			}
+			if ( ring ) {
+				var max = ( document.documentElement.scrollHeight - window.innerHeight ) || 1;
+				var p   = Math.min( 1, Math.max( 0, y / max ) );
+				ring.style.strokeDashoffset = String( ringLen * ( 1 - p ) );
 			}
 		}
 
@@ -71,6 +85,13 @@
 	function scrollToTop() {
 		// Respect the OS "reduce motion" preference — jump instead of animating.
 		var reduce = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+
+		// Defer to Lenis when the Animation Engine's Scroll Loop owns scrolling — a native
+		// window.scrollTo fights the smooth-scroll hijack (same handoff navigation.js uses).
+		if ( window.__upwLenis && typeof window.__upwLenis.scrollTo === 'function' ) {
+			window.__upwLenis.scrollTo( 0, { immediate: reduce } );
+			return;
+		}
 		try {
 			window.scrollTo( { top: 0, behavior: reduce ? 'auto' : 'smooth' } );
 		} catch ( err ) {

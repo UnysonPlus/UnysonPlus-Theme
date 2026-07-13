@@ -30,6 +30,8 @@ function unysonplus_misc_get( $key, $default = '' ) {
 		// Scroll to Top
 		'scroll_top_enable'           => 'misc_scroll_top',
 		'scroll_top_position'         => 'misc_scroll_top',
+		'scroll_top_design'           => 'misc_scroll_top',
+		'scroll_top_size'             => 'misc_scroll_top',
 		'scroll_top_offset'           => 'misc_scroll_top',
 		'scroll_top_text'             => 'misc_scroll_top',
 		'scroll_top_bg_color'         => 'misc_scroll_top',
@@ -127,16 +129,29 @@ function unysonplus_render_scroll_top_button() {
 	$offset_val = max( 0, $offset_val );
 	$text       = unysonplus_misc_get( 'scroll_top_text', '' );
 
+	$design = unysonplus_misc_get( 'scroll_top_design', 'rounded' );
+	$design = in_array( $design, array( 'rounded', 'circle', 'square', 'pill', 'outline', 'ring' ), true ) ? $design : 'rounded';
+	$size   = unysonplus_misc_get( 'scroll_top_size', 'medium' );
+	$size   = in_array( $size, array( 'small', 'medium', 'large' ), true ) ? $size : 'medium';
+
 	// Button colors (scroll_top_bg_color / scroll_top_text_color) are emitted to
 	// the generated CSS file as a .scroll-to-top rule — no inline style here.
 	$position = ( $position === 'left' ) ? 'left' : 'right';
 	?>
 	<button type="button"
-	        class="scroll-to-top scroll-to-top--<?php echo esc_attr( $position ); ?>"
+	        class="scroll-to-top scroll-to-top--<?php echo esc_attr( $position ); ?> scroll-to-top--<?php echo esc_attr( $design ); ?> scroll-to-top--size-<?php echo esc_attr( $size ); ?>"
 	        data-offset="<?php echo esc_attr( $offset_val ); ?>"
 	        data-offset-unit="<?php echo esc_attr( $offset_unit ); ?>"
 	        aria-label="<?php esc_attr_e( 'Scroll to top', 'unysonplus' ); ?>"
 	        hidden>
+		<?php if ( $design === 'ring' ) : ?>
+			<span class="scroll-to-top__ring" aria-hidden="true">
+				<svg viewBox="0 0 44 44">
+					<circle class="scroll-to-top__ring-track" cx="22" cy="22" r="20"/>
+					<circle class="scroll-to-top__ring-fill" cx="22" cy="22" r="20"/>
+				</svg>
+			</span>
+		<?php endif; ?>
 		<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
 			<path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
 		</svg>
