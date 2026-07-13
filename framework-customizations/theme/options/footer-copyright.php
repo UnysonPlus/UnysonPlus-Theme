@@ -3,14 +3,13 @@
 }
 
 /**
- * COPYRIGHT — explicit nested arrays. Shared leaves from
- * inc/includes/header-footer-option-helpers.php. Enabled by default; max 3
- * columns, default 1. Column 1 (every count) defaults to a Text element holding
- * the copyright line — the Text renderer resolves {{current_year}} (see footer-builder.php),
- * so no dedicated "Copyright Text" element is needed.
+ * COPYRIGHT — the bottom-most footer strip. Enabled by default; columns are driven
+ * by a single Split-Slider (count + widths + names) via unysonplus_footer_columns_field()
+ * — max 3 columns, any ratio (default 1). Column 1 defaults to a Text element holding
+ * the copyright line ({{current_year}} is resolved by the Text renderer).
  *
- * Option IDs: copyright_settings → copyright_columns (count + copyright_layout +
- * copyright_col_1..N) + copyright_custom_styling.
+ * Stored under `copyright_settings` → { enabled, 'yes' → { copyright_columns: {
+ * copyright_split, copyright_col_1..3 } } }.
  */
 
 /* Default content for Column 1: a Text element with the copyright line. */
@@ -24,6 +23,13 @@ $copyright_default = [ [
 ] ];
 
 $options = [
+	// Quick-start: fill the copyright columns with a ready-made layout, then edit.
+	'copyright_presets' => [
+		'type'         => 'preset-loader',
+		'label'        => __( 'Copyright Presets', 'unysonplus' ),
+		'desc'         => __( 'Set the copyright row layout in one click, then fine-tune each element.', 'unysonplus' ),
+		'preset_group' => 'copyright_settings',
+	],
 	'copyright_settings' => [
 		'type'   => 'multi-picker',
 		'label'  => false,
@@ -39,45 +45,8 @@ $options = [
 		],
 		'choices' => [
 			'yes' => [
-
-				'copyright_columns' => [
-					'type'   => 'multi-picker',
-					'label'  => false,
-					'desc'   => false,
-					'picker' => [
-						'count' => [
-							'type'    => 'select',
-							'label'   => __( 'Number of Columns', 'unysonplus' ),
-							'value'   => '1',
-							'choices' => [
-								'1' => __( '1 Column', 'unysonplus' ),
-								'2' => __( '2 Columns', 'unysonplus' ),
-								'3' => __( '3 Columns', 'unysonplus' ),
-							],
-							'desc'    => __( 'Add and reorder footer element. Drag to sort.', 'unysonplus' ),
-						],
-					],
-					'choices' => [
-						'1' => [
-							'copyright_col_1' => unysonplus_footer_column( __( 'Column 1', 'unysonplus' ), $copyright_default ),
-						],
-						'2' => [
-							'copyright_layout' => unysonplus_footer_ratio_picker( 'copyright', 2 ),
-							'copyright_col_1'  => unysonplus_footer_column( __( 'Column 1', 'unysonplus' ), $copyright_default ),
-							'copyright_col_2'  => unysonplus_footer_column( __( 'Column 2', 'unysonplus' ) ),
-						],
-						'3' => [
-							'copyright_layout' => unysonplus_footer_ratio_picker( 'copyright', 3 ),
-							'copyright_col_1'  => unysonplus_footer_column( __( 'Column 1', 'unysonplus' ), $copyright_default ),
-							'copyright_col_2'  => unysonplus_footer_column( __( 'Column 2', 'unysonplus' ) ),
-							'copyright_col_3'  => unysonplus_footer_column( __( 'Column 3', 'unysonplus' ) ),
-						],
-					],
-					'show_borders' => false,
-				],
-
+				'copyright_columns'        => unysonplus_footer_columns_field( 'copyright', 3, 1, $copyright_default ),
 				'copyright_custom_styling' => unysonplus_footer_custom_styling( 'copyright' ),
-
 			],
 		],
 		'show_borders' => false,

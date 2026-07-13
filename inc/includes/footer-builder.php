@@ -3,31 +3,105 @@
 if ( ! function_exists( 'unysonplus_get_footer_col_classes' ) ) :
 function unysonplus_get_footer_col_classes( $layout ) {
         $map = array(
-                '1-col'         => array( 'col-md-12' ),
-                '2-equal'       => array( 'col-md-6', 'col-md-6' ),
-                '2-1-3-2-3'     => array( 'col-md-4', 'col-md-8' ),
-                '2-2-3-1-3'     => array( 'col-md-8', 'col-md-4' ),
-                '2-1-4-3-4'     => array( 'col-md-3', 'col-md-9' ),
-                '2-3-4-1-4'     => array( 'col-md-9', 'col-md-3' ),
-                '3-equal'       => array( 'col-md-4', 'col-md-4', 'col-md-4' ),
-                '3-1-2-1-4-1-4' => array( 'col-md-6', 'col-md-3', 'col-md-3' ),
-                '3-1-4-1-4-1-2' => array( 'col-md-3', 'col-md-3', 'col-md-6' ),
-                '3-1-4-1-2-1-4' => array( 'col-md-3', 'col-md-6', 'col-md-3' ),
-                '3-5-2-5'       => array( 'col-md-5', 'col-md-2', 'col-md-5' ),
-                '3-5-3-4'       => array( 'col-md-5', 'col-md-3', 'col-md-4' ),
-                '4-equal'             => array( 'col-md-3', 'col-md-3', 'col-md-3', 'col-md-3' ),
-                '4-1-3-1-6-1-4-1-4'  => array( 'col-md-4', 'col-md-2', 'col-md-3', 'col-md-3' ),
-                '4-1-3-1-4-1-4-1-6'  => array( 'col-md-4', 'col-md-3', 'col-md-3', 'col-md-2' ),
-                '4-1-3-1-3-1-6-1-6'  => array( 'col-md-4', 'col-md-4', 'col-md-2', 'col-md-2' ),
-                '4-5-2-3-2-2'        => array( 'col-md-5', 'col-md-3', 'col-md-2', 'col-md-2' ),
-                '4-2-2-3-5'          => array( 'col-md-2', 'col-md-2', 'col-md-3', 'col-md-5' ),
-                '4-1-2-1-6-1-6-1-6'  => array( 'col-md-6', 'col-md-2', 'col-md-2', 'col-md-2' ),
-                '4-1-6-1-6-1-6-1-2'  => array( 'col-md-2', 'col-md-2', 'col-md-2', 'col-md-6' ),
-                '5-equal'                => array( 'col', 'col', 'col', 'col', 'col' ),
-                '5-1-3-1-6-1-6-1-6-1-6' => array( 'col-md-4', 'col-md-2', 'col-md-2', 'col-md-2', 'col-md-2' ),
-                '5-1-6-1-6-1-6-1-6-1-3' => array( 'col-md-2', 'col-md-2', 'col-md-2', 'col-md-2', 'col-md-4' ),
+                '1-col'         => array( 'fw-col-md-12' ),
+                '2-equal'       => array( 'fw-col-md-6', 'fw-col-md-6' ),
+                '2-1-3-2-3'     => array( 'fw-col-md-4', 'fw-col-md-8' ),
+                '2-2-3-1-3'     => array( 'fw-col-md-8', 'fw-col-md-4' ),
+                '2-1-4-3-4'     => array( 'fw-col-md-3', 'fw-col-md-9' ),
+                '2-3-4-1-4'     => array( 'fw-col-md-9', 'fw-col-md-3' ),
+                '3-equal'       => array( 'fw-col-md-4', 'fw-col-md-4', 'fw-col-md-4' ),
+                '3-1-2-1-4-1-4' => array( 'fw-col-md-6', 'fw-col-md-3', 'fw-col-md-3' ),
+                '3-1-4-1-4-1-2' => array( 'fw-col-md-3', 'fw-col-md-3', 'fw-col-md-6' ),
+                '3-1-4-1-2-1-4' => array( 'fw-col-md-3', 'fw-col-md-6', 'fw-col-md-3' ),
+                '3-5-2-5'       => array( 'fw-col-md-5', 'fw-col-md-2', 'fw-col-md-5' ),
+                '3-5-3-4'       => array( 'fw-col-md-5', 'fw-col-md-3', 'fw-col-md-4' ),
+                '4-equal'             => array( 'fw-col-md-3', 'fw-col-md-3', 'fw-col-md-3', 'fw-col-md-3' ),
+                '4-1-3-1-6-1-4-1-4'  => array( 'fw-col-md-4', 'fw-col-md-2', 'fw-col-md-3', 'fw-col-md-3' ),
+                '4-1-3-1-4-1-4-1-6'  => array( 'fw-col-md-4', 'fw-col-md-3', 'fw-col-md-3', 'fw-col-md-2' ),
+                '4-1-3-1-3-1-6-1-6'  => array( 'fw-col-md-4', 'fw-col-md-4', 'fw-col-md-2', 'fw-col-md-2' ),
+                '4-5-2-3-2-2'        => array( 'fw-col-md-5', 'fw-col-md-3', 'fw-col-md-2', 'fw-col-md-2' ),
+                '4-2-2-3-5'          => array( 'fw-col-md-2', 'fw-col-md-2', 'fw-col-md-3', 'fw-col-md-5' ),
+                '4-1-2-1-6-1-6-1-6'  => array( 'fw-col-md-6', 'fw-col-md-2', 'fw-col-md-2', 'fw-col-md-2' ),
+                '4-1-6-1-6-1-6-1-2'  => array( 'fw-col-md-2', 'fw-col-md-2', 'fw-col-md-2', 'fw-col-md-6' ),
+                '5-equal'                => array( 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15' ),
+                '5-1-3-1-6-1-6-1-6-1-6' => array( 'fw-col-md-4', 'fw-col-md-2', 'fw-col-md-2', 'fw-col-md-2', 'fw-col-md-2' ),
+                '5-1-6-1-6-1-6-1-6-1-3' => array( 'fw-col-md-2', 'fw-col-md-2', 'fw-col-md-2', 'fw-col-md-2', 'fw-col-md-4' ),
+                // UnysonPlus fifths (2/5..4/5 span the fifth grid): 2-col, 3-col and 4-col compositions of the 5-unit grid.
+                'f5-2-1-1-1' => array( 'fw-col-12 fw-col-sm-25', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15' ),
+                'f5-1-2-1-1' => array( 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-25', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15' ),
+                'f5-1-1-2-1' => array( 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-25', 'fw-col-12 fw-col-sm-15' ),
+                'f5-1-1-1-2' => array( 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-25' ),
+                'f5-3-1-1'   => array( 'fw-col-12 fw-col-sm-35', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15' ),
+                'f5-1-3-1'   => array( 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-35', 'fw-col-12 fw-col-sm-15' ),
+                'f5-1-1-3'   => array( 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-35' ),
+                'f5-2-2-1'   => array( 'fw-col-12 fw-col-sm-25', 'fw-col-12 fw-col-sm-25', 'fw-col-12 fw-col-sm-15' ),
+                'f5-2-1-2'   => array( 'fw-col-12 fw-col-sm-25', 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-25' ),
+                'f5-1-2-2'   => array( 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-25', 'fw-col-12 fw-col-sm-25' ),
+                'f5-4-1'     => array( 'fw-col-12 fw-col-sm-45', 'fw-col-12 fw-col-sm-15' ),
+                'f5-1-4'     => array( 'fw-col-12 fw-col-sm-15', 'fw-col-12 fw-col-sm-45' ),
+                'f5-3-2'     => array( 'fw-col-12 fw-col-sm-35', 'fw-col-12 fw-col-sm-25' ),
+                'f5-2-3'     => array( 'fw-col-12 fw-col-sm-25', 'fw-col-12 fw-col-sm-35' ),
         );
-        return isset( $map[ $layout ] ) ? $map[ $layout ] : array( 'col-md-12' );
+        return isset( $map[ $layout ] ) ? $map[ $layout ] : array( 'fw-col-md-12' );
+}
+endif;
+
+
+if ( ! function_exists( 'unysonplus_footer_widths_to_grid' ) ) :
+/**
+ * Snap a list of column widths (percentages, any scale) to a grid and return the
+ * matching column classes. Normally the page-builder 12-column grid (`fw-col-md-N`, each
+ * 1..12, summing to 12). SPECIAL CASE: five EQUAL columns use the plugin's one-fifth
+ * grid class (`fw-col-12 fw-col-sm-15`, 20% each) — five equal columns can't be
+ * expressed on a 12-grid, and 1/5 is the only supported fifth width (no 2/5..4/5).
+ *
+ * @param array $widths one width per column
+ * @param int   $count  expected column count (defensive fallback)
+ * @return string[] e.g. array( 'fw-col-md-6', 'fw-col-md-3', 'fw-col-md-3' )
+ */
+function unysonplus_footer_widths_to_grid( $widths, $count ) {
+        $count = max( 1, (int) $count );
+        if ( ! is_array( $widths ) || count( $widths ) !== $count ) {
+                $widths = array_fill( 0, $count, 100 / $count );
+        }
+        $sum = array_sum( $widths );
+        if ( $sum <= 0 ) { $widths = array_fill( 0, $count, 100 / $count ); $sum = 100; }
+
+        // Fifths: if every column width is a clean multiple of 20% (1/5..4/5) and they sum to
+        // five fifths, use the UnysonPlus fifth grid (fw-col-sm-15/25/35/45) — the 12-grid can't
+        // express fifths. Covers 5-equal (1/5x5) AND spanning layouts like 2/5 + 1/5 + 1/5 + 1/5.
+        $fifth_units = array();
+        $fifth_ok    = true;
+        $fifth_total = 0;
+        foreach ( $widths as $w ) {
+                $pct = $w / $sum * 100;
+                $u   = (int) round( $pct / 20 );
+                if ( $u < 1 || $u > 4 || abs( $pct - $u * 20 ) > 3 ) { $fifth_ok = false; break; }
+                $fifth_units[] = $u;
+                $fifth_total  += $u;
+        }
+        if ( $fifth_ok && 5 === $fifth_total ) {
+                $fifth_class = array( 1 => 'fw-col-12 fw-col-sm-15', 2 => 'fw-col-12 fw-col-sm-25', 3 => 'fw-col-12 fw-col-sm-35', 4 => 'fw-col-12 fw-col-sm-45' );
+                $classes = array();
+                foreach ( $fifth_units as $u ) { $classes[] = $fifth_class[ $u ]; }
+                return $classes;
+        }
+
+        // Each width → nearest twelfth (at least 1), then reconcile the total to 12.
+        $units = array();
+        foreach ( $widths as $w ) { $units[] = max( 1, (int) round( $w / $sum * 12 ) ); }
+        $total = array_sum( $units );
+        $guard = 0;
+        while ( $total !== 12 && $guard++ < 48 ) {
+                $idx = 0; $best = -1;
+                foreach ( $units as $i => $u ) { if ( $u > $best ) { $best = $u; $idx = $i; } } // largest column absorbs the diff
+                if ( $total > 12 ) { if ( $units[ $idx ] > 1 ) { $units[ $idx ]--; $total--; } else { break; } }
+                else { $units[ $idx ]++; $total++; }
+        }
+
+        $classes = array();
+        foreach ( $units as $u ) { $classes[] = 'fw-col-md-' . max( 1, min( 12, $u ) ); }
+        return $classes;
 }
 endif;
 
@@ -109,6 +183,10 @@ function unysonplus_render_footer_element( $element ) {
 
                 case 'phone':
                         unysonplus_render_phone( $settings );
+                        break;
+
+                case 'icon_text':
+                        unysonplus_render_icon_text( $settings );
                         break;
 
                 case 'search':
@@ -197,29 +275,57 @@ endif;
 
 
 if ( ! function_exists( 'unysonplus_extract_footer_columns_data' ) ) :
+/**
+ * Resolve a footer section's columns to { col_count, classes (fw-col-md-N), columns }.
+ * Shape (multi-picker): { count, '<n>':{ <prefix>_split:[{w,name}..], <prefix>_col_i } }.
+ * The count select gives the column count; the Split-Slider's segment widths snap to
+ * the page-builder 12-grid (→ fw-col-md-N). Falls back to a footer saved before the slider
+ * (the old <prefix>_layout ratio picker) and to equal columns when neither is set.
+ */
 function unysonplus_extract_footer_columns_data( $section_data, $prefix ) {
         $columns_data = ! empty( $section_data[ $prefix . '_columns' ] ) ? $section_data[ $prefix . '_columns' ] : array();
 
-        if ( empty( $columns_data ) ) {
-                return array( 'layout' => '1-col', 'col_count' => 1, 'columns' => array() );
+        if ( empty( $columns_data ) || ! is_array( $columns_data ) ) {
+                return array( 'col_count' => 0, 'classes' => array(), 'columns' => array() );
         }
 
-        $count      = ! empty( $columns_data['count'] ) ? $columns_data['count'] : '1';
-        $choice     = ! empty( $columns_data[ $count ] ) ? $columns_data[ $count ] : array();
+        $count  = ! empty( $columns_data['count'] ) ? max( 1, (int) $columns_data['count'] ) : 1;
+        $choice = ! empty( $columns_data[ (string) $count ] ) ? $columns_data[ (string) $count ]
+                : ( ! empty( $columns_data[ $count ] ) ? $columns_data[ $count ] : array() );
 
-        if ( $count === '1' ) {
-                $layout = '1-col';
+        // Column widths → grid classes. A FIFTH composition (image-picker `f5-*` key) wins over
+        // everything — the split-slider snaps to twelfths and can't carry fifths; its part-count
+        // also sets the real column count (e.g. `f5-2-1-1-1` = 4 columns). Otherwise: the
+        // Split-Slider ratio, then the legacy ratio image-picker, then equal columns.
+        $layout_key = ! empty( $choice[ $prefix . '_layout' ] ) ? (string) $choice[ $prefix . '_layout' ] : '';
+        $is_fifth   = ( strpos( $layout_key, 'f5-' ) === 0 );
+        $segments   = isset( $choice[ $prefix . '_split' ] ) ? $choice[ $prefix . '_split' ] : null;
+        if ( is_string( $segments ) ) {
+                $decoded  = json_decode( $segments, true );
+                $segments = is_array( $decoded ) ? $decoded : null;
+        }
+        if ( $count > 1 && $is_fifth ) {
+                $classes = unysonplus_get_footer_col_classes( $layout_key );
+                $count   = count( $classes ); // a spanning composition renders fewer physical columns
+        } elseif ( $count > 1 && is_array( $segments ) && $segments ) {
+                $widths = array();
+                foreach ( $segments as $seg ) {
+                        $widths[] = is_array( $seg ) ? max( 0, (float) ( isset( $seg['w'] ) ? $seg['w'] : 0 ) ) : max( 0, (float) $seg );
+                }
+                $classes = unysonplus_footer_widths_to_grid( $widths, $count );
+        } elseif ( $count > 1 && $layout_key !== '' ) {
+                $classes = unysonplus_get_footer_col_classes( $layout_key ); // legacy ratio
         } else {
-                $layout = ! empty( $choice[ $prefix . '_layout' ] ) ? $choice[ $prefix . '_layout' ] : '1-col';
+                $classes = unysonplus_footer_widths_to_grid( array_fill( 0, $count, 100 / $count ), $count );
         }
 
-        $cols = array();
-        for ( $i = 1; $i <= (int) $count; $i++ ) {
-                $col_key = $prefix . '_col_' . $i;
-                $cols[ $i ] = ! empty( $choice[ $col_key ] ) ? $choice[ $col_key ] : array();
+        $columns = array();
+        for ( $i = 1; $i <= $count; $i++ ) {
+                $col_key       = $prefix . '_col_' . $i;
+                $columns[ $i ] = ! empty( $choice[ $col_key ] ) ? $choice[ $col_key ] : array();
         }
 
-        return array( 'layout' => $layout, 'col_count' => (int) $count, 'columns' => $cols );
+        return array( 'col_count' => $count, 'classes' => $classes, 'columns' => $columns );
 }
 endif;
 
@@ -227,10 +333,9 @@ endif;
 if ( ! function_exists( 'unysonplus_render_footer_section' ) ) :
 function unysonplus_render_footer_section( $section_data, $prefix, $section_class = '' ) {
         $extracted   = unysonplus_extract_footer_columns_data( $section_data, $prefix );
-        $layout      = $extracted['layout'];
         $col_count   = $extracted['col_count'];
         $columns     = $extracted['columns'];
-        $col_classes = unysonplus_get_footer_col_classes( $layout );
+        $col_classes = isset( $extracted['classes'] ) ? $extracted['classes'] : array();
 
         $has_content = false;
         foreach ( $columns as $col_data ) {

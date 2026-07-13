@@ -58,9 +58,9 @@ $style_choice = function ( $variant, $label ) use ( $style_svg ) {
 /* Default profiles ship with real Font Awesome brand icons (the FA kit loads on the
    front end, so they render out of the box instead of falling back to plain text). */
 $defaults = array(
-	array( 'name' => 'Facebook',  'link' => 'https://facebook.com/',  'icon' => array( 'type' => 'icon-font', 'icon-class' => 'fab fa-facebook-f' ), 'new_tab' => 'yes' ),
-	array( 'name' => 'X',         'link' => 'https://x.com/',         'icon' => array( 'type' => 'icon-font', 'icon-class' => 'fab fa-x-twitter' ),  'new_tab' => 'yes' ),
-	array( 'name' => 'Instagram', 'link' => 'https://instagram.com/', 'icon' => array( 'type' => 'icon-font', 'icon-class' => 'fab fa-instagram' ),  'new_tab' => 'yes' ),
+	array( 'name' => 'Facebook',  'link' => 'https://facebook.com/',  'icon' => array( 'type' => 'icon-font', 'icon-class' => 'fab fa-facebook-f', 'icon-class-without-root' => 'fa-facebook-f', 'pack-name' => 'font-awesome' ), 'new_tab' => 'yes' ),
+	array( 'name' => 'X',         'link' => 'https://x.com/',         'icon' => array( 'type' => 'icon-font', 'icon-class' => 'fab fa-x-twitter',  'icon-class-without-root' => 'fa-x-twitter',  'pack-name' => 'font-awesome' ), 'new_tab' => 'yes' ),
+	array( 'name' => 'Instagram', 'link' => 'https://instagram.com/', 'icon' => array( 'type' => 'icon-font', 'icon-class' => 'fab fa-instagram',  'icon-class-without-root' => 'fa-instagram',  'pack-name' => 'font-awesome' ), 'new_tab' => 'yes' ),
 );
 
 $options = array(
@@ -149,12 +149,14 @@ $options = array(
 				'desc'  => __( 'Network name (used as the link label / aria-label). Its brand color is matched by name (facebook, x, instagram, youtube, linkedin, …).', 'unysonplus' ),
 				'type'  => 'text',
 				'value' => '',
+				'dynamic_content' => false,
 			),
 			'link' => array(
 				'label' => __( 'URL', 'unysonplus' ),
 				'desc'  => __( 'Full profile URL, including https://', 'unysonplus' ),
 				'type'  => 'text',
 				'value' => '',
+				'dynamic_content' => false,
 			),
 			'icon' => array(
 				'type'         => 'icon-v2',

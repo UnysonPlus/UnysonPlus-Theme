@@ -38,12 +38,9 @@ $options = [
 						'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
 						'left-choice'  => [ 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ],
 					],
-					'layout_scroll_progress_color' => [
-						'label' => __( 'Scroll Progress Bar Color', 'unysonplus' ),
-						'desc'  => __( 'Color of the scroll progress bar (when enabled).', 'unysonplus' ),
-						'type'  => 'color-picker',
-						'value' => '#0d6efd',
-					],
+					'layout_scroll_progress_color' => function_exists( 'sc_color_field_compact' )
+						? sc_color_field_compact( [ 'label' => __( 'Scroll Progress Bar Color', 'unysonplus' ), 'desc' => __( 'Color of the scroll progress bar (when enabled).', 'unysonplus' ), 'kind' => 'bg' ] )
+						: [ 'label' => __( 'Scroll Progress Bar Color', 'unysonplus' ), 'type' => 'color-picker', 'value' => '#0d6efd' ],
 				],
 			],
 		],

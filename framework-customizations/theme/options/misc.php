@@ -47,59 +47,11 @@ $options = [
 					// (inc/includes/site-wide-ux.php). Its `misc_scroll_top` storage key is
 					// unchanged, so unysonplus_misc_get( 'scroll_top_*' ) still resolves.
 
-					/* --- Dark Mode --- */
-					'tab_dark_mode' => [
-						'title'   => __( 'Dark Mode', 'unysonplus' ),
-						'type'    => 'tab',
-						'options' => [
-							'box' => [
-								'title'   => __( 'Dark Mode Toggle', 'unysonplus' ),
-								'type'    => 'box',
-								'options' => [
-									'misc_dark_mode' => [
-										'type'          => 'multi',
-										'label'         => false,
-										'inner-options' => [
-											'dark_mode_enable' => [
-												'label' => __( 'Enable', 'unysonplus' ),
-												'desc'  => __( 'Adds a floating light/dark/auto toggle to every page. Uses Bootstrap 5.3 data-bs-theme so components inherit the dark palette automatically.', 'unysonplus' ),
-												'type'  => 'switch',
-												'value' => 'no',
-											],
-											'dark_mode_default' => [
-												'label' => __( 'Default mode', 'unysonplus' ),
-												'desc'  => __( 'What new visitors see before they click the toggle.', 'unysonplus' ),
-												'type'  => 'radio',
-												'value' => 'auto',
-												'choices' => [
-													'auto'  => __( 'Auto (follow system preference)', 'unysonplus' ),
-													'light' => __( 'Light', 'unysonplus' ),
-													'dark'  => __( 'Dark', 'unysonplus' ),
-												],
-											],
-											'dark_mode_position' => [
-												'label' => __( 'Toggle button position', 'unysonplus' ),
-												'type'  => 'radio',
-												'value' => 'bottom-left',
-												'choices' => [
-													'bottom-left'  => __( 'Bottom-left', 'unysonplus' ),
-													'bottom-right' => __( 'Bottom-right', 'unysonplus' ),
-													'top-left'     => __( 'Top-left', 'unysonplus' ),
-													'top-right'    => __( 'Top-right', 'unysonplus' ),
-												],
-											],
-											'dark_mode_show_label' => [
-												'label' => __( 'Show text label', 'unysonplus' ),
-												'desc'  => __( 'Show "Light" / "Dark" / "Auto" text alongside the icon.', 'unysonplus' ),
-												'type'  => 'switch',
-												'value' => 'no',
-											],
-										],
-									],
-								],
-							],
-						],
-					],
+					// Dark Mode moved to the top-level "Site-wide UX" tab
+					// (site-wide-ux-dark-mode.php) — it's a global end-user UX toggle, so it
+					// belongs beside Preloader / Scrolling / Scroll-to-Top, not in this
+					// developer-oriented catch-all. Its `misc_dark_mode` storage key is
+					// unchanged, so unysonplus_misc_get( 'dark_mode_*' ) still resolves.
 
 					/* --- Media (Custom Image Sizes) is now provided by the Unyson+ plugin
 					   (Miscellaneous → Media), so its schema + behaviour live together in

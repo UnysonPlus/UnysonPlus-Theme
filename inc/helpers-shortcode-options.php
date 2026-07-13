@@ -460,7 +460,7 @@ if( ! function_exists('unysonplus_option_bg_atts')):
 									', 'unysonplus'),
 				),
 				'size' => array(
-					'type' 	=> 'fw-multi-inline',
+					'type' 	=> 'multi-inline',
 					'label' => __('', 'unysonplus'),
 					'desc'  => __( 'Image size', 'unysonplus' ),
 					'value' => array(
@@ -1920,7 +1920,7 @@ if(!function_exists('unysonplus_option_box')) :
 	 */
 	function unysonplus_option_box($label, $desc=NULL, $top=NULL, $right=NULL, $bottom=NULL, $left=NULL) {
 		return array(
-			'type' 	=> 'fw-multi-inline',
+			'type' 	=> 'multi-inline',
 			'label' => __($label, 'unysonplus'),
 			'desc' 	=> __($desc, 'unysonplus'),
 			'value' => array(

@@ -15,6 +15,13 @@
  */
 
 $options = [
+	// Quick-start: fill the columns with a ready-made bottom bar, then edit the elements.
+	'bottombar_presets' => [
+		'type'         => 'preset-loader',
+		'label'        => __( 'Bottom Bar Presets', 'unysonplus' ),
+		'desc'         => __( 'Populate the columns below with sample bottom-bar content in one click, then fine-tune each element.', 'unysonplus' ),
+		'preset_group' => 'header_bottombar',
+	],
 	'header_bottombar' => [
 		'type'          => 'multi',
 		'label'         => false,

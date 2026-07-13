@@ -32,6 +32,12 @@ $footer_cfg  = function_exists( 'unysonplus_get_active_footer_config' )
 	? unysonplus_get_active_footer_config()
 	: array();
 
+// The three CONTENT sections (pre / main / post) are buffered into a `.footer__body`
+// wrapper that carries the footer's vertical padding (--footer-pad-top/-bottom). The
+// copyright is buffered SEPARATELY and rendered after that wrapper — still inside
+// <footer> (so it stays in the contentinfo landmark and under the footer background),
+// but OUTSIDE the padded body, so the footer's bottom padding no longer sits below it.
+// The copyright becomes a flush bottom bar with only its own .footer-section padding.
 ob_start();
 
 // Pre-Footer — no Enable switch; the section renderer skips it when no column has
@@ -68,16 +74,26 @@ if ( ! empty( $post_columns['count'] ) ) {
 	);
 }
 
-// Copyright — keeps its Enable switch (you may want to hide it entirely).
+$body = trim( ob_get_clean() );
+
+// Copyright — keeps its Enable switch (you may want to hide it entirely). Buffered on
+// its own so it can sit OUTSIDE the padded .footer__body (flush bottom bar).
+ob_start();
 $copyright = isset( $footer_cfg['copyright_settings'] ) ? $footer_cfg['copyright_settings'] : fw_get_db_settings_option( 'copyright_settings' );
 if ( ! empty( $copyright['enabled'] ) && $copyright['enabled'] === 'yes' && ! empty( $copyright['yes'] ) ) {
 	unysonplus_render_footer_section( $copyright['yes'], 'copyright' );
 }
+$copyright_html = trim( ob_get_clean() );
 
-$rendered = trim( ob_get_clean() );
+// Compose: content sections in the padded .footer__body, copyright flush after it.
+$rendered = '';
+if ( $body !== '' ) {
+	$rendered .= '<div class="footer__body">' . $body . '</div>';
+}
+$rendered .= $copyright_html;
 
-if ( $rendered !== '' ) {
-	echo $rendered;
+if ( trim( $rendered ) !== '' ) {
+	echo $rendered; // phpcs:ignore — already-escaped footer-section HTML.
 } elseif ( function_exists( 'unysonplus_render_footer_fallback' ) ) {
 	unysonplus_render_footer_fallback();
 }

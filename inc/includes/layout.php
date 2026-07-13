@@ -708,6 +708,14 @@ function unysonplus_layout_body_classes( $classes ) {
 			$classes[] = 'dropdown-style-' . $dropdown_style;
 		}
 
+	// Header → Layout: Scroll Spy (active-section menu highlighting + smooth anchor
+	// scroll). Gated behind a body class so normal multi-page sites are unaffected;
+	// navigation.js + style.css key off body.nav-scrollspy.
+	if ( function_exists( 'unysonplus_header_layout_get' )
+		&& unysonplus_header_layout_get( 'nav_scrollspy', 'no' ) === 'yes' ) {
+		$classes[] = 'nav-scrollspy';
+	}
+
 	// Resolved sidebar position (cascade-aware: per-page meta > template > global > default).
 	$sidebar = unysonplus_resolve_layout( 'sidebar', 'right' );
 	if ( ! in_array( $sidebar, array( 'none', 'left', 'right' ), true ) ) { $sidebar = 'right'; }

@@ -118,12 +118,9 @@ $options = [
 									'value' => [ 'value' => '1.25', 'unit' => 'rem' ],
 									'min'   => 0,
 								],
-								'site_frame_color' => [
-									'label' => __( 'Frame Color', 'unysonplus' ),
-									'desc'  => __( 'Color of the decorative border.', 'unysonplus' ),
-									'type'  => 'color-picker',
-									'value' => '#222222',
-								],
+								'site_frame_color' => function_exists( 'sc_color_field_compact' )
+									? sc_color_field_compact( [ 'label' => __( 'Frame Color', 'unysonplus' ), 'desc' => __( 'Color of the decorative border. Blank = the default dark frame.', 'unysonplus' ), 'kind' => 'bg' ] )
+									: [ 'label' => __( 'Frame Color', 'unysonplus' ), 'type' => 'color-picker', 'value' => '#222222' ],
 							],
 						],
 						'show_borders' => false,
@@ -195,31 +192,21 @@ $options = [
 						'min'   => 0,
 					],
 
-					/* Responsive container max-widths — cap the fixed-width `.container`
-					   per device. Each blank = the Bootstrap default for that range. */
-					'layout_container_width_desktop' => [
-						'label' => __( 'Container Width — Desktop', 'unysonplus' ),
-						'desc'  => __( 'Max width of the fixed-width container on desktop (≥ 992px). Leave blank for the Bootstrap default (1320px).', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'px', 'rem', 'em', '%' ],
-						'value' => [ 'value' => '', 'unit' => 'px' ],
-						'min'   => 0,
-					],
-					'layout_container_width_tablet' => [
-						'label' => __( 'Container Width — Tablet', 'unysonplus' ),
-						'desc'  => __( 'Max width of the container on tablets (768–991px). Leave blank for the default.', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'px', 'rem', 'em', '%' ],
-						'value' => [ 'value' => '', 'unit' => 'px' ],
-						'min'   => 0,
-					],
-					'layout_container_width_mobile' => [
-						'label' => __( 'Container Width — Mobile', 'unysonplus' ),
-						'desc'  => __( 'Max width of the container on phones (< 768px). Leave blank for full width (default).', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'px', 'rem', 'em', '%' ],
-						'value' => [ 'value' => '', 'unit' => 'px' ],
-						'min'   => 0,
+					/* Container Width — ONE responsive control (Phone / Tablet / Desktop tabs) wrapping
+					   a unit-input, so each device has the number + unit dropdown. Mobile-first: base
+					   (Phone) applies at all widths, a blank device inherits the smaller. Prefilled
+					   defaults below; emitted as --container-max-* by theme-vars.php → .fw-container /
+					   .container in style.css. Full-Width containers ignore it. */
+					'layout_container_width' => [
+						'type'  => 'responsive',
+						'label' => __( 'Container Width', 'unysonplus' ),
+						'desc'  => __( 'Max width of the boxed content container per device — use the Phone / Tablet / Desktop tabs. 100% = full width. Full-Width containers ignore this.', 'unysonplus' ),
+						'value' => [
+							'base' => [ 'value' => '100',  'unit' => '%' ],
+							'md'   => [ 'value' => '720',  'unit' => 'px' ],
+							'lg'   => [ 'value' => '1170', 'unit' => 'px' ],
+						],
+						'inner' => [ 'type' => 'unit-input', 'units' => [ 'px', 'rem', 'em', '%' ], 'min' => 0 ],
 					],
 					'layout_roundness' => [
 						'label'   => __( 'Border Roundness', 'unysonplus' ),

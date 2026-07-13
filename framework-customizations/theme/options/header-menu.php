@@ -177,6 +177,16 @@ $options = [
 					'menu_item_bg'          => $color_field( __( 'Item Background', 'unysonplus' ), __( 'Background of each top-level menu item in its normal (un-hovered) state. Leave empty for transparent.', 'unysonplus' ), 'bg' ),
 					'menu_item_hover_bg'    => $color_field( __( 'Item Hover / Active Background', 'unysonplus' ), __( 'Fill used by the Pill, Box and Highlight item styles on hover and for the current page. Leave empty for a subtle default tint.', 'unysonplus' ), 'bg' ),
 
+					/* Typography. */
+					'menu_link_font_size' => [
+						'label' => __( 'Menu Font Size', 'unysonplus' ),
+						'desc'  => __( 'Font size of the top-level menu links (e.g. 0.875rem or 15px). Leave empty for the theme default.', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'rem', 'px', 'em' ],
+						'value' => [ 'value' => '', 'unit' => 'rem' ],
+						'min'   => 0,
+					],
+
 					/* Spacing. */
 					'menu_link_padding_x' => [
 						'label' => __( 'Link Horizontal Spacing', 'unysonplus' ),

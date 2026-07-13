@@ -34,6 +34,7 @@
 		if ( ! drawer ) { return; }
 		lastTrigger = triggerEl || document.activeElement;
 		drawer.hidden = false;
+		drawer.classList.remove( 'is-closing' ); // in case we re-open mid-close
 		drawer.setAttribute( 'aria-hidden', 'false' );
 		// Force reflow so the transition fires.
 		void drawer.offsetWidth;
@@ -53,7 +54,15 @@
 
 	function closeDrawer() {
 		if ( ! drawer ) { return; }
+
+		var isConcentric = drawer.classList.contains( 'primary-navigation-drawer--concentric' );
+		var reduceMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+
 		drawer.classList.remove( DRAWER_OPEN );
+		// Concentric: mark the drawer as closing so the rings collapse with a
+		// reversed stagger (outermost first) and the labels fade — see
+		// overlay-concentric.css. Removing .is-open is what starts the collapse.
+		if ( isConcentric && ! reduceMotion ) { drawer.classList.add( 'is-closing' ); }
 		drawer.setAttribute( 'aria-hidden', 'true' );
 		document.body.classList.remove( BODY_LOCK );
 
@@ -64,14 +73,24 @@
 
 		document.removeEventListener( 'keydown', onDrawerKeydown );
 
+		// Keep the drawer mounted until the close animation finishes. Concentric
+		// rings collapse with a per-ring stagger: total ≈ (count-1)*60ms + 550ms;
+		// other modes are a short slide (~250ms).
+		var hideDelay = 250;
+		if ( isConcentric && ! reduceMotion ) {
+			var count = drawer.querySelectorAll( '.primary-menu > li' ).length || 5;
+			hideDelay = ( count - 1 ) * 60 + 550 + 120;
+		}
+
 		window.setTimeout( function () {
 			if ( ! drawer.classList.contains( DRAWER_OPEN ) ) {
 				drawer.hidden = true;
+				drawer.classList.remove( 'is-closing' );
 				if ( lastTrigger && typeof lastTrigger.focus === 'function' ) {
 					lastTrigger.focus();
 				}
 			}
-		}, 250 );
+		}, hideDelay );
 	}
 
 	function onDrawerKeydown( e ) {
@@ -263,6 +282,111 @@
 		);
 	}
 
+	/* ---------- Scroll Spy (Header → Layout → Scroll Spy) ---------- */
+	// Mode-agnostic: every header mode renders .primary-menu > li.menu-item > a, so
+	// ONE observer lights up the active section's item in the Top bar, the Vertical
+	// rail and the Overlay / Off-canvas drawers alike. It moves the native
+	// .current-menu-item class (already styled for every menu preset in style.css)
+	// onto the item whose #section sits at the top of the viewport, and smooth-
+	// scrolls on click — deferring to Lenis (Animation Engine → Scroll Loop) when it
+	// owns scrolling (Lenis adds .lenis to <html> and exposes window.__upwLenis).
+	function initScrollSpy() {
+		if ( ! document.body.classList.contains( 'nav-scrollspy' ) ) { return; }
+		if ( ! ( 'IntersectionObserver' in window ) ) { return; }
+
+		var reduce   = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+		var byId     = {};   // id -> { el, lis:[] }
+		var sections = [];
+		var spyLis   = [];   // only these <li> ever get .current-menu-item toggled
+
+		function headerOffset() {
+			var off = 0;
+			var h   = document.querySelector( '.site-header' );
+			if ( h ) {
+				var pos = getComputedStyle( h ).position;
+				if ( h.classList.contains( 'header-sticky' ) || h.classList.contains( 'is-stuck' ) || pos === 'fixed' || pos === 'sticky' ) {
+					off += h.offsetHeight;
+				}
+			}
+			var bar = document.getElementById( 'wpadminbar' );
+			if ( bar ) { off += bar.offsetHeight; }
+			return off;
+		}
+
+		Array.prototype.forEach.call( document.querySelectorAll( '.primary-menu a[href*="#"]' ), function ( a ) {
+			if ( ! a.hash || a.hash === '#' ) { return; }
+			// Same-page anchors only — leave links to another page's #anchor to the browser.
+			if ( a.pathname && a.pathname.replace( /^\/?/, '/' ) !== location.pathname.replace( /^\/?/, '/' ) ) { return; }
+			var id;
+			try { id = decodeURIComponent( a.hash.slice( 1 ) ); } catch ( e ) { id = a.hash.slice( 1 ); }
+			var el = document.getElementById( id );
+			if ( ! el ) { return; }
+
+			if ( ! byId[ id ] ) { byId[ id ] = { el: el, lis: [] }; sections.push( byId[ id ] ); }
+			var li = a.closest( 'li' );
+			if ( li ) {
+				byId[ id ].lis.push( li );
+				if ( spyLis.indexOf( li ) === -1 ) { spyLis.push( li ); }
+			}
+
+			a.addEventListener( 'click', function ( ev ) {
+				ev.preventDefault();
+				var off = headerOffset();
+				if ( window.__upwLenis ) {
+					window.__upwLenis.scrollTo( el, { offset: -off } );
+				} else {
+					window.scrollTo( { top: el.getBoundingClientRect().top + window.pageYOffset - off, behavior: reduce ? 'auto' : 'smooth' } );
+				}
+				if ( typeof closeDrawer === 'function' && drawer && drawer.classList.contains( DRAWER_OPEN ) ) { closeDrawer(); }
+				if ( history.replaceState ) { history.replaceState( null, '', a.hash ); }
+			} );
+		} );
+		if ( ! sections.length ) { return; }
+
+		// Enables the gated native smooth-scroll in style.css (html.nav-scrollspy).
+		document.documentElement.classList.add( 'nav-scrollspy' );
+
+		// Document order, so "the last section whose top has crossed the line" is right.
+		sections.sort( function ( a, b ) {
+			return ( a.el.compareDocumentPosition( b.el ) & Node.DOCUMENT_POSITION_FOLLOWING ) ? -1 : 1;
+		} );
+
+		function setActive( el ) {
+			spyLis.forEach( function ( li ) { li.classList.remove( 'current-menu-item' ); } );
+			var target = null;
+			sections.forEach( function ( s ) { if ( s.el === el ) { target = s; } } );
+			if ( ! target ) { return; }
+			target.lis.forEach( function ( li ) {
+				li.classList.add( 'current-menu-item' );
+				// Sub-menu item → light its parent top-level item too.
+				var parent = li.parentElement ? li.parentElement.closest( 'li' ) : null;
+				if ( parent ) { parent.classList.add( 'current-menu-item' ); }
+			} );
+		}
+
+		// Active = the LAST section whose top has passed an activation line just below
+		// the sticky header (headerOffset() is read live, so sticky/shrink + resize need
+		// no rebuild). Falls back to the first section above the line (very top of page).
+		function pick() {
+			var line   = headerOffset() + Math.round( window.innerHeight * 0.28 );
+			var active = sections[0].el;
+			for ( var i = 0; i < sections.length; i++ ) {
+				if ( sections[ i ].el.getBoundingClientRect().top <= line ) { active = sections[ i ].el; }
+			}
+			setActive( active );
+		}
+
+		var ticking = false;
+		function onScroll() {
+			if ( ticking ) { return; }
+			ticking = true;
+			window.requestAnimationFrame( function () { ticking = false; pick(); } );
+		}
+		window.addEventListener( 'scroll', onScroll, { passive: true } );
+		window.addEventListener( 'resize', onScroll, { passive: true } );
+		pick();
+	}
+
 	/* ---------- Boot ---------- */
 	function init() {
 		stripBootstrapDropdownAttrs();
@@ -270,6 +394,7 @@
 		bindDropdowns();
 		bindStickyShadow();
 		initRingMenus();
+		initScrollSpy();
 	}
 
 	if ( document.readyState === 'loading' ) {

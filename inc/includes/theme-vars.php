@@ -241,13 +241,21 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			if ( $wget ) {
 				if ( ( $v = $wget( 'site_boxed_margin' ) ) !== '' ) { $out['--site-margin']      = unysonplus_css_length( $v ); }
 				if ( ( $v = $wget( 'site_frame_width' ) ) !== '' )  { $out['--site-frame-width'] = unysonplus_css_length( $v ); }
-				if ( ( $v = $wget( 'site_frame_color' ) ) !== '' )  { $out['--site-frame-color'] = $v; }
+				if ( ( $v = unysonplus_preset_color_to_css( $wget( 'site_frame_color' ) ) ) !== '' ) { $out['--site-frame-color'] = $v; }
 				if ( ( $v = $wget( 'site_boxed_width' ) ) !== '' )  { $out['--site-max-width']   = unysonplus_css_length( $v ); }
 			}
-			if ( ( $v = $lget( 'layout_container_gutter' ) ) !== '' )    { $out['--container-gutter'] = unysonplus_css_length( $v ); }
+			// Guard the length result too: a blank unit-input resolves to '' here, and
+			// emitting `--container-gutter:` empty makes every `var(--container-gutter,
+			// fallback)` substitute the empty token (NOT the fallback) → padding turns
+			// invalid and collapses to 0 (this zeroed the full-width header rows). Keep
+			// the 1.5rem default instead when the option yields no usable length.
+			if ( ( $v = $lget( 'layout_container_gutter' ) ) !== '' ) {
+				$gutter_len = unysonplus_css_length( $v );
+				if ( $gutter_len !== '' ) { $out['--container-gutter'] = $gutter_len; }
+			}
 			if ( ( $v = $lget( 'layout_sidebar_width' ) ) !== '' )       { $out['--sidebar-width']    = unysonplus_css_length( $v ); }
-			if ( ( $v = $lget( 'layout_preloader_bg_color' ) ) !== '' )  { $out['--preloader-bg']     = $v; }
-			if ( ( $v = $lget( 'layout_scroll_progress_color' ) ) !== '' ) { $out['--scroll-progress-color'] = $v; }
+			if ( ( $v = unysonplus_preset_color_to_css( $lget( 'layout_preloader_bg_color' ) ) ) !== '' )  { $out['--preloader-bg']     = $v; }
+			if ( ( $v = unysonplus_preset_color_to_css( $lget( 'layout_scroll_progress_color' ) ) ) !== '' ) { $out['--scroll-progress-color'] = $v; }
 
 			// Section spacing scale
 			$scale_map = array( 'compact' => '0.75', 'cozy' => '1', 'spacious' => '1.5' );
@@ -333,9 +341,20 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			$sbg = unysonplus_preset_color_to_css( $lget( 'layout_sidebar_bg' ) );
 			if ( $sbg !== '' ) { $out['--sidebar-bg'] = $sbg; }
 			if ( ( $v = $lget( 'layout_sidebar_padding' ) ) !== '' )      { $out['--sidebar-padding']      = unysonplus_css_length( $v ); }
-			if ( ( $v = $lget( 'layout_sidebar_border_width' ) ) !== '' ) { $out['--sidebar-border-width'] = unysonplus_css_length( $v ); }
-			$sbc = unysonplus_preset_color_to_css( $lget( 'layout_sidebar_border_color' ) );
-			if ( $sbc !== '' ) { $out['--sidebar-border-color'] = $sbc; }
+			// Sidebar border — now the combined multi-inline row layout_sidebar_border =>
+			// { width:{value,unit}, style, color:{predefined,custom} }. Falls back to the
+			// legacy flat leaves layout_sidebar_border_{width,color}.
+			$sb = $lget( 'layout_sidebar_border' );
+			if ( is_array( $sb ) && ( isset( $sb['width'] ) || isset( $sb['color'] ) ) ) {
+				if ( isset( $sb['width'] ) && ( $sbw = unysonplus_css_length( $sb['width'] ) ) !== '' ) { $out['--sidebar-border-width'] = $sbw; }
+				if ( isset( $sb['style'] ) && $sb['style'] !== '' ) { $out['--sidebar-border-style'] = $sb['style']; }
+				$sbc = isset( $sb['color'] ) ? unysonplus_preset_color_to_css( $sb['color'] ) : '';
+				if ( $sbc !== '' ) { $out['--sidebar-border-color'] = $sbc; }
+			} else {
+				if ( ( $v = $lget( 'layout_sidebar_border_width' ) ) !== '' ) { $out['--sidebar-border-width'] = unysonplus_css_length( $v ); }
+				$sbc = unysonplus_preset_color_to_css( $lget( 'layout_sidebar_border_color' ) );
+				if ( $sbc !== '' ) { $out['--sidebar-border-color'] = $sbc; }
+			}
 			if ( ( $v = $lget( 'layout_sidebar_radius' ) ) !== '' )       { $out['--sidebar-radius']       = unysonplus_css_length( $v ); }
 			if ( ( $v = $lget( 'layout_sidebar_widget_spacing' ) ) !== '' ) { $out['--widget-spacing']     = unysonplus_css_length( $v ); }
 			if ( ( $v = $lget( 'layout_sidebar_widget_title_size' ) ) !== '' ) { $out['--widget-title-size'] = unysonplus_css_length( $v ); }
@@ -357,9 +376,25 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			if ( ( $v = $lget( 'base_focus_width' ) ) !== '' ) { $out['--focus-width'] = unysonplus_css_length( $v ); }
 
 			// General → Layout: responsive container max-widths (per device).
-			if ( ( $v = $lget( 'layout_container_width_desktop' ) ) !== '' ) { $out['--container-max-desktop'] = unysonplus_css_length( $v ); }
-			if ( ( $v = $lget( 'layout_container_width_tablet' ) ) !== '' )  { $out['--container-max-tablet']  = unysonplus_css_length( $v ); }
-			if ( ( $v = $lget( 'layout_container_width_mobile' ) ) !== '' )  { $out['--container-max-mobile']  = unysonplus_css_length( $v ); }
+			// Container Width — one responsive control ({base:Phone, md:Tablet, lg:Desktop},
+			// each a CSS length string; mobile-first, a blank device inherits the smaller).
+			// Emits the --container-max-* vars consumed by .fw-container / .container.
+			$cw = $lget( 'layout_container_width' );
+			if ( is_array( $cw ) ) {
+				$cw_base = unysonplus_css_length( isset( $cw['base'] ) ? $cw['base'] : '' );
+				$cw_md   = unysonplus_css_length( isset( $cw['md'] ) ? $cw['md'] : '' );
+				$cw_lg   = unysonplus_css_length( isset( $cw['lg'] ) ? $cw['lg'] : '' );
+				$cw_tablet  = ( $cw_md !== '' ) ? $cw_md : $cw_base;
+				$cw_desktop = ( $cw_lg !== '' ) ? $cw_lg : $cw_tablet;
+				if ( $cw_base    !== '' ) { $out['--container-max-mobile']  = $cw_base; }
+				if ( $cw_tablet  !== '' ) { $out['--container-max-tablet']  = $cw_tablet; }
+				if ( $cw_desktop !== '' ) { $out['--container-max-desktop'] = $cw_desktop; }
+			} else {
+				// Legacy fallback: pre-merge per-device keys (guard on resolved length).
+				if ( ( $v = unysonplus_css_length( $lget( 'layout_container_width_desktop' ) ) ) !== '' ) { $out['--container-max-desktop'] = $v; }
+				if ( ( $v = unysonplus_css_length( $lget( 'layout_container_width_tablet' ) ) ) !== '' )  { $out['--container-max-tablet']  = $v; }
+				if ( ( $v = unysonplus_css_length( $lget( 'layout_container_width_mobile' ) ) ) !== '' )  { $out['--container-max-mobile']  = $v; }
+			}
 		}
 
 		// Header layout — container, min_height, bg_color, topbar.
@@ -462,34 +497,91 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			'footer_padding_bottom' => '--footer-pad-bottom',
 		);
 		$footer_colors = array(
-			'footer_bg_color'    => '--footer-bg',
-			'footer_text_color'  => '--footer-color',
-			'footer_link_color'  => '--footer-link-color',
+			'footer_text_color' => '--footer-color',
+			'footer_link_color' => '--footer-link-color',
 		);
 		foreach ( $footer_lengths as $opt => $var ) {
 			$css = unysonplus_css_length( fw_get_db_settings_option( $opt ) );
 			if ( $css !== '' ) { $out[ $var ] = $css; }
 		}
 		foreach ( $footer_colors as $opt => $var ) {
+			// Text/Link are compact palette-preset colours ({predefined,custom});
+			// resolve to a CSS colour (tolerates the legacy plain-string value too).
 			$val = fw_get_db_settings_option( $opt );
-			if ( ! empty( $val ) ) { $out[ $var ] = $val; }
+			$css = function_exists( 'unysonplus_preset_color_to_css' )
+				? unysonplus_preset_color_to_css( $val )
+				: ( is_string( $val ) ? $val : '' );
+			if ( $css !== '' ) { $out[ $var ] = $css; }
+		}
+		// Footer top border — now the combined multi-inline row
+		// footer_border_top => { width:{value,unit}, style, color:{predefined,custom} }.
+		// Falls back to the legacy flat leaves (footer_border_top_{width,style,color}).
+		$fbt = fw_get_db_settings_option( 'footer_border_top' );
+		if ( is_array( $fbt ) && ( isset( $fbt['width'] ) || isset( $fbt['color'] ) ) ) {
+			$fbt_w = isset( $fbt['width'] ) ? unysonplus_css_length( $fbt['width'] ) : '';
+			$fbt_s = ( isset( $fbt['style'] ) && $fbt['style'] !== '' ) ? $fbt['style'] : '';
+			$fbt_c = isset( $fbt['color'] ) && function_exists( 'unysonplus_preset_color_to_css' )
+				? unysonplus_preset_color_to_css( $fbt['color'] ) : '';
+		} else {
+			$fbt_w = unysonplus_css_length( fw_get_db_settings_option( 'footer_border_top_width' ) );
+			$c_leg = fw_get_db_settings_option( 'footer_border_top_color' );
+			$fbt_c = function_exists( 'unysonplus_preset_color_to_css' )
+				? unysonplus_preset_color_to_css( $c_leg ) : ( is_string( $c_leg ) ? $c_leg : '' );
+			$s_leg = fw_get_db_settings_option( 'footer_border_top_style' );
+			$fbt_s = is_string( $s_leg ) && $s_leg !== '' ? $s_leg : '';
+		}
+		if ( $fbt_w !== '' ) { $out['--footer-border-top-width'] = $fbt_w; }
+		if ( $fbt_c !== '' ) { $out['--footer-border-top-color'] = $fbt_c; }
+		if ( $fbt_s !== '' ) { $out['--footer-border-top-style'] = $fbt_s; }
+
+		// Top-border EXTENT (Footer → Layout → Top Border Extent). Full = edge to edge
+		// (nothing emitted; the border stays on the full-width <footer>). Container =
+		// capped at the site container max-width; Custom = an exact width. This feeds
+		// --footer-border-top-max, consumed by .footer--btop-contained::before in
+		// style.css (max-width only caps, so on a narrow viewport the line still fits).
+		// The `.footer--btop-contained` class itself is added in footer.php.
+		$fbt_ext  = fw_get_db_settings_option( 'footer_border_top_extent' );
+		$fbt_mode = ( is_array( $fbt_ext ) && isset( $fbt_ext['mode'] ) ) ? (string) $fbt_ext['mode'] : 'full';
+		if ( $fbt_mode === 'container' ) {
+			$out['--footer-border-top-max'] = 'var(--container-max-desktop, var(--site-max-width, 1170px))';
+		} elseif ( $fbt_mode === 'custom' ) {
+			$cw = isset( $fbt_ext['custom']['footer_border_top_extent_width'] )
+				? unysonplus_css_length( $fbt_ext['custom']['footer_border_top_extent_width'] ) : '';
+			if ( $cw !== '' ) { $out['--footer-border-top-max'] = $cw; }
 		}
 
-		$footer_bg_image = fw_get_db_settings_option( 'footer_bg_image' );
-		if ( ! empty( $footer_bg_image['url'] ) ) {
-			$f_img = esc_url_raw( $footer_bg_image['url'] );
-			// Overlay opacity (0-100, default 80) composited over the image so footer
-			// text stays readable; tinted with the footer bg color (fallback black).
-			$f_overlay = fw_get_db_settings_option( 'footer_bg_overlay' );
-			$f_overlay = ( $f_overlay === null || $f_overlay === '' ) ? 80 : (int) $f_overlay;
-			$f_overlay = max( 0, min( 100, $f_overlay ) );
-			if ( $f_overlay > 0 && function_exists( 'unysonplus_color_with_alpha' ) ) {
-				$f_tint = fw_get_db_settings_option( 'footer_bg_color' );
-				if ( empty( $f_tint ) ) { $f_tint = 'rgba(0,0,0,1)'; }
-				$f_ov = unysonplus_color_with_alpha( $f_tint, $f_overlay / 100 );
-				$out['--footer-bg-image'] = 'linear-gradient(0deg,' . $f_ov . ',' . $f_ov . '),url(' . $f_img . ')';
-			} else {
-				$out['--footer-bg-image'] = 'url(' . $f_img . ')';
+		// Footer background — the Background Pro control (colour + gradient + image,
+		// video disabled). Emits --footer-bg-color / --footer-bg-image / -position /
+		// -repeat / -attachment / -size, consumed by .footer in style.css. The image
+		// var already folds any gradient overlay in, so no separate overlay is needed.
+		$footer_bg   = fw_get_db_settings_option( 'footer_background', array() );
+		$footer_vars = function_exists( 'unysonplus_background_pro_css_vars' )
+			? unysonplus_background_pro_css_vars( $footer_bg, '--footer-bg' )
+			: array();
+
+		if ( ! empty( $footer_vars ) ) {
+			$out = array_merge( $out, $footer_vars );
+		} else {
+			// Legacy fallback — honour the old footer_bg_color / _bg_image / _bg_overlay
+			// values until the new Background Pro control is set, so upgrading an existing
+			// site keeps its footer look. (Overlay composited over the image, tinted with
+			// the legacy bg color, fallback black.)
+			$legacy_color = fw_get_db_settings_option( 'footer_bg_color' );
+			if ( ! empty( $legacy_color ) ) { $out['--footer-bg-color'] = $legacy_color; }
+
+			$footer_bg_image = fw_get_db_settings_option( 'footer_bg_image' );
+			if ( ! empty( $footer_bg_image['url'] ) ) {
+				$f_img     = esc_url_raw( $footer_bg_image['url'] );
+				$f_overlay = fw_get_db_settings_option( 'footer_bg_overlay' );
+				$f_overlay = ( $f_overlay === null || $f_overlay === '' ) ? 80 : (int) $f_overlay;
+				$f_overlay = max( 0, min( 100, $f_overlay ) );
+				if ( $f_overlay > 0 && function_exists( 'unysonplus_color_with_alpha' ) ) {
+					$f_tint = empty( $legacy_color ) ? 'rgba(0,0,0,1)' : $legacy_color;
+					$f_ov   = unysonplus_color_with_alpha( $f_tint, $f_overlay / 100 );
+					$out['--footer-bg-image'] = 'linear-gradient(0deg,' . $f_ov . ',' . $f_ov . '),url(' . $f_img . ')';
+				} else {
+					$out['--footer-bg-image'] = 'url(' . $f_img . ')';
+				}
 			}
 		}
 
@@ -500,13 +592,17 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 		}
 		// (--font-body / --font-heading + the heading scale come from css-tokens.php
 		// — the Typography preset / pairing — not here.)
-		// Body/content link colors (Typography). Emitted only when set; style.css
-		// falls back to --color-primary so unset = current behavior.
-		if ( ! empty( $typography['body_link'] ) ) {
-			$out['--body-link-color'] = $typography['body_link'];
+		// Body/content link colors (Typography — now compact palette presets; resolve
+		// {predefined,custom} → var(--color-…)/hex, tolerating a legacy string). Emitted
+		// only when set; style.css falls back to --color-primary so unset = current.
+		$link_c = function ( $v ) {
+			return function_exists( 'unysonplus_preset_color_to_css' ) ? unysonplus_preset_color_to_css( $v ) : ( is_string( $v ) ? $v : '' );
+		};
+		if ( ! empty( $typography['body_link'] ) && ( $lc = $link_c( $typography['body_link'] ) ) !== '' ) {
+			$out['--body-link-color'] = $lc;
 		}
-		if ( ! empty( $typography['body_link_hover'] ) ) {
-			$out['--body-link-hover'] = $typography['body_link_hover'];
+		if ( ! empty( $typography['body_link_hover'] ) && ( $lh = $link_c( $typography['body_link_hover'] ) ) !== '' ) {
+			$out['--body-link-hover'] = $lh;
 		}
 		// Body link underline (Typography → Body Link Underline). Drives the
 		// text-decoration on prose links in both states; default 'hover' matches the
@@ -538,6 +634,8 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			if ( $mpx !== '' ) { $out['--menu-link-pad-x'] = $mpx; }
 			$mpy = unysonplus_css_length( isset( $menu['menu_link_padding_y'] ) ? $menu['menu_link_padding_y'] : '' );
 			if ( $mpy !== '' ) { $out['--menu-link-pad-y'] = $mpy; }
+			$mfs = unysonplus_css_length( isset( $menu['menu_link_font_size'] ) ? $menu['menu_link_font_size'] : '' );
+			if ( $mfs !== '' ) { $out['--menu-link-font-size'] = $mfs; }
 
 			// Dropdown / submenu.
 			$mdd = unysonplus_preset_color_to_css( isset( $menu['menu_dropdown_bg'] ) ? $menu['menu_dropdown_bg'] : '' );
@@ -584,6 +682,20 @@ if ( ! function_exists( 'unysonplus_css_length' ) ) :
 	 * already containing a unit (px, em, rem, %, vh, vw) passes through.
 	 */
 	function unysonplus_css_length( $value ) : string {
+		// A unit-input value can arrive as a JSON STRING (e.g. '{"value":"1","unit":"px"}')
+		// when it rides inside a `multi-inline` sub-field — that control stores the nested
+		// unit-input's raw JSON rather than a decoded { value, unit } array. Decode it so
+		// the length resolves instead of leaking the JSON into the CSS (the footer /
+		// custom-styling border-width bug). Any other string falls through unchanged.
+		if ( is_string( $value ) ) {
+			$trimmed = trim( $value );
+			if ( isset( $trimmed[0] ) && $trimmed[0] === '{' ) {
+				$decoded = json_decode( $trimmed, true );
+				if ( is_array( $decoded ) && ( isset( $decoded['value'] ) || isset( $decoded['unit'] ) ) ) {
+					$value = $decoded;
+				}
+			}
+		}
 		// unit-input value: array( 'value' => '1.5', 'unit' => 'rem' ).
 		if ( is_array( $value ) ) {
 			if ( class_exists( 'FW_Option_Type_Unit_Input' ) ) {

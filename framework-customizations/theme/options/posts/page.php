@@ -37,30 +37,44 @@ if ( ! function_exists( 'unysonplus_page_meta_color' ) ) :
 	}
 endif;
 
+/* Image-picker choices for the layout diagrams (labels baked into the SVGs);
+   matches Pages → Layout + General → Sidebar. Stored value stays the plain key. */
+$upw_layout_svg = get_template_directory_uri() . '/assets/svg/layout';
+$upw_layout_picker = function ( array $pairs, $small = 104, $large = 150 ) use ( $upw_layout_svg ) {
+	$out = [];
+	foreach ( $pairs as $value => $file ) {
+		$out[ $value ] = [
+			'small' => [ 'height' => $small, 'src' => $upw_layout_svg . '/' . $file ],
+			'large' => [ 'height' => $large, 'src' => $upw_layout_svg . '/' . $file ],
+		];
+	}
+	return $out;
+};
+
 /* --- Layout ----------------------------------------------------------- */
 $layout_options = [
 	'sidebar_override' => [
 		'label'   => __( 'Sidebar Position', 'unysonplus' ),
 		'desc'    => __( 'Override the sidebar for this page only. "Global" follows the template / Pages default.', 'unysonplus' ),
-		'type'    => 'select',
+		'type'    => 'image-picker',
 		'value'   => 'default',
-		'choices' => [
-			'default' => __( 'Global (template / Pages default)', 'unysonplus' ),
-			'none'    => __( 'None', 'unysonplus' ),
-			'left'    => __( 'Left', 'unysonplus' ),
-			'right'   => __( 'Right', 'unysonplus' ),
-		],
+		'choices' => $upw_layout_picker( [
+			'default' => 'sb-inherit.svg',
+			'none'    => 'sb-none.svg',
+			'left'    => 'sb-left.svg',
+			'right'   => 'sb-right.svg',
+		] ),
 	],
 	'content_width' => [
 		'label'   => __( 'Content Width', 'unysonplus' ),
-		'type'    => 'select',
+		'type'    => 'image-picker',
 		'value'   => 'default',
-		'choices' => [
-			'default' => __( 'Global', 'unysonplus' ),
-			'narrow'  => __( 'Narrow (~720px)', 'unysonplus' ),
-			'wide'    => __( 'Wide (100%)', 'unysonplus' ),
-			'full'    => __( 'Full (edge-to-edge)', 'unysonplus' ),
-		],
+		'choices' => $upw_layout_picker( [
+			'default' => 'cw-global.svg',
+			'narrow'  => 'cw-narrow.svg',
+			'wide'    => 'cw-wide.svg',
+			'full'    => 'cw-full.svg',
+		] ),
 	],
 	'page_bg_color' => unysonplus_page_meta_color(
 		__( 'Page Background Color', 'unysonplus' ),

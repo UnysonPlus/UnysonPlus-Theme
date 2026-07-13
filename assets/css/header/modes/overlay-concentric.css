@@ -29,7 +29,7 @@
  */
 
 /* Overlay-mode base (self-contained — the only header CSS loaded in this mode). */
-body.layout-overlay .header-col--center { display: none; }
+body.layout-overlay .header-main .header-col--center { display: none; }
 body.layout-overlay .menu-toggle        { display: inline-flex; }
 
 /* Backdrop: ALWAYS transparent so the rings appear to overlay the live website as
@@ -130,6 +130,21 @@ body.layout-overlay .menu-toggle        { display: inline-flex; }
 		box-shadow .3s ease;
 }
 .primary-navigation-drawer--concentric.is-open .primary-menu > li::before { transform: scale(1); }
+
+/* ---- Closing (mirror of the opening) ----
+   Removing .is-open already scales every ring back to the corner using the same
+   transition; .is-closing REVERSES the stagger so the OUTERMOST ring leaves first
+   and the overlay retreats to the corner the way it arrived. The labels + close
+   button fade out over the same window instead of blinking off when the drawer is
+   finally hidden. navigation.js keeps the drawer mounted for the whole collapse. */
+.primary-navigation-drawer--concentric.is-closing .primary-menu > li::before {
+	transition-delay: calc((var(--count, 5) - 1 - var(--i, 0)) * .06s);
+}
+.primary-navigation-drawer--concentric.is-closing .cc-label,
+.primary-navigation-drawer--concentric.is-closing .primary-navigation-drawer__close {
+	opacity: 0;
+	transition: opacity .3s ease;
+}
 
 /* ---- Color Mode ----
    All derived from the base Overlay Background colour + the per-ring depth shading.

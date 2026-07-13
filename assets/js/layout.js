@@ -56,10 +56,11 @@
 	}
 
 	/**
-	 * Auto-stack floating buttons (scroll-to-top + theme-toggle) when
-	 * they share the same corner. JS sets --stack-position: 1, 2, … on
-	 * each button after the first; CSS reads the variable in the
-	 * corner-modifier rules to compute the offset from the corner.
+	 * Auto-stack floating buttons (scroll-to-top + theme-toggle, plus the Chat
+	 * extension's .upw-chat button when present) when they share the same corner.
+	 * JS sets --stack-position: 1, 2, … on each button after the first; CSS reads
+	 * the variable in the corner-modifier rules to compute the offset from the corner.
+	 * The .upw-chat selectors are a harmless no-op when the Chat extension is inactive.
 	 */
 	function initFloatingButtonStack() {
 		var corners = {
@@ -67,7 +68,7 @@
 			'top-right':    [], 'top-left':    []
 		};
 
-		var nodes = document.querySelectorAll( '.scroll-to-top, .theme-toggle' );
+		var nodes = document.querySelectorAll( '.scroll-to-top, .theme-toggle, .upw-chat' );
 		Array.prototype.forEach.call( nodes, function ( el ) {
 			var corner = null;
 			if      ( el.classList.contains( 'theme-toggle--top-right' ) )    corner = 'top-right';
@@ -76,6 +77,8 @@
 			else if ( el.classList.contains( 'theme-toggle--bottom-right' ) ) corner = 'bottom-right';
 			else if ( el.classList.contains( 'scroll-to-top--left' ) )        corner = 'bottom-left';
 			else if ( el.classList.contains( 'scroll-to-top--right' ) )       corner = 'bottom-right';
+			else if ( el.classList.contains( 'upw-chat--left' ) )             corner = 'bottom-left';
+			else if ( el.classList.contains( 'upw-chat--right' ) )            corner = 'bottom-right';
 			if ( corner ) { corners[ corner ].push( el ); }
 		} );
 

@@ -15,7 +15,7 @@
  */
 
 /* Overlay-mode base (self-contained — this is the ONLY header CSS in radial mode). */
-body.layout-overlay .header-col--center { display: none; }
+body.layout-overlay .header-main .header-col--center { display: none; }
 body.layout-overlay .menu-toggle        { display: inline-flex; }
 
 /* Fullscreen overlay (loads WITHOUT overlay-panel.css, so it owns the positioning). */

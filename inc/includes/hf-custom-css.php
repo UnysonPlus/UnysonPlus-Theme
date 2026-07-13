@@ -87,6 +87,28 @@ function unysonplus_hf_css_val( $val ) {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_hf_border_width' ) ) :
+/** A border-width value → CSS length. The width is now a unit-input ({value,unit});
+ *  unysonplus_css_length resolves that AND tolerates a legacy typed string ("1px").
+ *  Returns '' when blank. */
+function unysonplus_hf_border_width( $val ) {
+	if ( function_exists( 'unysonplus_css_length' ) ) {
+		return unysonplus_css_length( $val );
+	}
+	return is_array( $val ) ? '' : unysonplus_hf_css_val( $val );
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_border_style' ) ) :
+/** A border-style select value → a safe CSS border style. Defaults to 'solid' (the
+ *  behavior before the Style option existed), so borders saved without a style keep
+ *  their look. */
+function unysonplus_hf_border_style( $val ) {
+	$val = is_string( $val ) ? strtolower( trim( $val ) ) : '';
+	return in_array( $val, array( 'solid', 'dashed', 'dotted', 'double' ), true ) ? $val : 'solid';
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_hf_typography_css' ) ) :
 /**
  * Convert a typography-v2 value into CSS declarations (no trailing brace).
@@ -128,10 +150,14 @@ function unysonplus_hf_typography_css( $typo ) {
 	}
 	if ( $fweight > 0 )         { $d[] = 'font-weight:' . $fweight; }
 	if ( $fstyle === 'italic' ) { $d[] = 'font-style:italic'; }
-	// Line-height is UNITLESS (a ratio like 1.5) — NOT px. (Previously `(int)1.5`
-	// became `line-height:1px`, crushing the text.)
+	// Line-height: typography-v2 stores a bare number that may be EITHER a unitless
+	// ratio (e.g. 1.5) OR a pixel value (e.g. 15, matching the px size/letter-spacing
+	// fields). Disambiguate by magnitude: < 4 is a ratio, >= 4 is px. Emitting a px
+	// value like 15 without a unit made it a 15× multiplier (12px font → 180px-tall
+	// rows); forcing px would crush a 1.5 ratio to 1.5px — so we branch.
 	if ( isset( $typo['line-height'] ) && is_numeric( $typo['line-height'] ) && $typo['line-height'] !== '' ) {
-		$d[] = 'line-height:' . ( $typo['line-height'] + 0 );
+		$lh    = $typo['line-height'] + 0;
+		$d[]   = 'line-height:' . ( ( $lh > 0 && $lh < 4 ) ? $lh : $lh . 'px' );
 	}
 	// Letter-spacing: keep decimals, in px.
 	if ( isset( $typo['letter-spacing'] ) && is_numeric( $typo['letter-spacing'] ) && $typo['letter-spacing'] !== '' ) {
@@ -173,46 +199,127 @@ function unysonplus_hf_build_css() {
 		$sel = $section['selector'];
 		$p   = $section['prefix'];
 
-		$decl = array();
+		$decl          = array();
+		$border_pseudo = ''; // ::before/::after rules for a contained (Container/Custom) border
 
-		// Background: color and/or image. When an image is set, fold the overlay
-		// (color + opacity) into a linear-gradient so no overlay element is needed.
-		$bg_color = isset( $cs[ $p . '_bg_color' ] ) ? $color( $cs[ $p . '_bg_color' ] ) : '';
-		$bg_image = '';
-		if ( ! empty( $cs[ $p . '_bg_image' ]['url'] ) ) {
-			$bg_image = esc_url_raw( $cs[ $p . '_bg_image' ]['url'] );
-		}
-		if ( $bg_image !== '' ) {
-			$overlay_pct = isset( $cs[ $p . '_bg_overlay' ] ) ? max( 0, min( 100, (int) $cs[ $p . '_bg_overlay' ] ) ) : 0;
-			if ( $overlay_pct > 0 ) {
-				$ov_color = $bg_color !== '' ? $bg_color : 'rgba(0,0,0,1)';
-				$alpha    = $overlay_pct / 100;
-				$ov       = unysonplus_hf_rgba_with_alpha( $ov_color, $alpha );
-				$decl[]   = 'background-image:linear-gradient(0deg,' . $ov . ',' . $ov . '),url(' . $bg_image . ')';
-			} else {
-				$decl[] = 'background-image:url(' . $bg_image . ')';
+		// Background: the Background Pro field (color + gradient + image, no video).
+		// Falls back to the legacy color/image/overlay fields for sections saved
+		// before the switch so their background is preserved.
+		$bg_pro   = isset( $cs[ $p . '_background' ] ) && is_array( $cs[ $p . '_background' ] ) ? $cs[ $p . '_background' ] : null;
+		$bg_decls = $bg_pro ? unysonplus_hf_background_pro_decls( $bg_pro ) : array();
+		if ( ! empty( $bg_decls ) ) {
+			$decl = array_merge( $decl, $bg_decls );
+		} else {
+			// Legacy fields: color and/or image. When an image is set, fold the overlay
+			// (color + opacity) into a linear-gradient so no overlay element is needed.
+			$bg_color = isset( $cs[ $p . '_bg_color' ] ) ? $color( $cs[ $p . '_bg_color' ] ) : '';
+			$bg_image = '';
+			if ( ! empty( $cs[ $p . '_bg_image' ]['url'] ) ) {
+				$bg_image = esc_url_raw( $cs[ $p . '_bg_image' ]['url'] );
 			}
-			$decl[] = 'background-size:cover';
-			$decl[] = 'background-position:center';
-			if ( $bg_color !== '' ) { $decl[] = 'background-color:' . $bg_color; }
-		} elseif ( $bg_color !== '' ) {
-			$decl[] = 'background-color:' . $bg_color;
+			if ( $bg_image !== '' ) {
+				$overlay_pct = isset( $cs[ $p . '_bg_overlay' ] ) ? max( 0, min( 100, (int) $cs[ $p . '_bg_overlay' ] ) ) : 0;
+				if ( $overlay_pct > 0 ) {
+					$ov_color = $bg_color !== '' ? $bg_color : 'rgba(0,0,0,1)';
+					$alpha    = $overlay_pct / 100;
+					$ov       = unysonplus_hf_rgba_with_alpha( $ov_color, $alpha );
+					$decl[]   = 'background-image:linear-gradient(0deg,' . $ov . ',' . $ov . '),url(' . $bg_image . ')';
+				} else {
+					$decl[] = 'background-image:url(' . $bg_image . ')';
+				}
+				$decl[] = 'background-size:cover';
+				$decl[] = 'background-position:center';
+				if ( $bg_color !== '' ) { $decl[] = 'background-color:' . $bg_color; }
+			} elseif ( $bg_color !== '' ) {
+				$decl[] = 'background-color:' . $bg_color;
+			}
 		}
 
 		// Typography.
 		$typo_css = ! empty( $cs[ $p . '_typography' ] ) ? unysonplus_hf_typography_css( $cs[ $p . '_typography' ] ) : '';
 		if ( $typo_css !== '' ) { $decl[] = $typo_css; }
 
-		// Borders.
-		$bt_w = ! empty( $cs[ $p . '_border_top_width' ] )    ? unysonplus_hf_css_val( $cs[ $p . '_border_top_width' ] )    : '';
-		$bt_c = isset( $cs[ $p . '_border_top_color' ] )      ? $color( $cs[ $p . '_border_top_color' ] )                  : '';
-		if ( $bt_w !== '' && $bt_c !== '' ) { $decl[] = 'border-top:' . $bt_w . ' solid ' . $bt_c; }
-		$bb_w = ! empty( $cs[ $p . '_border_bottom_width' ] ) ? unysonplus_hf_css_val( $cs[ $p . '_border_bottom_width' ] ) : '';
-		$bb_c = isset( $cs[ $p . '_border_bottom_color' ] )   ? $color( $cs[ $p . '_border_bottom_color' ] )               : '';
-		if ( $bb_w !== '' && $bb_c !== '' ) { $decl[] = 'border-bottom:' . $bb_w . ' solid ' . $bb_c; }
+		// Border: ONE shared row (Width · Style · Color) applied to the edge(s) chosen in
+		// Border Sides, at the reach set by Border Extent — mirrors the Footer Layout
+		// border. A `multi-inline` row is { width:{value,unit}, style, color:{predefined,
+		// custom} }. Tolerates legacy per-side rows (_border_top / _border_bottom) and the
+		// flat …_border_{side}_{width,style,color} leaves for older saves. Shows only when
+		// the row has both a width and a colour.
+		$read_row = function ( $key ) use ( $cs, $p, $color ) {
+			$row = isset( $cs[ $p . $key ] ) ? $cs[ $p . $key ] : null;
+			if ( is_array( $row ) && ( isset( $row['width'] ) || isset( $row['color'] ) ) ) {
+				return array(
+					isset( $row['width'] ) ? unysonplus_hf_border_width( $row['width'] ) : '',
+					unysonplus_hf_border_style( isset( $row['style'] ) ? $row['style'] : '' ),
+					isset( $row['color'] ) ? $color( $row['color'] ) : '',
+				);
+			}
+			return null;
+		};
+		$legacy_top    = $read_row( '_border_top' );
+		$legacy_bottom = $read_row( '_border_bottom' );
+		$brow          = $read_row( '_border' );
+		if ( $brow === null ) { $brow = $legacy_top; }
+		if ( $brow === null ) { $brow = $legacy_bottom; }
+		if ( $brow === null ) {
+			// Oldest flat shape.
+			$fw = isset( $cs[ $p . '_border_top_width' ] ) ? unysonplus_hf_border_width( $cs[ $p . '_border_top_width' ] ) : '';
+			$fc = isset( $cs[ $p . '_border_top_color' ] ) ? $color( $cs[ $p . '_border_top_color' ] ) : '';
+			if ( $fw !== '' || $fc !== '' ) {
+				$brow = array( $fw, unysonplus_hf_border_style( isset( $cs[ $p . '_border_top_style' ] ) ? $cs[ $p . '_border_top_style' ] : '' ), $fc );
+			}
+		}
+
+		if ( is_array( $brow ) && $brow[0] !== '' && $brow[2] !== '' ) {
+			$bval = $brow[0] . ' ' . $brow[1] . ' ' . $brow[2];
+
+			// Sides: any combination of top/right/bottom/left (multi-select image-picker,
+			// array value). Tolerates the legacy single-select strings via the normalizer.
+			// Default Top; a legacy save that had ONLY a bottom row implies Bottom.
+			$sides_raw = isset( $cs[ $p . '_border_sides' ] ) ? $cs[ $p . '_border_sides' ] : '';
+			$sides     = function_exists( 'unysonplus_hf_normalize_sides' ) ? unysonplus_hf_normalize_sides( $sides_raw ) : array();
+			if ( empty( $sides ) ) {
+				$sides = ( $read_row( '_border' ) === null && $legacy_top === null && $legacy_bottom !== null ) ? array( 'bottom' ) : array( 'top' );
+			}
+			$do_top   = in_array( 'top', $sides, true );
+			$do_bot   = in_array( 'bottom', $sides, true );
+			$do_left  = in_array( 'left', $sides, true );
+			$do_right = in_array( 'right', $sides, true );
+
+			// Left / right are vertical — always real borders (Border Extent, which caps the
+			// horizontal reach, doesn't apply to them).
+			if ( $do_left )  { $decl[] = 'border-left:' . $bval; }
+			if ( $do_right ) { $decl[] = 'border-right:' . $bval; }
+
+			// Extent: full = edge-to-edge on the section; container/custom = a centered
+			// pseudo-element capped at the max width (aligns the horizontal line with the
+			// content). Only affects the top/bottom edges.
+			$ext   = isset( $cs[ $p . '_border_extent' ] ) ? $cs[ $p . '_border_extent' ] : null;
+			$emode = ( is_array( $ext ) && isset( $ext['mode'] ) ) ? (string) $ext['mode'] : 'full';
+			$emax  = '';
+			if ( $emode === 'container' ) {
+				$emax = 'var(--container-max-desktop, var(--site-max-width, 1170px))';
+			} elseif ( $emode === 'custom' ) {
+				$emax = isset( $ext['custom'][ $p . '_border_extent_width' ] ) ? unysonplus_hf_border_width( $ext['custom'][ $p . '_border_extent_width' ] ) : '';
+			}
+
+			if ( $emode === 'full' || $emax === '' ) {
+				if ( $do_top ) { $decl[] = 'border-top:' . $bval; }
+				if ( $do_bot ) { $decl[] = 'border-bottom:' . $bval; }
+			} else {
+				if ( $do_top || $do_bot ) { $decl[] = 'position:relative'; }
+				$pd      = 'content:"";display:block;max-width:' . $emax . ';margin-inline:auto;border-top:' . $bval;
+				if ( $do_top ) { $border_pseudo .= $sel . '::before{' . $pd . '}'; }
+				if ( $do_bot ) { $border_pseudo .= $sel . '::after{' . $pd . '}'; }
+			}
+		}
 
 		if ( ! empty( $decl ) ) {
 			$css .= $sel . '{' . implode( ';', $decl ) . '}';
+		}
+		// Contained (Container/Custom) border pseudo-elements, if any.
+		if ( $border_pseudo !== '' ) {
+			$css .= $border_pseudo;
 		}
 
 		// Link color (child anchors).
@@ -225,6 +332,37 @@ function unysonplus_hf_build_css() {
 	$css .= unysonplus_hf_build_global_css();
 
 	return $css;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_background_pro_decls' ) ) :
+/**
+ * Turn a Background Pro value (color + gradient + image; video ignored) into a
+ * list of CSS declarations for a section. Reuses the verified
+ * unysonplus_background_pro_css_vars() parser and maps its vars to real
+ * properties, so the header/footer background matches the Site Background logic.
+ *
+ * @param array $bg Background Pro option value.
+ * @return string[] e.g. array( 'background-color:#fff', 'background-image:url(...)' )
+ */
+function unysonplus_hf_background_pro_decls( $bg ) {
+	$decl = array();
+	if ( ! is_array( $bg ) || ! function_exists( 'unysonplus_background_pro_css_vars' ) ) { return $decl; }
+	$vars = unysonplus_background_pro_css_vars( $bg, '--hfbg' );
+	$map  = array(
+		'--hfbg-color'      => 'background-color',
+		'--hfbg-image'      => 'background-image',
+		'--hfbg-position'   => 'background-position',
+		'--hfbg-repeat'     => 'background-repeat',
+		'--hfbg-attachment' => 'background-attachment',
+		'--hfbg-size'       => 'background-size',
+	);
+	foreach ( $map as $k => $prop ) {
+		if ( isset( $vars[ $k ] ) && $vars[ $k ] !== '' ) {
+			$decl[] = $prop . ':' . $vars[ $k ];
+		}
+	}
+	return $decl;
 }
 endif;
 
@@ -336,13 +474,27 @@ function unysonplus_hf_build_global_css() {
 	$css = '';
 
 	// Header → Identity: site title + tagline custom colors.
-	$logo = fw_get_db_settings_option( 'header_logo', array() );
+	// Flattened (Logo Type is a multi-picker; the accessor reads nested + legacy shapes).
+	$logo = function_exists( 'unysonplus_header_logo_cfg' ) ? unysonplus_header_logo_cfg() : fw_get_db_settings_option( 'header_logo', array() );
 	if ( is_array( $logo ) ) {
 		if ( ! empty( $logo['color']['custom'] ) ) {
 			$css .= '.site-title a{color:' . unysonplus_hf_css_val( $logo['color']['custom'] ) . '}';
 		}
+		// Logo Icon custom color (the inline-SVG mark uses currentColor) + size.
+		if ( ! empty( $logo['logo_icon_color']['custom'] ) ) {
+			$css .= '.site-logo__mark{color:' . unysonplus_hf_css_val( $logo['logo_icon_color']['custom'] ) . '}';
+		}
+		if ( ! empty( $logo['logo_icon_size']['value'] ) && '' !== $logo['logo_icon_size']['value'] ) {
+			$unit = ! empty( $logo['logo_icon_size']['unit'] ) ? preg_replace( '/[^a-z%]/', '', $logo['logo_icon_size']['unit'] ) : 'em';
+			$css .= '.site-logo__mark{font-size:' . (float) $logo['logo_icon_size']['value'] . $unit . '}';
+		}
 		if ( ! empty( $logo['tagline_color']['custom'] ) ) {
 			$css .= '.site-description{color:' . unysonplus_hf_css_val( $logo['tagline_color']['custom'] ) . '}';
+		}
+		// Logo Custom CSS (Custom Logo Layout → Advanced): raw CSS for the lockup, appended last
+		// so it can override the generated rules above. Author-scoped to the logo hooks.
+		if ( ! empty( $logo['logo_custom_css'] ) && is_string( $logo['logo_custom_css'] ) ) {
+			$css .= "\n" . trim( $logo['logo_custom_css'] ) . "\n";
 		}
 	}
 
@@ -350,6 +502,10 @@ function unysonplus_hf_build_global_css() {
 	if ( function_exists( 'unysonplus_misc_get' ) ) {
 		$st_bg = unysonplus_misc_get( 'scroll_top_bg_color', '' );
 		$st_fg = unysonplus_misc_get( 'scroll_top_text_color', '' );
+		if ( function_exists( 'unysonplus_preset_color_to_css' ) ) {
+			$st_bg = unysonplus_preset_color_to_css( $st_bg );
+			$st_fg = unysonplus_preset_color_to_css( $st_fg );
+		}
 		$st    = array();
 		if ( $st_bg !== '' ) { $st[] = 'background-color:' . unysonplus_hf_css_val( $st_bg ); }
 		if ( $st_fg !== '' ) { $st[] = 'color:' . unysonplus_hf_css_val( $st_fg ); }
@@ -648,4 +804,428 @@ function unysonplus_hf_section_render_attrs( $styling, $prefix, $fallback_contai
 
 	return array( 'container' => $container, 'class' => $class );
 }
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_migrate_border_widths' ) ) :
+/**
+ * One-time migration: the header/footer Custom Styling border widths changed from a
+ * plain text field ("1px") to a unit-input ({value,unit}). A blank value needs nothing
+ * (both render empty), and the frontend consumer already tolerates a legacy string, but
+ * a value someone TYPED would render blank in the editor and be lost on the next save.
+ * This converts any typed string width to {value,unit} across every Custom Styling store
+ * (the three header rows + the four footer sections) so those values survive. Idempotent
+ * and gated by an option flag, so it runs once. Only writes a store when it actually
+ * changes something, so sites with no typed widths are untouched.
+ */
+function unysonplus_hf_migrate_border_widths() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) || ! function_exists( 'fw_set_db_settings_option' ) ) {
+		return;
+	}
+	if ( get_option( 'unysonplus_hf_border_width_migrated' ) ) {
+		return;
+	}
+
+	// "1px" / "2 rem" / "3" → {value,unit}; already-array or blank left as-is.
+	$to_unit = function ( $v ) {
+		if ( is_array( $v ) ) { return $v; }
+		$v = trim( (string) $v );
+		if ( $v === '' ) { return $v; }
+		if ( preg_match( '/^(-?[0-9]*\.?[0-9]+)\s*(px|em|rem|%)?$/i', $v, $m ) ) {
+			return array( 'value' => $m[1], 'unit' => ( isset( $m[2] ) && $m[2] !== '' ) ? strtolower( $m[2] ) : 'px' );
+		}
+		return $v; // unparseable → leave (consumer still tolerates it)
+	};
+
+	// Convert the two width leaves inside a { enabled, yes:{…} } styling array. Returns
+	// [ $changed_bool, $styling ].
+	$convert = function ( $styling, $prefix ) use ( $to_unit ) {
+		$changed = false;
+		if ( is_array( $styling ) && isset( $styling['yes'] ) && is_array( $styling['yes'] ) ) {
+			foreach ( array( $prefix . '_border_top_width', $prefix . '_border_bottom_width' ) as $f ) {
+				if ( isset( $styling['yes'][ $f ] ) && ! is_array( $styling['yes'][ $f ] ) && trim( (string) $styling['yes'][ $f ] ) !== '' ) {
+					$styling['yes'][ $f ] = $to_unit( $styling['yes'][ $f ] );
+					$changed              = true;
+				}
+			}
+		}
+		return array( $changed, $styling );
+	};
+
+	// Header styling is nested inside the row's multi; footer/copyright are top-level ids.
+	$nested = array(
+		'header_topbar'    => array( 'key' => 'topbar_custom_styling',    'p' => 'topbar' ),
+		'header_main'      => array( 'key' => 'main_custom_styling',      'p' => 'main' ),
+		'header_bottombar' => array( 'key' => 'bottombar_custom_styling', 'p' => 'bottombar' ),
+	);
+	foreach ( $nested as $opt_id => $info ) {
+		$root = fw_get_db_settings_option( $opt_id, array() );
+		if ( ! is_array( $root ) || ! isset( $root[ $info['key'] ] ) || ! is_array( $root[ $info['key'] ] ) ) {
+			continue;
+		}
+		list( $changed, $styling ) = $convert( $root[ $info['key'] ], $info['p'] );
+		if ( $changed ) {
+			$root[ $info['key'] ] = $styling; // preserve the rest of the row (columns etc.)
+			fw_set_db_settings_option( $opt_id, $root );
+		}
+	}
+
+	$top = array(
+		'pre_footer_custom_styling'  => 'pre_footer',
+		'main_footer_custom_styling' => 'main_footer',
+		'post_footer_custom_styling' => 'post_footer',
+		'copyright_custom_styling'   => 'copyright',
+	);
+	foreach ( $top as $opt_id => $prefix ) {
+		$styling = fw_get_db_settings_option( $opt_id, array() );
+		if ( ! is_array( $styling ) ) {
+			continue;
+		}
+		list( $changed, $styling ) = $convert( $styling, $prefix );
+		if ( $changed ) {
+			fw_set_db_settings_option( $opt_id, $styling );
+		}
+	}
+
+	update_option( 'unysonplus_hf_border_width_migrated', 1 );
+}
+add_action( 'admin_init', 'unysonplus_hf_migrate_border_widths' );
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_migrate_border_rows' ) ) :
+/**
+ * One-time migration: the header/footer Custom Styling border controls changed from
+ * three separate leaves per side ({prefix}_border_{side}_{width,style,color}) to a
+ * single combined `multi-inline` row ({prefix}_border_{side} => {width,style,color}).
+ * The frontend consumer already tolerates the old flat leaves, but the NEW combined
+ * control would render empty for pre-combine saves (so the value would look lost in the
+ * editor and be dropped on the next save). This folds any flat leaves into the combined
+ * array across every Custom Styling store (three header rows + four footer sections) and
+ * removes the old leaves. Idempotent, gated by an option flag, and only writes a store
+ * when it actually changes something — sites with no custom borders are untouched.
+ */
+function unysonplus_hf_migrate_border_rows() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) || ! function_exists( 'fw_set_db_settings_option' ) ) {
+		return;
+	}
+	if ( get_option( 'unysonplus_hf_border_rows_migrated' ) ) {
+		return;
+	}
+
+	// Fold {prefix}_border_{side}_{width,style,color} into {prefix}_border_{side}.
+	// Returns [ $changed_bool, $values ] where $values is the leaf-id map ($styling['yes']
+	// for header rows, the whole $styling for footer sections).
+	$convert = function ( $values, $prefix ) {
+		$changed = false;
+		if ( ! is_array( $values ) ) {
+			return array( false, $values );
+		}
+		foreach ( array( 'top', 'bottom' ) as $side ) {
+			$combined = $prefix . '_border_' . $side;
+			// Skip if already combined (has the array shape).
+			if ( isset( $values[ $combined ] ) && is_array( $values[ $combined ] )
+				&& ( isset( $values[ $combined ]['width'] ) || isset( $values[ $combined ]['color'] ) ) ) {
+				continue;
+			}
+			$w_key = $prefix . '_border_' . $side . '_width';
+			$s_key = $prefix . '_border_' . $side . '_style';
+			$c_key = $prefix . '_border_' . $side . '_color';
+			$has   = isset( $values[ $w_key ] ) || isset( $values[ $s_key ] ) || isset( $values[ $c_key ] );
+			if ( ! $has ) {
+				continue;
+			}
+			$width = isset( $values[ $w_key ] ) ? $values[ $w_key ] : array( 'value' => '', 'unit' => 'px' );
+			if ( ! is_array( $width ) ) {
+				$width = array( 'value' => trim( (string) $width ), 'unit' => 'px' );
+			}
+			$color = isset( $values[ $c_key ] ) ? $values[ $c_key ] : array( 'predefined' => '', 'custom' => '' );
+			if ( is_string( $color ) ) {
+				$color = array( 'predefined' => $color, 'custom' => '' );
+			} elseif ( ! is_array( $color ) ) {
+				$color = array( 'predefined' => '', 'custom' => '' );
+			}
+			$values[ $combined ] = array(
+				'width' => $width,
+				'style' => isset( $values[ $s_key ] ) && $values[ $s_key ] !== '' ? $values[ $s_key ] : 'solid',
+				'color' => $color,
+			);
+			unset( $values[ $w_key ], $values[ $s_key ], $values[ $c_key ] );
+			$changed = true;
+		}
+		return array( $changed, $values );
+	};
+
+	// Header styling is nested inside the row's multi; footer/copyright are top-level ids.
+	$nested = array(
+		'header_topbar'    => array( 'key' => 'topbar_custom_styling',    'p' => 'topbar' ),
+		'header_main'      => array( 'key' => 'main_custom_styling',      'p' => 'main' ),
+		'header_bottombar' => array( 'key' => 'bottombar_custom_styling', 'p' => 'bottombar' ),
+	);
+	foreach ( $nested as $opt_id => $info ) {
+		$root = fw_get_db_settings_option( $opt_id, array() );
+		if ( ! is_array( $root ) || ! isset( $root[ $info['key'] ] ) || ! is_array( $root[ $info['key'] ] )
+			|| ! isset( $root[ $info['key'] ]['yes'] ) || ! is_array( $root[ $info['key'] ]['yes'] ) ) {
+			continue;
+		}
+		list( $changed, $yes ) = $convert( $root[ $info['key'] ]['yes'], $info['p'] );
+		if ( $changed ) {
+			$root[ $info['key'] ]['yes'] = $yes;
+			fw_set_db_settings_option( $opt_id, $root );
+		}
+	}
+
+	$top = array(
+		'pre_footer_custom_styling'  => 'pre_footer',
+		'main_footer_custom_styling' => 'main_footer',
+		'post_footer_custom_styling' => 'post_footer',
+		'copyright_custom_styling'   => 'copyright',
+	);
+	foreach ( $top as $opt_id => $prefix ) {
+		$styling = fw_get_db_settings_option( $opt_id, array() );
+		if ( ! is_array( $styling ) || ! isset( $styling['yes'] ) || ! is_array( $styling['yes'] ) ) {
+			continue;
+		}
+		list( $changed, $yes ) = $convert( $styling['yes'], $prefix );
+		if ( $changed ) {
+			$styling['yes'] = $yes;
+			fw_set_db_settings_option( $opt_id, $styling );
+		}
+	}
+
+	update_option( 'unysonplus_hf_border_rows_migrated', 1 );
+}
+add_action( 'admin_init', 'unysonplus_hf_migrate_border_rows' );
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_migrate_border_sides' ) ) :
+/**
+ * One-time migration: the Custom Styling border changed from TWO per-side rows
+ * ({prefix}_border_top + {prefix}_border_bottom) to ONE shared row ({prefix}_border)
+ * plus a {prefix}_border_sides picker (Top / Bottom / Both). The frontend consumer
+ * already tolerates the old per-side rows, but the new controls would render empty for
+ * pre-conversion saves. This folds the old rows into the shared border + sides across
+ * every Custom Styling store and removes the old per-side rows. Runs at priority 20,
+ * AFTER the rows migration (default 10), so it sees the combined per-side rows.
+ * Idempotent, flag-gated; only writes a store it actually changes.
+ */
+function unysonplus_hf_migrate_border_sides() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) || ! function_exists( 'fw_set_db_settings_option' ) ) {
+		return;
+	}
+	if ( get_option( 'unysonplus_hf_border_sides_migrated' ) ) {
+		return;
+	}
+
+	$is_row = function ( $v ) {
+		return is_array( $v ) && ( isset( $v['width'] ) || isset( $v['color'] ) || isset( $v['style'] ) );
+	};
+
+	// Fold {prefix}_border_top / _border_bottom into {prefix}_border + {prefix}_border_sides.
+	$convert = function ( $values, $prefix ) use ( $is_row ) {
+		if ( ! is_array( $values ) ) {
+			return array( false, $values );
+		}
+		// Already migrated (shared row present)?
+		if ( $is_row( isset( $values[ $prefix . '_border' ] ) ? $values[ $prefix . '_border' ] : null ) ) {
+			return array( false, $values );
+		}
+		$top     = isset( $values[ $prefix . '_border_top' ] ) ? $values[ $prefix . '_border_top' ] : null;
+		$bot     = isset( $values[ $prefix . '_border_bottom' ] ) ? $values[ $prefix . '_border_bottom' ] : null;
+		$has_top = $is_row( $top );
+		$has_bot = $is_row( $bot );
+		if ( ! $has_top && ! $has_bot ) {
+			return array( false, $values );
+		}
+		$values[ $prefix . '_border' ]       = $has_top ? $top : $bot;
+		$values[ $prefix . '_border_sides' ] = ( $has_top && $has_bot ) ? 'both' : ( $has_top ? 'top' : 'bottom' );
+		unset( $values[ $prefix . '_border_top' ], $values[ $prefix . '_border_bottom' ] );
+		return array( true, $values );
+	};
+
+	$nested = array(
+		'header_topbar'    => array( 'key' => 'topbar_custom_styling',    'p' => 'topbar' ),
+		'header_main'      => array( 'key' => 'main_custom_styling',      'p' => 'main' ),
+		'header_bottombar' => array( 'key' => 'bottombar_custom_styling', 'p' => 'bottombar' ),
+	);
+	foreach ( $nested as $opt_id => $info ) {
+		$root = fw_get_db_settings_option( $opt_id, array() );
+		if ( ! is_array( $root ) || ! isset( $root[ $info['key'] ]['yes'] ) || ! is_array( $root[ $info['key'] ]['yes'] ) ) {
+			continue;
+		}
+		list( $changed, $yes ) = $convert( $root[ $info['key'] ]['yes'], $info['p'] );
+		if ( $changed ) {
+			$root[ $info['key'] ]['yes'] = $yes;
+			fw_set_db_settings_option( $opt_id, $root );
+		}
+	}
+
+	$top_stores = array(
+		'pre_footer_custom_styling'  => 'pre_footer',
+		'main_footer_custom_styling' => 'main_footer',
+		'post_footer_custom_styling' => 'post_footer',
+		'copyright_custom_styling'   => 'copyright',
+	);
+	foreach ( $top_stores as $opt_id => $prefix ) {
+		$styling = fw_get_db_settings_option( $opt_id, array() );
+		if ( ! is_array( $styling ) || ! isset( $styling['yes'] ) || ! is_array( $styling['yes'] ) ) {
+			continue;
+		}
+		list( $changed, $yes ) = $convert( $styling['yes'], $prefix );
+		if ( $changed ) {
+			$styling['yes'] = $yes;
+			fw_set_db_settings_option( $opt_id, $styling );
+		}
+	}
+
+	update_option( 'unysonplus_hf_border_sides_migrated', 1 );
+}
+add_action( 'admin_init', 'unysonplus_hf_migrate_border_sides', 20 );
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_migrate_border_sides_array' ) ) :
+/**
+ * One-time migration: the Border Sides control became a MULTI-select image-picker
+ * (top / right / bottom / left, value is an ARRAY) — it previously stored a single
+ * string ('top' | 'bottom' | 'both'). The frontend consumers normalize the legacy
+ * strings at read-time, but the multi-select renders empty for a string value, so this
+ * folds every stored {prefix}_border_sides string into an array ('both' → ['top',
+ * 'bottom']) across the header/footer Custom Styling stores AND the top-level Footer
+ * Layout footer_border_sides. Runs at priority 21, after the string-producing sides
+ * migration (20). Idempotent, flag-gated; only writes a store it actually changes.
+ */
+function unysonplus_hf_migrate_border_sides_array() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) || ! function_exists( 'fw_set_db_settings_option' ) ) {
+		return;
+	}
+	if ( get_option( 'unysonplus_hf_border_sides_array_migrated' ) ) {
+		return;
+	}
+
+	$to_array = function ( $v ) {
+		if ( is_array( $v ) ) { return null; } // already an array — leave as-is
+		if ( ! is_string( $v ) || $v === '' ) { return null; }
+		if ( $v === 'both' ) { return array( 'top', 'bottom' ); }
+		if ( in_array( $v, array( 'top', 'right', 'bottom', 'left' ), true ) ) { return array( $v ); }
+		return null;
+	};
+
+	// Custom Styling stores: {prefix}_border_sides lives in the .yes sub-array.
+	$nested = array(
+		'header_topbar'    => array( 'key' => 'topbar_custom_styling',    'p' => 'topbar' ),
+		'header_main'      => array( 'key' => 'main_custom_styling',      'p' => 'main' ),
+		'header_bottombar' => array( 'key' => 'bottombar_custom_styling', 'p' => 'bottombar' ),
+	);
+	foreach ( $nested as $opt_id => $info ) {
+		$root = fw_get_db_settings_option( $opt_id, array() );
+		if ( ! is_array( $root ) || ! isset( $root[ $info['key'] ]['yes'][ $info['p'] . '_border_sides' ] ) ) {
+			continue;
+		}
+		$new = $to_array( $root[ $info['key'] ]['yes'][ $info['p'] . '_border_sides' ] );
+		if ( $new !== null ) {
+			$root[ $info['key'] ]['yes'][ $info['p'] . '_border_sides' ] = $new;
+			fw_set_db_settings_option( $opt_id, $root );
+		}
+	}
+
+	$top_stores = array(
+		'pre_footer_custom_styling'  => 'pre_footer',
+		'main_footer_custom_styling' => 'main_footer',
+		'post_footer_custom_styling' => 'post_footer',
+		'copyright_custom_styling'   => 'copyright',
+	);
+	foreach ( $top_stores as $opt_id => $prefix ) {
+		$styling = fw_get_db_settings_option( $opt_id, array() );
+		if ( ! is_array( $styling ) || ! isset( $styling['yes'][ $prefix . '_border_sides' ] ) ) {
+			continue;
+		}
+		$new = $to_array( $styling['yes'][ $prefix . '_border_sides' ] );
+		if ( $new !== null ) {
+			$styling['yes'][ $prefix . '_border_sides' ] = $new;
+			fw_set_db_settings_option( $opt_id, $styling );
+		}
+	}
+
+	// Footer Layout top-level sides.
+	$new = $to_array( fw_get_db_settings_option( 'footer_border_sides' ) );
+	if ( $new !== null ) {
+		fw_set_db_settings_option( 'footer_border_sides', $new );
+	}
+
+	update_option( 'unysonplus_hf_border_sides_array_migrated', 1 );
+}
+add_action( 'admin_init', 'unysonplus_hf_migrate_border_sides_array', 21 );
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_migrate_standalone_borders' ) ) :
+/**
+ * One-time migration for the other Theme Settings borders that moved from separate
+ * width/style/color leaves to a single combined `multi-inline` row:
+ *   - Footer Layout → Top Border: footer_border_top_{width,style,color} → footer_border_top
+ *   - General → Sidebar → Border:  layout_sidebar_border_{width,color}   → layout_sidebar_border
+ * The consumers (theme-vars.php) already fall back to the legacy leaves, but the new
+ * combined control would render empty for pre-combine saves; this folds the leaves into
+ * the combined array so the editor reflects the saved value. Idempotent, gated by an
+ * option flag, only writes when it actually changes something.
+ */
+function unysonplus_hf_migrate_standalone_borders() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) || ! function_exists( 'fw_set_db_settings_option' ) ) {
+		return;
+	}
+	if ( get_option( 'unysonplus_hf_standalone_borders_migrated' ) ) {
+		return;
+	}
+
+	$to_unit = function ( $v ) {
+		if ( is_array( $v ) ) { return $v; }
+		$v = trim( (string) $v );
+		return $v === '' ? array( 'value' => '', 'unit' => 'px' ) : array( 'value' => $v, 'unit' => 'px' );
+	};
+	$to_color = function ( $v ) {
+		if ( is_array( $v ) ) { return $v; }
+		return is_string( $v ) && $v !== '' ? array( 'predefined' => $v, 'custom' => '' ) : array( 'predefined' => '', 'custom' => '' );
+	};
+
+	// Footer Top Border — top-level leaves.
+	$existing = fw_get_db_settings_option( 'footer_border_top' );
+	$already  = is_array( $existing ) && ( isset( $existing['width'] ) || isset( $existing['color'] ) );
+	if ( ! $already ) {
+		$w = fw_get_db_settings_option( 'footer_border_top_width' );
+		$s = fw_get_db_settings_option( 'footer_border_top_style' );
+		$c = fw_get_db_settings_option( 'footer_border_top_color' );
+		if ( ( is_array( $w ) && $w !== array() && ( ! isset( $w['value'] ) || $w['value'] !== '' ) )
+			|| ( is_string( $w ) && trim( $w ) !== '' )
+			|| ( is_array( $c ) && ( ! empty( $c['predefined'] ) || ! empty( $c['custom'] ) ) )
+			|| ( is_string( $c ) && $c !== '' ) ) {
+			fw_set_db_settings_option( 'footer_border_top', array(
+				'width' => $to_unit( $w ),
+				'style' => is_string( $s ) && $s !== '' ? $s : 'solid',
+				'color' => $to_color( $c ),
+			) );
+		}
+	}
+
+	// Sidebar Border — leaves live inside the general_sidebar option array.
+	$sidebar = fw_get_db_settings_option( 'general_sidebar', array() );
+	if ( is_array( $sidebar )
+		&& ! ( isset( $sidebar['layout_sidebar_border'] ) && is_array( $sidebar['layout_sidebar_border'] )
+			&& ( isset( $sidebar['layout_sidebar_border']['width'] ) || isset( $sidebar['layout_sidebar_border']['color'] ) ) ) ) {
+		$w = isset( $sidebar['layout_sidebar_border_width'] ) ? $sidebar['layout_sidebar_border_width'] : '';
+		$c = isset( $sidebar['layout_sidebar_border_color'] ) ? $sidebar['layout_sidebar_border_color'] : '';
+		$has = ( is_array( $w ) && $w !== array() && ( ! isset( $w['value'] ) || $w['value'] !== '' ) )
+			|| ( is_string( $w ) && trim( $w ) !== '' )
+			|| ( is_array( $c ) && ( ! empty( $c['predefined'] ) || ! empty( $c['custom'] ) ) )
+			|| ( is_string( $c ) && $c !== '' );
+		if ( $has ) {
+			$sidebar['layout_sidebar_border'] = array(
+				'width' => $to_unit( $w ),
+				'style' => 'solid',
+				'color' => $to_color( $c ),
+			);
+			unset( $sidebar['layout_sidebar_border_width'], $sidebar['layout_sidebar_border_color'] );
+			fw_set_db_settings_option( 'general_sidebar', $sidebar );
+		}
+	}
+
+	update_option( 'unysonplus_hf_standalone_borders_migrated', 1 );
+}
+add_action( 'admin_init', 'unysonplus_hf_migrate_standalone_borders' );
 endif;

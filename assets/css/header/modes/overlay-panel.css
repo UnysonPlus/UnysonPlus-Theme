@@ -5,7 +5,7 @@
  */
 
 /* ---------- C. Overlay Fullscreen (hamburger always; menu fills the viewport) ---------- */
-body.layout-overlay .header-col--center { display: none; }
+body.layout-overlay .header-main .header-col--center { display: none; }
 body.layout-overlay .menu-toggle        { display: inline-flex; }
 
 /* Overlay drawer variant — full-screen centered menu.

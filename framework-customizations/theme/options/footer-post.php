@@ -3,70 +3,27 @@
 }
 
 /**
- * POST-FOOTER — explicit nested arrays. Shared leaves from
- * inc/includes/header-footer-option-helpers.php.
+ * POST-FOOTER — a slim strip below the main footer (secondary menu, social, etc.).
  *
- * No Enable switch: like the Main Footer, the section simply doesn't render when
- * no column has content. Default: 1 column, max 5, columns start empty.
+ * No Enable switch: renders only when a column has content. Columns are driven by a
+ * single Split-Slider (count + widths + names) via unysonplus_footer_columns_field()
+ * — up to 6 columns, any ratio.
  *
- * Option IDs: post_footer_columns (count + post_footer_layout + post_footer_col_1..N)
- * + post_footer_custom_styling.
+ * Stored under `post_footer_columns` ( { post_footer_split, post_footer_col_1..6 } ),
+ * read in template-parts/footer-builder.php.
  */
 
 $options = [
 
-	'post_footer_columns' => [
-		'type'   => 'multi-picker',
-		'label'  => false,
-		'desc'   => false,
-		'picker' => [
-			'count' => [
-				'type'    => 'select',
-				'label'   => __( 'Number of Columns', 'unysonplus' ),
-				'value'   => '1',
-				'choices' => [
-					'1' => __( '1 Column', 'unysonplus' ),
-					'2' => __( '2 Columns', 'unysonplus' ),
-					'3' => __( '3 Columns', 'unysonplus' ),
-					'4' => __( '4 Columns', 'unysonplus' ),
-					'5' => __( '5 Columns', 'unysonplus' ),
-				],
-				'desc'    => __( 'Add and reorder footer element. Drag to sort.', 'unysonplus' ),
-			],
-		],
-		'choices' => [
-			'1' => [
-				'post_footer_col_1' => unysonplus_footer_column( __( 'Column 1', 'unysonplus' ) ),
-			],
-			'2' => [
-				'post_footer_layout' => unysonplus_footer_ratio_picker( 'post_footer', 2 ),
-				'post_footer_col_1'  => unysonplus_footer_column( __( 'Column 1', 'unysonplus' ) ),
-				'post_footer_col_2'  => unysonplus_footer_column( __( 'Column 2', 'unysonplus' ) ),
-			],
-			'3' => [
-				'post_footer_layout' => unysonplus_footer_ratio_picker( 'post_footer', 3 ),
-				'post_footer_col_1'  => unysonplus_footer_column( __( 'Column 1', 'unysonplus' ) ),
-				'post_footer_col_2'  => unysonplus_footer_column( __( 'Column 2', 'unysonplus' ) ),
-				'post_footer_col_3'  => unysonplus_footer_column( __( 'Column 3', 'unysonplus' ) ),
-			],
-			'4' => [
-				'post_footer_layout' => unysonplus_footer_ratio_picker( 'post_footer', 4 ),
-				'post_footer_col_1'  => unysonplus_footer_column( __( 'Column 1', 'unysonplus' ) ),
-				'post_footer_col_2'  => unysonplus_footer_column( __( 'Column 2', 'unysonplus' ) ),
-				'post_footer_col_3'  => unysonplus_footer_column( __( 'Column 3', 'unysonplus' ) ),
-				'post_footer_col_4'  => unysonplus_footer_column( __( 'Column 4', 'unysonplus' ) ),
-			],
-			'5' => [
-				'post_footer_layout' => unysonplus_footer_ratio_picker( 'post_footer', 5 ),
-				'post_footer_col_1'  => unysonplus_footer_column( __( 'Column 1', 'unysonplus' ) ),
-				'post_footer_col_2'  => unysonplus_footer_column( __( 'Column 2', 'unysonplus' ) ),
-				'post_footer_col_3'  => unysonplus_footer_column( __( 'Column 3', 'unysonplus' ) ),
-				'post_footer_col_4'  => unysonplus_footer_column( __( 'Column 4', 'unysonplus' ) ),
-				'post_footer_col_5'  => unysonplus_footer_column( __( 'Column 5', 'unysonplus' ) ),
-			],
-		],
-		'show_borders' => false,
+	// Quick-start: fill the columns with a ready-made post-footer, then edit the elements.
+	'post_footer_presets' => [
+		'type'         => 'preset-loader',
+		'label'        => __( 'Post-Footer Presets', 'unysonplus' ),
+		'desc'         => __( 'Populate the columns below with a ready-made post-footer in one click, then fine-tune each element.', 'unysonplus' ),
+		'preset_group' => 'post_footer_columns',
 	],
+
+	'post_footer_columns' => unysonplus_footer_columns_field( 'post_footer', 6, 1 ),
 
 	'post_footer_custom_styling' => unysonplus_footer_custom_styling( 'post_footer' ),
 

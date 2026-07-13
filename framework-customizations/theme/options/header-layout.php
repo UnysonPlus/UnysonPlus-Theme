@@ -473,6 +473,14 @@ $options = [
 								'left'  => __( 'Left', 'unysonplus' ),
 							],
 						],
+						'nav_scrollspy' => [
+							'label'        => __( 'Scroll Spy', 'unysonplus' ),
+							'desc'         => __( 'One-page navigation: highlight the menu item for the section currently in view, and smooth-scroll to it on click (landing below the sticky header). Works in every header mode — Top, Vertical and the Overlay / Off-canvas drawers. Give each Section a CSS ID (its Advanced tab) and point menu items (Custom Links) at #that-id. Leave off for normal multi-page sites.', 'unysonplus' ),
+							'type'         => 'switch',
+							'value'        => 'no',
+							'right-choice' => [ 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ],
+							'left-choice'  => [ 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ],
+						],
 						'mobile_hide_topbar'    => $toggle_field( __( 'Hide Top Bar on Mobile', 'unysonplus' ), __( 'Hide the entire Top Bar row on small screens (below 768px).', 'unysonplus' ) ),
 						'mobile_hide_bottombar' => $toggle_field( __( 'Hide Bottom Bar on Mobile', 'unysonplus' ), __( 'Hide the entire Bottom Bar row on small screens (below 768px).', 'unysonplus' ) ),
 

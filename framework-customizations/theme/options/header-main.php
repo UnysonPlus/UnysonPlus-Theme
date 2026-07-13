@@ -14,6 +14,13 @@
  */
 
 $options = [
+	// Quick-start: arrange the three slots (logo / menu / CTA / search) in one click.
+	'main_presets' => [
+		'type'         => 'preset-loader',
+		'label'        => __( 'Main Header Presets', 'unysonplus' ),
+		'desc'         => __( 'Arrange the columns below with a ready-made header layout in one click, then fine-tune each element.', 'unysonplus' ),
+		'preset_group' => 'header_main',
+	],
 	'header_main' => [
 		'type'          => 'multi',
 		'label'         => false,

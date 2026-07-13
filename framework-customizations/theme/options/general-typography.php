@@ -30,6 +30,15 @@ $heading_override = function ( $label, $size ) {
 	);
 };
 
+// Compact palette-preset colour (kind 'text' → text-{slug} choices); falls back to a
+// raw picker only if the shortcodes styling helper isn't loaded.
+$link_color = function ( $label, $desc ) {
+	if ( function_exists( 'sc_color_field_compact' ) ) {
+		return sc_color_field_compact( array( 'label' => $label, 'desc' => $desc, 'kind' => 'text' ) );
+	}
+	return array( 'label' => $label, 'desc' => $desc, 'type' => 'color-picker', 'value' => '' );
+};
+
 $options = array(
 
 	// Quick-start Typography Presets — the same preset-loader control the Menu tab
@@ -68,17 +77,13 @@ $options = array(
 				),
 			),
 
-			'body_link' => array(
-				'label' => __( 'Body Link Color', 'unysonplus' ),
-				'desc'  => __( 'Link color inside post/page content. Leave empty to use the theme primary color.', 'unysonplus' ),
-				'type'  => 'color-picker',
-				'value' => '',
+			'body_link' => $link_color(
+				__( 'Body Link Color', 'unysonplus' ),
+				__( 'Link color inside post/page content. Leave empty to use the theme primary color.', 'unysonplus' )
 			),
-			'body_link_hover' => array(
-				'label' => __( 'Body Link Hover Color', 'unysonplus' ),
-				'desc'  => __( 'Hover color for content links. Leave empty to reuse the link color.', 'unysonplus' ),
-				'type'  => 'color-picker',
-				'value' => '',
+			'body_link_hover' => $link_color(
+				__( 'Body Link Hover Color', 'unysonplus' ),
+				__( 'Hover color for content links. Leave empty to reuse the link color.', 'unysonplus' )
 			),
 			'body_link_underline' => array(
 				'label'   => __( 'Body Link Underline', 'unysonplus' ),

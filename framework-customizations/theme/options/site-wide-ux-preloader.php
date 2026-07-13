@@ -49,12 +49,9 @@ $options = [
 							'logo'    => 'preloader-logo.svg',
 						] ),
 					],
-					'layout_preloader_bg_color' => [
-						'label' => __( 'Preloader Background', 'unysonplus' ),
-						'desc'  => __( 'Background color of the preloader splash (when Preloader != None).', 'unysonplus' ),
-						'type'  => 'color-picker',
-						'value' => '#ffffff',
-					],
+					'layout_preloader_bg_color' => function_exists( 'sc_color_field_compact' )
+						? sc_color_field_compact( [ 'label' => __( 'Preloader Background', 'unysonplus' ), 'desc' => __( 'Background color of the preloader splash (when Preloader != None).', 'unysonplus' ), 'kind' => 'bg' ] )
+						: [ 'label' => __( 'Preloader Background', 'unysonplus' ), 'type' => 'color-picker', 'value' => '#ffffff' ],
 				],
 			],
 		],

@@ -283,20 +283,329 @@ function unysonplus_settings_preset_groups() {
 		if ( is_array( $settings ) ) { $et[ $type ] = $settings; }
 		return array( 'element_type' => $et );
 	};
+	// Icon Text element item (icon + text + optional smart link). $icon = FA class.
+	$icontext = function ( $icon, $text, $link_type = 'none', $link = '' ) {
+		return array( 'element_type' => array(
+			'element'   => 'icon_text',
+			'icon_text' => array(
+				'icontext_icon'      => array( 'type' => 'icon-font', 'icon-class' => $icon ),
+				'icontext_text'      => $text,
+				'icontext_link_type' => $link_type,
+				'icontext_link'      => $link,
+			),
+		) );
+	};
 	$topbar_presets = array(
 		'contact_social' => array(
 			'label' => __( 'Contact & Social', 'unysonplus' ),
 			'desc'  => __( 'Phone + email on the left, social icons on the right — the classic business top bar. Edit each element after applying; social icons use Theme Settings → Social.', 'unysonplus' ),
 			'values' => array(
 				'topbar_left' => array(
-					$el( 'phone', array( 'phone_number' => '+1 (555) 123-4567' ) ),
-					$el( 'text', array( 'text_content' => 'info@example.com' ) ),
+					$icontext( 'fas fa-phone', '+1 (555) 123-4567', 'phone' ),
+					$icontext( 'fas fa-envelope', 'info@example.com', 'email' ),
 				),
 				'topbar_center' => array(),
-				'topbar_right'  => array(
-					$el( 'social_icons' ),
-				),
+				'topbar_right'  => array( $el( 'social_icons' ) ),
 			),
+		),
+		'contact_hours' => array(
+			'label' => __( 'Contact + Hours', 'unysonplus' ),
+			'desc'  => __( 'Phone + email on the left, opening hours centered, social icons on the right.', 'unysonplus' ),
+			'values' => array(
+				'topbar_left' => array(
+					$icontext( 'fas fa-phone', '+1 (555) 123-4567', 'phone' ),
+					$icontext( 'fas fa-envelope', 'info@example.com', 'email' ),
+				),
+				'topbar_center' => array( $icontext( 'fas fa-clock', 'Mon–Fri: 9am – 5pm' ) ),
+				'topbar_right'  => array( $el( 'social_icons' ) ),
+			),
+		),
+		'info_social' => array(
+			'label' => __( 'Info & Social', 'unysonplus' ),
+			'desc'  => __( 'Address + phone on the left, social icons on the right.', 'unysonplus' ),
+			'values' => array(
+				'topbar_left' => array(
+					$icontext( 'fas fa-location-dot', '123 Main St, Springfield' ),
+					$icontext( 'fas fa-phone', '+1 (555) 123-4567', 'phone' ),
+				),
+				'topbar_center' => array(),
+				'topbar_right'  => array( $el( 'social_icons' ) ),
+			),
+		),
+		'announcement' => array(
+			'label' => __( 'Announcement', 'unysonplus' ),
+			'desc'  => __( 'A single centered promo line — great for shipping offers or campaigns.', 'unysonplus' ),
+			'values' => array(
+				'topbar_left'   => array(),
+				'topbar_center' => array( $icontext( 'fas fa-bullhorn', 'Free shipping on orders over $50', 'url', '/shop/' ) ),
+				'topbar_right'  => array(),
+			),
+		),
+	);
+
+	// Main Header (the always-on logo + nav row) → ready-made column arrangements.
+	// The group key `header_main` IS the multi storage key, so a preset fills the
+	// three inline slots (main_left / main_center / main_right) with element items in
+	// the exact shape the addable-popup stores (via `$el()` above). Applying replaces
+	// only the three columns — main_custom_styling (the row's look) is left to the user.
+	$main_keys      = array( 'main_left', 'main_center', 'main_right' );
+	$logo           = $el( 'logo' );
+	$menu_primary   = $el( 'menu_area', array( 'menu_location' => 'primary' ) );
+	$menu_secondary = $el( 'menu_area', array( 'menu_location' => 'secondary' ) );
+	$search         = $el( 'search' );
+	// CTA button item. Minimal atts (text + link); style/size fall back to defaults.
+	$cta = function ( $text = 'Get Started', $link = '#' ) {
+		return array( 'element_type' => array(
+			'element'    => 'cta_button',
+			'cta_button' => array( 'cta_text' => $text, 'cta_link' => $link ),
+		) );
+	};
+	$main_presets = array(
+		'logo_menu' => array(
+			'label'  => __( 'Logo + Menu', 'unysonplus' ),
+			'desc'   => __( 'Logo on the left, primary menu on the right — the classic arrangement.', 'unysonplus' ),
+			'values' => array( 'main_left' => array( $logo ), 'main_center' => array(), 'main_right' => array( $menu_primary ) ),
+		),
+		'menu_cta' => array(
+			'label'  => __( 'Menu + CTA', 'unysonplus' ),
+			'desc'   => __( 'Logo left; the menu and a call-to-action button on the right — the SaaS / marketing header.', 'unysonplus' ),
+			'values' => array( 'main_left' => array( $logo ), 'main_center' => array(), 'main_right' => array( $menu_primary, $cta() ) ),
+		),
+		'centered_logo' => array(
+			'label'  => __( 'Centered Logo', 'unysonplus' ),
+			'desc'   => __( 'Menu on the left, logo centered, a CTA on the right — a balanced, boutique split.', 'unysonplus' ),
+			'values' => array( 'main_left' => array( $menu_primary ), 'main_center' => array( $logo ), 'main_right' => array( $cta() ) ),
+		),
+		'menu_centered' => array(
+			'label'  => __( 'Menu Centered', 'unysonplus' ),
+			'desc'   => __( 'Logo left, menu centered, CTA right — a symmetric, editorial layout.', 'unysonplus' ),
+			'values' => array( 'main_left' => array( $logo ), 'main_center' => array( $menu_primary ), 'main_right' => array( $cta() ) ),
+		),
+		'commerce' => array(
+			'label'  => __( 'Logo + Search', 'unysonplus' ),
+			'desc'   => __( 'Logo left, a search field centered, menu right — the storefront header.', 'unysonplus' ),
+			'values' => array( 'main_left' => array( $logo ), 'main_center' => array( $search ), 'main_right' => array( $menu_primary ) ),
+		),
+		'minimal' => array(
+			'label'  => __( 'Minimal', 'unysonplus' ),
+			'desc'   => __( 'Just the logo and a CTA — pairs with the Fullscreen Overlay / hamburger menu modes.', 'unysonplus' ),
+			'values' => array( 'main_left' => array( $logo ), 'main_center' => array(), 'main_right' => array( $cta() ) ),
+		),
+	);
+
+	// Bottom Bar (the optional row below the main header) → ready-made column content.
+	// Same item shape as the Top Bar / Main Header. Typically a secondary menu, a
+	// search, social icons, or contact info. Group key `header_bottombar` = the multi
+	// storage key; applying replaces only the three columns (bottombar_custom_styling
+	// stays with the user). Uses the registered `secondary` menu location.
+	$bottombar_keys = array( 'bottombar_left', 'bottombar_center', 'bottombar_right' );
+	$bottombar_presets = array(
+		'nav' => array(
+			'label'  => __( 'Secondary Menu', 'unysonplus' ),
+			'desc'   => __( 'A secondary / category menu on the left — great for sub-navigation under the main header.', 'unysonplus' ),
+			'values' => array( 'bottombar_left' => array( $menu_secondary ), 'bottombar_center' => array(), 'bottombar_right' => array() ),
+		),
+		'nav_search' => array(
+			'label'  => __( 'Menu + Search', 'unysonplus' ),
+			'desc'   => __( 'Secondary menu on the left, a search field on the right — the storefront sub-bar.', 'unysonplus' ),
+			'values' => array( 'bottombar_left' => array( $menu_secondary ), 'bottombar_center' => array(), 'bottombar_right' => array( $search ) ),
+		),
+		'nav_social' => array(
+			'label'  => __( 'Menu + Social', 'unysonplus' ),
+			'desc'   => __( 'Secondary menu on the left, social icons on the right.', 'unysonplus' ),
+			'values' => array( 'bottombar_left' => array( $menu_secondary ), 'bottombar_center' => array(), 'bottombar_right' => array( $el( 'social_icons' ) ) ),
+		),
+		'centered_nav' => array(
+			'label'  => __( 'Centered Menu', 'unysonplus' ),
+			'desc'   => __( 'A single centered secondary menu — clean and symmetric.', 'unysonplus' ),
+			'values' => array( 'bottombar_left' => array(), 'bottombar_center' => array( $menu_secondary ), 'bottombar_right' => array() ),
+		),
+		'contact' => array(
+			'label'  => __( 'Contact & Social', 'unysonplus' ),
+			'desc'   => __( 'Phone on the left, social icons on the right — a contact strip below the header.', 'unysonplus' ),
+			'values' => array(
+				'bottombar_left'   => array( $icontext( 'fas fa-phone', '+1 (555) 123-4567', 'phone' ) ),
+				'bottombar_center' => array(),
+				'bottombar_right'  => array( $el( 'social_icons' ) ),
+			),
+		),
+	);
+
+	// Footer sections: ready-made column content. A footer section stores `<prefix>_columns`
+	// as a `multi-picker`: { count:'N', 'N':{ <prefix>_split:[{w,name}..] (2+ cols),
+	// <prefix>_col_1..N:[items] } } — the count select gives the column count and the
+	// Split-Slider its ratio. Copyright nests one level deeper (copyright_settings ->
+	// { enabled:'yes', 'yes':{ copyright_columns:{ <same shape> } } }). The $fcols / $fcopy
+	// helpers build those exact shapes. Column items reuse the header element-item builders
+	// ($el / $icontext / $cta); $ftext wraps a Text (WYSIWYG) block, plain semantic HTML
+	// (no classes on <p>/<li> — house style). Applying replaces the columns only; Custom
+	// Styling is left to the user.
+	$ftext = function ( $html ) {
+		return array( 'element_type' => array( 'element' => 'text', 'text' => array( 'text_content' => $html ) ) );
+	};
+	$flogo      = $el( 'logo' );
+	$fsocial    = $el( 'social_icons' );
+	$fmenu      = $el( 'menu_area', array( 'menu_location' => 'footer' ) );
+	$fbacktotop = $el( 'back_to_top', array( 'back_to_top_text' => __( 'Back to Top', 'unysonplus' ) ) );
+	$copyright_line = '<p>&copy; {{current_year}} ' . esc_html( get_bloginfo( 'name' ) ) . '. ' . esc_html__( 'All rights reserved.', 'unysonplus' ) . '</p>';
+
+	// Build a footer section value (multi-picker shape): { count:'N', 'N':{ <prefix>_split
+	// (2+ cols), <prefix>_col_1..N } }. The columns nest under the chosen count; a 2+
+	// column set also carries the Split-Slider ratio (segments {w,name}). $widths is an
+	// ordered list of integer percentages (one per column) or null for equal columns;
+	// $cols is the ordered list of column item-lists.
+	$fcols = function ( $prefix, $widths, $cols ) {
+		$n      = count( $cols );
+		$choice = array();
+		if ( $n >= 2 ) {
+			$segs = array();
+			if ( is_array( $widths ) && count( $widths ) === $n ) {
+				foreach ( $widths as $w ) { $segs[] = array( 'w' => (int) $w, 'name' => '' ); }
+			} else {
+				$each = (int) floor( 100 / $n );
+				for ( $k = 0; $k < $n; $k++ ) { $segs[] = array( 'w' => $each, 'name' => '' ); }
+				if ( $segs ) { $segs[0]['w'] += 100 - ( $each * $n ); }
+			}
+			$choice[ $prefix . '_split' ] = $segs;
+		}
+		$i = 1;
+		foreach ( $cols as $items ) { $choice[ $prefix . '_col_' . $i ] = $items; $i++; }
+		return array( 'count' => (string) $n, (string) $n => $choice );
+	};
+	// Wrap a copyright columns value in its enabled -> 'yes' -> copyright_columns nest.
+	$fcopy = function ( $inner ) {
+		return array( 'enabled' => 'yes', 'yes' => array( 'copyright_columns' => $inner ) );
+	};
+
+	// A footer section stores `<prefix>_columns` as a `multi-picker`; the allowed
+	// top-level keys are the picker value (count) + each numeric choice-reveal bucket.
+	$fkeys = function () {
+		return array( 'count', '1', '2', '3', '4', '5', '6' );
+	};
+
+	// Pre-Footer (a promo / CTA / contact band above the main footer).
+	$pre_footer_keys = $fkeys();
+	$pre_footer_presets = array(
+		'newsletter' => array(
+			'label'  => __( 'Newsletter CTA', 'unysonplus' ),
+			'desc'   => __( 'A headline + blurb on the left and a subscribe button on the right - the classic email opt-in band.', 'unysonplus' ),
+			'values' => $fcols( 'pre_footer', array( 67, 33 ), array(
+				array( $ftext( '<h3>Stay in the loop</h3><p>Product updates, articles, and offers - straight to your inbox.</p>' ) ),
+				array( $cta( __( 'Subscribe', 'unysonplus' ), '#' ) ),
+			) ),
+		),
+		'cta' => array(
+			'label'  => __( 'Call to Action', 'unysonplus' ),
+			'desc'   => __( 'A single centered headline and button - a strong closing prompt before the footer.', 'unysonplus' ),
+			'values' => $fcols( 'pre_footer', null, array(
+				array( $ftext( '<h2>Ready to get started?</h2><p>Join thousands of teams already building with us.</p>' ), $cta( __( 'Get Started', 'unysonplus' ), '#' ) ),
+			) ),
+		),
+		'contact' => array(
+			'label'  => __( 'Contact Strip', 'unysonplus' ),
+			'desc'   => __( 'Address, phone and email across three columns - an at-a-glance contact band.', 'unysonplus' ),
+			'values' => $fcols( 'pre_footer', null, array(
+				array( $icontext( 'fas fa-location-dot', '123 Main St, Springfield' ) ),
+				array( $icontext( 'fas fa-phone', '+1 (555) 123-4567', 'phone' ) ),
+				array( $icontext( 'fas fa-envelope', 'info@example.com', 'email' ) ),
+			) ),
+		),
+	);
+
+	// Main Footer (the widget columns - links / about / contact).
+	$main_footer_keys = $fkeys();
+	$main_footer_presets = array(
+		'four_col' => array(
+			'label'  => __( 'Four Columns', 'unysonplus' ),
+			'desc'   => __( 'Four equal link columns (Product / Company / Resources / Legal) - the standard SaaS footer.', 'unysonplus' ),
+			'values' => $fcols( 'main_footer', null, array(
+				array( $ftext( '<h4>Product</h4><ul><li><a href="#">Features</a></li><li><a href="#">Pricing</a></li><li><a href="#">Integrations</a></li><li><a href="#">Changelog</a></li></ul>' ) ),
+				array( $ftext( '<h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Blog</a></li><li><a href="#">Contact</a></li></ul>' ) ),
+				array( $ftext( '<h4>Resources</h4><ul><li><a href="#">Documentation</a></li><li><a href="#">Help Center</a></li><li><a href="#">Community</a></li><li><a href="#">Guides</a></li></ul>' ) ),
+				array( $ftext( '<h4>Legal</h4><ul><li><a href="#">Privacy</a></li><li><a href="#">Terms</a></li><li><a href="#">Security</a></li><li><a href="#">Cookies</a></li></ul>' ) ),
+			) ),
+		),
+		'logo_links' => array(
+			'label'  => __( 'Logo + Links', 'unysonplus' ),
+			'desc'   => __( 'A branding column (logo + blurb + social) beside three link columns.', 'unysonplus' ),
+			'values' => $fcols( 'main_footer', array( 50, 17, 17, 16 ), array(
+				array( $flogo, $ftext( '<p>Design, build &amp; grow - a modern platform for teams that ship.</p>' ), $fsocial ),
+				array( $ftext( '<h4>Product</h4><ul><li><a href="#">Features</a></li><li><a href="#">Pricing</a></li><li><a href="#">Integrations</a></li></ul>' ) ),
+				array( $ftext( '<h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Blog</a></li></ul>' ) ),
+				array( $ftext( '<h4>Resources</h4><ul><li><a href="#">Docs</a></li><li><a href="#">Support</a></li><li><a href="#">Community</a></li></ul>' ) ),
+			) ),
+		),
+		'three_col' => array(
+			'label'  => __( 'About + Links + Contact', 'unysonplus' ),
+			'desc'   => __( 'A wide About column, a Quick Links column, and a contact column - a friendly small-business footer.', 'unysonplus' ),
+			'values' => $fcols( 'main_footer', array( 50, 25, 25 ), array(
+				array( $flogo, $ftext( '<p>Design, build &amp; grow - a modern platform for teams that ship.</p>' ), $fsocial ),
+				array( $ftext( '<h4>Quick Links</h4><ul><li><a href="#">About</a></li><li><a href="#">Services</a></li><li><a href="#">Blog</a></li><li><a href="#">Contact</a></li></ul>' ) ),
+				array( $ftext( '<h4>Get in touch</h4>' ), $icontext( 'fas fa-location-dot', '123 Main St, Springfield' ), $icontext( 'fas fa-phone', '+1 (555) 123-4567', 'phone' ), $icontext( 'fas fa-envelope', 'info@example.com', 'email' ) ),
+			) ),
+		),
+		'centered' => array(
+			'label'  => __( 'Simple Centered', 'unysonplus' ),
+			'desc'   => __( 'One centered column: logo, footer menu and social icons - minimal and tidy.', 'unysonplus' ),
+			'values' => $fcols( 'main_footer', null, array(
+				array( $flogo, $fmenu, $fsocial ),
+			) ),
+		),
+	);
+
+	// Post-Footer (a slim strip below the main footer, above the copyright).
+	$post_footer_keys = $fkeys();
+	$post_footer_presets = array(
+		'menu_social' => array(
+			'label'  => __( 'Menu + Social', 'unysonplus' ),
+			'desc'   => __( 'Footer menu on the left, social icons on the right.', 'unysonplus' ),
+			'values' => $fcols( 'post_footer', null, array(
+				array( $fmenu ),
+				array( $fsocial ),
+			) ),
+		),
+		'social' => array(
+			'label'  => __( 'Centered Social', 'unysonplus' ),
+			'desc'   => __( 'A single centered row of social icons.', 'unysonplus' ),
+			'values' => $fcols( 'post_footer', null, array(
+				array( $fsocial ),
+			) ),
+		),
+		'back_to_top' => array(
+			'label'  => __( 'Back to Top', 'unysonplus' ),
+			'desc'   => __( 'A centered "Back to Top" button.', 'unysonplus' ),
+			'values' => $fcols( 'post_footer', null, array(
+				array( $fbacktotop ),
+			) ),
+		),
+	);
+
+	// Copyright (nested two levels: copyright_settings -> enabled + 'yes' reveal). The
+	// allowed top-level keys are the outer picker value (enabled) and its 'yes' bucket.
+	$copyright_keys = array( 'enabled', 'yes' );
+	$copyright_presets = array(
+		'simple' => array(
+			'label'  => __( 'Simple', 'unysonplus' ),
+			'desc'   => __( 'A single centered copyright line (the year updates automatically).', 'unysonplus' ),
+			'values' => $fcopy( $fcols( 'copyright', null, array(
+				array( $ftext( $copyright_line ) ),
+			) ) ),
+		),
+		'split_menu' => array(
+			'label'  => __( 'Copyright + Menu', 'unysonplus' ),
+			'desc'   => __( 'Copyright on the left, a footer menu on the right.', 'unysonplus' ),
+			'values' => $fcopy( $fcols( 'copyright', null, array(
+				array( $ftext( $copyright_line ) ),
+				array( $fmenu ),
+			) ) ),
+		),
+		'split_social' => array(
+			'label'  => __( 'Copyright + Social', 'unysonplus' ),
+			'desc'   => __( 'Copyright on the left, social icons on the right.', 'unysonplus' ),
+			'values' => $fcopy( $fcols( 'copyright', null, array(
+				array( $ftext( $copyright_line ) ),
+				array( $fsocial ),
+			) ) ),
 		),
 	);
 
@@ -480,6 +789,36 @@ function unysonplus_settings_preset_groups() {
 			'allowed_keys' => $topbar_keys,
 			'presets'      => $topbar_presets,
 		),
+		'header_main' => array(
+			'label'        => __( 'Main Header', 'unysonplus' ),
+			'allowed_keys' => $main_keys,
+			'presets'      => $main_presets,
+		),
+		'header_bottombar' => array(
+			'label'        => __( 'Bottom Bar', 'unysonplus' ),
+			'allowed_keys' => $bottombar_keys,
+			'presets'      => $bottombar_presets,
+		),
+		'pre_footer_columns' => array(
+			'label'        => __( 'Pre-Footer', 'unysonplus' ),
+			'allowed_keys' => $pre_footer_keys,
+			'presets'      => $pre_footer_presets,
+		),
+		'main_footer_columns' => array(
+			'label'        => __( 'Main Footer', 'unysonplus' ),
+			'allowed_keys' => $main_footer_keys,
+			'presets'      => $main_footer_presets,
+		),
+		'post_footer_columns' => array(
+			'label'        => __( 'Post-Footer', 'unysonplus' ),
+			'allowed_keys' => $post_footer_keys,
+			'presets'      => $post_footer_presets,
+		),
+		'copyright_settings' => array(
+			'label'        => __( 'Copyright', 'unysonplus' ),
+			'allowed_keys' => $copyright_keys,
+			'presets'      => $copyright_presets,
+		),
 		'typography' => array(
 			'label'        => __( 'Typography', 'unysonplus' ),
 			'allowed_keys' => $typo_keys,
@@ -583,7 +922,12 @@ function unysonplus_ajax_apply_settings_preset() {
 
 	$current = fw_get_db_settings_option( $group, array() );
 	if ( ! is_array( $current ) ) { $current = array(); }
-	fw_set_db_settings_option( $group, array_merge( $current, $values ) );
+	// Overlay the preset onto the current value with the `+` union (NOT array_merge):
+	// array_merge RENUMBERS integer-like keys, which would destroy the footer sections'
+	// numeric choice-reveal buckets (e.g. the '4' key holding a 4-column layout gets
+	// reindexed to 0 and lost). `$values + $current` preserves every key and still lets
+	// the preset win on the keys it defines; string-keyed groups behave identically.
+	fw_set_db_settings_option( $group, $values + $current );
 
 	// Refresh the cached front-end CSS so the change shows without a manual Save;
 	// typography presets also need the Google-fonts <link> rebuilt for the new

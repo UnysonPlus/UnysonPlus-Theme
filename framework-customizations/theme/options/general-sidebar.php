@@ -168,15 +168,21 @@ $options = [
 						'value' => [ 'value' => '', 'unit' => 'rem' ],
 						'min'   => 0,
 					],
-					'layout_sidebar_border_width' => [
-						'label' => __( 'Border Width', 'unysonplus' ),
-						'desc'  => __( 'Border around the sidebar column. Leave 0 for none.', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'px', 'rem', 'em' ],
-						'value' => [ 'value' => '', 'unit' => 'px' ],
-						'min'   => 0,
-					],
-					'layout_sidebar_border_color' => $color( __( 'Border Color', 'unysonplus' ), __( 'Color of the sidebar border (when Border Width is set).', 'unysonplus' ), 'bg' ),
+					// Width · Style · Color on one inline row (the shared multi-inline border
+					// control). Consumed as --sidebar-border-* by theme-vars.php, which also
+					// tolerates the legacy flat layout_sidebar_border_{width,color}.
+					'layout_sidebar_border' => function_exists( 'unysonplus_hf_border_row_field' )
+						? unysonplus_hf_border_row_field(
+							__( 'Border', 'unysonplus' ),
+							__( 'Border around the sidebar column — width · style · colour. Leave the width at 0 for none.', 'unysonplus' )
+						)
+						: [
+							'label' => __( 'Border Width', 'unysonplus' ),
+							'type'  => 'unit-input',
+							'units' => [ 'px', 'rem', 'em' ],
+							'value' => [ 'value' => '', 'unit' => 'px' ],
+							'min'   => 0,
+						],
 					'layout_sidebar_radius' => [
 						'label' => __( 'Corner Radius', 'unysonplus' ),
 						'desc'  => __( 'Rounding of the sidebar column corners (with a background or border).', 'unysonplus' ),

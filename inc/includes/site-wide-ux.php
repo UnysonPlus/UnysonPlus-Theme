@@ -32,6 +32,13 @@ add_filter( 'upw_anim_engine_module_tabs', function ( $tabs ) {
 		);
 	};
 
+	// Dark Mode toggle — a global end-user UX affordance, so it lives under Site-wide UX
+	// (its `misc_dark_mode` storage key is shared with the engine-inactive path).
+	$tabs['theme_dark_mode'] = $subtab(
+		__( 'Dark Mode', 'unysonplus' ),
+		__( 'Dark Mode Toggle', 'unysonplus' ),
+		array( fw()->theme->get_options( 'site-wide-ux-dark-mode' ) )
+	);
 	// Scrolling (smooth scroll + basic scroll-progress bar) — theme-unique alongside the engine.
 	$tabs['theme_scrolling'] = $subtab(
 		__( 'Scrolling', 'unysonplus' ),

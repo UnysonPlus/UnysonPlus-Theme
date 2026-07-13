@@ -58,6 +58,10 @@ function unysonplus_render_header_element( $element ) {
                         unysonplus_render_phone( $settings );
                         break;
 
+                case 'icon_text':
+                        unysonplus_render_icon_text( $settings );
+                        break;
+
                 case 'search':
                         unysonplus_render_search();
                         break;
@@ -243,6 +247,60 @@ function unysonplus_render_phone( $settings ) {
         echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/></svg>';
         echo ' <span>' . esc_html( $phone ) . '</span>';
         echo '</a>';
+}
+endif;
+
+
+if ( ! function_exists( 'unysonplus_render_icon_text' ) ) :
+/**
+ * Icon Text element — an icon + a line of text, optionally a smart link
+ * (Website / Email → mailto: / Phone → tel:). Generalises the old Phone element,
+ * so it also covers email, address, hours, website, etc.
+ *
+ * @param array $settings icon_text element settings.
+ */
+function unysonplus_render_icon_text( $settings ) {
+        $icon = ! empty( $settings['icontext_icon']['icon-class'] ) ? $settings['icontext_icon']['icon-class'] : '';
+        $text = isset( $settings['icontext_text'] ) ? trim( (string) $settings['icontext_text'] ) : '';
+        if ( $text === '' && $icon === '' ) { return; }
+
+        $type = ! empty( $settings['icontext_link_type'] ) ? $settings['icontext_link_type'] : 'none';
+        $val  = isset( $settings['icontext_link'] ) ? trim( (string) $settings['icontext_link'] ) : '';
+        // Email / Phone fall back to the visible text when no explicit target is set.
+        if ( $val === '' && ( $type === 'email' || $type === 'phone' ) ) { $val = $text; }
+
+        // Enqueue the icon's pack so a non-FA glyph renders (FA loads globally).
+        if ( ! empty( $settings['icontext_icon'] ) && function_exists( 'fw' ) && isset( fw()->backend )
+                && method_exists( fw()->backend, 'option_type' ) && isset( fw()->backend->option_type( 'icon-v2' )->packs_loader ) ) {
+                fw()->backend->option_type( 'icon-v2' )->packs_loader->enqueue_pack_for_icon( $settings['icontext_icon'] );
+        }
+
+        $href = ''; $rel = '';
+        switch ( $type ) {
+                case 'url':
+                        $href = esc_url( $val );
+                        // External URL → new tab (mirrors the tag_list convention).
+                        $host = wp_parse_url( $val, PHP_URL_HOST );
+                        if ( $host && $host !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {
+                                $rel = ' target="_blank" rel="noopener noreferrer"';
+                        }
+                        break;
+                case 'email':
+                        $href = 'mailto:' . antispambot( $val );
+                        break;
+                case 'phone':
+                        $href = 'tel:' . preg_replace( '/[^0-9+]/', '', $val );
+                        break;
+        }
+
+        $inner  = $icon !== '' ? '<i class="' . esc_attr( $icon ) . '" aria-hidden="true"></i> ' : '';
+        $inner .= '<span>' . esc_html( $text ) . '</span>';
+
+        if ( $href !== '' ) {
+                echo '<a class="header-icon-text" href="' . $href . '"' . $rel . '>' . $inner . '</a>'; // phpcs:ignore -- href pre-escaped per type
+        } else {
+                echo '<span class="header-icon-text">' . $inner . '</span>';
+        }
 }
 endif;
 

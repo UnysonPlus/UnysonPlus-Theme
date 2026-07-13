@@ -4,8 +4,8 @@
    distinct from the normal options around it. */
 .fw-backend-option-type-preset-loader {
 	background: #f8fdff;
-	border: 1px solid #d6ebf5;
-	border-radius: 8px;
+	border-bottom: 1px solid #d6ebf5;
+	margin-top: -10px;
 }
 
 .fw-preset-loader-cards {

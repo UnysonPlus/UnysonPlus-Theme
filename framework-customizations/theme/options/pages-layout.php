@@ -10,7 +10,27 @@
  * `general_pages` / `pages_hero`, so reads stay key-name stable. These feed the
  * layout cascade (inc/includes/layout.php → unysonplus_resolve_layout): per-page
  * meta → template → THESE globals → per-context / site defaults.
+ *
+ * Sidebar + width use image-picker diagrams (with the choice labelled in the
+ * SVG) to match General → Sidebar / Layout. Tiles live at assets/svg/layout/;
+ * the "Global/Inherit" tiles are dashed to read as "defer to the site default".
+ * The stored value is still the plain choice key, so nothing about the cascade
+ * or saved data changes.
  */
+
+$svg = get_template_directory_uri() . '/assets/svg/layout';
+
+/* {choice => svg-file} → image-picker choices array (small + large previews). */
+$picker = function ( array $pairs, $small = 104, $large = 150 ) use ( $svg ) {
+	$out = [];
+	foreach ( $pairs as $value => $file ) {
+		$out[ $value ] = [
+			'small' => [ 'height' => $small, 'src' => $svg . '/' . $file ],
+			'large' => [ 'height' => $large, 'src' => $svg . '/' . $file ],
+		];
+	}
+	return $out;
+};
 
 $options = [
 	'pages_layout' => [
@@ -22,27 +42,27 @@ $options = [
 				'options' => [
 					'default_sidebar' => [
 						'label'   => __( 'Default Sidebar', 'unysonplus' ),
-						'desc'    => __( 'Sidebar position for pages that don\'t set their own. "Inherit" falls back to the Default Page Layout / global sidebar.', 'unysonplus' ),
-						'type'    => 'select',
+						'desc'    => __( 'Sidebar position for pages that don\'t set their own. "Global" falls back to the Default Page Layout / site-wide sidebar.', 'unysonplus' ),
+						'type'    => 'image-picker',
 						'value'   => 'inherit',
-						'choices' => [
-							'inherit' => __( 'Inherit', 'unysonplus' ),
-							'none'    => __( 'None (full content)', 'unysonplus' ),
-							'left'    => __( 'Left', 'unysonplus' ),
-							'right'   => __( 'Right', 'unysonplus' ),
-						],
+						'choices' => $picker( [
+							'inherit' => 'sb-inherit.svg',
+							'none'    => 'sb-none.svg',
+							'left'    => 'sb-left.svg',
+							'right'   => 'sb-right.svg',
+						] ),
 					],
 					'default_content_width' => [
 						'label'   => __( 'Default Content Width', 'unysonplus' ),
-						'desc'    => __( 'Reading-column width for pages that don\'t set their own.', 'unysonplus' ),
-						'type'    => 'select',
+						'desc'    => __( 'Reading-column width for pages that don\'t set their own. "Global" uses the theme container.', 'unysonplus' ),
+						'type'    => 'image-picker',
 						'value'   => 'default',
-						'choices' => [
-							'default' => __( 'Default (theme container)', 'unysonplus' ),
-							'narrow'  => __( 'Narrow (~720px)', 'unysonplus' ),
-							'wide'    => __( 'Wide (100%)', 'unysonplus' ),
-							'full'    => __( 'Full (edge-to-edge)', 'unysonplus' ),
-						],
+						'choices' => $picker( [
+							'default' => 'cw-global.svg',
+							'narrow'  => 'cw-narrow.svg',
+							'wide'    => 'cw-wide.svg',
+							'full'    => 'cw-full.svg',
+						] ),
 					],
 				],
 			],

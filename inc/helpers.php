@@ -62,21 +62,60 @@ if(!function_exists('unysonplus_container_end')) :
 endif;
 
 
+if ( ! function_exists( 'unysonplus_header_logo_cfg' ) ) :
+        /**
+         * Header logo config, FLATTENED. Logo Type is a multi-picker, so saves nest under
+         * header_logo[logo_type][simple|custom][...]. This returns a single flat array of leaf
+         * values + a resolved 'logo_type' string, reading BOTH the new nested shape and the
+         * legacy flat shape (pre-migration, or a script-set flat value). Every logo reader —
+         * the front-end render, the generated CSS, the identity sync — goes through this.
+         */
+        function unysonplus_header_logo_cfg() {
+                $hl = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'header_logo' ) : array();
+                if ( ! is_array( $hl ) ) { $hl = array(); }
+                $out = $hl;
+                if ( isset( $hl['logo_type'] ) && is_array( $hl['logo_type'] ) ) {
+                        // New multi-picker shape: merge both choices' sub-values up to flat keys.
+                        $type = ( isset( $hl['logo_type']['logo_type'] ) && is_string( $hl['logo_type']['logo_type'] ) ) ? $hl['logo_type']['logo_type'] : 'simple';
+                        foreach ( array( 'simple', 'custom' ) as $ch ) {
+                                if ( isset( $hl['logo_type'][ $ch ] ) && is_array( $hl['logo_type'][ $ch ] ) ) {
+                                        $out = array_merge( $out, $hl['logo_type'][ $ch ] );
+                                }
+                        }
+                        unset( $out['logo_type'] );
+                        $out['logo_type'] = $type;
+                } else {
+                        // Legacy flat shape (or script-set): infer the type when not explicitly a string.
+                        $out['logo_type'] = ( ! empty( $hl['logo_type'] ) && is_string( $hl['logo_type'] ) )
+                                ? $hl['logo_type']
+                                : ( ! empty( $hl['image']['url'] ) ? 'simple' : 'custom' );
+                }
+                return $out;
+        }
+endif;
+
 if(! function_exists('unysonplus_logo')) :
         /**
          * The Logo
          */
-        function unysonplus_logo() {                     
-                $header_logo = fw_get_db_settings_option('header_logo');
-                if ( ! isset( $header_logo ) ) $header_logo = array();
+        function unysonplus_logo() {
+                $header_logo = unysonplus_header_logo_cfg();
                 $has_unyson_image = ! empty( $header_logo['image'] ) && ! empty( $header_logo['image']['url'] );
+                $has_logo_icon    = false; // set true when a text logo renders with a Logo Icon beside it
+                $logo_layout_class = '';   // 'site-logo--{layout}' for the text-logo lockup
+                $tagline_in_lockup = false; // true when the tagline is rendered INSIDE the lockup (stacked/eyebrow)
 
                 // Alt text for the image logo: explicit override, then Site Title, then WP name.
                 $unysonplus_logo_alt = ! empty( $header_logo['alt'] )
                         ? $header_logo['alt']
                         : ( ! empty( $header_logo['site_title'] ) ? $header_logo['site_title'] : get_bloginfo( 'name' ) );
 
-                if ( $has_unyson_image ) {
+                // Logo Type (Header → Identity): 'simple' = image, 'custom' = text/icon lockup.
+                // Back-compat: legacy saves have no logo_type — infer from whether an image is set.
+                $logo_type = ! empty( $header_logo['logo_type'] ) ? $header_logo['logo_type'] : ( $has_unyson_image ? 'simple' : 'custom' );
+                $want_image = ( 'custom' !== $logo_type );
+
+                if ( $want_image && $has_unyson_image ) {
                         $img_attr = array();
                         $logo_w  = isset( $header_logo['width'] ) ? $header_logo['width'] : '';
                         // Only an exact pixel width can drive a raster resize; rem/em/empty
@@ -127,7 +166,7 @@ if(! function_exists('unysonplus_logo')) :
                                         'class' => 'site-logo site-logo--transparent img-fluid',
                                 ) );
                         }
-                } elseif ( ( $custom_logo_id = get_theme_mod( 'custom_logo' ) ) && ( $custom_logo_url = wp_get_attachment_url( $custom_logo_id ) ) ) {
+                } elseif ( $want_image && ( $custom_logo_id = get_theme_mod( 'custom_logo' ) ) && ( $custom_logo_url = wp_get_attachment_url( $custom_logo_id ) ) ) {
                         $img_attr = [];
                         $img_attr['src']    = $custom_logo_url;
                         $meta = wp_get_attachment_metadata( $custom_logo_id );
@@ -138,7 +177,64 @@ if(! function_exists('unysonplus_logo')) :
 
                         $logo = fw_html_tag( 'img', $img_attr );
                 } else {
-                        $logo = ! empty( $header_logo['site_title'] ) ? $header_logo['site_title'] : get_bloginfo( 'name' );
+                        // Text (wordmark) logo — optionally paired with a Logo Icon (an inline-SVG
+                        // brand mark) so it reads as the modern "icon + wordmark" logo while the text
+                        // stays real, editable, and accessible.
+                        $title_text = ! empty( $header_logo['site_title'] ) ? $header_logo['site_title'] : get_bloginfo( 'name' );
+                        // Logo Layout: "<arrangement>-<side>", e.g. eyebrow-left. Arrangement =
+                        // inline|stacked|eyebrow; side = which side the icon sits on (left|right).
+                        // Tolerates the legacy 3-way values (inline/stacked/eyebrow → icon left).
+                        $logo_layout = ! empty( $header_logo['logo_layout'] ) ? $header_logo['logo_layout'] : 'inline-left';
+                        $lp          = explode( '-', $logo_layout );
+                        $logo_arrange = in_array( $lp[0], array( 'inline', 'stacked', 'eyebrow' ), true ) ? $lp[0] : 'inline';
+                        $logo_side    = ( isset( $lp[1] ) && 'right' === $lp[1] ) ? 'right' : 'left';
+                        $logo_frame  = ! empty( $header_logo['logo_icon_frame'] ) ? $header_logo['logo_icon_frame'] : 'none';
+                        $icon_html  = '';
+                        if ( ! empty( $header_logo['logo_icon'] ) && function_exists( 'sc_icon_render' ) ) {
+                                // Enqueue the picked icon's pack (non-FA glyphs), mirroring the header icon_text element.
+                                if ( function_exists( 'fw' ) && isset( fw()->backend ) && method_exists( fw()->backend, 'option_type' )
+                                        && isset( fw()->backend->option_type( 'icon-v2' )->packs_loader ) ) {
+                                        fw()->backend->option_type( 'icon-v2' )->packs_loader->enqueue_pack_for_icon( $header_logo['logo_icon'] );
+                                }
+                                $mark_class = 'site-logo__mark';
+                                if ( in_array( $logo_frame, array( 'rounded', 'squircle', 'circle', 'square', 'hexagon' ), true ) ) {
+                                        $mark_class .= ' site-logo__mark--framed site-logo__mark--' . $logo_frame;
+                                }
+                                if ( ! empty( $header_logo['logo_icon_color']['predefined'] ) ) {
+                                        $mark_class .= ' ' . $header_logo['logo_icon_color']['predefined'];
+                                }
+                                $icon_svg = sc_icon_render( $header_logo['logo_icon'], array( 'aria_hidden' => true ) );
+                                if ( is_string( $icon_svg ) && $icon_svg !== '' ) {
+                                        $icon_html = '<span class="' . esc_attr( $mark_class ) . '" aria-hidden="true">' . $icon_svg . '</span>';
+                                }
+                        }
+                        // For Stacked / Eyebrow layouts the tagline rides INSIDE the lockup (a second
+                        // line beside the icon) rather than as the separate site-description <p> below.
+                        $lockup_tagline = '';
+                        if ( in_array( $logo_arrange, array( 'stacked', 'eyebrow' ), true ) ) {
+                                $tl = ! empty( $header_logo['tagline_text'] ) ? $header_logo['tagline_text'] : get_bloginfo( 'description', 'display' );
+                                if ( $tl !== '' ) {
+                                        $tl_class      = ( 'eyebrow' === $logo_arrange ) ? 'site-logo__eyebrow' : 'site-logo__sub';
+                                        $lockup_tagline = '<span class="' . $tl_class . '">' . esc_html( $tl ) . '</span>';
+                                }
+                        }
+                        $title_html = '<span class="site-title-text">' . $title_text . '</span>';
+                        if ( $lockup_tagline !== '' ) {
+                                // Eyebrow: tagline ABOVE the title; Stacked: title above the tagline.
+                                $text_inner = ( 'eyebrow' === $logo_arrange ) ? ( $lockup_tagline . $title_html ) : ( $title_html . $lockup_tagline );
+                                $text_html  = '<span class="site-logo__text">' . $text_inner . '</span>';
+                                $tagline_in_lockup = true;
+                        } else {
+                                $text_html = $title_html;
+                        }
+                        $logo_layout_class = 'site-logo--' . $logo_arrange . ' site-logo--icon-' . $logo_side;
+                        if ( $icon_html !== '' ) {
+                                $icon_after    = ( 'right' === $logo_side ); // icon side comes from the Logo Layout
+                                $logo          = $icon_after ? $text_html . $icon_html : $icon_html . $text_html;
+                                $has_logo_icon = true;
+                        } else {
+                                $logo = ( $lockup_tagline !== '' ) ? $text_html : $title_text;
+                        }
                 }
 
                 // Site Title Color (Header → Identity): mutually-exclusive preset
@@ -160,6 +256,8 @@ if(! function_exists('unysonplus_logo')) :
                 //}
                 // Wrapper flags so style.css can gate the sticky / mobile logo swaps.
                 $unysonplus_brand_class = array( 'site-title', 'navbar-brand' );
+                if ( $logo_layout_class !== '' )                          { $unysonplus_brand_class[] = $logo_layout_class; }
+                if ( $has_logo_icon )                                     { $unysonplus_brand_class[] = 'site-title--has-icon'; }
                 if ( ! empty( $header_logo['sticky_image']['url'] ) )      { $unysonplus_brand_class[] = 'has-sticky-logo'; }
                 if ( ! empty( $header_logo['mobile_image']['url'] ) )      { $unysonplus_brand_class[] = 'has-mobile-logo'; }
                 if ( ! empty( $header_logo['transparent_image']['url'] ) ) { $unysonplus_brand_class[] = 'has-transparent-logo'; }
@@ -172,9 +270,12 @@ if(! function_exists('unysonplus_logo')) :
                 $description = ! empty( $header_logo['tagline_text'] )
                         ? esc_html( $header_logo['tagline_text'] )
                         : get_bloginfo( 'description', 'display' );
-                if ( $description || is_customize_preview() ) {
+                // The separate site-description tagline is for the SIMPLE (image) logo. For the
+                // Custom logo the Logo Layout governs the tagline entirely — Stacked / Eyebrow show
+                // it inside the lockup, Inline shows none — so never emit the separate line there.
+                // (This is why the old "Hide Tagline" switch is gone: the layout is the control.)
+                if ( ( $description || is_customize_preview() ) && ! $tagline_in_lockup && 'custom' !== $logo_type ) {
                         $description_class = array( 'site-description' );
-                        if( !empty($header_logo['tagline'])) $description_class[] = $header_logo['tagline'];
                         // Tagline color: mutually-exclusive palette preset class or custom hex.
                         $unysonplus_desc_attr  = array();
                         $unysonplus_tag_color  = isset( $header_logo['tagline_color'] ) ? $header_logo['tagline_color'] : array();
