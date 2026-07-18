@@ -165,6 +165,12 @@ if(!function_exists('_action_theme_process_google_fonts')) {
                         $cfg = unysonplus_typography_config( fw_get_db_settings_option( 'typography', array() ) );
                         $families = isset( $cfg['google'] ) ? $cfg['google'] : array();
                 }
+                // Header → Menu → Menu Font Family (typography-v2, family only): load its
+                // Google font too, so a menu font that isn't the body/heading font renders.
+                $menu_opts = fw_get_db_settings_option( 'header_menu', array() );
+                $menu_family = ( is_array( $menu_opts ) && isset( $menu_opts['menu_font']['family'] ) )
+                        ? trim( (string) $menu_opts['menu_font']['family'] ) : '';
+                if ( $menu_family !== '' ) { $families[] = $menu_family; }
                 foreach ( $families as $family ) {
                         if ( $family !== '' && isset( $google_fonts[ $family ] ) ) {
                                 $include_from_google[ $family ] = $google_fonts[ $family ];
@@ -377,10 +383,15 @@ if(! function_exists('unysonplus_entry_title') ) :
                         /** Fires before the entry <h1>/<h2> title prints. */
                         do_action( 'unysonplus_before_entry_title' );
 
+                        // Per-page Title Icon (Page Settings → Page Title / Hero). Rendered INSIDE
+                        // the heading, before the text — so the DB title stays clean plain text
+                        // and the icon never leaks into feeds / breadcrumbs / <title>.
+                        $title_icon = function_exists( 'unysonplus_page_title_icon_html' ) ? unysonplus_page_title_icon_html() : '';
+
                         if ( is_category() ) {
                                 the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2><!-- .entry-header -->' );
                         }else{
-                                the_title( '<h1 class="entry-title">', '</h1><!-- .entry-header -->' );
+                                the_title( '<h1 class="entry-title">' . $title_icon, '</h1><!-- .entry-header -->' );
                         }
 
                         /** Fires after the entry <h1>/<h2> title prints. */
@@ -388,6 +399,45 @@ if(! function_exists('unysonplus_entry_title') ) :
                 endif;
         }
         add_action('unysonplus_entry_header','unysonplus_entry_title');
+endif;
+
+if ( ! function_exists( 'unysonplus_page_title_icon_html' ) ) :
+        /**
+         * Markup for the per-page Title Icon (Page Settings → Page Title / Hero →
+         * "Title Icon"). Stored as an icon-v2 value; rendered with sc_icon_render()
+         * so every shape works — icon font, emoji, SVG, uploaded image.
+         *
+         * @param int $post_id 0 = current post.
+         * @return string HTML (empty when no icon is set / not a singular view).
+         */
+        function unysonplus_page_title_icon_html( $post_id = 0 ) {
+                if ( ! is_singular() && ! $post_id ) {
+                        return '';
+                }
+                $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+                if ( ! $post_id || ! function_exists( 'fw_get_db_post_option' ) ) {
+                        return '';
+                }
+
+                $icon = fw_get_db_post_option( $post_id, 'title_icon' );
+
+                $is_set = function_exists( 'fw_ext_mega_menu_icon_is_set' )
+                        ? fw_ext_mega_menu_icon_is_set( $icon )
+                        : ! empty( $icon );
+                if ( ! $is_set ) {
+                        return '';
+                }
+
+                if ( function_exists( 'sc_icon_render' ) ) {
+                        return sc_icon_render( $icon, array( 'class' => 'entry-title__icon' ) ) . ' ';
+                }
+
+                // Fallback: icon-font shape only, no shortcodes extension loaded.
+                if ( is_array( $icon ) && isset( $icon['type'], $icon['icon-class'] ) && 'icon-font' === $icon['type'] ) {
+                        return '<i class="entry-title__icon ' . esc_attr( $icon['icon-class'] ) . '" aria-hidden="true"></i> ';
+                }
+                return '';
+        }
 endif;
 
 
@@ -671,3 +721,21 @@ function posts_custom_columns($column_name, $id)
     }
 }
 add_action('manage_posts_custom_column', 'posts_custom_columns', 5, 2);
+
+/**
+ * Mega Menu — feed the extension's front-end behavior config from the
+ * "Header → Mega Menu → Animation & Behavior" settings. Only the JS-driven
+ * bits go here (open-on-hover vs click); animation/speed/hover-delay are pure
+ * CSS via the --mm-* tokens in theme-vars.php.
+ */
+function unysonplus_megamenu_frontend_config( $config ) {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) ) {
+		return $config;
+	}
+	$mega = fw_get_db_settings_option( 'mega_menu', array() );
+	if ( is_array( $mega ) && ! empty( $mega['mm_open_on'] ) && in_array( $mega['mm_open_on'], array( 'hover', 'click' ), true ) ) {
+		$config['openOn'] = $mega['mm_open_on'];
+	}
+	return $config;
+}
+add_filter( 'fw:ext:megamenu:frontend-config', 'unysonplus_megamenu_frontend_config' );

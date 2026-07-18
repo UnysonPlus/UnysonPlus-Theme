@@ -90,6 +90,11 @@ $layout_options = [
 
 /* --- Page Title / Hero ------------------------------------------------ */
 $hero_header_options = [
+	'title_icon' => [
+		'label' => __( 'Title Icon', 'unysonplus' ),
+		'desc'  => __( 'Icon shown before the page title. Pick an icon font, emoji, SVG, or upload an image. Leave empty for no icon.', 'unysonplus' ),
+		'type'  => 'icon-v2',
+	],
 	'header_image' => [
 		'label' => __( 'Header Image', 'unysonplus' ),
 		'desc'  => __( 'Full-width banner image at the top of the page. Empty inherits the global Pages → Page Title / Hero image.', 'unysonplus' ),

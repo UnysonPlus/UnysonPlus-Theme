@@ -30,6 +30,165 @@ function unysonplus_render_primary_toggler() {
 endif;
 
 
+if ( ! function_exists( 'unysonplus_render_drawer_content' ) ) :
+/**
+ * Contents of the off-canvas / mobile drawer panel.
+ *
+ * The panel is SHARED: it is the entire menu in Off-Canvas mode and the mobile drawer
+ * in every other header mode, so one setting (Theme Settings → Header → Layout →
+ * Off-Canvas Content) drives them all. Users compose it from the same element list a
+ * header column uses (Menu, Snippet, CTA Button, Social Icons, Custom HTML, …).
+ *
+ * Back-compat: when nothing is configured we render exactly what THIS mode's drawer
+ * always rendered — hence $fallback_location, since the default menu differs per mode
+ * (off-canvas → Off-Canvas menu, overlay → Overlay menu, top/vertical → Primary). So
+ * existing sites are untouched and there is no migration.
+ *
+ * @param string $fallback_location Menu location to show when no content is configured.
+ */
+function unysonplus_render_drawer_content( $fallback_location = 'off-canvas' ) {
+	$hl       = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'header_layout', array() ) : array();
+	$elements = ( is_array( $hl ) && ! empty( $hl['offcanvas_content'] ) && is_array( $hl['offcanvas_content'] ) )
+		? $hl['offcanvas_content']
+		: array();
+
+	if ( empty( $elements ) ) {
+		// unysonplus_drawer_nav_menu() already falls back to Primary when the location
+		// has no menu assigned, so this reproduces each mode's historical default.
+		unysonplus_drawer_nav_menu( $fallback_location );
+		return;
+	}
+
+	echo '<div class="primary-navigation-drawer__content">';
+	unysonplus_render_header_column( $elements, 'start' );
+	echo '</div>';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_offcanvas_icons' ) ) :
+/**
+ * Read the off-canvas open/close icons from Theme Settings.
+ *
+ * Returns [ 'open' => <icon-v2|null>, 'close' => <icon-v2|null> ] from the
+ * `offcanvas_trigger_icon` multi-inline. Tolerates the legacy single-icon
+ * shape (a scalar icon-v2 value) by treating it as the Open icon, so sites
+ * saved before this became multi-inline keep their trigger glyph.
+ *
+ * @return array{open: mixed, close: mixed}
+ */
+function unysonplus_offcanvas_icons() {
+	$hl  = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'header_layout', array() ) : array();
+	$val = ( is_array( $hl ) && isset( $hl['offcanvas_trigger_icon'] ) ) ? $hl['offcanvas_trigger_icon'] : null;
+
+	if ( is_array( $val ) && ( array_key_exists( 'open', $val ) || array_key_exists( 'close', $val ) ) ) {
+		// Current shape: [ 'open' => …, 'close' => … ].
+		return array(
+			'open'  => ! empty( $val['open'] ) ? $val['open'] : null,
+			'close' => ! empty( $val['close'] ) ? $val['close'] : null,
+		);
+	}
+	// Legacy: a bare icon-v2 value is the Open icon; no Close was configurable then.
+	return array( 'open' => ! empty( $val ) ? $val : null, 'close' => null );
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_toggle_icon_svg' ) ) :
+/**
+ * Render an icon-v2 value to an SVG string for a drawer toggle/close button.
+ *
+ * Enqueues the picked icon's pack (non-FA glyphs), mirroring the logo /
+ * icon_text elements. Returns '' when no icon is set or the framework is
+ * unavailable, so callers can fall back to their default markup.
+ *
+ * @param mixed  $icon  An icon-v2 value.
+ * @param string $class CSS class for the emitted <svg>/<i>.
+ * @return string
+ */
+function unysonplus_hf_toggle_icon_svg( $icon, $class ) {
+	if ( empty( $icon ) || ! function_exists( 'sc_icon_render' ) ) {
+		return '';
+	}
+	if ( function_exists( 'fw' ) && isset( fw()->backend ) && method_exists( fw()->backend, 'option_type' )
+		&& isset( fw()->backend->option_type( 'icon-v2' )->packs_loader ) ) {
+		fw()->backend->option_type( 'icon-v2' )->packs_loader->enqueue_pack_for_icon( $icon );
+	}
+	$svg = sc_icon_render( $icon, array( 'class' => $class, 'aria_hidden' => true ) );
+	return is_string( $svg ) ? $svg : '';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_render_menu_toggle' ) ) :
+function unysonplus_render_menu_toggle( $extra_class = '' ) {
+	$icons = unysonplus_offcanvas_icons();
+
+	$classes = 'menu-toggle' . ( $extra_class !== '' ? ' ' . $extra_class : '' );
+
+	$inner = unysonplus_hf_toggle_icon_svg( $icons['open'], 'menu-toggle__icon' );
+	if ( $inner === '' ) {
+		// Default: the classic hamburger bars.
+		$inner = '<span class="menu-toggle__bar"></span><span class="menu-toggle__bar"></span><span class="menu-toggle__bar"></span>';
+		$classes .= ' menu-toggle--bars';
+	} else {
+		$classes .= ' menu-toggle--icon';
+	}
+
+	printf(
+		'<button type="button" class="%s" aria-controls="primary-navigation-drawer" aria-expanded="false" aria-label="%s">%s</button>',
+		esc_attr( $classes ),
+		esc_attr__( 'Toggle navigation', 'unysonplus' ),
+		$inner // phpcs:ignore — icon markup / static spans
+	);
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_render_drawer_close' ) ) :
+/**
+ * Render the drawer's Close button (shared across all header templates).
+ *
+ * Uses the Close icon from Theme Settings when set, otherwise the classic
+ * &times;. Extracted from ten identical hardcoded buttons so the Close icon
+ * option lands everywhere at once.
+ */
+function unysonplus_render_drawer_close() {
+	$icons = unysonplus_offcanvas_icons();
+
+	$svg     = unysonplus_hf_toggle_icon_svg( $icons['close'], 'primary-navigation-drawer__close-icon' );
+	$classes = 'primary-navigation-drawer__close' . ( $svg !== '' ? ' primary-navigation-drawer__close--icon' : '' );
+	$inner   = ( $svg !== '' ) ? $svg : '&times;';
+
+	printf(
+		'<button type="button" class="%s" data-drawer-close aria-label="%s">%s</button>',
+		esc_attr( $classes ),
+		esc_attr__( 'Close menu', 'unysonplus' ),
+		$inner // phpcs:ignore — icon markup / static entity
+	);
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_render_hf_snippet' ) ) :
+/**
+ * Render the Snippet element (shared by the header, footer and off-canvas drawer).
+ *
+ * A Snippet is page-builder content (post type `snippet`), so this is how arbitrary
+ * shortcodes / bespoke markup get into the chrome without a new element type for each.
+ * fw_ext_snippets_render() returns fully shortcode-processed HTML and guards against
+ * recursion + unpublished posts, so we only need the availability check.
+ *
+ * @param array $settings Element settings ( snippet_id ).
+ */
+function unysonplus_render_hf_snippet( $settings ) {
+	$id = ! empty( $settings['snippet_id'] ) ? (int) $settings['snippet_id'] : 0;
+	if ( ! $id || ! function_exists( 'fw_ext_snippets_render' ) ) {
+		return;
+	}
+	$html = fw_ext_snippets_render( $id );
+	if ( $html === '' ) {
+		return;
+	}
+	echo '<div class="up-hf-snippet">' . $html . '</div>'; // phpcs:ignore — builder output, already processed
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_render_header_element' ) ) :
 function unysonplus_render_header_element( $element ) {
         if ( empty( $element['element_type']['element'] ) ) return;
@@ -100,6 +259,10 @@ function unysonplus_render_header_element( $element ) {
                         if ( function_exists( 'unysonplus_render_builder_section' ) ) {
                                 unysonplus_render_builder_section( $settings );
                         }
+                        break;
+
+                case 'snippet':
+                        unysonplus_render_hf_snippet( $settings );
                         break;
 
                 case 'spacer':
@@ -375,6 +538,10 @@ function unysonplus_social_fa_class( $name ) {
                 'threads' => 'fab fa-threads', 'mastodon' => 'fab fa-mastodon',
                 'tumblr' => 'fab fa-tumblr', 'soundcloud' => 'fab fa-soundcloud',
                 'email' => 'fas fa-envelope', 'mail' => 'fas fa-envelope',
+                // Generic (non-brand) links commonly used in footers — a website/globe, a
+                // plain link, or an RSS feed. Solid icons (fas), so no brand dependency.
+                'globe' => 'fas fa-globe', 'website' => 'fas fa-globe', 'web' => 'fas fa-globe',
+                'link' => 'fas fa-link', 'rss' => 'fas fa-rss',
         );
         return isset( $map[ $key ] ) ? $map[ $key ] : '';
 }

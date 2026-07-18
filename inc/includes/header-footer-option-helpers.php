@@ -74,13 +74,56 @@ function unysonplus_hf_choices() {
 		? unysonplus_builder_post_choices()
 		: array( '' => __( '— Select a layout —', 'unysonplus' ) );
 
+	// Published Snippets (the plugin's `snippet` post type), for the Snippet element.
+	// Empty (just the placeholder) when the Snippets extension is inactive.
+	$snippet = array( '' => __( '— Select a snippet —', 'unysonplus' ) );
+	if ( function_exists( 'fw_ext_snippets_render' ) && post_type_exists( 'snippet' ) ) {
+		foreach ( get_posts( array(
+			'post_type'        => 'snippet',
+			'post_status'      => 'publish',
+			'numberposts'      => -1,
+			'orderby'          => 'title',
+			'order'            => 'ASC',
+			'suppress_filters' => false,
+		) ) as $sp ) {
+			$snippet[ $sp->ID ] = ( $sp->post_title !== '' )
+				? $sp->post_title
+				/* translators: %d: snippet post ID */
+				: sprintf( __( 'Snippet #%d', 'unysonplus' ), $sp->ID );
+		}
+	}
+
 	$cache = array(
 		'sidebar'       => $sidebar,
 		'menu'          => $menu,
 		'menu_location' => $menu_location,
 		'builder'       => $builder,
+		'snippet'       => $snippet,
 	);
 	return $cache;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_snippet_options' ) ) :
+/**
+ * Leaf options for the Snippet element, shared by the header + footer element popups
+ * (so the two stay in sync). Renders a Snippet (page-builder content) anywhere an
+ * element can go — a header column, a footer column, or the off-canvas drawer — which
+ * is how shortcodes / bespoke markup get into the chrome.
+ *
+ * @return array
+ */
+function unysonplus_hf_snippet_options() {
+	$ch = unysonplus_hf_choices();
+	return array(
+		'snippet_id' => array(
+			'label'   => __( 'Snippet', 'unysonplus' ),
+			'type'    => 'select',
+			'value'   => '',
+			'choices' => $ch['snippet'],
+			'desc'    => __( 'Render a published Snippet here — build it with the page builder (Snippets &rarr; Add New) and it can hold any shortcode or custom markup.', 'unysonplus' ),
+		),
+	);
 }
 endif;
 
@@ -254,6 +297,7 @@ function unysonplus_footer_element_popup() {
 						'widget_area'     => __( 'Widget Area', 'unysonplus' ),
 						'back_to_top'     => __( 'Back to Top', 'unysonplus' ),
 						'builder_section' => __( 'Builder Section', 'unysonplus' ),
+						'snippet'         => __( 'Snippet', 'unysonplus' ),
 					),
 					'desc'    => __( 'Select footer element.', 'unysonplus' ),
 				),
@@ -371,6 +415,7 @@ function unysonplus_footer_element_popup() {
 						'desc'    => __( 'Render a page-builder layout inside this footer column — for bespoke designs the standard elements can\'t express.', 'unysonplus' ),
 					),
 				),
+				'snippet' => unysonplus_hf_snippet_options(),
 			),
 			'show_borders' => false,
 		),
@@ -427,6 +472,7 @@ function unysonplus_header_element_popup() {
 						'text'            => __( 'Text', 'unysonplus' ),
 						'widget_area'     => __( 'Widget Area', 'unysonplus' ),
 						'builder_section' => __( 'Builder Section', 'unysonplus' ),
+						'snippet'         => __( 'Snippet', 'unysonplus' ),
 						'spacer'          => __( 'Spacer', 'unysonplus' ),
 						'divider'         => __( 'Divider', 'unysonplus' ),
 					),
@@ -523,6 +569,7 @@ function unysonplus_header_element_popup() {
 						'desc'    => __( 'Render a page-builder layout inside this slot — for bespoke header designs the standard elements can\'t express.', 'unysonplus' ),
 					),
 				),
+				'snippet' => unysonplus_hf_snippet_options(),
 			),
 			'show_borders' => false,
 		),
@@ -1182,7 +1229,7 @@ function unysonplus_hf_custom_styling( $prefix ) {
 						),
 						$prefix . '_typography' => array(
 							'label' => __( 'Text', 'unysonplus' ),
-							'type'  => 'typography-v2',
+							'type'  => 'typography',
 							'desc'  => __( 'Font family, size, weight, line-height, letter-spacing and color for this whole bar/section\'s text.', 'unysonplus' )
 								. ( $is_header ? __( ' (The nav menu\'s own link typography is styled under Header → Menu.)', 'unysonplus' ) : '' ),
 						),

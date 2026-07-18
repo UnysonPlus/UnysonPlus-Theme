@@ -73,6 +73,15 @@ builder doc).
   - **Menu** — `header-menu.php` (`header_menu`: link color, hover/active color, link padding X/Y,
     dropdown bg → the `--menu-*` tokens; folded into the generated stylesheet by theme-vars, falling
     back to style.css defaults).
+    - **Menu-item sub-labels (from the Description field).** A top-level header-menu item's WP
+      **Description** (Appearance → Menus → item → Description; enable it via *Screen Options*) is
+      rendered as a small sub-label under the link text — e.g. `Home` / "Start Here". Implemented in
+      **`inc/menus.php`** as `unysonplus_nav_menu_item_sublabel()` (a `nav_menu_item_title` filter):
+      it wraps the title in `.menu-label` and appends `<small class="menu-sublabel">`. Only fires for
+      top-level items (`$depth === 0`) of the header nav locations — default `primary` + `secondary`,
+      filterable via **`unysonplus_menu_sublabel_locations`** — and only when a Description is set, so
+      existing menus are untouched. Base styling (stack + small/muted) lives in
+      `assets/css/header-footer-builder.css` (`.menu-sublabel`); child themes just re-colour it.
   - **Top Bar** — `header-topbar.php` (`header_topbar`: bg/text + left/center/right columns).
   - **Main Header** — `header-main.php` (`header_main`: left/center/right columns; logo + primary
     menu defaults).

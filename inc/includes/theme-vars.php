@@ -185,6 +185,20 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			'--menu-dropdown-width'        => '220px',
 			'--menu-dropdown-radius'       => 'var(--radius)',
 
+			/* Mega Menu panel (Header → Mega Menu). Consumed by the extension's
+			   baseline stylesheet; these mirror its hard-coded fallbacks so the
+			   look is identical whether or not the theme emits them. */
+			'--mm-panel-bg'        => '#ffffff',
+			'--mm-panel-border'    => '1px solid rgba(0, 0, 0, 0.08)',
+			'--mm-panel-shadow'    => '0 8px 24px rgba(0, 0, 0, 0.12)',
+			'--mm-panel-radius'    => '0',
+			'--mm-panel-pad'       => '16px',
+			'--mm-panel-min-width' => '240px',
+			'--mm-col-gap'         => '24px',
+			'--mm-col-min'         => '170px',
+			'--mm-col-divider'     => '0 solid transparent',
+			'--mm-col-divider-pad' => '0',
+
 			'--site-max-width'    => '1320px',
 
 			/* General → Layout defaults (Phase 2-4) */
@@ -636,6 +650,12 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			if ( $mpy !== '' ) { $out['--menu-link-pad-y'] = $mpy; }
 			$mfs = unysonplus_css_length( isset( $menu['menu_link_font_size'] ) ? $menu['menu_link_font_size'] : '' );
 			if ( $mfs !== '' ) { $out['--menu-link-font-size'] = $mfs; }
+			// Menu Font Family (typography-v2, family only). Empty = inherit the body font.
+			// Composed with the same system-sans fallback stack the Typography tokens use.
+			$mff = isset( $menu['menu_font']['family'] ) ? trim( (string) $menu['menu_font']['family'] ) : '';
+			if ( $mff !== '' ) {
+				$out['--menu-font-family'] = "'" . $mff . "', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif";
+			}
 
 			// Dropdown / submenu.
 			$mdd = unysonplus_preset_color_to_css( isset( $menu['menu_dropdown_bg'] ) ? $menu['menu_dropdown_bg'] : '' );
@@ -650,6 +670,127 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			if ( $mdw !== '' ) { $out['--menu-dropdown-width'] = $mdw; }
 			$mdr = unysonplus_css_length( isset( $menu['menu_dropdown_radius'] ) ? $menu['menu_dropdown_radius'] : '' );
 			if ( $mdr !== '' ) { $out['--menu-dropdown-radius'] = $mdr; }
+		}
+
+		// Header → Mega Menu (Panel). Only meaningful when the extension is active,
+		// but reading the stored group is harmless either way. Folds into the --mm-*
+		// tokens consumed by the extension's baseline stylesheet.
+		$mega = fw_get_db_settings_option( 'mega_menu', array() );
+		if ( is_array( $mega ) ) {
+			// Panel design → shadow + border (+ inset top accent for 'top-accent').
+			$mm_designs = array(
+				'classic'    => array( '0 8px 24px rgba(0, 0, 0, 0.12)',  '1px solid rgba(0, 0, 0, 0.08)' ),
+				'elevated'   => array( '0 18px 50px rgba(0, 0, 0, 0.22)', '1px solid rgba(0, 0, 0, 0.04)' ),
+				'bordered'   => array( 'none',                            '1px solid rgba(0, 0, 0, 0.14)' ),
+				'minimal'    => array( 'none',                            '0 solid transparent' ),
+				'top-accent' => array( '0 10px 30px rgba(0, 0, 0, 0.12), inset 0 3px 0 0 var(--color-primary)', '1px solid rgba(0, 0, 0, 0.06)' ),
+			);
+			$mm_design = isset( $mega['mm_panel_design'] ) ? (string) $mega['mm_panel_design'] : 'classic';
+			if ( isset( $mm_designs[ $mm_design ] ) && $mm_design !== 'classic' ) {
+				$out['--mm-panel-shadow'] = $mm_designs[ $mm_design ][0];
+				$out['--mm-panel-border'] = $mm_designs[ $mm_design ][1];
+			}
+
+			$mpbg = unysonplus_preset_color_to_css( isset( $mega['mm_panel_bg'] ) ? $mega['mm_panel_bg'] : '' );
+			if ( $mpbg !== '' ) { $out['--mm-panel-bg'] = $mpbg; }
+			$mpr = unysonplus_css_length( isset( $mega['mm_panel_radius'] ) ? $mega['mm_panel_radius'] : '' );
+			if ( $mpr !== '' ) { $out['--mm-panel-radius'] = $mpr; }
+			$mpp = unysonplus_css_length( isset( $mega['mm_panel_padding'] ) ? $mega['mm_panel_padding'] : '' );
+			if ( $mpp !== '' ) { $out['--mm-panel-pad'] = $mpp; }
+			$mpfs = unysonplus_css_length( isset( $mega['mm_panel_font_size'] ) ? $mega['mm_panel_font_size'] : '' );
+			if ( $mpfs !== '' ) { $out['--mm-panel-font-size'] = $mpfs; }
+			$mpmw = unysonplus_css_length( isset( $mega['mm_panel_max_width'] ) ? $mega['mm_panel_max_width'] : '' );
+			if ( $mpmw !== '' ) { $out['--mm-panel-max-width'] = $mpmw; }
+
+			// Boxed full-width: the panel becomes a centered card with side margins.
+			if ( isset( $mega['mm_full_style'] ) && $mega['mm_full_style'] === 'boxed' ) {
+				$out['--mm-full-max']   = ( $mpmw !== '' ) ? $mpmw : '1400px';
+				$out['--mm-full-mx']    = 'auto';
+				$out['--mm-full-inset'] = '16px';
+				$out['--mm-full-pad']   = 'var(--mm-panel-pad, 22px)';
+			}
+			$mcg = unysonplus_css_length( isset( $mega['mm_col_gap'] ) ? $mega['mm_col_gap'] : '' );
+			if ( $mcg !== '' ) { $out['--mm-col-gap'] = $mcg; }
+
+			// Column dividers switch → a hairline + a half-gap inset so text clears the line.
+			if ( ! empty( $mega['mm_col_dividers'] ) ) {
+				$out['--mm-col-divider']     = '1px solid rgba(0, 0, 0, 0.10)';
+				$out['--mm-col-divider-pad'] = 'calc(var(--mm-col-gap) / 2)';
+			}
+
+			// Column headings — style treatment (border / transform) + color/size/weight.
+			switch ( isset( $mega['mm_heading_style'] ) ? (string) $mega['mm_heading_style'] : 'none' ) {
+				case 'underline':
+					$out['--mm-heading-border']      = '1px solid rgba(0, 0, 0, 0.12)';
+					$out['--mm-heading-pad-bottom']  = '6px';
+					break;
+				case 'accent':
+					$out['--mm-heading-border']      = '2px solid var(--color-primary)';
+					$out['--mm-heading-pad-bottom']  = '6px';
+					break;
+				case 'uppercase':
+					$out['--mm-heading-transform']   = 'uppercase';
+					$out['--mm-heading-spacing']     = '0.05em';
+					break;
+			}
+			$mhc = unysonplus_preset_color_to_css( isset( $mega['mm_heading_color'] ) ? $mega['mm_heading_color'] : '' );
+			if ( $mhc !== '' ) { $out['--mm-heading-color'] = $mhc; }
+			$mhs = unysonplus_css_length( isset( $mega['mm_heading_size'] ) ? $mega['mm_heading_size'] : '' );
+			if ( $mhs !== '' ) { $out['--mm-heading-size'] = $mhs; }
+			$mhw = isset( $mega['mm_heading_weight'] ) ? trim( (string) $mega['mm_heading_weight'] ) : '';
+			if ( $mhw !== '' ) { $out['--mm-heading-weight'] = $mhw; }
+
+			// Dropdown items — colors / size / spacing / description / icon.
+			$mic = unysonplus_preset_color_to_css( isset( $mega['mm_item_color'] ) ? $mega['mm_item_color'] : '' );
+			if ( $mic !== '' ) { $out['--mm-item-color'] = $mic; }
+			$mihc = unysonplus_preset_color_to_css( isset( $mega['mm_item_hover_color'] ) ? $mega['mm_item_hover_color'] : '' );
+			if ( $mihc !== '' ) { $out['--mm-item-hover-color'] = $mihc; }
+			$mis = unysonplus_css_length( isset( $mega['mm_item_size'] ) ? $mega['mm_item_size'] : '' );
+			if ( $mis !== '' ) { $out['--mm-item-size'] = $mis; }
+			$mig = unysonplus_css_length( isset( $mega['mm_item_gap'] ) ? $mega['mm_item_gap'] : '' );
+			if ( $mig !== '' ) { $out['--mm-item-gap'] = $mig; }
+			$mdc = unysonplus_preset_color_to_css( isset( $mega['mm_desc_color'] ) ? $mega['mm_desc_color'] : '' );
+			if ( $mdc !== '' ) { $out['--mm-desc-color'] = $mdc; }
+			$mds = unysonplus_css_length( isset( $mega['mm_desc_size'] ) ? $mega['mm_desc_size'] : '' );
+			if ( $mds !== '' ) { $out['--mm-desc-size'] = $mds; }
+			$mics = unysonplus_css_length( isset( $mega['mm_icon_size'] ) ? $mega['mm_icon_size'] : '' );
+			if ( $mics !== '' ) { $out['--mm-icon-size'] = $mics; }
+			$micc = unysonplus_preset_color_to_css( isset( $mega['mm_icon_color'] ) ? $mega['mm_icon_color'] : '' );
+			if ( $micc !== '' ) { $out['--mm-icon-color'] = $micc; }
+
+			// Animation — closed-state transform per style (open state resets to none).
+			$mm_anim_transforms = array(
+				'fade'       => 'none',
+				'slide-down' => 'translateY(-8px)',
+				'slide-up'   => 'translateY(8px)',
+				'zoom'       => 'scale(0.96)',
+				'none'       => 'none',
+			);
+			$mm_anim = isset( $mega['mm_animation'] ) ? (string) $mega['mm_animation'] : '';
+			if ( isset( $mm_anim_transforms[ $mm_anim ] ) ) {
+				$out['--mm-anim-transform'] = $mm_anim_transforms[ $mm_anim ];
+				// 'none' should also kill the timing so it's truly instant.
+				if ( $mm_anim === 'none' ) { $out['--mm-anim-duration'] = '0s'; }
+			}
+			$mas = unysonplus_css_length( isset( $mega['mm_anim_speed'] ) ? $mega['mm_anim_speed'] : '' );
+			if ( $mas !== '' ) { $out['--mm-anim-duration'] = $mas; }
+			// Hover open delay (Hover mode only).
+			$mhd = unysonplus_css_length( isset( $mega['mm_hover_delay'] ) ? $mega['mm_hover_delay'] : '' );
+			if ( $mhd !== '' && ( ! isset( $mega['mm_open_on'] ) || $mega['mm_open_on'] === 'hover' ) ) {
+				$out['--mm-open-delay'] = $mhd;
+			}
+
+			// Responsive (≤782px) — applied via vars inside the extension's mobile
+			// media query. Two-up switches to a wrapping grid; the toggles hide bits.
+			if ( isset( $mega['mm_mobile_columns'] ) && $mega['mm_mobile_columns'] === '2' ) {
+				$out['--mm-mobile-dir']       = 'row';
+				$out['--mm-mobile-col-basis'] = 'calc(50% - 4px)';
+				$out['--mm-mobile-col-max']   = 'calc(50% - 4px)';
+			}
+			$mmg = unysonplus_css_length( isset( $mega['mm_mobile_gap'] ) ? $mega['mm_mobile_gap'] : '' );
+			if ( $mmg !== '' ) { $out['--mm-mobile-gap'] = $mmg; }
+			if ( ! empty( $mega['mm_mobile_hide_desc'] ) )  { $out['--mm-mobile-desc-display'] = 'none'; }
+			if ( ! empty( $mega['mm_mobile_hide_icons'] ) ) { $out['--mm-mobile-icon-display'] = 'none'; }
 		}
 
 		// Social icon style (Social tab → social_style). Size/gap → lengths; colors →

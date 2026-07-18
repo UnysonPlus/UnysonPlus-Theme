@@ -223,6 +223,12 @@ function unysonplus_render_footer_element( $element ) {
                         }
                         break;
 
+                case 'snippet':
+                        if ( function_exists( 'unysonplus_render_hf_snippet' ) ) {
+                                unysonplus_render_hf_snippet( $settings );
+                        }
+                        break;
+
                 default:
                         // Addon-registered element types (see the unysonplus_hf_elements filter).
                         do_action( 'unysonplus_render_hf_element_' . $type, $settings, $element, 'footer' );
@@ -316,6 +322,14 @@ function unysonplus_extract_footer_columns_data( $section_data, $prefix ) {
         } elseif ( $count > 1 && $layout_key !== '' ) {
                 $classes = unysonplus_get_footer_col_classes( $layout_key ); // legacy ratio
         } else {
+                $classes = unysonplus_footer_widths_to_grid( array_fill( 0, $count, 100 / $count ), $count );
+        }
+
+        // Defensive: the resolved classes MUST match the column count. An unknown / legacy /
+        // mismatched layout key returns a single 'fw-col-md-12' (see unysonplus_get_footer_col_classes),
+        // which would leave the remaining columns class-less and silently break the grid. When the
+        // count doesn't line up, fall back to equal columns so the grid always renders.
+        if ( ! is_array( $classes ) || count( $classes ) !== $count ) {
                 $classes = unysonplus_footer_widths_to_grid( array_fill( 0, $count, 100 / $count ), $count );
         }
 

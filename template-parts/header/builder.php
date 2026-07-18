@@ -31,7 +31,7 @@ $d = $args;
 	<div id="primary-navigation-drawer" class="<?php echo esc_attr( $drawer_cls ); ?>" hidden aria-hidden="true">
 		<div class="primary-navigation-drawer__scrim" data-drawer-close></div>
 		<div class="primary-navigation-drawer__panel" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Site menu', 'unysonplus' ); ?>">
-			<button type="button" class="primary-navigation-drawer__close" data-drawer-close aria-label="<?php esc_attr_e( 'Close menu', 'unysonplus' ); ?>">&times;</button>
+			<?php unysonplus_render_drawer_close(); ?>
 			<?php
 			// The visible bar (logo + [menu_toggle]) is builder-authored; the drawer
 			// shows the primary menu so a [menu_toggle] works out of the box.

@@ -351,6 +351,37 @@ $options = [
 						],
 					],
 
+					/* --- Off-Canvas / drawer panel ---
+					   The slide-in panel is SHARED: it is the whole menu in Off-Canvas mode
+					   and the mobile drawer in every other mode, so these two options serve
+					   both. Content uses the same element list as a header column (Menu,
+					   Snippet, CTA Button, Social Icons, Custom HTML, …) — empty keeps the
+					   historical default (the Off-Canvas menu), so existing sites don't
+					   change. Rendered by unysonplus_render_drawer_content() /
+					   unysonplus_render_menu_toggle() in inc/includes/header-builder.php. */
+					'offcanvas_content' => array_merge(
+						unysonplus_header_column( __( 'Off-Canvas Content', 'unysonplus' ), [] ),
+						[
+							'desc' => __( 'What the off-canvas / mobile drawer panel shows. Add any header element — <b>Menu</b>, <b>Snippet</b> (any shortcode / custom markup), CTA Button, Social Icons, Custom HTML — and order them freely. <b>Leave empty for the default</b>: the Off-Canvas menu (falling back to Primary).', 'unysonplus' ),
+						]
+					),
+					/* Trigger + Close icons on one inline row (multi-inline). Open = the
+					   toggle button that reveals the panel; Close = the X inside it.
+					   Saved shape: [ 'open' => <icon>, 'close' => <icon> ] — a legacy
+					   scalar (the old single icon-v2 value) is still honored as 'open'
+					   by unysonplus_render_menu_toggle(). Empty 'open' → hamburger bars;
+					   empty 'close' → the classic &times;. */
+					'offcanvas_trigger_icon' => [
+						'label' => __( 'Trigger & Close Icons', 'unysonplus' ),
+						'type'  => 'multi-inline',
+						'value' => [ 'open' => '', 'close' => '' ],
+						'desc'  => __( '<b>Open</b> = the button that reveals the off-canvas / mobile drawer panel (default: hamburger bars). <b>Close</b> = the button inside the open panel (default: &times;). Both apply in every header mode. Leave either empty for its default.', 'unysonplus' ),
+						'fw_multi_options' => [
+							'open'  => [ 'type' => 'icon-v2', 'title' => __( 'Open', 'unysonplus' ) ],
+							'close' => [ 'type' => 'icon-v2', 'title' => __( 'Close', 'unysonplus' ) ],
+						],
+					],
+
 					/* --- Structure & dimensions --- */
 					'container' => [
 						'label'   => __( 'Container', 'unysonplus' ),

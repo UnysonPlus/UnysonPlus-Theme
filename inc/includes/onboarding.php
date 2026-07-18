@@ -158,13 +158,14 @@ endif;
  * dismisses it. Per-user (user meta), so each admin sees it once.
  * ---------------------------------------------------------------------- */
 
-if ( ! function_exists( 'unysonplus_onboarding_flag_on_activation' ) ) :
-	/** On theme activation, clear the dismissed flag so the notice re-greets. */
-	function unysonplus_onboarding_flag_on_activation() {
-		delete_metadata( 'user', 0, 'unysonplus_onboarding_dismissed', '', true );
-	}
-	add_action( 'after_switch_theme', 'unysonplus_onboarding_flag_on_activation' );
-endif;
+/*
+ * NOTE: dismissal is PERMANENT (per user). We deliberately do NOT clear the
+ * dismissed flag on `after_switch_theme` — re-greeting someone who already
+ * dismissed the notice is exactly the "it keeps coming back" bug. The flag is
+ * per-user meta, so a brand-new admin who never dismissed still gets greeted on
+ * their first admin page; a user who dismissed stays dismissed, even across
+ * theme re-activations.
+ */
 
 if ( ! function_exists( 'unysonplus_onboarding_notice' ) ) :
 	/** The dismissible welcome notice. */
@@ -176,8 +177,9 @@ if ( ! function_exists( 'unysonplus_onboarding_notice' ) ) :
 
 		$page_url    = admin_url( 'themes.php?page=unysonplus-getting-started' );
 		$dismiss_url = wp_nonce_url( add_query_arg( 'unysonplus_dismiss_onboarding', '1' ), 'unysonplus_dismiss_onboarding' );
+		$ajax_nonce  = wp_create_nonce( 'unysonplus_dismiss_onboarding_ajax' );
 		?>
-		<div class="notice notice-info is-dismissible">
+		<div class="notice notice-info is-dismissible" data-unysonplus-onboarding-notice>
 			<p>
 				<strong><?php esc_html_e( 'UnysonPlus theme', 'unysonplus' ); ?>:</strong>
 				<?php esc_html_e( 'Welcome! A short setup checklist will help your new site look complete.', 'unysonplus' ); ?>
@@ -185,13 +187,29 @@ if ( ! function_exists( 'unysonplus_onboarding_notice' ) ) :
 				<a href="<?php echo esc_url( $dismiss_url ); ?>" style="margin-left:.5rem"><?php esc_html_e( 'Dismiss', 'unysonplus' ); ?></a>
 			</p>
 		</div>
+		<script>
+		/* Persist the NATIVE "x" too: WP's dismissible-notice button is pure JS with
+		   no server round-trip, so without this it would reappear on the next load.
+		   Delegated click (the .notice-dismiss button is injected by WP after render). */
+		( function () {
+			var n = document.querySelector( '[data-unysonplus-onboarding-notice]' );
+			if ( ! n ) { return; }
+			n.addEventListener( 'click', function ( e ) {
+				if ( ! e.target.closest( '.notice-dismiss' ) ) { return; }
+				var body = new FormData();
+				body.append( 'action', 'unysonplus_dismiss_onboarding' );
+				body.append( 'nonce', <?php echo wp_json_encode( $ajax_nonce ); ?> );
+				window.fetch( window.ajaxurl, { method: 'POST', credentials: 'same-origin', body: body } );
+			} );
+		} )();
+		</script>
 		<?php
 	}
 	add_action( 'admin_notices', 'unysonplus_onboarding_notice' );
 endif;
 
 if ( ! function_exists( 'unysonplus_onboarding_handle_dismiss' ) ) :
-	/** Persist the dismissal (also fired by the native "x" via no-op reload). */
+	/** Persist the dismissal from the custom "Dismiss" link (no-JS path). */
 	function unysonplus_onboarding_handle_dismiss() {
 		if ( empty( $_GET['unysonplus_dismiss_onboarding'] ) ) { return; }
 		if ( ! current_user_can( 'edit_theme_options' ) ) { return; }
@@ -201,4 +219,15 @@ if ( ! function_exists( 'unysonplus_onboarding_handle_dismiss' ) ) :
 		exit;
 	}
 	add_action( 'admin_init', 'unysonplus_onboarding_handle_dismiss' );
+endif;
+
+if ( ! function_exists( 'unysonplus_onboarding_ajax_dismiss' ) ) :
+	/** Persist the dismissal from the native "x" (AJAX path). */
+	function unysonplus_onboarding_ajax_dismiss() {
+		if ( ! current_user_can( 'edit_theme_options' ) ) { wp_die( -1, 403 ); }
+		check_ajax_referer( 'unysonplus_dismiss_onboarding_ajax', 'nonce' );
+		update_user_meta( get_current_user_id(), 'unysonplus_onboarding_dismissed', 1 );
+		wp_send_json_success();
+	}
+	add_action( 'wp_ajax_unysonplus_dismiss_onboarding', 'unysonplus_onboarding_ajax_dismiss' );
 endif;

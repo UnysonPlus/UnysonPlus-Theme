@@ -131,9 +131,13 @@ function unysonplus_hf_typography_css( $typo ) {
 		}
 		if ( $fam !== '' ) { $d[] = 'font-family:' . $fam; }
 	}
-	// Size: keep decimals + allow an explicit unit (e.g. "1.2rem"); a bare number is px.
+	// Size is now a unit-input ({value,unit}); unysonplus_css_length resolves that, a JSON
+	// string, a legacy bare number (+px) and an already-typed length ("1.2rem").
 	if ( isset( $typo['size'] ) && $typo['size'] !== '' && $typo['size'] !== false ) {
-		$d[] = 'font-size:' . ( is_numeric( $typo['size'] ) ? ( $typo['size'] + 0 ) . 'px' : unysonplus_hf_css_val( $typo['size'] ) );
+		$size_css = function_exists( 'unysonplus_css_length' )
+			? unysonplus_css_length( $typo['size'] )
+			: ( is_numeric( $typo['size'] ) ? ( $typo['size'] + 0 ) . 'px' : unysonplus_hf_css_val( $typo['size'] ) );
+		if ( $size_css !== '' ) { $d[] = 'font-size:' . $size_css; }
 	}
 	// Weight / style — prefer the Google-font `variation` (e.g. 700 / 700italic), then
 	// the standard-font style + weight fields. (Previously `variation` was ignored, so a

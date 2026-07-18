@@ -94,3 +94,35 @@ $options = [
 		]
 	]
 ];
+
+/**
+ * Mega Menu sub-tab — inserted directly after the "Menu" sub-tab, but ONLY when
+ * the Mega Menu extension is active (its options are meaningless otherwise).
+ * Backed by the header-mega-menu.php leaf (storage key `mega_menu`).
+ */
+if ( function_exists( 'fw_ext' ) && fw_ext( 'megamenu' ) ) {
+	$mega_tab = [
+		'title'   => __( 'Mega Menu', 'unysonplus' ),
+		'type'    => 'tab',
+		'options' => [
+			'header_mega_menu_box' => [
+				'title'   => __( 'Mega Menu', 'unysonplus' ),
+				'type'    => 'box',
+				'options' => [
+					fw()->theme->get_options( 'header-mega-menu' ),
+				],
+			],
+		],
+	];
+
+	// Splice it in right after 'tab_menu' so it sits next to the Menu sub-tab.
+	$header_opts = $options['header_settings_container']['options']['header']['options'];
+	$rebuilt     = [];
+	foreach ( $header_opts as $key => $val ) {
+		$rebuilt[ $key ] = $val;
+		if ( $key === 'tab_menu' ) {
+			$rebuilt['tab_mega_menu'] = $mega_tab;
+		}
+	}
+	$options['header_settings_container']['options']['header']['options'] = $rebuilt;
+}

@@ -146,7 +146,14 @@ if ( ! function_exists( 'unysonplus_typography_to_vars' ) ) :
 			$out[ "--{$prefix}-font-family" ] = "'" . $font['family'] . "'";
 		}
 		if ( isset( $font['size'] ) && $font['size'] !== '' ) {
-			$out[ "--{$prefix}-font-size" ] = is_numeric( $font['size'] ) ? $font['size'] . 'px' : $font['size'];
+			// Size is now a unit-input ({value,unit}); unysonplus_css_length resolves that,
+			// a JSON string, a legacy bare number (+px) and an already-typed length string.
+			$size_css = function_exists( 'unysonplus_css_length' )
+				? unysonplus_css_length( $font['size'] )
+				: ( is_numeric( $font['size'] ) ? $font['size'] . 'px' : ( is_array( $font['size'] ) ? '' : (string) $font['size'] ) );
+			if ( $size_css !== '' ) {
+				$out[ "--{$prefix}-font-size" ] = $size_css;
+			}
 		}
 		if ( isset( $font['line-height'] ) && $font['line-height'] !== '' ) {
 			$out[ "--{$prefix}-line-height" ] = $font['line-height'];

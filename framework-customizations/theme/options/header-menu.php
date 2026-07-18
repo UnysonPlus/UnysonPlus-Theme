@@ -171,13 +171,14 @@ $options = [
 						],
 					],
 
-					/* Colors — palette presets (track Theme Settings → Colors). */
-					'menu_link_color'       => $color_field( __( 'Menu Link Color', 'unysonplus' ), __( 'Color of top-level menu links. Leave empty to use the body text color.', 'unysonplus' ), 'text' ),
-					'menu_link_hover_color' => $color_field( __( 'Menu Link Hover / Active Color', 'unysonplus' ), __( 'Color of menu links on hover and for the current page. Also the accent for the Underline / Bar styles. Leave empty to use the primary color.', 'unysonplus' ), 'text' ),
-					'menu_item_bg'          => $color_field( __( 'Item Background', 'unysonplus' ), __( 'Background of each top-level menu item in its normal (un-hovered) state. Leave empty for transparent.', 'unysonplus' ), 'bg' ),
-					'menu_item_hover_bg'    => $color_field( __( 'Item Hover / Active Background', 'unysonplus' ), __( 'Fill used by the Pill, Box and Highlight item styles on hover and for the current page. Leave empty for a subtle default tint.', 'unysonplus' ), 'bg' ),
-
 					/* Typography. */
+					'menu_font' => [
+						'label'      => __( 'Menu Font Family', 'unysonplus' ),
+						'desc'       => __( 'Font family for the top-level menu links. Leave empty to inherit the site Body Font (Theme Settings → General → Typography).', 'unysonplus' ),
+						'type'       => 'typography',
+						'value'      => [ 'family' => '' ],
+						'components' => [ 'family' => true, 'size' => false, 'line-height' => false, 'letter-spacing' => false, 'color' => false ],
+					],
 					'menu_link_font_size' => [
 						'label' => __( 'Menu Font Size', 'unysonplus' ),
 						'desc'  => __( 'Font size of the top-level menu links (e.g. 0.875rem or 15px). Leave empty for the theme default.', 'unysonplus' ),
@@ -186,6 +187,12 @@ $options = [
 						'value' => [ 'value' => '', 'unit' => 'rem' ],
 						'min'   => 0,
 					],
+
+					/* Colors — palette presets (track Theme Settings → Colors). */
+					'menu_link_color'       => $color_field( __( 'Menu Link Color', 'unysonplus' ), __( 'Color of top-level menu links. Leave empty to use the body text color.', 'unysonplus' ), 'text' ),
+					'menu_link_hover_color' => $color_field( __( 'Menu Link Hover / Active Color', 'unysonplus' ), __( 'Color of menu links on hover and for the current page. Also the accent for the Underline / Bar styles. Leave empty to use the primary color.', 'unysonplus' ), 'text' ),
+					'menu_item_bg'          => $color_field( __( 'Item Background', 'unysonplus' ), __( 'Background of each top-level menu item in its normal (un-hovered) state. Leave empty for transparent.', 'unysonplus' ), 'bg' ),
+					'menu_item_hover_bg'    => $color_field( __( 'Item Hover / Active Background', 'unysonplus' ), __( 'Fill used by the Pill, Box and Highlight item styles on hover and for the current page. Leave empty for a subtle default tint.', 'unysonplus' ), 'bg' ),
 
 					/* Spacing. */
 					'menu_link_padding_x' => [

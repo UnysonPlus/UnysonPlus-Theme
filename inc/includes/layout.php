@@ -745,6 +745,12 @@ function unysonplus_layout_body_classes( $classes ) {
 	if ( is_array( $base_opts ) ) {
 		$sb = isset( $base_opts['base_scrollbar_color'] ) ? unysonplus_preset_color_to_css( $base_opts['base_scrollbar_color'] ) : '';
 		if ( $sb !== '' ) { $classes[] = 'custom-scrollbar'; }
+
+		// General → Base: content-protection deterrents (opt-in). Each switch adds a
+		// body class that style.css (selection) / theme.js (context menu, copy) key off.
+		if ( ( isset( $base_opts['base_disable_text_selection'] ) ? $base_opts['base_disable_text_selection'] : 'no' ) === 'yes' ) { $classes[] = 'up-noselect'; }
+		if ( ( isset( $base_opts['base_disable_right_click'] )    ? $base_opts['base_disable_right_click']    : 'no' ) === 'yes' ) { $classes[] = 'up-nocontext'; }
+		if ( ( isset( $base_opts['base_disable_copy'] )           ? $base_opts['base_disable_copy']           : 'no' ) === 'yes' ) { $classes[] = 'up-nocopy'; }
 	}
 
 	// Resolved content width (only emits when not 'default').

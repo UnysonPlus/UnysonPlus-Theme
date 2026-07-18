@@ -102,3 +102,36 @@ jQuery(function ($) {
     return supported;
   }
 })();
+
+
+/*!
+ * Content protection (General → Base) — opt-in deterrents gated by body classes:
+ *   body.up-nocontext → block the right-click / long-press context menu
+ *   body.up-nocopy    → block copy / cut of page content
+ * (Disabling text selection itself is pure CSS via body.up-noselect.) Form fields
+ * stay usable so search / logins / comments still work. Deterrent only — content
+ * remains accessible via View Source / Reader mode / DevTools.
+ */
+(function () {
+  function ready(fn) {
+    if (document.readyState !== 'loading') { fn(); }
+    else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  ready(function () {
+    var body = document.body;
+    if (!body) { return; }
+    var inField = function (el) {
+      return !!(el && el.closest && el.closest('input, textarea, select, [contenteditable], [contenteditable="true"]'));
+    };
+    if (body.classList.contains('up-nocontext')) {
+      document.addEventListener('contextmenu', function (e) {
+        if (!inField(e.target)) { e.preventDefault(); }
+      });
+    }
+    if (body.classList.contains('up-nocopy')) {
+      var block = function (e) { if (!inField(e.target)) { e.preventDefault(); } };
+      document.addEventListener('copy', block);
+      document.addEventListener('cut', block);
+    }
+  });
+})();

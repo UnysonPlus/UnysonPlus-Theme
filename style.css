@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version:           2.3.82
+Version:           2.3.114
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -61,6 +61,7 @@ Tags:           bootstrap, unyson, custom-header, custom-menu, featured-images, 
 
 	--drawer-width:       min(360px, 85vw);
 	--drawer-bg:          #ffffff;
+	--drawer-color:       var(--color-text);
 	--drawer-z:           1050;
 	--scrim-bg:           rgba(0, 0, 0, 0.5);
 
@@ -130,9 +131,14 @@ a.btn:hover, a.btn:focus-visible { text-decoration: none; }
 	outline-offset: 2px;
 }
 
-/* Text selection (General → Base) — vars unset ⇒ browser default. */
-::selection { background-color: var(--selection-bg); color: var(--selection-color); }
-::-moz-selection { background-color: var(--selection-bg); color: var(--selection-color); }
+/* Text selection (General → Base) — vars unset ⇒ browser default.
+   The fallback MUST be the system selection colors: an unset custom property with
+   no fallback makes the whole declaration invalid, which resolves background-color
+   to `transparent` — i.e. an INVISIBLE selection, not the browser default. Falling
+   back to the `Highlight` / `HighlightText` system colors restores the real native
+   selection when no custom color is set. */
+::selection { background-color: var(--selection-bg, Highlight); color: var(--selection-color, HighlightText); }
+::-moz-selection { background-color: var(--selection-bg, Highlight); color: var(--selection-color, HighlightText); }
 
 /* Custom scrollbar (General → Base) — opt-in via body.custom-scrollbar so default
    scrollbars are untouched unless a Scrollbar Color is set. */
@@ -140,6 +146,25 @@ body.custom-scrollbar { scrollbar-color: var(--scrollbar-color) transparent; scr
 body.custom-scrollbar ::-webkit-scrollbar { width: var(--scrollbar-width, 10px); height: var(--scrollbar-width, 10px); }
 body.custom-scrollbar ::-webkit-scrollbar-track { background: transparent; }
 body.custom-scrollbar ::-webkit-scrollbar-thumb { background: var(--scrollbar-color); border-radius: 10px; }
+
+/* Content protection (General → Base) — opt-in deterrent. `body.up-noselect`
+   disables text selection site-wide EXCEPT in form fields, so search / logins /
+   comments stay usable. Right-click + copy blocking are handled in theme.js
+   (body.up-nocontext / body.up-nocopy). Deterrent only — content is still
+   accessible via View Source / Reader mode / DevTools. */
+body.up-noselect,
+body.up-noselect *:not(input):not(textarea):not(select):not([contenteditable]) {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+}
+body.up-noselect input,
+body.up-noselect textarea,
+body.up-noselect select,
+body.up-noselect [contenteditable] {
+	-webkit-user-select: text;
+	user-select: text;
+}
 
 /* Container Width (General → Layout → Container Width). Governs the site's BOXED
    content width — the page-builder grid's Fixed-Width container (.fw-container, used
@@ -884,6 +909,7 @@ body.transparent .site-header:not(.is-stuck) .has-transparent-logo .site-logo--t
 	padding: var(--menu-link-pad-y) var(--menu-link-pad-x);
 	color: var(--menu-link-color);
 	background-color: var(--menu-item-bg, transparent);
+	font-family: var(--menu-font-family, inherit);
 	font-size: var(--menu-link-font-size, inherit);
 	font-weight: 500;
 	border-radius: var(--radius);
@@ -1154,15 +1180,83 @@ body.dropdown-style-top-accent .site-header .primary-menu .sub-menu {
 	cursor: pointer;
 }
 
+/* Custom Open / Close icons (Theme Settings → Header → Layout → Trigger & Close
+   Icons). sc_icon_render() emits a font <i> (sized by font-size), an <svg>, or an
+   <img>; the width/height only bites the latter two, so a font glyph keeps its
+   font-size while an inline SVG / uploaded image is constrained to the glyph box.
+   --icon buttons drop the hamburger padding/gap so the icon centers cleanly. */
+.menu-toggle--icon {
+	padding: 0;
+	gap: 0;
+}
+.menu-toggle__icon {
+	font-size: 1.4rem;
+	line-height: 1;
+}
+.primary-navigation-drawer__close--icon {
+	font-size: 0; /* neutralize the &times; sizing; the icon carries its own */
+}
+.primary-navigation-drawer__close-icon {
+	font-size: 1.4rem;
+	line-height: 1;
+}
+.menu-toggle__icon:is( svg, img ),
+.primary-navigation-drawer__close-icon:is( svg, img ) {
+	width: 1.4rem;
+	height: 1.4rem;
+}
+
+/* The drawer reuses .primary-menu — the HORIZONTAL header nav — so every rule that
+   only makes sense in a bar (inline-flex links, wrapping, centred alignment) has to
+   be reset here, or the items shrink-to-fit and float centred with the row divider
+   spanning only the text. Force a plain full-width, left-aligned vertical list. */
 .primary-navigation-drawer .primary-menu {
 	flex-direction: column;
+	flex-wrap: nowrap;
+	align-items: stretch;
+	justify-content: flex-start;
 	gap: 0;
 	margin-top: 2.5rem;
+	width: 100%;
 }
+.primary-navigation-drawer .primary-menu .menu-item { width: 100%; }
 .primary-navigation-drawer .primary-menu .menu-item > a {
-	padding: 0.875rem 0.5rem;
+	display: flex;              /* base is inline-flex (shrink-to-fit) */
+	width: 100%;
+	align-items: center;
+	justify-content: flex-start;
+	text-align: left;
+	/* right padding leaves room for the absolutely-positioned .submenu-toggle */
+	padding: 0.875rem 3rem 0.875rem 0.5rem;
 	border-bottom: 1px solid var(--color-border);
 }
+/* Items with a Description sub-label stack label-over-sublabel, left-aligned
+   (the header-bar rule centres them, which reads wrong in a vertical drawer). */
+.primary-navigation-drawer .primary-menu .menu-item > a:has(.menu-sublabel) {
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+}
+
+/* Colour. The panel has its own background (--drawer-bg, light by default), but
+   --menu-link-color / --menu-link-hover come from Header → Menu and are picked to
+   sit on the HEADER BAR — often dark, or an image. Those rules are unscoped, so
+   without this the bar's palette bleeds into the drawer: a site with a dark header
+   gets white links on the white panel, and the ACTIVE item (which always takes
+   --menu-link-hover) disappears entirely. Re-anchor to the drawer's own colours. */
+.primary-navigation-drawer .primary-menu .menu-item > a {
+	color: var(--drawer-color, var(--color-text));
+	background-color: transparent;
+}
+.primary-navigation-drawer .primary-menu .menu-item > a:hover,
+.primary-navigation-drawer .primary-menu .menu-item > a:focus-visible,
+.primary-navigation-drawer .primary-menu .current-menu-item > a,
+.primary-navigation-drawer .primary-menu .current_page_item > a,
+.primary-navigation-drawer .primary-menu .current-menu-ancestor > a {
+	color: var(--color-primary);
+	background-color: transparent;
+}
+.primary-navigation-drawer .primary-menu .menu-sublabel { color: inherit; }
 .primary-navigation-drawer .primary-menu .menu-item-has-children > a::after { display: none; }
 .primary-navigation-drawer .primary-menu .submenu-toggle {
 	position: absolute;
@@ -1317,10 +1411,14 @@ body.nav-scrollspy section[id] {
 .footer--has-bg-image > * { position: relative; z-index: 1; }
 
 .footer .footer-section { padding-block: 1rem; }
-.footer .footer-section + .footer-section { border-top: 1px solid rgba(255, 255, 255, 0.08); }
-/* The copyright now follows the .footer__body wrapper (not a sibling .footer-section),
-   so restore the divider between the footer body and the copyright bar. */
-.footer .footer__body + .footer-section { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+/* Optional divider between footer sections (and between the footer body and the copyright bar,
+   which follows the .footer__body wrapper rather than being a sibling section). Routed through
+   --footer-section-divider and defaults to NO border, so footers are clean out of the box and
+   new child themes don't have to fight this rule's specificity to remove an unwanted line. A
+   site that wants section dividers opts in from its child theme, e.g.
+   `--footer-section-divider: 1px solid rgba(255,255,255,0.08);`. */
+.footer .footer-section + .footer-section,
+.footer .footer__body + .footer-section { border-top: var(--footer-section-divider, none); }
 
 .footer .widget-title {
 	color: var(--footer-link-color);
@@ -1342,6 +1440,20 @@ body.nav-scrollspy section[id] {
 .entry-header { margin-bottom: 1.5rem; }
 .entry-title  { margin-bottom: 0.5rem; }
 .entry-meta   { color: var(--color-muted); font-size: 0.875rem; }
+
+/* Per-page Title Icon (Page Settings → Page Title / Hero). Inline before the
+   heading text, brand colour, sized to the heading. Works for the <i> font/emoji
+   markup and for an uploaded <img>. */
+.entry-title__icon {
+	color: var(--color-primary);
+	margin-right: 0.4em;
+	font-size: 0.9em;
+	line-height: 1;
+	vertical-align: -0.05em;
+}
+.entry-title__icon.entry-title__icon,
+img.entry-title__icon { display: inline-block; }
+img.entry-title__icon { width: auto; height: 0.9em; vertical-align: -0.08em; }
 .entry-content { margin-bottom: 2rem; }
 .entry-content > * + * { margin-top: 1rem; }
 .entry-footer { padding-top: 1rem; border-top: 1px solid var(--color-border); color: var(--color-muted); font-size: 0.875rem; }
@@ -1758,6 +1870,7 @@ body.nav-scrollspy section[id] {
 	--menu-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 
 	--drawer-bg:          #1a1a1a;
+	--drawer-color:       #f1f1f1;
 	--scrim-bg:           rgba(0, 0, 0, 0.7);
 
 	/* Site container backgrounds (introduced in Phase 2; must flip in dark mode

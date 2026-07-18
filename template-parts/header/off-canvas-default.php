@@ -42,15 +42,7 @@ $d = $args;
 				<?php endif; ?>
 				<div class="header-col header-col--end">
 					<?php unysonplus_render_header_column( $d['main_right'], 'end' ); ?>
-					<button type="button"
-					        class="menu-toggle"
-					        aria-controls="primary-navigation-drawer"
-					        aria-expanded="false"
-					        aria-label="<?php esc_attr_e( 'Toggle navigation', 'unysonplus' ); ?>">
-						<span class="menu-toggle__bar"></span>
-						<span class="menu-toggle__bar"></span>
-						<span class="menu-toggle__bar"></span>
-					</button>
+					<?php unysonplus_render_menu_toggle(); ?>
 				</div>
 			</div>
 		</div>
@@ -75,7 +67,7 @@ $d = $args;
 <div id="primary-navigation-drawer" class="<?php echo esc_attr( $d['drawer_classes'] ); ?>" hidden aria-hidden="true">
 	<div class="primary-navigation-drawer__scrim" data-drawer-close></div>
 	<div class="primary-navigation-drawer__panel" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Site menu', 'unysonplus' ); ?>">
-		<button type="button" class="primary-navigation-drawer__close" data-drawer-close aria-label="<?php esc_attr_e( 'Close menu', 'unysonplus' ); ?>">&times;</button>
-		<?php unysonplus_drawer_nav_menu( 'off-canvas' ); // dedicated Off-Canvas menu, falls back to Primary ?>
+		<?php unysonplus_render_drawer_close(); ?>
+		<?php unysonplus_render_drawer_content( 'off-canvas' ); ?>
 	</div>
 </div>

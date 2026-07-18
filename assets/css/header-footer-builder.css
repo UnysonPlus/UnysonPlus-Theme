@@ -384,9 +384,71 @@
 .upw-nav-links > ul > li > .sub-menu .current-menu-item > a { background: rgba(20,22,26,.05); }
 
 /* Mega Menu (FW Mega Menu extension) — the extension positions the full-width
-   panel; the theme just makes it readable on its light surface. */
-.upw-header .mega-menu, .site-header .mega-menu { padding-top: 1.6rem; padding-bottom: 1.9rem; }
-.upw-header .mega-menu .mega-menu-col > a, .site-header .mega-menu .mega-menu-col > a { color: #1c1e22; font-weight: 700; font-size: .95rem; }
-.upw-header .mega-menu .mega-menu-col > .sub-menu a, .site-header .mega-menu .mega-menu-col > .sub-menu a { color: #5f6266; font-weight: 500; }
-.upw-header .mega-menu a:hover, .site-header .mega-menu a:hover { color: #1a8f74; }
+   panel; the theme just makes it readable on its light surface. These now consume
+   the Header → Mega Menu tokens (--mm-*), with the previous hardcoded values as
+   fallbacks so the look is identical until customized. NOTE: the theme's higher
+   specificity here is deliberate — it lets the settings win over the extension's
+   own baseline rules on this theme. */
+.upw-header .mega-menu, .site-header .mega-menu {
+	padding-top: var(--mm-panel-pad, 1.6rem);
+	padding-bottom: var(--mm-panel-pad, 1.9rem);
+}
+.upw-header .mega-menu .mega-menu-col > a, .site-header .mega-menu .mega-menu-col > a {
+	color: var(--mm-heading-color, #1c1e22);
+	font-weight: var(--mm-heading-weight, 700);
+	font-size: var(--mm-heading-size, .95rem);
+	text-transform: var(--mm-heading-transform, none);
+	letter-spacing: var(--mm-heading-spacing, normal);
+	padding-bottom: var(--mm-heading-pad-bottom, 0);
+	border-bottom: var(--mm-heading-border, 0 solid transparent);
+}
+.upw-header .mega-menu .mega-menu-col > .sub-menu a, .site-header .mega-menu .mega-menu-col > .sub-menu a {
+	color: var(--mm-item-color, #5f6266);
+	font-weight: 500;
+	font-size: var(--mm-item-size, inherit);
+}
+.upw-header .mega-menu .mega-menu-col > .sub-menu a:hover, .site-header .mega-menu .mega-menu-col > .sub-menu a:hover,
+.upw-header .mega-menu .mega-menu-col > .sub-menu .current-menu-item > a, .site-header .mega-menu .mega-menu-col > .sub-menu .current-menu-item > a {
+	color: var(--mm-item-hover-color, #1a8f74);
+}
+/* Keep the heading link's hover accent (headings are links too). */
+.upw-header .mega-menu .mega-menu-col > a:hover, .site-header .mega-menu .mega-menu-col > a:hover {
+	color: var(--mm-item-hover-color, #1a8f74);
+}
 .upw-header .mega-menu a::after, .site-header .mega-menu a::after { display: none; }
+.upw-header .mega-menu .mega-menu-col > .sub-menu > li + li, .site-header .mega-menu .mega-menu-col > .sub-menu > li + li { margin-top: var(--mm-item-gap, 0); }
+.upw-header .mega-menu .mega-menu-desc, .site-header .mega-menu .mega-menu-desc { font-size: var(--mm-desc-size, .85em); color: var(--mm-desc-color, inherit); opacity: .85; }
+
+/* -------------------------------------------------------------------------
+ * Menu item sub-labels (from the item Description field).
+ * Rendered by unysonplus_nav_menu_item_sublabel() for header nav locations.
+ * The sub-label stacks under the main label; only shows when a Description
+ * is set. Child themes can override the colour/size.
+ * ---------------------------------------------------------------------- */
+.upw-nav-links > ul > li > a:has(.menu-sublabel),
+.primary-menu > li > a:has(.menu-sublabel) {
+	display: inline-flex;
+	flex-direction: column;
+	justify-content: center;
+	line-height: 1.15;
+}
+.menu-sublabel {
+	display: block;
+	font-size: .72em;
+	font-weight: 400;
+	line-height: 1.1;
+	letter-spacing: 0;
+	text-transform: none;
+	opacity: .68;
+	margin-top: 2px;
+}
+
+/* Per-item menu icon (Appearance → Menus → item → Icon). Rendered INSIDE the
+   label span (filter priority 9) so it sits inline with the text and the
+   sub-label still stacks beneath — hence no flex-direction handling needed. */
+.menu-icon {
+	margin-right: .45em;
+	font-size: 1em;
+	line-height: 1;
+	vertical-align: -.05em;
+}

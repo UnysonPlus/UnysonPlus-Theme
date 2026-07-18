@@ -130,40 +130,25 @@ $options = [
 						'desc'  => __( 'Background behind all content (body). Background Pro: Color / Gradient / Image layers stack (color underneath, gradient over, image over). Video is not applied to the site-wide background.', 'unysonplus' ),
 						'type'  => 'background-pro',
 					],
-					'site_bg_pattern' => [
-						'label'   => __( 'Background Pattern Overlay', 'unysonplus' ),
-						'desc'    => __( 'Repeating pattern layered above the site background color/image. Pick a preset, or use "Custom" to upload your own tiling image.', 'unysonplus' ),
-						'type'    => 'background-image',
-						'value'   => 'none',
-						// background-image choices: each is { icon (preview), css }.
-						// The "Custom" upload tile is provided by the option type itself.
-						'choices' => ( function () use ( $pat ) {
-							$defs = [
-								'none'            => [ 'no_pattern.jpg', null ],
-								'dots'            => [ 'dots_pattern_preview.jpg', 'dots_pattern.png' ],
-								'vertical_lines'  => [ 'vertical_lines_pattern_preview.jpg', 'vertical_lines_pattern.png' ],
-								'noise'           => [ 'noise_pattern_preview.jpg', 'noise_pattern.png' ],
-								'romb'            => [ 'romb_pattern_preview.jpg', 'romb_pattern.png' ],
-								'square'          => [ 'square_pattern_preview.jpg', 'square_pattern.png' ],
-								'waves'           => [ 'waves_pattern_preview.jpg', 'waves_pattern.png' ],
-								'diagonal_top'    => [ 'diagonal_top_to_bottom_pattern_preview.jpg', 'diagonal_top_to_bottom_pattern.png' ],
-								'diagonal_bottom' => [ 'diagonal_bottom_to_top_pattern_preview.jpg', 'diagonal_bottom_to_top_pattern.png' ],
-							];
-							$out = [];
-							foreach ( $defs as $key => $files ) {
-								list( $preview, $full ) = $files;
-								$out[ $key ] = [
-									'icon' => $pat . '/' . $preview,
-									'css'  => ( null === $full )
-										? [ 'background-image' => 'none' ]
-										: [
-											'background-image'  => 'url("' . $pat . '/' . $full . '")',
-											'background-repeat' => 'repeat',
-										],
-								];
-							}
-							return $out;
-						} )(),
+					// Modern replacement for the retired tiling-PNG overlay: a reusable CSS/HTML pattern
+					// (Theme Settings → Components → Background Patterns) drawn as a fixed, full-page layer
+					// behind all content. The plugin's wp_footer render reads this same key. For a tiling
+					// IMAGE, use Site Background → Image above (background-pro supports a repeating image).
+					'site_background_pattern' => [
+						'type'    => 'multi-picker',
+						'label'   => __( 'Site Background Pattern', 'unysonplus' ),
+						'desc'    => __( 'A reusable CSS/HTML pattern drawn as a fixed, full-page background behind all content. Add / edit patterns in Theme Settings → Components → Background Patterns. For a tiling image instead, use Site Background → Image above.', 'unysonplus' ),
+						'popover' => true,
+						'value'   => [ 'pattern' => 'none' ],
+						'picker'  => [
+							'pattern' => [
+								'type'    => 'image-picker',
+								'label'   => false,
+								'choices' => function_exists( 'unysonplus_pattern_imagepicker_choices' ) ? unysonplus_pattern_imagepicker_choices() : [ 'none' => [ 'label' => __( 'None', 'unysonplus' ) ] ],
+							],
+						],
+						'choices'      => [],
+						'show_borders' => false,
 					],
 				],
 			],

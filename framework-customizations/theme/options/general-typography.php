@@ -16,13 +16,13 @@
 
 // A per-heading override (typography-v2). Family empty = inherit the Heading Font /
 // preset; size/line-height/etc. empty = keep the preset scale / theme default.
-$heading_override = function ( $label, $size ) {
+$heading_override = function ( $label, $size, $lh = 1.2, $ls = 0 ) {
 	return array(
 		'label' => $label,
-		'type'  => 'typography-v2',
+		'type'  => 'typography',
 		'value' => array(
 			'family' => '', 'variation' => 'regular',
-			'size' => $size, 'line-height' => 1.2, 'letter-spacing' => 0, 'color' => '',
+			'size' => $size, 'line-height' => $lh, 'letter-spacing' => $ls, 'color' => '',
 		),
 		'components' => array(
 			'family' => true, 'size' => true, 'line-height' => true, 'letter-spacing' => true, 'color' => true,
@@ -59,7 +59,7 @@ $options = array(
 			'heading_font' => array(
 				'label'      => __( 'Heading Font', 'unysonplus' ),
 				'desc'       => __( 'Font family for all headings (H1–H6). Leave empty to inherit the body font.', 'unysonplus' ),
-				'type'       => 'typography-v2',
+				'type'       => 'typography',
 				'value'      => array( 'family' => '' ),
 				'components' => array( 'family' => true, 'size' => false, 'line-height' => false, 'letter-spacing' => false, 'color' => false ),
 			),
@@ -67,7 +67,7 @@ $options = array(
 			'body' => array(
 				'label'      => __( 'Body Font & Text', 'unysonplus' ),
 				'desc'       => __( 'The main typography of the site content (paragraphs and lists) — family, size, line-height, colour.', 'unysonplus' ),
-				'type'       => 'typography-v2',
+				'type'       => 'typography',
 				'value'      => array(
 					'family' => 'Open Sans', 'variation' => 'regular',
 					'size' => 16, 'line-height' => 1.6, 'letter-spacing' => 0, 'color' => '',
@@ -101,12 +101,17 @@ $options = array(
 			   top of the Preset / Heading Font. Any empty field keeps the preset scale
 			   / theme default; family empty inherits the Heading Font. Kept FLAT (not
 			   in a box) so the `multi` container still stores each h1–h6 value. --- */
-			'h1' => $heading_override( __( 'H1 Heading (override)', 'unysonplus' ), 40 ),
-			'h2' => $heading_override( __( 'H2 Heading (override)', 'unysonplus' ), 32 ),
-			'h3' => $heading_override( __( 'H3 Heading (override)', 'unysonplus' ), 28 ),
-			'h4' => $heading_override( __( 'H4 Heading (override)', 'unysonplus' ), 24 ),
-			'h5' => $heading_override( __( 'H5 Heading (override)', 'unysonplus' ), 20 ),
-			'h6' => $heading_override( __( 'H6 Heading (override)', 'unysonplus' ), 16 ),
+			// Refined default type scale — smaller top, consistent taper, and
+			// progressively looser line-height as sizes shrink (tight 1.15 for the
+			// display h1 up to a comfortable 1.45 for h6). Slight negative tracking
+			// on the three largest headings for a tighter, more premium read. Empty
+			// fields keep the preset scale; these values are the no-preset baseline.
+			'h1' => $heading_override( __( 'H1 Heading (override)', 'unysonplus' ), 36, 1.15, -0.7 ),
+			'h2' => $heading_override( __( 'H2 Heading (override)', 'unysonplus' ), 28, 1.2,  -0.4 ),
+			'h3' => $heading_override( __( 'H3 Heading (override)', 'unysonplus' ), 24, 1.3,  -0.2 ),
+			'h4' => $heading_override( __( 'H4 Heading (override)', 'unysonplus' ), 20, 1.35, 0 ),
+			'h5' => $heading_override( __( 'H5 Heading (override)', 'unysonplus' ), 18, 1.4,  0 ),
+			'h6' => $heading_override( __( 'H6 Heading (override)', 'unysonplus' ), 16, 1.45, 0 ),
 		),
 	),
 );
