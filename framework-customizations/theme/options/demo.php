@@ -919,6 +919,12 @@ $options = [
 		'title'   => __( 'Date, Sliders &amp; Range', 'unysonplus' ),
 		'type'    => 'box',
 		'options' => [
+			'demo_date_picker'         => [
+				'label' => __( 'Date Picker', 'unysonplus' ),
+				'type'  => 'date-picker',
+				'value' => '',
+				'desc'  => __( 'A date-only picker (no time), powered by Air Datepicker. The input is editable — type a date or pick one. Saved value is a date string. Use the Date &amp; Time picker below when a time is also needed.', 'unysonplus' ),
+			],
 			'demo_datetime_range'            => [
 				'type'             => 'datetime-range',
 				'attr'             => [ 'class' => 'custom-class', 'data-foo' => 'bar' ],
@@ -946,11 +952,23 @@ $options = [
 					'to'   => ''
 				]
 			],
+			'demo_datetime_picker_12h'       => [
+				'type'            => 'datetime-picker',
+				'value'           => '',
+				'attr'            => [ 'class' => 'custom-class' ],
+				'label'           => __( 'Date & Time picker (12-hour)', 'unysonplus' ),
+				'desc'            => __( 'The same Date &amp; Time picker in 12-hour format with an AM/PM toggle. Enabled per-field via the format ("d-m-Y h:i A" instead of the 24-hour "d-m-Y H:i").', 'unysonplus' ),
+				'datetime-picker' => [
+					'format'     => 'd-m-Y h:i A',
+					'timepicker' => true,
+					'datepicker' => true,
+				],
+			],
 			'demo_datetime_picker'           => [
 				'type'            => 'datetime-picker',
 				'value'           => '',
 				'attr'            => [ 'class' => 'custom-class', 'data-foo' => 'bar' ],
-				'label'           => __( 'Date & Time picker', 'unysonplus' ),
+				'label'           => __( 'Date & Time picker (24-hour)', 'unysonplus' ),
 				'desc'            => __( 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
 					'unysonplus' ),
 				'help'            => sprintf( "%s \n\n'\"<br/><br/>\n\n <b>%s</b>",
@@ -970,6 +988,21 @@ $options = [
 					'datepicker'    => true,
 					'defaultTime'   => '12:00'
 				]
+			],
+			'demo_time_picker_12h'           => [
+				'type'  => 'time-picker',
+				'value' => '',
+				'label' => __( 'Time picker (12-hour)', 'unysonplus' ),
+				'desc'  => __( 'The time-only picker in 12-hour format with an AM/PM toggle (format "h:i A").', 'unysonplus' ),
+				'datetime-picker' => [
+					'format' => 'h:i A',
+				],
+			],
+			'demo_time_picker'               => [
+				'type'  => 'time-picker',
+				'value' => '',
+				'label' => __( 'Time picker (24-hour)', 'unysonplus' ),
+				'desc'  => __( 'A time-only picker (no date) — the thin "time-picker" option type (a datetime-picker locked to time-only). Saved value is a time string ("H:i"; set format "h:i A" for 12-hour AM/PM).', 'unysonplus' ),
 			],
 			'demo_slider' => [
 				'label' => __( 'Slider', 'unysonplus' ),
@@ -993,12 +1026,6 @@ $options = [
 					__( 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', 'unysonplus' ),
 					__( 'Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium', 'unysonplus' )
 				),
-			],
-			'demo_date_picker'         => [
-				'label' => __( 'Date Picker', 'unysonplus' ),
-				'type'  => 'date-picker',
-				'value' => '',
-				'desc'  => __( 'A date-only picker (no time) — the WordPress jQuery-UI datepicker. Saved value is a date string. Use the Date &amp; Time picker above when a time is also needed.', 'unysonplus' ),
 			],
 		],
 	],
