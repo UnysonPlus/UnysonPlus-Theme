@@ -610,6 +610,15 @@ endif;
 
 if ( ! function_exists( 'unysonplus_inject_preset_pickers' ) ) :
 function unysonplus_inject_preset_pickers( $options, $post_type ) {
+	// Only surface the per-content Header/Footer preset picker when the Header & Footer Builder
+	// extension is active — it OWNS the up_header / up_footer CPTs and provides the editor to
+	// actually build presets. This is the SAME flag the CPT registration keys off
+	// (UP_HFBUILDER_OWNS_CPTS, see inc/post-types.php). Without the builder the theme registers
+	// those CPTs only as a title-only fallback with no way to design a preset, so the picker would
+	// be a dead control (only the "Default" / global header+footer resolves anyway).
+	if ( ! defined( 'UP_HFBUILDER_OWNS_CPTS' ) ) {
+		return $options;
+	}
 	if ( in_array( $post_type, array( 'up_header', 'up_footer', 'attachment' ), true ) ) {
 		return $options;
 	}

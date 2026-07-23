@@ -731,6 +731,50 @@ function unysonplus_footer_fifth_ratio_field() {
 }
 endif;
 
+
+if ( ! function_exists( 'unysonplus_footer_justify_field' ) ) :
+/**
+ * Distribution control for Auto Width columns — an image-picker whose thumbnails
+ * diagram the flex `justify-content` each choice maps to (three blocks in a box,
+ * the first slightly darker to hint the "brand + link lists" case). Inline SVG
+ * data-URIs (no asset files), matching unysonplus_footer_fifth_ratio_field().
+ * Saved value is the same string key the select used ('between' etc.), so the
+ * render path (footer-builder.php → --fa-justify) is unchanged.
+ *
+ * @return array the `image-picker` option definition
+ */
+function unysonplus_footer_justify_field() {
+	// x-position of each of three 16px blocks inside a 104×40 box, per mode.
+	$modes = array(
+		'between' => array( 'label' => __( 'Space between (push to edges)', 'unysonplus' ), 'x' => array( 4, 44, 84 ) ),
+		'around'  => array( 'label' => __( 'Space around', 'unysonplus' ),                   'x' => array( 12, 44, 76 ) ),
+		'center'  => array( 'label' => __( 'Center', 'unysonplus' ),                         'x' => array( 24, 44, 64 ) ),
+		'start'   => array( 'label' => __( 'Start (left)', 'unysonplus' ),                   'x' => array( 4, 24, 44 ) ),
+		'end'     => array( 'label' => __( 'End (right)', 'unysonplus' ),                    'x' => array( 44, 64, 84 ) ),
+	);
+	$thumb = function ( $xs ) {
+		$w = 104; $h = 40; $bw = 16; $bh = 18; $by = 11;
+		$svg  = '<rect x="1.5" y="1.5" width="101" height="37" rx="5" fill="none" stroke="#cbd0d8" stroke-width="1.5"/>';
+		foreach ( $xs as $i => $x ) {
+			$fill = ( 0 === $i ) ? '#7b8290' : '#9aa2ad'; // first block darker = the brand column
+			$svg .= '<rect x="' . $x . '" y="' . $by . '" width="' . $bw . '" height="' . $bh . '" rx="2" fill="' . $fill . '"/>';
+		}
+		return 'data:image/svg+xml,' . rawurlencode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $w . ' ' . $h . '" width="' . $w . '" height="' . $h . '">' . $svg . '</svg>' );
+	};
+	$choices = array();
+	foreach ( $modes as $key => $m ) {
+		$choices[ $key ] = array( 'small' => array( 'src' => $thumb( $m['x'] ), 'height' => 40, 'title' => $m['label'] ) );
+	}
+	return array(
+		'label'   => __( 'Distribution', 'unysonplus' ),
+		'type'    => 'image-picker',
+		'value'   => 'between',
+		'desc'    => __( 'How the auto-width columns are spread across the row. Applies only when Auto Width is On.', 'unysonplus' ),
+		'choices' => $choices,
+	);
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_footer_columns_field' ) ) :
 /**
  * A footer section's Columns control: a `multi-picker` whose "Number of Columns"
@@ -765,10 +809,27 @@ function unysonplus_footer_columns_field( $prefix, $max = 6, $default_count = 1,
 	$choices = array();
 	for ( $n = 1; $n <= $max; $n++ ) {
 		$reveal = array();
+		// Auto Width (fit to content). Opt-in flex mode that bypasses the ratio entirely:
+		// each column sizes to its content and the row distributes them (space-between /
+		// center / …). This is what the 12-grid CANNOT express — a brand block beside
+		// content-sized link lists (see footer-builder.php → footer-row--auto). When Off,
+		// the fixed Column Ratio below applies as before.
+		if ( $n >= 2 ) {
+			$reveal[ $prefix . '_auto' ] = array(
+				'type'         => 'switch',
+				'label'        => __( 'Auto Width (fit to content)', 'unysonplus' ),
+				'desc'         => __( 'Ignore the Column Ratio and size each column to its content, spreading the row with the Distribution below (a flex space-between layout — columns are as wide as their content, not a fixed fraction). Turn Off to use the fixed ratio.', 'unysonplus' ),
+				'value'        => 'no',
+				'left-choice'  => array( 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ),
+				'right-choice' => array( 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ),
+			);
+			$reveal[ $prefix . '_justify' ] = unysonplus_footer_justify_field();
+		}
 		// Ratio control. 2, 3, 4 and 6 columns → the Split-Slider on the Bootstrap 12-grid
 		// (1/2, 1/3, 1/4, 1/6). 5 columns → the fifths IMAGE-PICKER (`_layout` = f5-* / 5-equal):
 		// the 12-grid can't express fifths, so the picker offers curated compositions of the
 		// 5 grid units (equal, or span a column like 2/5 + 1/5 + 1/5 + 1/5). (1 col = full width.)
+		// Both are ignored at render when Auto Width (above) is On.
 		if ( 5 === $n ) {
 			$reveal[ $prefix . '_layout' ] = unysonplus_footer_fifth_ratio_field();
 		} elseif ( $n >= 2 ) {

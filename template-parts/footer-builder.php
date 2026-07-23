@@ -74,6 +74,25 @@ if ( ! empty( $post_columns['count'] ) ) {
 	);
 }
 
+// Extra footer bars (registered via `unysonplus_footer_extra_bars`) — render in order
+// AFTER Post-Footer and BEFORE Copyright, matching their Theme Settings tab order.
+if ( function_exists( 'unysonplus_footer_extra_bars' ) ) {
+	foreach ( unysonplus_footer_extra_bars() as $bar ) {
+		$x_key  = $bar['prefix'] . '_columns';
+		$x_cols = isset( $footer_cfg[ $x_key ] ) ? $footer_cfg[ $x_key ] : fw_get_db_settings_option( $x_key );
+		if ( ! empty( $x_cols['count'] ) ) {
+			$x_styling = isset( $footer_cfg[ $bar['prefix'] . '_custom_styling' ] )
+				? $footer_cfg[ $bar['prefix'] . '_custom_styling' ]
+				: fw_get_db_settings_option( $bar['prefix'] . '_custom_styling' );
+			unysonplus_render_footer_section(
+				array( $x_key => $x_cols, $bar['prefix'] . '_custom_styling' => $x_styling ),
+				$bar['prefix'],
+				'footer-section--extra'
+			);
+		}
+	}
+}
+
 $body = trim( ob_get_clean() );
 
 // Copyright — keeps its Enable switch (you may want to hide it entirely). Buffered on

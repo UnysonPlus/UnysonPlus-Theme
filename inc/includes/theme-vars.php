@@ -180,7 +180,7 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			'--menu-item-hover-bg'         => 'rgba(0, 0, 0, 0.05)',
 			'--menu-dropdown-bg'           => '#ffffff',
 			'--menu-dropdown-link'         => 'var(--color-text)',
-			'--menu-dropdown-link-hover'   => 'var(--menu-link-hover)',
+			'--menu-dropdown-link-hover'   => 'var(--menu-dropdown-link)',
 			'--menu-dropdown-item-hover-bg'=> 'rgba(0, 0, 0, 0.05)',
 			'--menu-dropdown-width'        => '220px',
 			'--menu-dropdown-radius'       => 'var(--radius)',

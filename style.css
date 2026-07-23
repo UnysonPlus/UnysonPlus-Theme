@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version:           2.3.116
+Version: 2.3.133
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -53,7 +53,7 @@ Tags:           bootstrap, unyson, custom-header, custom-menu, featured-images, 
 	--menu-link-pad-y:    0.5rem;
 	--menu-dropdown-bg:   #ffffff;
 	--menu-dropdown-link: var(--color-text);
-	--menu-dropdown-link-hover: var(--menu-link-hover);
+	--menu-dropdown-link-hover: var(--menu-dropdown-link); /* readable dark on the light dropdown; was --menu-link-hover (top-level filled-pill white → unreadable on the dropdown bg). Preset can override for a coloured hover. */
 	--menu-dropdown-item-hover-bg: rgba(0, 0, 0, 0.05);
 	--menu-dropdown-width: 220px;
 	--menu-dropdown-radius: var(--radius);
@@ -107,7 +107,10 @@ a { color: var(--color-primary); text-decoration: none; }
    CONTENT/prose links get their hover underline from the dedicated Body Link Underline rule below
    (`--body-link-decoration-hover`, Typography → Body Link, default underline); chrome + buttons
    signal hover by colour/fill. Keeps modern chrome clean with no per-site override. */
-a:hover, a:focus-visible { color: var(--menu-link-hover); }
+/* Global link hover: body-link tokens only — NEVER the menu token (--menu-link-hover
+   is white on dark-header sites, which made every prose/card link vanish on hover).
+   The menu styles its own hover via the scoped .menu rules. */
+a:hover, a:focus-visible { color: var(--body-link-hover, var(--color-primary, #0d6efd)); }
 /* Body/content link colors (Typography → Body Link Color). Fall back to the base
    link color so an unset value keeps current behavior.
    Scoped to `:not([class])` so ONLY bare prose links get the body-link color —
@@ -120,7 +123,7 @@ a:hover, a:focus-visible { color: var(--menu-link-hover); }
 	text-decoration: var(--body-link-decoration, none);
 }
 .entry-content :is(p, li) a:not([class]):is(:hover, :focus-visible) {
-	color: var(--body-link-hover, var(--body-link-color, var(--menu-link-hover)));
+	color: var(--body-link-hover, var(--body-link-color, var(--body-link-hover, var(--color-primary, #0d6efd))));
 	text-decoration: var(--body-link-decoration-hover, underline);
 }
 a.btn:hover, a.btn:focus-visible { text-decoration: none; }
@@ -979,6 +982,27 @@ body.menu-style-highlight .site-header .primary-menu > .current-menu-ancestor > 
 	background-color: var(--menu-item-hover-bg);
 }
 
+/* On the FILLED menu styles the link text flips to the contrast colour on hover /
+   current, but the sub-label carries its own muted resting colour and so looks like
+   it "didn't change" (and reads low-contrast on the filled background). Make it
+   follow the link colour like the main label. Higher specificity than the header
+   preset's generated sub-label colour rules, so it wins on hover / current. */
+body.menu-style-pill      .site-header .primary-menu > .menu-item > a:hover .menu-sublabel,
+body.menu-style-pill      .site-header .primary-menu > .menu-item > a:focus-visible .menu-sublabel,
+body.menu-style-pill      .site-header .primary-menu > .current-menu-item > a .menu-sublabel,
+body.menu-style-pill      .site-header .primary-menu > .current-menu-ancestor > a .menu-sublabel,
+body.menu-style-box       .site-header .primary-menu > .menu-item > a:hover .menu-sublabel,
+body.menu-style-box       .site-header .primary-menu > .menu-item > a:focus-visible .menu-sublabel,
+body.menu-style-box       .site-header .primary-menu > .current-menu-item > a .menu-sublabel,
+body.menu-style-box       .site-header .primary-menu > .current-menu-ancestor > a .menu-sublabel,
+body.menu-style-highlight .site-header .primary-menu > .menu-item > a:hover .menu-sublabel,
+body.menu-style-highlight .site-header .primary-menu > .menu-item > a:focus-visible .menu-sublabel,
+body.menu-style-highlight .site-header .primary-menu > .current-menu-item > a .menu-sublabel,
+body.menu-style-highlight .site-header .primary-menu > .current-menu-ancestor > a .menu-sublabel {
+	color: inherit;
+	opacity: .82;
+}
+
 /* Outline — a bordered box on hover / current. */
 body.menu-style-outline .site-header .primary-menu > .menu-item > a { border: 1px solid transparent; }
 body.menu-style-outline .site-header .primary-menu > .menu-item > a:hover,
@@ -1441,11 +1465,45 @@ body.nav-scrollspy section[id] {
 .entry-title  { margin-bottom: 0.5rem; }
 .entry-meta   { color: var(--color-muted); font-size: 0.875rem; }
 
+/* Builder-page title header — the page title rendered as the H1 at the top of
+   Page Builder pages (template-parts/content-page.php). Top padding gives it
+   breathing room and clears an overhanging logo plaque / floating header. */
+/* Compact, clean title header for builder pages: top padding only, no bottom
+   padding/margin — the first builder section carries its own top spacing, so a
+   bottom gap here just doubles it and reads as an awkward empty band. The
+   .entry-header.page-title-header specificity beats the generic .entry-header
+   margin-bottom rule further down. */
+.entry-header.page-title-header { padding: 2.5rem 0 1.5rem; margin-bottom: 0; }
+.page-title-header .entry-title { margin-bottom: 0; }
+/* Let the first builder section sit close under the compact title instead of
+   stacking its full top spacing below the header's — kills the empty band. */
+.page-title-header + .entry-content .fw-page-builder-content > section:first-child { padding-top: 1.5rem; }
+
+/* ==========================================================================
+   Bootstrap utility bridge
+   --------------------------------------------------------------------------
+   The full bootstrap.min.css (232 KB) + bootstrap.min.js (80 KB) were dropped
+   for performance (see inc/static.php): the grid is the plugin's frontend-grid
+   (fw-*), spacing/.text-* come from the presets-css utilities, and each
+   shortcode ships its own component CSS/JS. These are the ONLY Bootstrap-only
+   classes still rendered by the theme/shortcodes, reproduced verbatim so
+   markup that uses them is unaffected. (Bootstrap grid classes were replaced
+   with the fw-* grid, e.g. the page article now uses fw-col-12.) Keep in sync
+   if a template starts using another Bootstrap utility (audit: grep class="").
+   ========================================================================== */
+.d-flex { display: flex !important; }
+.flex-column { flex-direction: column !important; }
+.flex-shrink-0 { flex-shrink: 0 !important; }
+.align-items-center { align-items: center !important; }
+.w-100 { width: 100% !important; }
+.mx-auto { margin-right: auto !important; margin-left: auto !important; }
+.img-fluid { max-width: 100%; height: auto; }
+
 /* Per-page Title Icon (Page Settings → Page Title / Hero). Inline before the
    heading text, brand colour, sized to the heading. Works for the <i> font/emoji
    markup and for an uploaded <img>. */
 .entry-title__icon {
-	color: var(--color-primary);
+	color: currentColor; /* inherit the heading text colour (matches the Special Heading icons); --color-primary was Bootstrap blue */
 	margin-right: 0.4em;
 	font-size: 0.9em;
 	line-height: 1;
@@ -1704,7 +1762,11 @@ img.entry-title__icon { width: auto; height: 0.9em; vertical-align: -0.08em; }
 }
 #commentform input[type="submit"]:hover,
 .form-submit input[type="submit"]:hover {
-	background-color: var(--menu-link-hover);
+	/* Stay in the button's own color family — NEVER the menu token (white on
+	   dark-header sites = invisible button). Brightness gives the hover cue
+	   for any brand color. */
+	background-color: var(--color-primary, #0d6efd);
+	filter: brightness(0.9);
 	transform: translateY(-1px);
 }
 #commentform .comment-notes,

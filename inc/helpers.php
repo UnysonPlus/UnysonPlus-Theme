@@ -130,6 +130,35 @@ if(! function_exists('unysonplus_logo')) :
                                 $meta = wp_prepare_attachment_for_js($header_logo['image']['attachment_id']);
                                 $img_attr['width']      = $meta['width'];  
                                 $img_attr['height'] = $meta['height'];
+                                // Responsive srcset/sizes: a header logo displays at ~120-150px, so shipping the
+                                // full-size source to every device wastes bytes. Build the candidates from
+                                // on-demand fw_resize() renditions — wp_get_attachment_image_srcset('full')
+                                // only offers sizes WP already generated, and a logo original SMALLER than the
+                                // registered sizes has none, so 1x screens over-download the full file.
+                                // (A manual image_2x below still wins when it is set.)
+                                $_lid = ! empty( $header_logo['image']['attachment_id'] ) ? (int) $header_logo['image']['attachment_id'] : 0;
+                                if ( $_lid && empty( $header_logo['image_2x']['url'] ) ) {
+                                	$_meta2 = wp_get_attachment_metadata( $_lid );
+                                	$_ow    = ! empty( $_meta2['width'] ) ? (int) $_meta2['width'] : 0;
+                                	$_ourl  = wp_get_attachment_url( $_lid );
+                                	$_set   = array();
+                                	if ( $_ow > 0 && $_ourl && function_exists( 'fw_resize' ) ) {
+                                		foreach ( array( 120, 140, 240, 280 ) as $_w ) {
+                                			if ( $_w >= $_ow ) { continue; }
+                                			$_u = fw_resize( $_ourl, $_w );
+                                			if ( $_u && $_u !== $_ourl ) { $_set[ $_w ] = $_u . ' ' . $_w . 'w'; }
+                                		}
+                                		$_set[ $_ow ] = $_ourl . ' ' . $_ow . 'w';
+                                	}
+                                	if ( count( $_set ) > 1 ) {
+                                		ksort( $_set );
+                                		$img_attr['srcset'] = implode( ', ', $_set );
+                                		$img_attr['sizes']  = '(max-width: 782px) 120px, 140px';
+                                	} elseif ( ( $_ss = wp_get_attachment_image_srcset( $_lid, 'full' ) ) ) {
+                                		$img_attr['srcset'] = $_ss;
+                                		$img_attr['sizes']  = '(max-width: 782px) 120px, 140px';
+                                	}
+                                }
                         }
                         // Retina / 2x: serve a high-DPI source via srcset when provided.
                         if ( ! empty( $header_logo['image_2x']['url'] ) ) {

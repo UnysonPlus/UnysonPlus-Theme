@@ -13,7 +13,7 @@
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 <div id="page" class="site">
-	<a class="skip-link screen-reader-text" href="#content"><?php esc_html_e( 'Skip to content', 'unysonplus' ); ?></a>
+	<a class="skip-link screen-reader-text" href="#main"><?php esc_html_e( 'Skip to content', 'unysonplus' ); ?></a>
 	<?php if ( ! ( function_exists( 'unysonplus_should_hide_site_header' ) && unysonplus_should_hide_site_header() ) ) : ?>
 		<?php do_action( 'unysonplus_before_header' ); ?>
 		<?php get_template_part( 'template-parts/header', 'builder' ); ?>

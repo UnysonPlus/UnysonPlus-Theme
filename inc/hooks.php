@@ -215,13 +215,48 @@ endif;
 
 if (!function_exists('_action_theme_print_google_fonts_link')) :
         /**
-         * Print google fonts link
+         * Print the Google Fonts <link> — NON render-blocking, with font-display:swap.
+         *
+         * Two Lighthouse wins baked in:
+         *  1. `display=swap` is forced onto the CSS-API URL so text paints immediately
+         *     in a fallback and swaps when the webfont arrives (no invisible text /
+         *     FOIT) — fixes "Ensure text remains visible during webfont load".
+         *  2. The stylesheet is fetched as `media="print"` and flipped to `all` onload,
+         *     so it no longer blocks first paint (fixes "Render-blocking requests" for
+         *     the fonts). A <noscript> copy keeps it working with JS disabled.
+         *
+         * Preconnect hints for the font hosts are added separately via
+         * unysonplus_google_fonts_resource_hints() (wp_resource_hints).
          */
         function _action_theme_print_google_fonts_link() {
-                $google_fonts_link = get_option('fw_theme_google_fonts_link', '');
-                if($google_fonts_link != ''){
-                                echo $google_fonts_link;
-                }
+                $link = (string) get_option('fw_theme_google_fonts_link', '');
+                if ($link === '') { return; }
+
+                // 1) Force display=swap on every fonts.googleapis.com CSS URL.
+                $link = preg_replace_callback(
+                        '#href=([\'"])(https?://fonts\.googleapis\.com/css[^\'"]*)\1#i',
+                        function ($m) {
+                                $url = html_entity_decode($m[2]);
+                                if (strpos($url, 'display=') === false) {
+                                        $url .= (strpos($url, '?') === false ? '?' : '&') . 'display=swap';
+                                }
+                                return 'href=' . $m[1] . esc_url($url) . $m[1];
+                        },
+                        $link
+                );
+
+                // 2) Make each stylesheet <link> non-render-blocking (print → all onload),
+                //    with a <noscript> fallback. Links that already set media are left as-is.
+                $link = preg_replace_callback(
+                        '#<link\b(?![^>]*\bmedia=)([^>]*\brel=([\'"])stylesheet\2[^>]*)>#i',
+                        function ($m) {
+                                return '<link' . $m[1] . ' media="print" onload="this.media=\'all\'">'
+                                     . '<noscript>' . $m[0] . '</noscript>';
+                        },
+                        $link
+                );
+
+                echo $link; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- theme-built <link> markup, URLs esc_url'd above
         }
         add_action('wp_head', '_action_theme_print_google_fonts_link');
 endif;
@@ -388,7 +423,11 @@ if(! function_exists('unysonplus_entry_title') ) :
                         // and the icon never leaks into feeds / breadcrumbs / <title>.
                         $title_icon = function_exists( 'unysonplus_page_title_icon_html' ) ? unysonplus_page_title_icon_html() : '';
 
-                        if ( is_category() ) {
+                        // Only a singular view (single post / page) gets the page <h1>.
+                        // In any listing/archive/home/search loop the per-card title is a
+                        // linked <h2>, so a results page never renders multiple <h1>s (which
+                        // malforms the heading outline for AI agents + assistive tech).
+                        if ( ! is_singular() ) {
                                 the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2><!-- .entry-header -->' );
                         }else{
                                 the_title( '<h1 class="entry-title">' . $title_icon, '</h1><!-- .entry-header -->' );

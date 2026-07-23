@@ -1,5 +1,39 @@
 <?php if ( ! defined( 'ABSPATH' ) ) die( 'Direct access forbidden.' );
 
+if ( ! function_exists( 'unysonplus_footer_extra_bars' ) ) :
+/**
+ * Extra footer bars registered by child themes / extensions, rendered (and shown in
+ * Theme Settings → Footer) BETWEEN Post-Footer and Copyright, in registration order.
+ * Copyright always stays pinned last. Each bar reuses the standard footer columns
+ * control (count + ratio + Auto Width + elements), so it has full parity with the
+ * built-in bars; storage auto-keys off its prefix (`footer_x_<id>_columns`).
+ *
+ * Register via the `unysonplus_footer_extra_bars` filter:
+ *   add_filter( 'unysonplus_footer_extra_bars', function ( $bars ) {
+ *       $bars['row4'] = array( 'label' => 'Footer Row 4', 'max' => 6 );
+ *       return $bars;
+ *   } );
+ *
+ * @return array normalized map: id => [ 'label', 'max', 'prefix' ]
+ */
+function unysonplus_footer_extra_bars() {
+	$bars = apply_filters( 'unysonplus_footer_extra_bars', array() );
+	if ( ! is_array( $bars ) ) { return array(); }
+	$reserved = array( 'pre', 'main', 'post', 'copyright', 'layout', 'pre_footer', 'main_footer', 'post_footer' );
+	$out = array();
+	foreach ( $bars as $id => $cfg ) {
+		$id = sanitize_key( (string) $id );
+		if ( '' === $id || in_array( $id, $reserved, true ) || isset( $out[ $id ] ) ) { continue; }
+		$label = ( is_array( $cfg ) && ! empty( $cfg['label'] ) )
+			? (string) $cfg['label']
+			: ucwords( str_replace( array( '_', '-' ), ' ', $id ) );
+		$max = ( is_array( $cfg ) && ! empty( $cfg['max'] ) ) ? max( 1, min( 6, (int) $cfg['max'] ) ) : 6;
+		$out[ $id ] = array( 'label' => $label, 'max' => $max, 'prefix' => 'footer_x_' . $id );
+	}
+	return $out;
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_get_footer_col_classes' ) ) :
 function unysonplus_get_footer_col_classes( $layout ) {
         $map = array(
@@ -310,7 +344,15 @@ function unysonplus_extract_footer_columns_data( $section_data, $prefix ) {
                 $decoded  = json_decode( $segments, true );
                 $segments = is_array( $decoded ) ? $decoded : null;
         }
-        if ( $count > 1 && $is_fifth ) {
+        // Auto Width mode wins over any ratio: columns are content-sized (footer-col--auto)
+        // and the row becomes a flex layout distributed by $justify — the thing the 12-grid
+        // snap can't express (see unysonplus_render_footer_section → footer-row--auto).
+        $auto_raw = isset( $choice[ $prefix . '_auto' ] ) ? $choice[ $prefix . '_auto' ] : 'no';
+        $auto     = ( 'yes' === $auto_raw || true === $auto_raw || 1 === $auto_raw || '1' === $auto_raw );
+        $justify  = isset( $choice[ $prefix . '_justify' ] ) ? (string) $choice[ $prefix . '_justify' ] : 'between';
+        if ( $count > 1 && $auto ) {
+                $classes = array_fill( 0, $count, 'footer-col--auto' );
+        } elseif ( $count > 1 && $is_fifth ) {
                 $classes = unysonplus_get_footer_col_classes( $layout_key );
                 $count   = count( $classes ); // a spanning composition renders fewer physical columns
         } elseif ( $count > 1 && is_array( $segments ) && $segments ) {
@@ -339,7 +381,7 @@ function unysonplus_extract_footer_columns_data( $section_data, $prefix ) {
                 $columns[ $i ] = ! empty( $choice[ $col_key ] ) ? $choice[ $col_key ] : array();
         }
 
-        return array( 'col_count' => $count, 'classes' => $classes, 'columns' => $columns );
+        return array( 'col_count' => $count, 'classes' => $classes, 'columns' => $columns, 'auto' => ! empty( $auto ), 'justify' => $justify );
 }
 endif;
 
@@ -350,6 +392,16 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
         $col_count   = $extracted['col_count'];
         $columns     = $extracted['columns'];
         $col_classes = isset( $extracted['classes'] ) ? $extracted['classes'] : array();
+
+        // Auto Width → flex row distributed by the chosen justify (falls back to space-between).
+        $row_class = 'fw-row footer-row';
+        $row_style = '';
+        if ( ! empty( $extracted['auto'] ) ) {
+                $row_class .= ' footer-row--auto';
+                $jmap = array( 'between' => 'space-between', 'around' => 'space-around', 'center' => 'center', 'start' => 'flex-start', 'end' => 'flex-end' );
+                $jkey = isset( $extracted['justify'] ) ? (string) $extracted['justify'] : 'between';
+                $row_style = ' style="--fa-justify:' . esc_attr( isset( $jmap[ $jkey ] ) ? $jmap[ $jkey ] : 'space-between' ) . '"';
+        }
 
         $has_content = false;
         foreach ( $columns as $col_data ) {
@@ -374,7 +426,7 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
         ?>
         <div class="<?php echo esc_attr( implode( ' ', $classes ) ) . $attr['class']; // phpcs:ignore — $attr['class'] is pre-escaped ?>">
                 <div class="<?php echo esc_attr( unysonplus_fw_container_class( $attr['container'] ) ); ?> footer-section__inner">
-                        <div class="fw-row footer-row">
+                        <div class="<?php echo esc_attr( $row_class ); ?>"<?php echo $row_style; // phpcs:ignore — pre-escaped above ?>>
                                 <?php
                                 for ( $i = 1; $i <= $col_count; $i++ ) {
                                         $col_data  = isset( $columns[ $i ] ) ? $columns[ $i ] : array();

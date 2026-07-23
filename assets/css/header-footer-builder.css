@@ -452,3 +452,27 @@
 	line-height: 1;
 	vertical-align: -.05em;
 }
+
+/* ============================================================
+   Footer — Auto Width columns (Column Ratio → "Auto Width: On")
+   Content-sized flex columns distributed by --fa-justify, bypassing the
+   Bootstrap 12-grid ratio snap (which can only do twelfths + fifths).
+   Row class + --fa-justify are set in inc/includes/footer-builder.php.
+   ============================================================ */
+.footer-section .footer-row--auto {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 40px;
+	align-items: flex-start;
+	justify-content: var(--fa-justify, space-between);
+	margin: 0;                       /* cancel the grid row's negative gutters */
+}
+.footer-section .footer-row--auto > .footer-col--auto {
+	flex: 0 0 auto;                  /* size to content, not a fixed fraction */
+	width: auto;
+	max-width: 100%;
+	padding: 0;                      /* gap handles spacing, not grid gutters */
+}
+@media (max-width: 782px) {
+	.footer-section .footer-row--auto { justify-content: center; gap: 28px; }
+}

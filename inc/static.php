@@ -50,30 +50,19 @@ if ( ! empty( $unysonplus_fa_kit ) ) {
 // don't bundle Bootstrap, which left the front end with no `.container`
 // (content flush to the viewport edges). So the theme ships its own copy and
 // enqueues it only when nothing else already provided the 'bootstrap' handle.
-if ( ! wp_style_is( 'bootstrap', 'enqueued' ) && ! wp_style_is( 'bootstrap', 'registered' ) ) {
-        wp_enqueue_style(
-                'bootstrap',
-                get_template_directory_uri() . '/assets/css/bootstrap.min.css',
-                array(),
-                '5.3.3',
-                'all'
-        );
-}
-
-wp_enqueue_script(
-        'bootstrap',
-        get_template_directory_uri() . '/assets/js/bootstrap.min.js',
-        array(),
-        '5.3.3',
-        true
-);
-
-// parent-style depends on 'bootstrap' so the theme's tokens/overrides always
-// cascade AFTER Bootstrap, whether Bootstrap came from the plugin or the theme.
+// Bootstrap CSS (232 KB) + JS (80 KB) DROPPED for performance. The grid is the
+// plugin's frontend-grid (fw-*), spacing/.text-* come from the presets-css
+// utilities, each shortcode ships its own component CSS/JS, and the header menu
+// is the theme's off-canvas (navigation.js) — NOT Bootstrap's navbar/collapse.
+// The only Bootstrap-only utility classes that remained (d-flex, flex-column,
+// flex-shrink-0, align-items-center, w-100, mx-auto, img-fluid) are provided by
+// the small "Bootstrap utility bridge" in style.css; grid usage was moved to
+// the fw-* grid (e.g. the page article now uses fw-col-12). Re-add an enqueue
+// here only if a real Bootstrap dependency ever returns.
 wp_enqueue_style(
         'parent-style',
         get_template_directory_uri() . '/style.css',
-        array( 'bootstrap' ),
+        array(),
         $unysonplus_theme_version,
         'all'
 );

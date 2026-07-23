@@ -605,7 +605,95 @@ endif;
 if ( ! function_exists( 'unysonplus_render_custom_html' ) ) :
 function unysonplus_render_custom_html( $settings ) {
         if ( ! empty( $settings['custom_html_content'] ) ) {
-                echo '<div class="header-custom-html">' . do_shortcode(  $settings['custom_html_content']  ) . '</div>';
+                echo '<div class="header-custom-html">' . unysonplus_img_add_dimensions( do_shortcode( $settings['custom_html_content'] ) ) . '</div>';
         }
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_url_to_path' ) ) :
+/**
+ * Map a same-site media URL to its filesystem path (uploads → content → site root),
+ * or '' if it isn't a local file we can resolve. Query/hash stripped.
+ *
+ * @param string $url
+ * @return string
+ */
+function unysonplus_url_to_path( $url ) {
+        $url = preg_replace( '/[?#].*$/', '', (string) $url );
+        if ( $url === '' ) { return ''; }
+        $up = wp_get_upload_dir();
+        if ( ! empty( $up['baseurl'] ) && strpos( $url, $up['baseurl'] ) === 0 ) {
+                return $up['basedir'] . substr( $url, strlen( $up['baseurl'] ) );
+        }
+        $cu = content_url();
+        if ( strpos( $url, $cu ) === 0 ) { return WP_CONTENT_DIR . substr( $url, strlen( $cu ) ); }
+        $su = site_url();
+        if ( strpos( $url, $su ) === 0 ) { return ABSPATH . ltrim( substr( $url, strlen( $su ) ), '/' ); }
+        if ( isset( $url[0] ) && $url[0] === '/' ) { return ABSPATH . ltrim( $url, '/' ); }
+        return '';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_local_img_dimensions' ) ) :
+/**
+ * Intrinsic [width, height] for a local image URL, or false. SVGs read the root
+ * width/height (else the viewBox); rasters use getimagesize(). Cached per request.
+ *
+ * @param string $url
+ * @return array|false
+ */
+function unysonplus_local_img_dimensions( $url ) {
+        static $cache = array();
+        if ( array_key_exists( $url, $cache ) ) { return $cache[ $url ]; }
+        $dim  = false;
+        $path = unysonplus_url_to_path( $url );
+        if ( $path !== '' && @is_file( $path ) ) {
+                if ( preg_match( '/\.svg$/i', $path ) ) {
+                        $svg = (string) @file_get_contents( $path );
+                        if ( preg_match( '/<svg\b[^>]*\bwidth\s*=\s*["\']?([\d.]+)/i', $svg, $w )
+                                && preg_match( '/<svg\b[^>]*\bheight\s*=\s*["\']?([\d.]+)/i', $svg, $h ) ) {
+                                $dim = array( (int) round( (float) $w[1] ), (int) round( (float) $h[1] ) );
+                        } elseif ( preg_match( '/viewBox\s*=\s*["\']([-\d.\s,]+)["\']/i', $svg, $vb ) ) {
+                                $p = preg_split( '/[\s,]+/', trim( $vb[1] ) );
+                                if ( is_array( $p ) && count( $p ) === 4 ) {
+                                        $dim = array( (int) round( (float) $p[2] ), (int) round( (float) $p[3] ) );
+                                }
+                        }
+                } else {
+                        $sz = @getimagesize( $path );
+                        if ( $sz && ! empty( $sz[0] ) && ! empty( $sz[1] ) ) { $dim = array( (int) $sz[0], (int) $sz[1] ); }
+                }
+        }
+        if ( is_array( $dim ) && ( $dim[0] < 1 || $dim[1] < 1 ) ) { $dim = false; }
+        $cache[ $url ] = $dim;
+        return $dim;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_img_add_dimensions' ) ) :
+/**
+ * Add explicit width/height to any <img> in a hand-authored HTML blob that lacks them
+ * (custom-HTML header/footer elements, badge strips) — resolving the intrinsic size from
+ * the local file — so they don't cause CLS. Images that already declare BOTH width and
+ * height, or whose file can't be resolved, are left untouched. CSS still controls the
+ * display size; these attributes only let the browser reserve the box.
+ *
+ * @param string $html
+ * @return string
+ */
+function unysonplus_img_add_dimensions( $html ) {
+        if ( strpos( $html, '<img' ) === false ) { return $html; }
+        return preg_replace_callback(
+                '#<img\b([^>]*)>#i',
+                function ( $m ) {
+                        $attrs = $m[1];
+                        if ( preg_match( '/\bwidth\s*=/i', $attrs ) && preg_match( '/\bheight\s*=/i', $attrs ) ) { return $m[0]; }
+                        if ( ! preg_match( '/\bsrc\s*=\s*["\']([^"\']+)["\']/i', $attrs, $sm ) ) { return $m[0]; }
+                        $dim = unysonplus_local_img_dimensions( $sm[1] );
+                        if ( ! $dim ) { return $m[0]; }
+                        return '<img' . rtrim( $attrs ) . ' width="' . $dim[0] . '" height="' . $dim[1] . '">';
+                },
+                $html
+        );
 }
 endif;
