@@ -171,7 +171,7 @@ if ( ! function_exists( 'unysonplus_preset_library_install' ) ) :
 	 * @param string $slug
 	 * @return true|WP_Error
 	 */
-	function unysonplus_preset_library_install( $slug ) {
+	function unysonplus_preset_library_install( $slug, $target_group = '' ) {
 		$slug = sanitize_key( $slug );
 		if ( $slug === '' ) { return new WP_Error( 'bad_slug', __( 'Invalid preset.', 'unysonplus' ) ); }
 
@@ -183,8 +183,15 @@ if ( ! function_exists( 'unysonplus_preset_library_install' ) ) :
 			return new WP_Error( 'no_base_url', __( 'Library catalog is missing a base URL.', 'unysonplus' ) );
 		}
 
-		$entry  = $catalog['presets'][ $slug ];
-		$group  = $entry['group'];
+		$entry = $catalog['presets'][ $slug ];
+		// Resolve the REAL settings group to install under. A shared-category preset
+		// (its catalog group is a virtual category like `footer_columns`) installs into
+		// whichever real region the user browsed from — as long as that region pools the
+		// category. Everything else installs under its own group.
+		$target_group = sanitize_key( $target_group );
+		$group = ( $target_group !== '' && in_array( $entry['group'], unysonplus_preset_library_group_pool( $target_group ), true ) )
+			? $target_group
+			: $entry['group'];
 		$values = unysonplus_preset_library__fetch_json( $catalog['base_url'] . $slug . '.json' );
 		if ( is_wp_error( $values ) ) { return $values; }
 		if ( empty( $values ) || ! is_array( $values ) || array_values( $values ) === $values ) {
@@ -261,18 +268,39 @@ endif;
  * Browse data + AJAX (admin only, manage_options + nonce)
  * -------------------------------------------------------------------------- */
 
+if ( ! function_exists( 'unysonplus_preset_library_group_pool' ) ) :
+	/**
+	 * The catalog groups a given settings group should draw presets from. Most groups
+	 * only show their own; the three footer-column regions ALSO share a common
+	 * `footer_columns` category, because pre/main/post_footer_columns use identical
+	 * option keys (count + numbered column buckets) — so one footer preset applies to
+	 * any of them. Filterable.
+	 *
+	 * @param string $group A real settings group id.
+	 * @return string[] catalog group ids to include for it.
+	 */
+	function unysonplus_preset_library_group_pool( $group ) {
+		$group  = sanitize_key( $group );
+		$footer = array( 'pre_footer_columns', 'main_footer_columns', 'post_footer_columns' );
+		$pool   = array( $group );
+		if ( in_array( $group, $footer, true ) ) { $pool[] = 'footer_columns'; }
+		return apply_filters( 'unysonplus_preset_library_group_pool', $pool, $group );
+	}
+endif;
+
 if ( ! function_exists( 'unysonplus_preset_library_browse_items' ) ) :
 	/**
-	 * Catalog entries for one group + which are installed, for the browse modal.
-	 * Each item: { slug, label, desc, installed:bool }.
+	 * Catalog entries for one group (including any shared categories it pools) + which
+	 * are installed, for the browse modal. Each item: { slug, label, desc, installed:bool }.
 	 */
 	function unysonplus_preset_library_browse_items( $group ) {
 		$group     = sanitize_key( $group );
+		$pool      = unysonplus_preset_library_group_pool( $group );
 		$catalog   = unysonplus_preset_library_catalog();
 		$installed = unysonplus_preset_library_installed_slugs( $group );
 		$items     = array();
 		foreach ( ( isset( $catalog['presets'] ) ? $catalog['presets'] : array() ) as $slug => $p ) {
-			if ( $p['group'] !== $group ) { continue; }
+			if ( ! in_array( $p['group'], $pool, true ) ) { continue; }
 			$items[] = array(
 				'slug'      => $slug,
 				'label'     => $p['label'],
@@ -302,7 +330,7 @@ add_action( 'wp_ajax_unysonplus_preset_library', function () {
 		$r = unysonplus_preset_library_browse_items( $group );
 		wp_send_json_success( $r );
 	} elseif ( $action === 'install' ) {
-		$r = unysonplus_preset_library_install( $slug );
+		$r = unysonplus_preset_library_install( $slug, $group );
 	} elseif ( $action === 'uninstall' ) {
 		$r = unysonplus_preset_library_uninstall( $group, $slug );
 	} elseif ( $action === 'refresh' ) {
