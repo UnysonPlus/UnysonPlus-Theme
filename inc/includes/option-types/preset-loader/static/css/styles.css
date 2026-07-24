@@ -16,6 +16,7 @@
 }
 
 .fw-preset-card {
+	position: relative;
 	flex: 1 1 150px;
 	min-width: 140px;
 	max-width: 220px;
@@ -48,6 +49,27 @@
 .fw-preset-card.is-disabled:hover {
 	border-color: #dcdcde;
 }
+
+/* Delete control on installed library presets (built-ins have none). */
+.fw-preset-card__del {
+	position: absolute;
+	top: 3px;
+	right: 5px;
+	width: 18px;
+	height: 18px;
+	line-height: 17px;
+	text-align: center;
+	border-radius: 50%;
+	color: #b32d2e;
+	font-size: 15px;
+	cursor: pointer;
+	opacity: .5;
+	transition: opacity .12s ease, background-color .12s ease;
+}
+.fw-preset-card:hover .fw-preset-card__del,
+.fw-preset-card__del:hover { opacity: 1; }
+.fw-preset-card__del:hover { background: #fce8e8; }
+.fw-preset-card--installed .fw-preset-card__name { padding-right: 16px; }
 
 .fw-preset-card__name {
 	font-weight: 600;
@@ -91,3 +113,82 @@
 	color: #646970;
 	font-style: italic;
 }
+
+/* -------- Browse Library modal -------- */
+.upw-plib-overlay[hidden] { display: none !important; }
+.upw-plib-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 999999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+}
+.upw-plib__backdrop {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	background: rgba( 15, 23, 42, .55 );
+}
+.upw-plib {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	width: min( 620px, 96vw );
+	max-height: 86vh;
+	background: #f6f7f7;
+	border-radius: 10px;
+	box-shadow: 0 24px 60px rgba( 0, 0, 0, .35 );
+	overflow: hidden;
+}
+.upw-plib__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 14px;
+	background: #fff;
+	border-bottom: 1px solid #e2e4e7;
+}
+.upw-plib__title { font-weight: 600; font-size: 15px; color: #1d2327; }
+.upw-plib__head-actions { display: inline-flex; align-items: center; gap: 8px; }
+.upw-plib__close {
+	appearance: none; border: 0; background: transparent;
+	font-size: 24px; line-height: 1; color: #787c82; cursor: pointer;
+	padding: 0 6px; border-radius: 6px;
+}
+.upw-plib__close:hover { background: #f0f0f1; color: #1d2327; }
+
+.upw-plib__body { padding: 14px; overflow-y: auto; }
+.upw-plib__grid { display: flex; flex-direction: column; gap: 8px; }
+
+.upw-plib__card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 12px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+}
+.upw-plib__card:hover { border-color: #c3c4c7; }
+.upw-plib__card-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.upw-plib__card-name { font-weight: 600; font-size: 13px; color: #1d2327; }
+.upw-plib__card-desc { font-size: 11.5px; line-height: 1.4; color: #646970; }
+.upw-plib__card-action { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; }
+.upw-plib__badge { font-size: 11.5px; color: #0a5c2e; background: #e5f4ea; border-radius: 3px; padding: 2px 8px; }
+.upw-plib__remove.button { color: #b32d2e; }
+.upw-plib__remove.button:hover { color: #8a2424; border-color: #b32d2e; }
+
+.upw-plib__empty, .upw-plib__notice {
+	margin: 8px 0; padding: 12px; text-align: center;
+	color: #646970; font-size: 13px;
+}
+.upw-plib__notice {
+	background: #fcf9e8; border: 1px solid #f0e6a6; border-left-width: 4px;
+	border-radius: 3px; color: #6b5d00; text-align: left;
+}
+.upw-plib__loading { display: flex; justify-content: center; padding: 40px 0; }
+.upw-plib__loading .spinner { float: none; }

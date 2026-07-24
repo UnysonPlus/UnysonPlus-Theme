@@ -257,6 +257,43 @@ multi-container arrays matching each tab's `options.php`), wrap it in the envelo
 excluded operational keys, and blank media. The user imports it via the panel. Pair it with builder
 section/full templates for a full site design.
 
+## Presets + Preset Library — KEEP IN SYNC WHEN OPTIONS CHANGE (REQUIRED)
+
+Many tabs carry a **"Quick start" preset picker** (the `preset-loader` option type). Presets are
+registered in **`inc/includes/settings-presets.php`** — `unysonplus_settings_preset_groups()` returns
+one entry per group: `{ label, allowed_keys, presets: { key => { label, desc, values } } }`. Applying a
+preset (AJAX `unysonplus_apply_settings_preset`) whitelists its `values` to `allowed_keys` and overlays
+them onto the saved group values. **Preset-backed groups** (the `preset_group` ids): `header_layout`,
+`general_pages`, `header_menu`, `header_topbar`, `header_main`, `header_bottombar`, `pre_footer_columns`,
+`main_footer_columns`, `post_footer_columns`, `copyright_settings`, `typography`, `social_style`,
+`blog_index`, `blog_card`, `portfolio_archive`.
+
+On top of that sits the **Preset Library** (**`inc/includes/settings-presets-library.php`**) — a "Browse
+Library" modal on each picker that downloads presets from the shared content repo
+**`UnysonPlus-Library/presets/`** (catalog + one `values` JSON per preset) into
+`uploads/unysonplus-presets/<group>/`, then injects them into the registry via the
+`unysonplus_settings_preset_groups` filter so they render as cards and Apply through the same flow.
+Installed library cards (`lib_` key) get a delete "×"; built-ins don't.
+
+> **A preset stores option VALUES keyed by leaf option id.** So whenever you **add / remove / rename an
+> option, or change its value shape** in a preset-backed group, the stored presets can go stale (dangling
+> keys, missing new keys, wrong shape). When you touch such an option you MUST also:
+>
+> 1. **`allowed_keys`** — add/remove the leaf id in that group's `allowed_keys` in `settings-presets.php`
+>    (an unlisted key is silently dropped on Apply; a stale listed key is harmless but should be cleaned).
+> 2. **Built-in preset `values`** — update every affected preset's `values` in `settings-presets.php` so
+>    they still produce the intended result under the new option shape.
+> 3. **Library preset files** — regenerate the affected downloadable presets in the data repo
+>    `UnysonPlus-Library/presets/<slug>.json` (+ `catalog.json`). The reliable way is to **re-dump from
+>    the live registry** (a WP-loaded script that reads `unysonplus_settings_preset_groups()` and writes
+>    each chosen preset's `values` to `presets/<slug>.json`), then push the repo. Hand-editing value maps
+>    risks drift from the real option shape.
+> 4. If the change is a **value-shape** change (not just add/remove), add a **schema migration** (see the
+>    versioned runner above) so already-saved settings AND already-installed library presets are corrected.
+>
+> Same idea for the **page-builder Template Library** (`UnysonPlus-Library/templates/`): if you change a
+> shortcode's atts, its stored template trees can go stale — regenerate the affected template exports.
+
 ## Child themes
 
 A child theme (e.g. `payforituk`) does **not** copy this doc. If it adds or overrides settings

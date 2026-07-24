@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.3.133
+Version: 2.3.146
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -120,7 +120,7 @@ a:hover, a:focus-visible { color: var(--body-link-hover, var(--color-primary, #0
    convention, genuine prose links carry no class, so they still match. */
 .entry-content :is(p, li) a:not([class]) {
 	color: var(--body-link-color, var(--color-primary));
-	text-decoration: var(--body-link-decoration, none);
+	text-decoration: var(--body-link-decoration, underline); /* accessible default — 'hover'/'never' via Typography → Body Link Underline */
 }
 .entry-content :is(p, li) a:not([class]):is(:hover, :focus-visible) {
 	color: var(--body-link-hover, var(--body-link-color, var(--body-link-hover, var(--color-primary, #0d6efd))));
@@ -831,8 +831,26 @@ a.header-icon-text:hover { opacity: 0.85; }
    mark reads slightly larger than the wordmark. */
 .site-title--has-icon a { display: inline-flex; align-items: center; gap: .5rem; }
 .site-logo__mark { display: inline-flex; align-items: center; line-height: 0; font-size: 1.4em; color: inherit; }
-.site-logo__mark svg { width: 1em; height: 1em; display: block; }
+/* Icon size is HEIGHT-driven (width auto) so a wide SVG wordmark keeps its
+   viewBox ratio instead of letterboxing inside a forced 1em square. Square
+   icons (the common case) render identically. max-width only guards the
+   pathological no-viewBox SVG (whose auto width would default to 300px).
+   img = an uploaded-image icon (icon-v2 custom-upload) — same height-driven
+   sizing so every icon type honors Logo Icon Size / the 1.4em default. */
+.site-logo__mark svg,
+.site-logo__mark img { height: 1em; width: auto; max-width: 8em; display: block; }
 .site-title-text { display: inline-block; }
+
+/* Icon-only lockup (Logo Layout = Icon only): the mark IS the whole logo, so
+   don't crush it into the 1em icon square - size it like an image logo (the
+   header logo height) via the mark's font-size (the svg is 1em tall), and let
+   the SVG keep its own aspect ratio (width:auto reads the viewBox ratio). The
+   Logo Icon Size option still wins: the generated CSS emits an equally-specific
+   .site-logo--icon-only override after this file (hf-custom-css.php). */
+.site-logo--icon-only .site-logo__mark {
+	font-size: var(--logo-max-height, calc(var(--header-min-height, 80px) - 24px));
+}
+.site-logo--icon-only .site-logo__mark svg { width: auto; }
 
 /* Logo Layout (Header → Identity → Logo Layout): how the icon / title / tagline arrange.
    Inline = one line (default). Stacked / Eyebrow = a two-line lockup beside the icon, with
@@ -852,7 +870,10 @@ a.header-icon-text:hover { opacity: 0.85; }
 /* Hexagon is a clip-path tile; the clip removes the border, so it reads via a slightly stronger
    fill instead of a stroke (the frame's hairline can't survive the clip). */
 .site-logo__mark--hexagon  { border: 0; background: rgba(127,127,127,.12); -webkit-clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
-.site-logo__mark--framed svg { width: .82em; height: .82em; }
+/* Inside a frame tile the mark stays height-driven but is CAPPED to the tile,
+   so a wide mark letterboxes within the frame instead of overflowing it. */
+.site-logo__mark--framed svg,
+.site-logo__mark--framed img { height: .82em; width: auto; max-width: .82em; }
 
 /* WooCommerce core ships `.woocommerce img,.woocommerce-page img{max-width:100%;height:auto}`
    (woocommerce-layout.css), which over-broadly resizes the brand logo on any page WC tags

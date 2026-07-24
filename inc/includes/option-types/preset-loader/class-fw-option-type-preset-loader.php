@@ -39,15 +39,21 @@ class FW_Option_Type_Preset_Loader extends FW_Option_Type {
 			'fw-option-' . $this->get_type(),
 			$uri . '/css/styles.css',
 			array(),
-			'1.0.0'
+			'1.0.2'
 		);
 		wp_enqueue_script(
 			'fw-option-' . $this->get_type(),
 			$uri . '/js/scripts.js',
 			array( 'jquery' ),
-			'1.0.0',
+			'1.0.2',
 			true
 		);
+
+		// Hand the script the Preset Library config (browse/install modal). Guarded
+		// so the option type still works if the library file isn't present.
+		if ( function_exists( 'unysonplus_preset_library_localize' ) ) {
+			unysonplus_preset_library_localize( 'fw-option-' . $this->get_type() );
+		}
 	}
 
 	/**

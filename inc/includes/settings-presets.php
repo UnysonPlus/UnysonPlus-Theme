@@ -218,11 +218,6 @@ function unysonplus_settings_preset_groups() {
 			'desc'   => __( 'Rounded floating nav, sticky with a soft shadow.', 'unysonplus' ),
 			'values' => $hl( $topd( 'pill', array( 'pill' => array( 'pill_radius' => 'full', 'pill_inset' => 'none', 'pill_shadow' => 'medium' ) ) ), 'sticky', array( 'shadow' => 1 ) ),
 		),
-		'card' => array(
-			'label'  => __( 'Elevated Card', 'unysonplus' ),
-			'desc'   => __( 'Header floats as a raised card, sticky.', 'unysonplus' ),
-			'values' => $hl( $topd( 'card', array( 'card' => array( 'card_radius' => 'medium', 'card_shadow' => 'medium' ) ) ), 'sticky', array( 'shadow' => 1 ) ),
-		),
 		'centered' => array(
 			'label'  => __( 'Centered', 'unysonplus' ),
 			'desc'   => __( 'Centered logo stacked above centered navigation.', 'unysonplus' ),
@@ -232,16 +227,6 @@ function unysonplus_settings_preset_groups() {
 			'label'  => __( 'Transparent Hero', 'unysonplus' ),
 			'desc'   => __( 'Frosted, transparent header that overlays the hero.', 'unysonplus' ),
 			'values' => $hl( $topd( 'classic' ), 'transparent-overlay', array( 'glass' => 1 ), 'container-fluid' ),
-		),
-		'vertical' => array(
-			'label'  => __( 'Vertical Rail', 'unysonplus' ),
-			'desc'   => __( 'Fixed side rail with the logo + menu.', 'unysonplus' ),
-			'values' => $hl( array( 'mode' => 'vertical', 'vertical' => array( 'vertical_side' => array( 'side' => 'left' ), 'vertical_width' => $u( '16.25', 'rem' ) ) ), 'static' ),
-		),
-		'overlay' => array(
-			'label'  => __( 'Fullscreen Overlay', 'unysonplus' ),
-			'desc'   => __( 'Hamburger opens a fullscreen Concentric menu.', 'unysonplus' ),
-			'values' => $hl( array( 'mode' => 'overlay', 'overlay' => array( 'overlay_style' => array( 'style' => 'concentric', 'concentric' => array( 'overlay_corner' => 'tr' ) ), 'overlay_color_mode' => 'shade', 'overlay_bg_opacity' => 100 ) ), 'static' ),
 		),
 	);
 

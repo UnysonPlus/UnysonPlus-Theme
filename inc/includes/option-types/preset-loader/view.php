@@ -39,7 +39,7 @@ $current = ( $group !== '' && function_exists( 'unysonplus_settings_preset_curre
 				$label = isset( $preset['label'] ) ? $preset['label'] : $key;
 				$desc  = isset( $preset['desc'] ) ? $preset['desc'] : '';
 				?>
-				<button type="button" class="fw-preset-card" data-preset-key="<?php echo esc_attr( $key ); ?>">
+				<button type="button" class="fw-preset-card<?php echo strpos( $key, 'lib_' ) === 0 ? ' fw-preset-card--installed' : ''; ?>" data-preset-key="<?php echo esc_attr( $key ); ?>"><?php if ( strpos( $key, 'lib_' ) === 0 ) : ?><span class="fw-preset-card__del" role="button" tabindex="0" title="<?php esc_attr_e( 'Remove installed preset', 'unysonplus' ); ?>" data-del-group="<?php echo esc_attr( $group ); ?>" data-del-slug="<?php echo esc_attr( preg_replace( '/^lib_/', '', $key ) ); ?>">&times;</span><?php endif; ?>
 					<span class="fw-preset-card__name"><?php echo esc_html( $label ); ?></span>
 					<?php if ( $desc !== '' ) : ?>
 						<span class="fw-preset-card__desc"><?php echo esc_html( $desc ); ?></span>
@@ -67,6 +67,13 @@ $current = ( $group !== '' && function_exists( 'unysonplus_settings_preset_curre
 			<button type="button" class="button fw-preset-export">
 				<?php esc_html_e( 'Export current', 'unysonplus' ); ?>
 			</button>
+
+			<?php // Browse Library — opens a modal of downloadable presets for this group.
+			if ( function_exists( 'unysonplus_preset_library_localize' ) ) : ?>
+				<button type="button" class="button fw-preset-browse">
+					<?php esc_html_e( 'Browse Library', 'unysonplus' ); ?>
+				</button>
+			<?php endif; ?>
 
 			<span class="fw-preset-loader-status" role="status" aria-live="polite"></span>
 		</div>

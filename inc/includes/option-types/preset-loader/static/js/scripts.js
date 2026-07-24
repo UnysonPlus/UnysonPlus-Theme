@@ -206,4 +206,179 @@
 		setTimeout( function () { URL.revokeObjectURL( url ); }, 1000 );
 	} );
 
+	/* ------------------------------------------------------------------ *
+	 * Browse Library — a modal of downloadable presets for this group.
+	 * Installing one drops it into the group's registry (server-side filter),
+	 * so it appears as an ordinary card above and is applied by the flow above.
+	 * ------------------------------------------------------------------ */
+
+	var PL = window.upwPresetLibrary || null;
+	var $plModal = null, plGroup = '', $plRoot = null, plItems = [];
+
+	function plEsc( s ) {
+		return String( s == null ? '' : s ).replace( /[&<>"']/g, function ( c ) {
+			return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ c ];
+		} );
+	}
+
+	function plBuild() {
+		$plModal = $(
+			'<div class="upw-plib-overlay" role="dialog" aria-modal="true" hidden>' +
+				'<div class="upw-plib__backdrop"></div>' +
+				'<div class="upw-plib">' +
+					'<div class="upw-plib__head">' +
+						'<span class="upw-plib__title">' + plEsc( PL.i18n.title ) + '</span>' +
+						'<span class="upw-plib__head-actions">' +
+							'<button type="button" class="button button-small upw-plib__refresh">' + plEsc( PL.i18n.refresh ) + '</button>' +
+							'<button type="button" class="upw-plib__close" aria-label="' + plEsc( PL.i18n.close ) + '">&times;</button>' +
+						'</span>' +
+					'</div>' +
+					'<div class="upw-plib__body"></div>' +
+				'</div>' +
+			'</div>'
+		);
+		$( document.body ).append( $plModal );
+
+		$plModal.on( 'click', '.upw-plib__close, .upw-plib__backdrop', plClose );
+		$plModal.on( 'click', function ( e ) { if ( e.target === $plModal[0] ) { plClose(); } } );
+		$plModal.on( 'click', '.upw-plib__refresh', function () { plFetch( 'refresh' ); } );
+		$plModal.on( 'click', '[data-plib-act]', function () { plAction( $( this ) ); } );
+		$( document ).on( 'keydown.upwPlib', function ( e ) {
+			if ( e.key === 'Escape' && $plModal && ! $plModal.prop( 'hidden' ) ) { plClose(); }
+		} );
+	}
+
+	function plOpen( $root ) {
+		if ( ! PL ) { return; }
+		if ( ! $plModal ) { plBuild(); }
+		$plRoot = $root;
+		plGroup = $root.attr( 'data-preset-group' ) || '';
+		$plModal.prop( 'hidden', false );
+		plRenderBody( '<div class="upw-plib__loading"><span class="spinner is-active"></span></div>' );
+		plFetch( 'browse' );
+	}
+
+	function plClose() { if ( $plModal ) { $plModal.prop( 'hidden', true ); } }
+
+	function plRenderBody( html ) { $plModal.find( '.upw-plib__body' ).html( html ); }
+
+	function plAjax( libAction, slug ) {
+		return $.post( PL.ajaxUrl, {
+			action: 'unysonplus_preset_library',
+			lib_action: libAction,
+			group: plGroup,
+			slug: slug || '',
+			nonce: PL.nonce
+		} );
+	}
+
+	function plFetch( libAction ) {
+		plAjax( libAction )
+			.done( function ( res ) {
+				if ( res && res.success && res.data ) {
+					plItems = res.data.items || [];
+					plRender( res.data.catalogOk );
+				} else {
+					plRenderBody( '<p class="upw-plib__empty">' + plEsc( PL.i18n.error ) + '</p>' );
+				}
+			} )
+			.fail( function () { plRenderBody( '<p class="upw-plib__empty">' + plEsc( PL.i18n.error ) + '</p>' ); } );
+	}
+
+	function plRender( catalogOk ) {
+		if ( ! catalogOk ) {
+			plRenderBody( '<div class="upw-plib__notice">' + plEsc( PL.i18n.unreachable ) + '</div>' );
+			return;
+		}
+		if ( ! plItems.length ) {
+			plRenderBody( '<p class="upw-plib__empty">' + plEsc( PL.i18n.empty ) + '</p>' );
+			return;
+		}
+		var cards = plItems.map( function ( t ) {
+			var action = t.installed
+				? '<span class="upw-plib__badge">' + plEsc( PL.i18n.installed ) + '</span>' +
+				  '<button type="button" class="button button-small upw-plib__remove" data-plib-act="uninstall" data-slug="' + plEsc( t.slug ) + '">' + plEsc( PL.i18n.remove ) + '</button>'
+				: '<button type="button" class="button button-primary button-small" data-plib-act="install" data-slug="' + plEsc( t.slug ) + '">' + plEsc( PL.i18n.install ) + '</button>';
+			return '' +
+				'<div class="upw-plib__card" data-slug="' + plEsc( t.slug ) + '">' +
+					'<div class="upw-plib__card-main">' +
+						'<span class="upw-plib__card-name">' + plEsc( t.label ) + '</span>' +
+						( t.desc ? '<span class="upw-plib__card-desc">' + plEsc( t.desc ) + '</span>' : '' ) +
+					'</div>' +
+					'<div class="upw-plib__card-action">' + action + '</div>' +
+				'</div>';
+		} ).join( '' );
+		plRenderBody( '<div class="upw-plib__grid">' + cards + '</div>' );
+	}
+
+	// Keep the real card grid in sync when a preset is installed/removed, so the
+	// user can Apply it immediately without a page reload (the server registry
+	// already carries it via the filter).
+	function plSyncCard( slug, item, add ) {
+		if ( ! $plRoot ) { return; }
+		var $cards = $plRoot.find( '.fw-preset-loader-cards' );
+		var key = 'lib_' + slug;
+		$cards.find( '.fw-preset-card[data-preset-key="' + key + '"]' ).remove();
+		if ( add && item ) {
+			var $card = $(
+				'<button type="button" class="fw-preset-card" data-preset-key="' + plEsc( key ) + '">' +
+					'<span class="fw-preset-card__name">' + plEsc( item.label ) + '</span>' +
+					( item.desc ? '<span class="fw-preset-card__desc">' + plEsc( item.desc ) + '</span>' : '' ) +
+				'</button>'
+			);
+			var $custom = $cards.find( '.fw-preset-card--custom' );
+			if ( $custom.length ) { $card.insertBefore( $custom ); } else { $cards.append( $card ); }
+		}
+	}
+
+	function plAction( $btn ) {
+		var act = $btn.data( 'plib-act' ), slug = $btn.data( 'slug' );
+		var item = plItems.filter( function ( t ) { return t.slug === slug; } )[0];
+		$btn.prop( 'disabled', true ).text( act === 'install' ? PL.i18n.installing : PL.i18n.removing );
+		plAjax( act, slug )
+			.done( function ( res ) {
+				if ( res && res.success && res.data ) {
+					plItems = res.data.items || [];
+					plSyncCard( slug, item, act === 'install' );
+					plRender( res.data.catalogOk );
+				} else {
+					$btn.prop( 'disabled', false ).text( act === 'install' ? PL.i18n.install : PL.i18n.remove );
+				}
+			} )
+			.fail( function () { $btn.prop( 'disabled', false ).text( act === 'install' ? PL.i18n.install : PL.i18n.remove ); } );
+	}
+
+	$( document ).on( 'click', '.fw-preset-browse', function () { plOpen( rootOf( this ) ); } );
+
+	// Delete an installed library preset directly from its card (the "×" control).
+	// stopPropagation keeps the click from also selecting the card.
+	$( document ).on( 'click', '.fw-preset-card__del', function ( e ) {
+		e.preventDefault();
+		e.stopPropagation();
+		if ( ! PL ) { return; }
+		var $del = $( this ),
+			$card = $del.closest( '.fw-preset-card' ),
+			$root = rootOf( this ),
+			group = $del.attr( 'data-del-group' ),
+			slug = $del.attr( 'data-del-slug' );
+		if ( ! window.confirm( 'Remove this installed library preset? You can re-install it from Browse Library.' ) ) { return; }
+		$del.css( 'opacity', '.4' );
+		$.post( PL.ajaxUrl, {
+			action: 'unysonplus_preset_library',
+			lib_action: 'uninstall',
+			group: group,
+			slug: slug,
+			nonce: PL.nonce
+		} ).done( function ( res ) {
+			if ( res && res.success ) {
+				if ( $card.hasClass( 'is-selected' ) ) {
+					$root.find( '.fw-preset-apply' ).prop( 'disabled', true );
+				}
+				$card.remove();
+			} else {
+				$del.css( 'opacity', '' );
+			}
+		} ).fail( function () { $del.css( 'opacity', '' ); } );
+	} );
+
 } )( jQuery );
