@@ -273,6 +273,37 @@ function unysonplus_render_footer_element( $element ) {
 endif;
 
 
+if ( ! function_exists( 'unysonplus_copyright_auto_align_class' ) ) :
+/**
+ * Default text-alignment for a copyright-bar column, by position — mirrors the header's
+ * left/center/right slots so a copyright row "just works" without a per-column control:
+ *   1 column   → centered            (the overwhelming default © line)
+ *   2 columns  → left | right        (classic "© left · links right"; blank col 2 = left-only)
+ *   3+ columns → left | center… | right
+ * Returns a Bootstrap text-align utility class (or '' for the default-left first column).
+ * An explicit text-* on an element's own CSS Class is deeper in the DOM and still wins,
+ * so this is only the default. Only the copyright bar uses it; widget columns stay left.
+ *
+ * @param int $index 1-based column position.
+ * @param int $count total columns in the row.
+ * @return string '' | 'text-center' | 'text-end'
+ */
+function unysonplus_copyright_auto_align_class( $index, $count ) {
+	$count = max( 1, (int) $count );
+	$index = max( 1, (int) $index );
+	if ( $count <= 1 ) {
+		return 'text-center';
+	}
+	if ( $index >= $count ) {
+		return 'text-end';   // last column → right
+	}
+	if ( 1 === $index ) {
+		return '';           // first column → left (Bootstrap default)
+	}
+	return 'text-center';    // any middle column → center
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_render_footer_column' ) ) :
 function unysonplus_render_footer_column( $column_data, $col_class ) {
         if ( empty( $column_data ) || ! is_array( $column_data ) ) return;
@@ -431,6 +462,15 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
                                 for ( $i = 1; $i <= $col_count; $i++ ) {
                                         $col_data  = isset( $columns[ $i ] ) ? $columns[ $i ] : array();
                                         $col_class = isset( $col_classes[ $i - 1 ] ) ? $col_classes[ $i - 1 ] : 'col';
+                                        // Copyright bar: auto-align columns like the header's left/center/right
+                                        // slots — 1 col = centered, 2 cols = left|right, 3+ = left|center…|right.
+                                        // A text-align on an element's own CSS Class (deeper in the DOM) still
+                                        // wins, so this is only the default. Other footer rows (widget columns)
+                                        // keep their natural left alignment.
+                                        if ( 'copyright' === $prefix && function_exists( 'unysonplus_copyright_auto_align_class' ) ) {
+                                                $align = unysonplus_copyright_auto_align_class( $i, $col_count );
+                                                if ( '' !== $align ) { $col_class .= ' ' . $align; }
+                                        }
                                         unysonplus_render_footer_column( $col_data, $col_class );
                                 }
                                 ?>
@@ -444,7 +484,12 @@ endif;
 
 if ( ! function_exists( 'unysonplus_render_footer_logo' ) ) :
 function unysonplus_render_footer_logo( $settings ) {
-        $image     = ! empty( $settings['footer_logo_image']['url'] ) ? $settings['footer_logo_image']['url'] : '';
+        // Re-resolve from the attachment id on THIS site (never trust the stored
+        // localhost URL) so a cloned / deployed site can't 404 - falls back to
+        // the text logo when the attachment isn't present here.
+        $image = function_exists( 'unysonplus_upload_option_src' )
+                ? unysonplus_upload_option_src( isset( $settings['footer_logo_image'] ) ? $settings['footer_logo_image'] : array() )
+                : ( ! empty( $settings['footer_logo_image']['url'] ) ? $settings['footer_logo_image']['url'] : '' );
         $max_width = function_exists( 'unysonplus_css_length' )
                 ? unysonplus_css_length( ! empty( $settings['footer_logo_width'] ) ? $settings['footer_logo_width'] : '' )
                 : '';
@@ -462,8 +507,11 @@ function unysonplus_render_footer_logo( $settings ) {
                 $w = unysonplus_footer_logo_class( $max_width );
                 if ( $w !== '' ) { $logo_class .= ' ' . $w; }
         }
-        echo '<a href="' . esc_url( home_url( '/' ) ) . '" class="footer-logo-link">';
+        $show_title = ! empty( $settings['footer_logo_show_title'] ) && 'yes' === $settings['footer_logo_show_title'];
+		$title_text = ! empty( $settings['footer_logo_title'] ) ? $settings['footer_logo_title'] : get_bloginfo( 'name' );
+		echo '<a href="' . esc_url( home_url( '/' ) ) . '" class="footer-logo-link' . ( $show_title ? ' footer-logo-link--lockup' : '' ) . '">';
         echo '<img src="' . esc_url( $image ) . '" alt="' . esc_attr( get_bloginfo( 'name' ) ) . '" class="' . esc_attr( $logo_class ) . '">';
+        if ( $show_title ) { echo '<span class="footer-logo-title">' . esc_html( $title_text ) . '</span>'; }
         echo '</a>';
 }
 endif;

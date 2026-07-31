@@ -25,8 +25,12 @@
 if ( ! function_exists( 'unysonplus_preset_library_install_dir' ) ) :
 	/** Absolute path of the uploads install dir (no trailing slash). Filterable. */
 	function unysonplus_preset_library_install_dir() {
-		$up = wp_upload_dir();
-		return apply_filters( 'unysonplus_preset_library_install_dir', trailingslashit( $up['basedir'] ) . 'unysonplus-presets' );
+		// Consolidated under uploads/unysonplus/presets (routes through the plugin's
+		// shared uploads helper when present; falls back to the same path if not).
+		$dir = function_exists( 'fw_upw_uploads_dir' )
+			? fw_upw_uploads_dir( 'presets' )['path']
+			: trailingslashit( wp_upload_dir()['basedir'] ) . 'unysonplus/presets';
+		return apply_filters( 'unysonplus_preset_library_install_dir', $dir );
 	}
 endif;
 

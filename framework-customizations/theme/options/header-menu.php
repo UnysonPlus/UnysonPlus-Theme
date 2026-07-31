@@ -188,6 +188,22 @@ $options = [
 						'min'   => 0,
 					],
 
+					'menu_link_font_weight' => [
+						'label'   => __( 'Menu Font Weight', 'unysonplus' ),
+						'desc'    => __( 'Font weight of the top-level menu links. Leave Default for the theme default (500).', 'unysonplus' ),
+						'type'    => 'select',
+						'value'   => '',
+						'choices' => [
+							''    => __( 'Default', 'unysonplus' ),
+							'300' => __( 'Light (300)', 'unysonplus' ),
+							'400' => __( 'Regular (400)', 'unysonplus' ),
+							'500' => __( 'Medium (500)', 'unysonplus' ),
+							'600' => __( 'Semibold (600)', 'unysonplus' ),
+							'700' => __( 'Bold (700)', 'unysonplus' ),
+							'800' => __( 'Extrabold (800)', 'unysonplus' ),
+						],
+					],
+
 					/* Colors — palette presets (track Theme Settings → Colors). */
 					'menu_link_color'       => $color_field( __( 'Menu Link Color', 'unysonplus' ), __( 'Color of top-level menu links. Leave empty to use the body text color.', 'unysonplus' ), 'text' ),
 					'menu_link_hover_color' => $color_field( __( 'Menu Link Hover / Active Color', 'unysonplus' ), __( 'Color of menu links on hover and for the current page. Also the accent for the Underline / Bar styles. Leave empty to use the primary color.', 'unysonplus' ), 'text' ),

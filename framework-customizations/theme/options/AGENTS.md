@@ -318,3 +318,12 @@ deltas**, linking back here. The export/import feature is inherited from the par
 - `inc/includes/css-tokens.php`, `inc/includes/theme-vars.php`, `inc/includes/misc.php` — settings → CSS.
 - `template-parts/header-builder.php`, `footer.php`, `template-parts/footer-*.php` — chrome markup.
 - Storage/API: framework `fw_get_db_settings_option()` / `fw_set_db_settings_option()`.
+
+## Keep the demo option pages in sync — `demo.php` AND `demo-2.php` (REQUIRED)
+
+The theme ships **two** demo option pages showcasing every option type: `demo.php` **and** `demo-2.php`
+(its fields mirror `demo.php`'s with a `_2` id suffix — e.g. `demo_datetime_range` ↔
+`demo_datetime_range_2`). They're intentional duplicates so both a "Without Box" and "With Box" layout
+can be demonstrated. **Whenever you change one, change the OTHER the same way** — adding/removing/
+reordering a demo option, editing a field's config, or fixing caption/`desc` copy — so the two never
+drift. After editing, a quick `diff`/grep of the field order + captions across both files confirms parity.

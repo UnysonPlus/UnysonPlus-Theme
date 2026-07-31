@@ -553,7 +553,9 @@ endif;
 
 
 function unysonplus_wc_ajax_add_to_cart_js() {
-    if (function_exists('is_product') && is_product()) {
+    // Guarded with file_exists: the asset is not currently shipped, and an
+    // unguarded enqueue both 404s and drags jQuery onto product pages.
+    if (function_exists('is_product') && is_product() && file_exists(plugin_dir_path(__FILE__) . 'assets/ajax-add-to-cart.js')) {
         wp_enqueue_script('woocommerce-ajax-add-to-cart', plugin_dir_url(__FILE__) . 'assets/ajax-add-to-cart.js', array('jquery'), '', true);
     }
 }

@@ -29,9 +29,9 @@ $options = [
 				'type'    => 'group',
 				'options' => [
 					'topbar_columns_note' => unysonplus_hf_columns_note(),
-					'topbar_left'   => unysonplus_header_column( __( 'Top Bar — Left Column', 'unysonplus' ) ),
-					'topbar_center' => unysonplus_header_column( __( 'Top Bar — Center Column', 'unysonplus' ) ),
-					'topbar_right'  => unysonplus_header_column( __( 'Top Bar — Right Column', 'unysonplus' ) ),
+					'topbar_left'   => unysonplus_header_column( __( 'Top Bar — Left Column', 'unysonplus' ), [], 'header_topbar' ),
+					'topbar_center' => unysonplus_header_column( __( 'Top Bar — Center Column', 'unysonplus' ), [], 'header_topbar' ),
+					'topbar_right'  => unysonplus_header_column( __( 'Top Bar — Right Column', 'unysonplus' ), [], 'header_topbar' ),
 					'topbar_custom_styling' => unysonplus_hf_custom_styling( 'topbar' ),
 				],
 			],

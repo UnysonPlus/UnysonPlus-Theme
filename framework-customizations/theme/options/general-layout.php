@@ -205,6 +205,13 @@ $options = [
 							'soft'    => __( 'Soft', 'unysonplus' ),
 						],
 					],
+					'layout_border_color' => function_exists( 'sc_color_field_compact' )
+						? sc_color_field_compact( [
+							'label' => __( 'Border Color', 'unysonplus' ),
+							'desc'  => __( 'Global color for borders, dividers, cards and inputs (drives the --color-border token). Blank = the default subtle 10% black.', 'unysonplus' ),
+							'kind'  => 'bg',
+						] )
+						: [ 'label' => __( 'Border Color', 'unysonplus' ), 'type' => 'color-picker', 'value' => '' ],
 					'layout_prose_width' => [
 						'label' => __( 'Reading Width (no sidebar)', 'unysonplus' ),
 						'desc'  => __( 'Caps the content width of single posts/pages that have no sidebar, for comfortable reading. Leave blank for none.', 'unysonplus' ),

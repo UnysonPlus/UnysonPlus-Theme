@@ -30,12 +30,14 @@ $options = [
 				'options' => [
 					'main_left'   => unysonplus_header_column(
 						__( 'Main Header — Left Column', 'unysonplus' ),
-						[ [ 'element_type' => [ 'element' => 'logo' ] ] ]
+						[ [ 'element_type' => [ 'element' => 'logo' ] ] ],
+						'header_main'
 					),
-					'main_center' => unysonplus_header_column( __( 'Main Header — Center Column', 'unysonplus' ) ),
+					'main_center' => unysonplus_header_column( __( 'Main Header — Center Column', 'unysonplus' ), [], 'header_main' ),
 					'main_right'  => unysonplus_header_column(
 						__( 'Main Header — Right Column', 'unysonplus' ),
-						[ [ 'element_type' => [ 'element' => 'menu_area', 'menu_area' => [ 'menu_location' => 'primary' ] ] ] ]
+						[ [ 'element_type' => [ 'element' => 'menu_area', 'menu_area' => [ 'menu_location' => 'primary' ] ] ] ],
+						'header_main'
 					),
 					'main_custom_styling' => unysonplus_hf_custom_styling( 'main' ),
 				],

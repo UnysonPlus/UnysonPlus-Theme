@@ -55,6 +55,20 @@ $sides_choice = function ( $variant, $label ) use ( $sides_svg ) {
 };
 
 $options = [
+	// Footer layout MODE — normal band vs. overlaid on the last section.
+	'group_footer_mode' => [
+		'type'    => 'group',
+		'options' => [
+			'footer_overlay_last_section' => [
+				'label'        => __( 'Overlay on Last Section', 'unysonplus' ),
+				'desc'         => __( 'Pin the footer to the BOTTOM of the page\'s last full-height section and overlay it, instead of rendering a separate band below the page — so the footer sits on the final scene. Ideal for cinematic / scroll-story pages, and it removes any blank tail after a pinned last section. For legibility over your last section set the footer Text / Link colours (below) and a Background scrim, and make that last section hold (not fade) at its end.', 'unysonplus' ),
+				'type'         => 'switch',
+				'value'        => 'no',
+				'right-choice' => [ 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ],
+				'left-choice'  => [ 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ],
+			],
+		],
+	],
 	// Background Color + Image + Overlay are now one Background Pro control (Video
 	// disabled): colour, gradient and image (with position / size / repeat). To tint
 	// an image, layer a semi-transparent colour or gradient on top — that replaces

@@ -156,6 +156,7 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			'--color-text'        => '#212529',
 			'--color-muted'       => '#6c757d',
 			'--color-bg'          => '#ffffff',
+			'--color-border'      => 'rgba(0, 0, 0, 0.1)', // global border/divider/card/input colour (General → Layout → Border Color)
 
 			// NOTE: --font-body / --font-heading are owned by css-tokens.php (Typography
 			// presets / pairing); style.css :root supplies the plugin-inactive fallback.
@@ -270,6 +271,7 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			if ( ( $v = $lget( 'layout_sidebar_width' ) ) !== '' )       { $out['--sidebar-width']    = unysonplus_css_length( $v ); }
 			if ( ( $v = unysonplus_preset_color_to_css( $lget( 'layout_preloader_bg_color' ) ) ) !== '' )  { $out['--preloader-bg']     = $v; }
 			if ( ( $v = unysonplus_preset_color_to_css( $lget( 'layout_scroll_progress_color' ) ) ) !== '' ) { $out['--scroll-progress-color'] = $v; }
+			if ( ( $v = unysonplus_preset_color_to_css( $lget( 'layout_border_color' ) ) ) !== '' ) { $out['--color-border'] = $v; }
 
 			// Section spacing scale
 			$scale_map = array( 'compact' => '0.75', 'cozy' => '1', 'spacious' => '1.5' );
@@ -621,7 +623,7 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 		// Body link underline (Typography → Body Link Underline). Drives the
 		// text-decoration on prose links in both states; default 'hover' matches the
 		// style.css fallbacks (none / underline), so it only emits when overridden.
-		$blu = ! empty( $typography['body_link_underline'] ) ? $typography['body_link_underline'] : 'hover';
+		$blu = ! empty( $typography['body_link_underline'] ) ? $typography['body_link_underline'] : 'always'; // accessible default: in-text links underline at rest (link-in-text-block audit)
 		if ( $blu === 'always' ) {
 			$out['--body-link-decoration']       = 'underline';
 			$out['--body-link-decoration-hover'] = 'underline';
@@ -650,6 +652,9 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			if ( $mpy !== '' ) { $out['--menu-link-pad-y'] = $mpy; }
 			$mfs = unysonplus_css_length( isset( $menu['menu_link_font_size'] ) ? $menu['menu_link_font_size'] : '' );
 			if ( $mfs !== '' ) { $out['--menu-link-font-size'] = $mfs; }
+			// Menu Link Font Weight (select slug '300'..'900'). Empty = the theme default (500).
+			$mfw = isset( $menu['menu_link_font_weight'] ) ? preg_replace( '/[^0-9]/', '', (string) $menu['menu_link_font_weight'] ) : '';
+			if ( $mfw !== '' ) { $out['--menu-link-font-weight'] = $mfw; }
 			// Menu Font Family (typography-v2, family only). Empty = inherit the body font.
 			// Composed with the same system-sans fallback stack the Typography tokens use.
 			$mff = isset( $menu['menu_font']['family'] ) ? trim( (string) $menu['menu_font']['family'] ) : '';

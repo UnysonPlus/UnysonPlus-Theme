@@ -154,15 +154,16 @@ $options = [
 						'logo_icon' => [
 							'label' => __( 'Logo Icon', 'unysonplus' ),
 							'desc'  => __( 'Optional brand mark shown with the text site title (e.g. a Lucide icon) — the modern "icon + wordmark" logo. Rendered as an inline SVG so it recolors cleanly. Which SIDE the icon sits on is set by the Logo Layout below.', 'unysonplus' ),
-							'type'  => 'icon-v2',
+							'type'  => 'icon',
 						],
 						'logo_layout' => [
 							'label'   => __( 'Logo Layout', 'unysonplus' ),
-							'desc'    => __( 'How the lockup arranges the Logo Icon, Site Title and Tagline — this is also the tagline control. <b>Inline</b> = icon + title only, no tagline. <b>Stacked</b> = title with the tagline under it, beside the icon. <b>Eyebrow</b> = a small uppercase tagline ABOVE the title, beside the icon (the "brand OS" lockup). Each comes with the icon on the <b>left</b> or <b>right</b>.', 'unysonplus' ),
+							'desc'    => __( 'How the lockup arranges the Logo Icon, Site Title and Tagline — this is also the tagline control. <b>Icon only</b> = just the Logo Icon, no text (the Site Title stays as the screen-reader name). <b>Inline</b> = icon + title only, no tagline. <b>Stacked</b> = title with the tagline under it, beside the icon. <b>Eyebrow</b> = a small uppercase tagline ABOVE the title, beside the icon (the "brand OS" lockup). Each comes with the icon on the <b>left</b> or <b>right</b>.', 'unysonplus' ),
 							'type'    => 'image-picker',
 							'value'   => 'inline-left',
 							'blank'   => false,
 							'choices' => array(
+								'icon-only'     => $logo_tile( 'icon-only.svg', __( 'Icon only (no text)', 'unysonplus' ) ),
 								'inline-left'   => $logo_tile( 'inline-left.svg', __( 'Inline — icon left', 'unysonplus' ) ),
 								'inline-right'  => $logo_tile( 'inline-right.svg', __( 'Inline — icon right', 'unysonplus' ) ),
 								'stacked-left'  => $logo_tile( 'stacked-left.svg', __( 'Stacked — icon left', 'unysonplus' ) ),
@@ -235,6 +236,14 @@ $options = [
 							'value'   => [ 'predefined' => '', 'custom' => '' ],
 							'choices' => $unysonplus_site_title_colors,
 						],
+							'logo_icon_frame_bg' => [
+								'label'   => __( 'Logo Icon Frame Background', 'unysonplus' ),
+								'desc'    => __( 'Fill color of the logo-icon frame tile (when a Frame shape is chosen) — e.g. a white "app-icon" tile behind a colored mark. Leave empty for the default subtle tint.', 'unysonplus' ),
+								'type'    => 'predefined-colors-color-picker-compact',
+								'picker'  => 'color-picker',
+								'value'   => [ 'predefined' => '', 'custom' => '' ],
+								'choices' => $unysonplus_site_title_colors,
+							],
 						'logo_icon_size' => [
 							'label' => __( 'Logo Icon Size', 'unysonplus' ),
 							'type'  => 'unit-input',

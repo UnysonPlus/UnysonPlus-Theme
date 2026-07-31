@@ -238,7 +238,7 @@ if ( ! function_exists( 'unysonplus_menu_icon_option' ) ) :
  */
 function unysonplus_menu_icon_option() {
 	return apply_filters( 'unysonplus_menu_icon_option', array(
-		'type'  => 'icon-v2',
+		'type'  => 'icon',
 		'label' => __( 'Icon', 'unysonplus' ),
 		'desc'  => __( 'Shown before the menu label. Pick an icon font, emoji, SVG, or upload an image.', 'unysonplus' ),
 	) );

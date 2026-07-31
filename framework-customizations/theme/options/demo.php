@@ -463,35 +463,21 @@ $options = [
 		'title'   => __( 'Icons', 'unysonplus' ),
 		'type'    => 'box',
 		'options' => [
-			'demo_icon'                      => [
-				'label' => __( 'Icon', 'unysonplus' ),
-				'type'  => 'icon',
-				'value' => 'fa fa-linux',
-				'desc'  => __( 'The `icon` type is now the modern engine — the same picker as Icon v2 below (icon-v2 is a kept alias). A legacy class string like this one is auto-migrated to the new value shape.',
-					'unysonplus' ),
-				'help'  => sprintf( "%s \n\n'\"<br/><br/>\n\n <b>%s</b>",
-					__( 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-						'unysonplus' ),
-					__( 'Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium',
-						'unysonplus' )
-				),
-			],
-			// Modern icon control. Multi-pack (Font Awesome, Dashicons, Entypo, Typicons,
-			// Linearicons, Linecons, Unycon), searchable, with custom image upload +
-			// favourites. Value is a structured array, not a bare class string.
+			// The single, modern icon control. Multi-pack (Font Awesome, Dashicons,
+			// Entypo, Typicons, Linearicons, Linecons, Unycon), searchable, with
+			// custom image upload + favourites. Value is a structured array, not a
+			// bare class string — a legacy class string like the one below is
+			// auto-migrated to the new value shape on load.
 			// Size keys: `preview_size` (small|medium|large) sizes the swatch on the
 			// options page; `popup_size` (small|medium|large) sizes the picker modal —
 			// `popup_size` is the key the option type actually reads.
-			'demo_icon_v2'                   => [
-				'label'        => __( 'Icon v2', 'unysonplus' ),
-				'type'         => 'icon-v2',
-				'value'        => [
-					'type'       => 'icon-font',
-					'icon-class' => 'fa fa-star',
-				],
+			'demo_icon'                      => [
+				'label'        => __( 'Icon', 'unysonplus' ),
+				'type'         => 'icon',
+				'value'        => 'fa fa-linux',
 				'preview_size' => 'medium',
 				'popup_size'   => 'medium',
-				'desc'         => __( 'Modern, searchable multi-pack icon picker with custom image upload and favourites. Preselected here with a Font Awesome star.',
+				'desc'         => __( 'The modern multi-pack icon picker — searchable across every installed pack, with custom image upload and favourites. Value is a structured array (pack + class); a legacy class string like this one is auto-migrated to the new value shape.',
 					'unysonplus' ),
 				'help'         => sprintf( "%s \n\n'\"<br/><br/>\n\n <b>%s</b>",
 					__( 'Search across every installed icon pack, upload your own image, or star icons as favourites for quick reuse.',
@@ -499,11 +485,6 @@ $options = [
 					__( 'Icons can be recoloured and resized wherever the option is consumed, unlike a pasted emoji.',
 						'unysonplus' )
 				),
-			],
-			'demo_icon_v3'              => [
-				'label' => __( 'Icon v3', 'unysonplus' ),
-				'type'  => 'icon-v3',
-				'desc'  => __( 'The newest icon control — a searchable multi-pack picker with an expanded UI and custom-image upload. Value is a structured array (pack + class), like Icon v2.', 'unysonplus' ),
 			],
 		],
 	],
@@ -570,7 +551,7 @@ $options = [
 			'demo_map'                 => [
 				'label' => __( 'Map', 'unysonplus' ),
 				'type'  => 'map',
-				'desc'  => __( 'A Google-Maps location picker (search an address / drag the marker). Saved value is a { coordinates: { lat, lng } } array. A Google Maps API key must be configured for the live map tiles to appear.', 'unysonplus' ),
+				'desc'  => __( 'A location picker (search an address / drag the marker). Saved value is a { coordinates: { lat, lng } } array. Uses Google Maps when an API key is configured; otherwise a free, self-hosted Leaflet + OpenStreetMap picker (no key needed).', 'unysonplus' ),
 			],
 		],
 	],
@@ -1168,6 +1149,39 @@ $options = [
 					],
 				],
 			],
+			// Cross-list drag-and-drop (connect_group): two addable-popups that share
+			// the SAME connect_group interlink, so items can be dragged BETWEEN them
+			// (as the header/footer column builders do). Empty lists stay drop targets.
+			'demo_connect_a' => [
+				'label'         => __( 'Connected List A (drag to B)', 'unysonplus' ),
+				'type'          => 'addable-popup',
+				'connect_group' => 'demo_connect',
+				'desc'          => __( 'Cross-list drag-and-drop via <code>connect_group</code>: this list and "Connected List B" share the same group id, so you can drag items between them (and reorder within). Drop the y-axis lock — movement is sideways too.', 'unysonplus' ),
+				'template'      => '{{- demo_item_label }}',
+				'value'         => [ [ 'demo_item_label' => 'Alpha' ], [ 'demo_item_label' => 'Beta' ] ],
+				'popup-options' => [
+					'demo_item_label' => [
+						'label' => __( 'Label', 'unysonplus' ),
+						'type'  => 'text',
+						'value' => 'Item',
+					],
+				],
+			],
+			'demo_connect_b' => [
+				'label'         => __( 'Connected List B (drag to A)', 'unysonplus' ),
+				'type'          => 'addable-popup',
+				'connect_group' => 'demo_connect',
+				'desc'          => __( 'The other half of the connected pair — drag items here from List A and back. An empty connected list keeps a "Drag an item here" drop zone.', 'unysonplus' ),
+				'template'      => '{{- demo_item_label }}',
+				'value'         => [ [ 'demo_item_label' => 'Gamma' ] ],
+				'popup-options' => [
+					'demo_item_label' => [
+						'label' => __( 'Label', 'unysonplus' ),
+						'type'  => 'text',
+						'value' => 'Item',
+					],
+				],
+			],
 			'demo_addable_option' => [
 				'label'  => __( 'Addable Option', 'unysonplus' ),
 				'type'   => 'addable-option',
@@ -1183,6 +1197,24 @@ $options = [
 					__( 'Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium',
 						'unysonplus' )
 				)
+			],
+			// Cross-list drag-and-drop (connect_group) on ADDABLE-OPTION: two lists
+			// that share the same connect_group let their rows be dragged between them.
+			'demo_connect_opt_a' => [
+				'label'         => __( 'Connected Options A (drag to B)', 'unysonplus' ),
+				'type'          => 'addable-option',
+				'connect_group' => 'demo_connect_opt',
+				'option'        => [ 'type' => 'text' ],
+				'value'         => [ 'Apple', 'Banana' ],
+				'desc'          => __( 'Cross-list drag-and-drop via <code>connect_group</code> on the Addable Option type — drag rows between this list and "Connected Options B" (and reorder within).', 'unysonplus' ),
+			],
+			'demo_connect_opt_b' => [
+				'label'         => __( 'Connected Options B (drag to A)', 'unysonplus' ),
+				'type'          => 'addable-option',
+				'connect_group' => 'demo_connect_opt',
+				'option'        => [ 'type' => 'text' ],
+				'value'         => [ 'Cherry' ],
+				'desc'          => __( 'The other half of the connected pair — drag rows here from List A and back. An empty connected list keeps a "Drag an item here" drop zone.', 'unysonplus' ),
 			],
 			'demo_addable_box'               => [
 				'label'        => __( 'Addable Box', 'unysonplus' ),

@@ -22,6 +22,13 @@
 				if ( ! empty( $f_css_class ) ) {
 					$footer_classes[] = sanitize_html_class( $f_css_class );
 				}
+				// Overlay on last section (Footer → Layout): the footer pins to the bottom of the
+				// last full-height section and overlays it instead of a separate band. The JS in
+				// unysonplus_footer_overlay_boot() measures its height and only engages when the
+				// preceding section is tall enough to sit on.
+				if ( fw_get_db_settings_option( 'footer_overlay_last_section' ) === 'yes' ) {
+					$footer_classes[] = 'footer--overlay';
+				}
 				// Footer border (Footer → Layout → Border): the shared width/style/colour
 				// applies to the edges chosen in Border Sides. Default 'top' preserves the
 				// previous top-only behavior. The border stays invisible until a width AND
@@ -47,6 +54,28 @@
 			<footer id="colophon" class="<?php echo esc_attr( implode( ' ', $footer_classes ) ); ?>" role="contentinfo">
 				<?php get_template_part( 'template-parts/footer', 'builder' ); ?>
 			</footer><!-- #colophon -->
+			<?php if ( in_array( 'footer--overlay', $footer_classes, true ) ) : ?>
+			<script>
+			/* Footer → Overlay on Last Section: pull the footer up by its own measured height so it
+			   sits on the bottom of the page's LAST full-height section, and engage only when that
+			   section is tall enough to sit on (otherwise the footer stays a normal band). */
+			( function () {
+				var f = document.getElementById( 'colophon' );
+				if ( ! f ) { return; }
+				var content = document.getElementById( 'content' );
+				function apply() {
+					var last = ( content && content.lastElementChild ) || f.previousElementSibling;
+					var h = f.offsetHeight;
+					if ( h ) { f.style.setProperty( '--footer-overlay-h', h + 'px' ); }
+					var tall = last && last.getBoundingClientRect().height >= ( window.innerHeight || 1 ) * 0.7;
+					f.classList.toggle( 'footer--overlay-on', !! tall );
+				}
+				if ( document.readyState === 'loading' ) { document.addEventListener( 'DOMContentLoaded', apply ); } else { apply(); }
+				window.addEventListener( 'load', apply );
+				window.addEventListener( 'resize', apply, { passive: true } );
+			} )();
+			</script>
+			<?php endif; ?>
 			<?php do_action( 'unysonplus_after_footer' ); ?>
 		<?php endif; ?>
 	</div> <!-- #page -->

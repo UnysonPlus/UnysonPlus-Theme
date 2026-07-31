@@ -29,9 +29,9 @@ $options = [
 			'group_bottombar' => [
 				'type'    => 'group',
 				'options' => [
-					'bottombar_left'   => unysonplus_header_column( __( 'Bottom Bar — Left Column', 'unysonplus' ) ),
-					'bottombar_center' => unysonplus_header_column( __( 'Bottom Bar — Center Column', 'unysonplus' ) ),
-					'bottombar_right'  => unysonplus_header_column( __( 'Bottom Bar — Right Column', 'unysonplus' ) ),
+					'bottombar_left'   => unysonplus_header_column( __( 'Bottom Bar — Left Column', 'unysonplus' ), [], 'header_bottombar' ),
+					'bottombar_center' => unysonplus_header_column( __( 'Bottom Bar — Center Column', 'unysonplus' ), [], 'header_bottombar' ),
+					'bottombar_right'  => unysonplus_header_column( __( 'Bottom Bar — Right Column', 'unysonplus' ), [], 'header_bottombar' ),
 					'bottombar_custom_styling' => unysonplus_hf_custom_styling( 'bottombar' ),
 				],
 			],

@@ -50,12 +50,15 @@ $has_thumbnail       = $pages_featured_on && ! $hide_featured && has_post_thumbn
 			</header><!-- .entry-header -->
 		<?php endif; ?>
 	<?php
-	// Builder pages: render a title-only H1 header at the top so every page has
-	// exactly one H1 (= the page title). Gated by the global "Show Page Title on
-	// Builder Pages" default (Pages → Defaults, default yes); the per-page Hide
-	// Page Title still wins (it's re-checked inside unysonplus_entry_title()).
+	// Builder pages: OPT-IN title-only H1 header. Off by default — a builder
+	// page is a designed composition whose hero supplies its own H1, so the
+	// theme title would duplicate it (matches Elementor/Divi/Astra convention:
+	// built pages hide the theme title). Enable site-wide via Pages → Defaults →
+	// "Show Page Title on Builder Pages"; the per-page Hide Page Title still
+	// wins (it's re-checked inside unysonplus_entry_title()).
 	elseif ( ! $hide_title
-		&& ( ! function_exists( 'unysonplus_pages_get' ) || unysonplus_pages_get( 'pages_show_title_on_builder', 'yes' ) !== 'no' ) ) : ?>
+		&& function_exists( 'unysonplus_pages_get' )
+		&& unysonplus_pages_get( 'pages_show_title_on_builder', 'no' ) === 'yes' ) : ?>
 		<header class="entry-header page-title-header">
 			<div class="<?php echo esc_attr( function_exists( 'unysonplus_fw_container_class' ) ? unysonplus_fw_container_class( 'container' ) : 'container' ); ?>">
 				<?php do_action( 'unysonplus_entry_header' ); ?>

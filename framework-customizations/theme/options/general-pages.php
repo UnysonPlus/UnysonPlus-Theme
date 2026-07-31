@@ -73,11 +73,11 @@ $options = [
 			],
 			'pages_show_title_on_builder' => [
 				'label'        => __( 'Show Page Title on Builder Pages', 'unysonplus' ),
-				'desc'         => __( 'Render the page title as an H1 heading at the top of pages built with the Page Builder, so every page has exactly one H1 (classic pages already show it). Turn it off per page with Page Settings → Hide Page Title on landing pages that supply their own H1 in the builder.', 'unysonplus' ),
+				'desc'         => __( 'Render the page title as an H1 heading at the top of pages built with the Page Builder. Off by default: a builder page is a designed composition whose hero supplies its own H1, so injecting the theme title above it duplicates headings. Turn this on for sites that want a uniform title bar above builder content (classic pages always show the title; the per-page Hide Page Title still wins).', 'unysonplus' ),
 				'type'         => 'switch',
 				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
 				'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
-				'value'        => 'yes',
+				'value'        => 'no',
 			],
 		],
 	],

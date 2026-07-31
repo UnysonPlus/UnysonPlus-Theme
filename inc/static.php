@@ -22,9 +22,13 @@ if ( empty( $unysonplus_theme_version ) ) {
 // constant (wp-config) → the 'unysonplus_fontawesome_kit_url' filter. Return an
 // empty value from either to DISABLE Font Awesome entirely (e.g. when
 // self-hosting icons or relying on an icon font shipped by a plugin).
+// OPT-IN since 2.3.134: the kit (injected CSS + JS + webfonts + a third-party request
+// chain) is dead weight on sites that don't use FA icons — GTmetrix flags it on every
+// one. Enable by defining UNYSONPLUS_FONTAWESOME_KIT (wp-config) or returning a kit URL
+// from the 'unysonplus_fontawesome_kit_url' filter. Prefer inline SVGs for a few glyphs.
 $unysonplus_fa_kit = defined( 'UNYSONPLUS_FONTAWESOME_KIT' )
         ? UNYSONPLUS_FONTAWESOME_KIT
-        : 'https://kit.fontawesome.com/9b0e88a93e.js';
+        : '';
 $unysonplus_fa_kit = apply_filters( 'unysonplus_fontawesome_kit_url', $unysonplus_fa_kit );
 
 if ( ! empty( $unysonplus_fa_kit ) ) {
@@ -83,7 +87,7 @@ if ( is_rtl() ) {
 wp_enqueue_script(
         'theme',
         get_template_directory_uri() . '/assets/js/theme.js',
-        array( 'jquery' ),
+        array(),
         $unysonplus_theme_version,
         true
 );

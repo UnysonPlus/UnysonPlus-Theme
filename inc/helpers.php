@@ -94,13 +94,60 @@ if ( ! function_exists( 'unysonplus_header_logo_cfg' ) ) :
         }
 endif;
 
+if ( ! function_exists( 'unysonplus_upload_option_src' ) ) :
+        /**
+         * Resolve an `upload` option value ({attachment_id, url}) to an image URL
+         * that is VALID ON THE CURRENT SITE.
+         *
+         * Why this exists: the upload option stores the absolute `url` captured at
+         * SAVE time. When a site is cloned / migrated / deployed (localhost →
+         * staging → live, or a starter template reused on a new site), that stored
+         * URL points at a host/attachment that does not exist here — the logo then
+         * 404s (a console error + a broken image). This always re-resolves from the
+         * `attachment_id` against the current Media Library, and only trusts the
+         * stored `url` when it is same-host as this site. Returns '' when nothing
+         * valid exists, so callers can fall back to the text logo instead of
+         * emitting a dead <img>.
+         *
+         * @param array $value  The upload option value.
+         * @return string       A current-site URL, or '' if none is valid here.
+         */
+        function unysonplus_upload_option_src( $value ) {
+                if ( ! is_array( $value ) ) { return ''; }
+                // 1. Prefer the attachment id — wp_get_attachment_url() returns the
+                //    CURRENT site's URL, or false if that attachment is not here.
+                if ( ! empty( $value['attachment_id'] ) ) {
+                        $url = wp_get_attachment_url( (int) $value['attachment_id'] );
+                        if ( $url ) { return $url; }
+                }
+                // 2. No (valid) attachment id: trust the stored URL only if it is
+                //    on THIS site's host (a stale cross-site URL would 404).
+                if ( ! empty( $value['url'] ) ) {
+                        $stored_host = wp_parse_url( $value['url'], PHP_URL_HOST );
+                        $site_host   = wp_parse_url( home_url(), PHP_URL_HOST );
+                        // Protocol-relative or root-relative stored URLs have no host —
+                        // those resolve against the current site, so keep them.
+                        if ( ! $stored_host || strcasecmp( $stored_host, (string) $site_host ) === 0 ) {
+                                return $value['url'];
+                        }
+                }
+                return '';
+        }
+endif;
+
 if(! function_exists('unysonplus_logo')) :
         /**
          * The Logo
          */
         function unysonplus_logo() {
                 $header_logo = unysonplus_header_logo_cfg();
-                $has_unyson_image = ! empty( $header_logo['image'] ) && ! empty( $header_logo['image']['url'] );
+                // Resolve the Simple-Logo image against the CURRENT site (never the
+                // stored localhost URL) so a cloned / deployed site can't 404 - an
+                // absent attachment yields '' and we fall through to the text logo.
+                $unyson_image_src = ( function_exists( 'unysonplus_upload_option_src' ) && ! empty( $header_logo['image'] ) )
+                        ? unysonplus_upload_option_src( $header_logo['image'] )
+                        : ( ! empty( $header_logo['image']['url'] ) ? $header_logo['image']['url'] : '' );
+                $has_unyson_image = ( $unyson_image_src !== '' );
                 $has_logo_icon    = false; // set true when a text logo renders with a Logo Icon beside it
                 $logo_layout_class = '';   // 'site-logo--{layout}' for the text-logo lockup
                 $tagline_in_lockup = false; // true when the tagline is rendered INSIDE the lockup (stacked/eyebrow)
@@ -122,14 +169,18 @@ if(! function_exists('unysonplus_logo')) :
                         // serve the original and let CSS (--logo-width) scale it.
                         $logo_px = ( is_array( $logo_w ) && isset( $logo_w['unit'], $logo_w['value'] ) && 'px' === $logo_w['unit'] && is_numeric( $logo_w['value'] ) ) ? (int) $logo_w['value'] : 0;
                         if( $logo_px > 0 ) {
-                                $img_attr['src']                = fw_resize( $header_logo['image']['url'], $logo_px, 0, false );
+                                $img_attr['src']                = fw_resize( $unyson_image_src, $logo_px, 0, false );
                                 $img_attr['width']      = $logo_px;
                                 // intrinsic height omitted here; display height handled by CSS (height:auto)
                         }else{
-                                $img_attr['src']                = $header_logo['image']['url'];
-                                $meta = wp_prepare_attachment_for_js($header_logo['image']['attachment_id']);
-                                $img_attr['width']      = $meta['width'];  
-                                $img_attr['height'] = $meta['height'];
+                                $img_attr['src']                = $unyson_image_src;
+                                $meta = ! empty( $header_logo['image']['attachment_id'] )
+                                        ? wp_prepare_attachment_for_js( (int) $header_logo['image']['attachment_id'] )
+                                        : null;
+                                if ( is_array( $meta ) && isset( $meta['width'], $meta['height'] ) ) {
+                                        $img_attr['width']  = $meta['width'];
+                                        $img_attr['height'] = $meta['height'];
+                                }
                                 // Responsive srcset/sizes: a header logo displays at ~120-150px, so shipping the
                                 // full-size source to every device wastes bytes. Build the candidates from
                                 // on-demand fw_resize() renditions — wp_get_attachment_image_srcset('full')
@@ -161,8 +212,8 @@ if(! function_exists('unysonplus_logo')) :
                                 }
                         }
                         // Retina / 2x: serve a high-DPI source via srcset when provided.
-                        if ( ! empty( $header_logo['image_2x']['url'] ) ) {
-                                $img_attr['srcset'] = $img_attr['src'] . ' 1x, ' . $header_logo['image_2x']['url'] . ' 2x';
+                        if ( ! empty( $header_logo['image_2x'] ) && ( $_2x = unysonplus_upload_option_src( $header_logo['image_2x'] ) ) ) {
+                                $img_attr['srcset'] = $img_attr['src'] . ' 1x, ' . $_2x . ' 2x';
                         }
                         $img_attr['alt']   = $unysonplus_logo_alt;
                         $img_attr['class'] = 'site-logo site-logo--default img-fluid';
@@ -172,25 +223,27 @@ if(! function_exists('unysonplus_logo')) :
                         // Optional sticky-header and mobile logo variants. CSS decides
                         // which one is visible (see .site-logo--sticky / --mobile in
                         // style.css); the wrapper gets has-sticky-logo / has-mobile-logo.
-                        if ( ! empty( $header_logo['sticky_image']['url'] ) ) {
+                        // Optional variants — each re-resolved on this site (skipped if
+                        // its attachment isn't present here, so no variant can 404).
+                        if ( ! empty( $header_logo['sticky_image'] ) && ( $_v = unysonplus_upload_option_src( $header_logo['sticky_image'] ) ) ) {
                                 $logo .= fw_html_tag( 'img', array(
-                                        'src'   => $header_logo['sticky_image']['url'],
+                                        'src'   => $_v,
                                         'alt'   => $unysonplus_logo_alt,
                                         'class' => 'site-logo site-logo--sticky img-fluid',
                                 ) );
                         }
-                        if ( ! empty( $header_logo['mobile_image']['url'] ) ) {
+                        if ( ! empty( $header_logo['mobile_image'] ) && ( $_v = unysonplus_upload_option_src( $header_logo['mobile_image'] ) ) ) {
                                 $logo .= fw_html_tag( 'img', array(
-                                        'src'   => $header_logo['mobile_image']['url'],
+                                        'src'   => $_v,
                                         'alt'   => $unysonplus_logo_alt,
                                         'class' => 'site-logo site-logo--mobile img-fluid',
                                 ) );
                         }
                         // Transparent-header variant — shown while the header is transparent
                         // and not yet stuck (see .site-logo--transparent in style.css).
-                        if ( ! empty( $header_logo['transparent_image']['url'] ) ) {
+                        if ( ! empty( $header_logo['transparent_image'] ) && ( $_v = unysonplus_upload_option_src( $header_logo['transparent_image'] ) ) ) {
                                 $logo .= fw_html_tag( 'img', array(
-                                        'src'   => $header_logo['transparent_image']['url'],
+                                        'src'   => $_v,
                                         'alt'   => $unysonplus_logo_alt,
                                         'class' => 'site-logo site-logo--transparent img-fluid',
                                 ) );
@@ -213,17 +266,24 @@ if(! function_exists('unysonplus_logo')) :
                         // Logo Layout: "<arrangement>-<side>", e.g. eyebrow-left. Arrangement =
                         // inline|stacked|eyebrow; side = which side the icon sits on (left|right).
                         // Tolerates the legacy 3-way values (inline/stacked/eyebrow → icon left).
+                        // Special value "icon-only" = just the Logo Icon, no visible text (the
+                        // Site Title still renders as the link's screen-reader name).
                         $logo_layout = ! empty( $header_logo['logo_layout'] ) ? $header_logo['logo_layout'] : 'inline-left';
-                        $lp          = explode( '-', $logo_layout );
-                        $logo_arrange = in_array( $lp[0], array( 'inline', 'stacked', 'eyebrow' ), true ) ? $lp[0] : 'inline';
-                        $logo_side    = ( isset( $lp[1] ) && 'right' === $lp[1] ) ? 'right' : 'left';
+                        if ( 'icon-only' === $logo_layout ) {
+                                $logo_arrange = 'icon-only';
+                                $logo_side    = 'left';
+                        } else {
+                                $lp           = explode( '-', $logo_layout );
+                                $logo_arrange = in_array( $lp[0], array( 'inline', 'stacked', 'eyebrow' ), true ) ? $lp[0] : 'inline';
+                                $logo_side    = ( isset( $lp[1] ) && 'right' === $lp[1] ) ? 'right' : 'left';
+                        }
                         $logo_frame  = ! empty( $header_logo['logo_icon_frame'] ) ? $header_logo['logo_icon_frame'] : 'none';
                         $icon_html  = '';
                         if ( ! empty( $header_logo['logo_icon'] ) && function_exists( 'sc_icon_render' ) ) {
                                 // Enqueue the picked icon's pack (non-FA glyphs), mirroring the header icon_text element.
                                 if ( function_exists( 'fw' ) && isset( fw()->backend ) && method_exists( fw()->backend, 'option_type' )
-                                        && isset( fw()->backend->option_type( 'icon-v2' )->packs_loader ) ) {
-                                        fw()->backend->option_type( 'icon-v2' )->packs_loader->enqueue_pack_for_icon( $header_logo['logo_icon'] );
+                                        && isset( fw()->backend->option_type( 'icon' )->packs_loader ) ) {
+                                        fw()->backend->option_type( 'icon' )->packs_loader->enqueue_pack_for_icon( $header_logo['logo_icon'] );
                                 }
                                 $mark_class = 'site-logo__mark';
                                 if ( in_array( $logo_frame, array( 'rounded', 'squircle', 'circle', 'square', 'hexagon' ), true ) ) {
@@ -257,11 +317,19 @@ if(! function_exists('unysonplus_logo')) :
                                 $text_html = $title_html;
                         }
                         $logo_layout_class = 'site-logo--' . $logo_arrange . ' site-logo--icon-' . $logo_side;
-                        if ( $icon_html !== '' ) {
+                        if ( 'icon-only' === $logo_arrange && $icon_html !== '' ) {
+                                // Icon only: the mark alone, with the Site Title kept as a
+                                // visually-hidden accessible name for the home link (a link must
+                                // never be nameless - house a11y rule).
+                                $logo          = $icon_html . '<span class="screen-reader-text">' . esc_html( $title_text ) . '</span>';
+                                $has_logo_icon = true;
+                        } elseif ( $icon_html !== '' ) {
                                 $icon_after    = ( 'right' === $logo_side ); // icon side comes from the Logo Layout
                                 $logo          = $icon_after ? $text_html . $icon_html : $icon_html . $text_html;
                                 $has_logo_icon = true;
                         } else {
+                                // Icon-only with NO icon picked falls back to the text wordmark
+                                // (an empty home link would be useless and inaccessible).
                                 $logo = ( $lockup_tagline !== '' ) ? $text_html : $title_text;
                         }
                 }
@@ -378,6 +446,13 @@ if ( ! function_exists( 'unysonplus_post_nav' ) ) :
 function unysonplus_post_nav() {
 
     if ( is_page() ) {
+        return;
+    }
+
+    // Portfolio projects render their own prev/next navigation (thumbnails +
+    // heading-order-safe markup) via the portfolio extension's single view —
+    // skip the blog-style nav there so it doesn't duplicate.
+    if ( 'fw-portfolio' === get_post_type() && function_exists( 'fw_ext' ) && fw_ext( 'portfolio' ) ) {
         return;
     }
 

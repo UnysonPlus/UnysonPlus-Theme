@@ -273,3 +273,27 @@ div:has(> .fw-backend-option-type-addable-popup[id$="_right"]) > .fw-backend-opt
     overflow-wrap: break-word;
     word-wrap: break-word;
 }
+
+/* Two fixes for horizontal-scrollbar on the settings page (e.g. Footer → "Auto
+   Width (fit to content)" with its long desc):
+   1. A `switch` (backend width-type "auto") renders its control column as
+      `.fw-backend-option-input.width-type-auto`, sized to its content's INTRINSIC
+      width — a long `desc` expands it to the unwrapped text width. Cap it + wrap.
+   2. The option row `.fw-backend-option-design-default` uses `content-box` with
+      27px horizontal padding, so its width + padding renders ~34px past the panel
+      (a constant overflow at every viewport). `border-box` folds the padding into
+      the width so the option fits its column. */
+.fw-backend-option-input.width-type-auto {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.fw-backend-option-input.width-type-auto,
+.fw-backend-option-input.width-type-auto .fw-backend-option-desc,
+.fw-backend-option-input.width-type-auto .fw-text {
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+.fw-backend-option-design-default {
+    box-sizing: border-box;
+}

@@ -90,11 +90,6 @@ $layout_options = [
 
 /* --- Page Title / Hero ------------------------------------------------ */
 $hero_header_options = [
-	'title_icon' => [
-		'label' => __( 'Title Icon', 'unysonplus' ),
-		'desc'  => __( 'Icon shown before the page title. Pick an icon font, emoji, SVG, or upload an image. Leave empty for no icon.', 'unysonplus' ),
-		'type'  => 'icon-v2',
-	],
 	'header_image' => [
 		'label' => __( 'Header Image', 'unysonplus' ),
 		'desc'  => __( 'Full-width banner image at the top of the page. Empty inherits the global Pages → Page Title / Hero image.', 'unysonplus' ),
@@ -126,22 +121,27 @@ $hero_header_options = [
 		'value'      => 0,
 		'properties' => [ 'min' => 0, 'max' => 100, 'step' => 5 ],
 	],
-	'header_content_position' => [
-		'label'   => __( 'Title Position', 'unysonplus' ),
-		'type'    => 'select',
-		'value'   => 'default',
-		'choices' => [
-			'default' => __( 'Global', 'unysonplus' ),
-			'top'     => __( 'Top', 'unysonplus' ),
-			'center'  => __( 'Center', 'unysonplus' ),
-			'bottom'  => __( 'Bottom', 'unysonplus' ),
-		],
-	],
 	'hide_page_title' => [
-		'label' => false,
+		'label' => __( 'Hide Page Title', 'unysonplus' ),
 		'type'  => 'checkbox',
 		'value' => false,
-		'text'  => __( 'Hide the page title', 'unysonplus' ),
+		'text'  => __( 'Yes', 'unysonplus' ),
+	],
+	'header_content_position' => [
+		'label'   => __( 'Title Position', 'unysonplus' ),
+		'type'    => 'image-picker',
+		'value'   => 'default',
+		'choices' => $upw_layout_picker( [
+			'default' => 'tp-global.svg',
+			'top'     => 'tp-top.svg',
+			'center'  => 'tp-center.svg',
+			'bottom'  => 'tp-bottom.svg',
+		] ),
+	],
+	'title_icon' => [
+		'label' => __( 'Title Icon', 'unysonplus' ),
+		'desc'  => __( 'Icon shown before the page title. Pick an icon font, emoji, SVG, or upload an image. Leave empty for no icon.', 'unysonplus' ),
+		'type'  => 'icon',
 	],
 ];
 

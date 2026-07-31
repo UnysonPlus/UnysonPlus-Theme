@@ -270,6 +270,14 @@
 	// drawer sits below the WP admin bar (--admin-bar-offset), so subtract that from
 	// the height — this keeps the rings and the %-positioned labels in agreement.
 	function sizeConcentricRings() {
+		// Find the target menus FIRST (a plain DOM query - no layout). Almost no
+		// site uses the concentric drawer, and the reads below (getComputedStyle +
+		// innerWidth/innerHeight) force a style recalc / reflow right after the
+		// drawer init has written to the DOM - so bail out before touching layout
+		// when there is nothing to size.
+		var uls = document.querySelectorAll( '.primary-navigation-drawer--concentric .primary-menu' );
+		if ( ! uls.length ) { return; }
+
 		var offRaw = getComputedStyle( document.body ).getPropertyValue( '--admin-bar-offset' );
 		var off = parseInt( offRaw, 10 ) || 0;
 		var h = window.innerHeight - off;
@@ -277,7 +285,7 @@
 			window.innerWidth * window.innerWidth + h * h
 		) ) + 2; // +2px safety so the far corner is fully covered, not on the arc edge
 		Array.prototype.forEach.call(
-			document.querySelectorAll( '.primary-navigation-drawer--concentric .primary-menu' ),
+			uls,
 			function ( ul ) { ul.style.setProperty( '--reach', reach + 'px' ); }
 		);
 	}

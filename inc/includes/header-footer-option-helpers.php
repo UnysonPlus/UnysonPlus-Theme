@@ -309,7 +309,7 @@ function unysonplus_footer_element_popup() {
 				),
 				'icon_text' => array(
 					'icontext_icon' => array(
-						'type'         => 'icon-v2',
+						'type'         => 'icon',
 						'label'        => __( 'Icon', 'unysonplus' ),
 						'desc'         => __( 'Icon shown before the text (e.g. an envelope for email, a phone, a pin for an address).', 'unysonplus' ),
 						'preview_size' => 'small',
@@ -486,7 +486,7 @@ function unysonplus_header_element_popup() {
 				),
 				'icon_text' => array(
 					'icontext_icon' => array(
-						'type'         => 'icon-v2',
+						'type'         => 'icon',
 						'label'        => __( 'Icon', 'unysonplus' ),
 						'desc'         => __( 'Icon shown before the text (e.g. an envelope for email, a phone, a pin for an address).', 'unysonplus' ),
 						'preview_size' => 'small',
@@ -507,6 +507,21 @@ function unysonplus_header_element_popup() {
 							'url'   => __( 'Website URL', 'unysonplus' ),
 							'email' => __( 'Email (mailto:)', 'unysonplus' ),
 							'phone' => __( 'Phone (tel:)', 'unysonplus' ),
+						),
+						'footer_logo_show_title' => array(
+							'label'        => __( 'Show Site Title', 'unysonplus' ),
+							'type'         => 'switch',
+							'value'        => 'no',
+							'right-choice' => array( 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ),
+							'left-choice'  => array( 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ),
+							'desc'         => __( 'Show the site title as a wordmark beside the image — an image + text lockup, like the header logo.', 'unysonplus' ),
+						),
+						'footer_logo_title' => array(
+							'label'           => __( 'Title Text', 'unysonplus' ),
+							'type'            => 'text',
+							'value'           => '',
+							'desc'            => __( 'Optional wordmark text (Show Site Title on). Empty = the Site Title.', 'unysonplus' ),
+							'dynamic_content' => false,
 						),
 					),
 					'icontext_link' => array(
@@ -642,7 +657,7 @@ endif;
  * ============================================================ */
 
 if ( ! function_exists( 'unysonplus_footer_column' ) ) :
-function unysonplus_footer_column( $label, $defaults = array() ) {
+function unysonplus_footer_column( $label, $defaults = array(), $connect_group = '' ) {
 	return array(
 		'label'         => $label,
 		'type'          => 'addable-popup',
@@ -650,6 +665,9 @@ function unysonplus_footer_column( $label, $defaults = array() ) {
 		'desc'          => false,
 		'template'      => unysonplus_footer_row_template(),
 		'popup-options' => unysonplus_footer_element_popup(),
+		// Cross-column drag-and-drop: all columns of the SAME footer row + count
+		// share this group id, so an element can be dragged between them.
+		'connect_group' => $connect_group,
 	);
 }
 endif;
@@ -851,7 +869,9 @@ function unysonplus_footer_columns_field( $prefix, $max = 6, $default_count = 1,
 		for ( $i = 1; $i <= $n; $i++ ) {
 			$reveal[ $prefix . '_col_' . $i ] = unysonplus_footer_column(
 				sprintf( __( 'Column %d', 'unysonplus' ), $i ),
-				( 1 === $i ) ? $col1_default : array()
+				( 1 === $i ) ? $col1_default : array(),
+				// Group per row + count so only the columns shown together interlink.
+				$prefix . '_' . $n
 			);
 		}
 		$choices[ (string) $n ] = $reveal;
@@ -899,7 +919,7 @@ function unysonplus_hf_columns_note() {
 endif;
 
 if ( ! function_exists( 'unysonplus_header_column' ) ) :
-function unysonplus_header_column( $label, $defaults = array() ) {
+function unysonplus_header_column( $label, $defaults = array(), $connect_group = '' ) {
 	return array(
 		'label'         => $label,
 		'type'          => 'addable-popup',
@@ -907,6 +927,9 @@ function unysonplus_header_column( $label, $defaults = array() ) {
 		'desc'          => false,
 		'template'      => unysonplus_header_row_template(),
 		'popup-options' => unysonplus_header_element_popup(),
+		// Cross-column drag-and-drop: the Left/Center/Right columns of the SAME
+		// header bar share this group id, so an element can be dragged between them.
+		'connect_group' => $connect_group,
 	);
 }
 endif;

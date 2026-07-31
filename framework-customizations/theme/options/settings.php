@@ -13,9 +13,15 @@ $options = [
 	fw()->theme->get_options( 'header-settings' ),
 	fw()->theme->get_options( 'pages-settings' ),
 	fw()->theme->get_options( 'blog-settings' ),
-	fw()->theme->get_options( 'social-settings' ),
-	fw()->theme->get_options( 'footer-settings' ),
 ];
+
+// Portfolio settings tab — only when the Portfolio extension is active.
+if ( function_exists( 'fw_ext' ) && fw_ext( 'portfolio' ) ) {
+	$options[] = fw()->theme->get_options( 'portfolio-settings' );
+}
+
+$options[] = fw()->theme->get_options( 'social-settings' );
+$options[] = fw()->theme->get_options( 'footer-settings' );
 
 // WooCommerce settings tab — only when WooCommerce is active.
 if ( class_exists( 'WooCommerce' ) ) {

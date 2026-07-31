@@ -159,7 +159,7 @@ $options = array(
 				'dynamic_content' => false,
 			),
 			'icon' => array(
-				'type'         => 'icon-v2',
+				'type'         => 'icon',
 				'preview_size' => 'medium',
 				'modal_size'   => 'medium',
 				'label'        => __( 'Icon', 'unysonplus' ),

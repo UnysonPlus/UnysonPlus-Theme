@@ -377,8 +377,8 @@ $options = [
 						'value' => [ 'open' => '', 'close' => '' ],
 						'desc'  => __( '<b>Open</b> = the button that reveals the off-canvas / mobile drawer panel (default: hamburger bars). <b>Close</b> = the button inside the open panel (default: &times;). Both apply in every header mode. Leave either empty for its default.', 'unysonplus' ),
 						'fw_multi_options' => [
-							'open'  => [ 'type' => 'icon-v2', 'title' => __( 'Open', 'unysonplus' ) ],
-							'close' => [ 'type' => 'icon-v2', 'title' => __( 'Close', 'unysonplus' ) ],
+							'open'  => [ 'type' => 'icon', 'title' => __( 'Open', 'unysonplus' ) ],
+							'close' => [ 'type' => 'icon', 'title' => __( 'Close', 'unysonplus' ) ],
 						],
 					],
 

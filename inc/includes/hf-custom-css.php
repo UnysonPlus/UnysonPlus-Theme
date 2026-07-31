@@ -48,6 +48,11 @@ function unysonplus_hf_style_sections() {
 		$v = fw_get_db_settings_option( $opt_id, array() );
 		return is_array( $v ) ? $v : array();
 	};
+	// Copyright's Custom Styling is DOUBLE-nested: copyright_settings → yes → copyright_custom_styling.
+	$nested2 = function ( $opt_id, $k1, $k2 ) {
+		$v = fw_get_db_settings_option( $opt_id, array() );
+		return ( is_array( $v ) && isset( $v[ $k1 ][ $k2 ] ) && is_array( $v[ $k1 ][ $k2 ] ) ) ? $v[ $k1 ][ $k2 ] : array();
+	};
 
 	return array(
 		array( 'selector' => '.header-topbar',                'prefix' => 'topbar',      'styling' => $nested( 'header_topbar', 'topbar_custom_styling' ) ),
@@ -56,6 +61,7 @@ function unysonplus_hf_style_sections() {
 		array( 'selector' => '.footer-section--pre-footer',   'prefix' => 'pre_footer',  'styling' => $top( 'pre_footer_custom_styling' ) ),
 		array( 'selector' => '.footer-section--main-footer',  'prefix' => 'main_footer', 'styling' => $top( 'main_footer_custom_styling' ) ),
 		array( 'selector' => '.footer-section--post-footer',  'prefix' => 'post_footer', 'styling' => $top( 'post_footer_custom_styling' ) ),
+		array( 'selector' => '.footer-section--copyright',    'prefix' => 'copyright',   'styling' => $nested2( 'copyright_settings', 'yes', 'copyright_custom_styling' ) ),
 	);
 }
 endif;
@@ -488,9 +494,18 @@ function unysonplus_hf_build_global_css() {
 		if ( ! empty( $logo['logo_icon_color']['custom'] ) ) {
 			$css .= '.site-logo__mark{color:' . unysonplus_hf_css_val( $logo['logo_icon_color']['custom'] ) . '}';
 		}
+		// Logo Icon Frame Background — the tile fill behind the mark when a Frame
+		// shape is chosen (e.g. a white "app-icon" tile). background-color longhand so
+		// it overrides only the color channel of the frame's default shorthand.
+		if ( ! empty( $logo['logo_icon_frame_bg']['custom'] ) ) {
+			$css .= '.site-logo__mark--framed{background-color:' . unysonplus_hf_css_val( $logo['logo_icon_frame_bg']['custom'] ) . '}';
+		}
 		if ( ! empty( $logo['logo_icon_size']['value'] ) && '' !== $logo['logo_icon_size']['value'] ) {
 			$unit = ! empty( $logo['logo_icon_size']['unit'] ) ? preg_replace( '/[^a-z%]/', '', $logo['logo_icon_size']['unit'] ) : 'em';
-			$css .= '.site-logo__mark{font-size:' . (float) $logo['logo_icon_size']['value'] . $unit . '}';
+			// The .site-logo--icon-only selector too: the Icon-only lockup sizes the
+			// mark to the header logo height by default (style.css, equally specific),
+			// so the explicit Logo Icon Size must out-cascade it by coming later.
+			$css .= '.site-logo__mark,.site-logo--icon-only .site-logo__mark{font-size:' . (float) $logo['logo_icon_size']['value'] . $unit . '}';
 		}
 		if ( ! empty( $logo['tagline_color']['custom'] ) ) {
 			$css .= '.site-description{color:' . unysonplus_hf_css_val( $logo['tagline_color']['custom'] ) . '}';
@@ -595,11 +610,13 @@ if ( ! function_exists( 'unysonplus_hf_css_paths' ) ) :
 function unysonplus_hf_css_paths() {
 	$up = wp_upload_dir();
 	if ( ! empty( $up['error'] ) || empty( $up['basedir'] ) ) { return null; }
-	$dir = trailingslashit( $up['basedir'] ) . 'unysonplus';
+	// Generated CSS lives in the shared uploads/unysonplus/css folder alongside the
+	// plugin's preset/page CSS (consolidated uploads layout).
+	$dir = trailingslashit( $up['basedir'] ) . 'unysonplus/css';
 	return array(
 		'dir'    => $dir,
 		'file'   => $dir . '/unysonplus-generated.css',
-		'url'    => trailingslashit( $up['baseurl'] ) . 'unysonplus/unysonplus-generated.css',
+		'url'    => trailingslashit( $up['baseurl'] ) . 'unysonplus/css/unysonplus-generated.css',
 		'legacy' => $dir . '/header-footer.css', // pre-rename name; removed on write
 	);
 }

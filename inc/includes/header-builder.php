@@ -109,8 +109,8 @@ function unysonplus_hf_toggle_icon_svg( $icon, $class ) {
 		return '';
 	}
 	if ( function_exists( 'fw' ) && isset( fw()->backend ) && method_exists( fw()->backend, 'option_type' )
-		&& isset( fw()->backend->option_type( 'icon-v2' )->packs_loader ) ) {
-		fw()->backend->option_type( 'icon-v2' )->packs_loader->enqueue_pack_for_icon( $icon );
+		&& isset( fw()->backend->option_type( 'icon' )->packs_loader ) ) {
+		fw()->backend->option_type( 'icon' )->packs_loader->enqueue_pack_for_icon( $icon );
 	}
 	$svg = sc_icon_render( $icon, array( 'class' => $class, 'aria_hidden' => true ) );
 	return is_string( $svg ) ? $svg : '';
@@ -434,8 +434,8 @@ function unysonplus_render_icon_text( $settings ) {
 
         // Enqueue the icon's pack so a non-FA glyph renders (FA loads globally).
         if ( ! empty( $settings['icontext_icon'] ) && function_exists( 'fw' ) && isset( fw()->backend )
-                && method_exists( fw()->backend, 'option_type' ) && isset( fw()->backend->option_type( 'icon-v2' )->packs_loader ) ) {
-                fw()->backend->option_type( 'icon-v2' )->packs_loader->enqueue_pack_for_icon( $settings['icontext_icon'] );
+                && method_exists( fw()->backend, 'option_type' ) && isset( fw()->backend->option_type( 'icon' )->packs_loader ) ) {
+                fw()->backend->option_type( 'icon' )->packs_loader->enqueue_pack_for_icon( $settings['icontext_icon'] );
         }
 
         $href = ''; $rel = '';
@@ -566,7 +566,7 @@ function unysonplus_render_social_icons() {
 
         // icon-v2 packs loader (enqueues the pack CSS for a picked icon so it renders).
         $packs = ( function_exists( 'fw' ) && isset( fw()->backend ) && method_exists( fw()->backend, 'option_type' ) )
-                ? ( isset( fw()->backend->option_type( 'icon-v2' )->packs_loader ) ? fw()->backend->option_type( 'icon-v2' )->packs_loader : null )
+                ? ( isset( fw()->backend->option_type( 'icon' )->packs_loader ) ? fw()->backend->option_type( 'icon' )->packs_loader : null )
                 : null;
 
         echo '<div class="' . esc_attr( implode( ' ', $wrap ) ) . '">';

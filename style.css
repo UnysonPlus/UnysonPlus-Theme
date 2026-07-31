@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.3.147
+Version: 2.3.162
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -862,7 +862,7 @@ a.header-icon-text:hover { opacity: 0.85; }
 .site-logo__sub { display: block; font-size: .72em; opacity: .65; font-weight: 400; margin-top: 1px; }
 
 /* Logo Icon Frame (Header → Identity → Logo Icon Frame): the "app icon" tile behind the mark. */
-.site-logo__mark--framed { justify-content: center; width: 2.2em; height: 2.2em; border: 1px solid currentColor; background: rgba(127,127,127,.06); }
+.site-logo__mark--framed { justify-content: center; width: 2.2em; height: 2.2em; border: 1px solid currentColor; background-color: rgba(127,127,127,.06); }
 .site-logo__mark--rounded  { border-radius: .5em; }
 .site-logo__mark--squircle { border-radius: 32%; }        /* iOS-style continuous rounding */
 .site-logo__mark--circle   { border-radius: 50%; }
@@ -935,7 +935,7 @@ body.transparent .site-header:not(.is-stuck) .has-transparent-logo .site-logo--t
 	background-color: var(--menu-item-bg, transparent);
 	font-family: var(--menu-font-family, inherit);
 	font-size: var(--menu-link-font-size, inherit);
-	font-weight: 500;
+	font-weight: var(--menu-link-font-weight, 500);
 	border-radius: var(--radius);
 	transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
@@ -1396,6 +1396,20 @@ body.nav-scrollspy section[id] {
 	background-color: var(--footer-bg-color, var(--footer-bg));
 	color: var(--footer-color);
 	position: relative;
+}
+
+/* Overlay on Last Section (Footer → Layout → Overlay on Last Section). The footer is pulled up by
+   its own measured height (--footer-overlay-h) so it sits on the bottom of the page's last
+   full-height section instead of a separate band below it — removing any blank tail after a pinned
+   last section. `footer--overlay-on` is added by the JS ONLY when that last section is tall enough
+   to sit on (otherwise it stays a normal band). This changes POSITIONING only — set the footer
+   Background (a scrim, or a transparent colour) and Text/Link colours in Footer settings for
+   legibility over your final scene. */
+.footer--overlay-on {
+	position: relative;
+	z-index: 40;
+	margin-top: calc(-1 * var(--footer-overlay-h, 0px));
+	background-color: var(--footer-bg-color, transparent);
 }
 
 /* Footer border (Footer → Layout → Border). ONE shared width / style / colour, applied

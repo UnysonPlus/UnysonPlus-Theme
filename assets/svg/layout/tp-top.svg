@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 74" preserveAspectRatio="xMidYMid meet">
+  <rect width="80" height="58" fill="#b6c0cb"/>
+  <rect width="80" height="8" fill="#525c66"/>
+  <rect x="22" y="14" width="36" height="6" fill="#ffffff"/><rect x="28" y="24" width="24" height="3" fill="#eaeef2"/>
+  <text x="40" y="69" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="600" fill="#3c444d">Top</text>
+</svg>

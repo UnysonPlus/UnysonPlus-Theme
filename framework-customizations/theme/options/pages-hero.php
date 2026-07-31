@@ -54,13 +54,19 @@ $options = [
 					'default_hero_align' => [
 						'label'   => __( 'Default Title Position', 'unysonplus' ),
 						'desc'    => __( 'Vertical position of the page title within the hero.', 'unysonplus' ),
-						'type'    => 'select',
+						'type'    => 'image-picker',
 						'value'   => 'center',
-						'choices' => [
-							'top'    => __( 'Top', 'unysonplus' ),
-							'center' => __( 'Center', 'unysonplus' ),
-							'bottom' => __( 'Bottom', 'unysonplus' ),
-						],
+						'choices' => call_user_func( function () {
+							$base = get_template_directory_uri() . '/assets/svg/layout';
+							$out  = [];
+							foreach ( [ 'top' => 'tp-top.svg', 'center' => 'tp-center.svg', 'bottom' => 'tp-bottom.svg' ] as $value => $file ) {
+								$out[ $value ] = [
+									'small' => [ 'height' => 104, 'src' => $base . '/' . $file ],
+									'large' => [ 'height' => 150, 'src' => $base . '/' . $file ],
+								];
+							}
+							return $out;
+						} ),
 					],
 					'default_hero_overlay_color'   => $overlay_color_field,
 					'default_hero_overlay_opacity' => [

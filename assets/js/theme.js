@@ -1,57 +1,65 @@
-/*----------------------------------------------------
-/* Back to top smooth scrolling
-/*--------------------------------------------------*/
+/* Theme front-end behaviours — vanilla JS, no jQuery. */
+(function () {
+        'use strict';
 
-jQuery(document).ready(function($) {
-    jQuery('.toplink').click(function(){
-        jQuery('html, body').animate({scrollTop:0}, 'slow');
-        return false;
-    });
-});
+        function ready(fn) {
+                if (document.readyState !== 'loading') { fn(); }
+                else { document.addEventListener('DOMContentLoaded', fn); }
+        }
 
+        /*----------------------------------------------------
+        /* Back to top smooth scrolling
+        /*--------------------------------------------------*/
+        ready(function () {
+                document.addEventListener('click', function (e) {
+                        var link = e.target.closest('.toplink');
+                        if (!link) { return; }
+                        e.preventDefault();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+        });
 
-
-/*!
- * Anchor Scroll
- */
-jQuery(function ($) {
-        $(document).on('click', 'a[href^="#"]', function (event) {
-                var target = $($(this).attr('href'));
-                if (target.length) {
+        /*!
+         * Anchor Scroll
+         */
+        document.addEventListener('click', function (event) {
+                var link = event.target.closest('a[href^="#"]');
+                if (!link) { return; }
+                var hash = link.getAttribute('href');
+                if (!hash || hash.length < 2) { return; }
+                var target = null;
+                try { target = document.querySelector(hash); } catch (e) { return; }
+                if (target) {
                         event.preventDefault();
-                        $('html, body').animate({
-                                scrollTop: target.offset().top - 190 }, 800, 'linear');
+                        var top = target.getBoundingClientRect().top + window.pageYOffset - 190;
+                        window.scrollTo({ top: top, behavior: 'smooth' });
                 }
         });
-});
 
-
-
-/* ========================================== 
-scrollTop() >= 300
-Should be equal the the height of the header
-========================================== */
-jQuery(function ($) {
-        $(window).scroll(function(){
-                if ($(window).scrollTop() >= 100) {
-                        $('#masthead').addClass('sticky');
-                }
-                else {
-                        $('#masthead').removeClass('sticky');
-                }
+        /* ==========================================
+        scrollTop() >= 100
+        Should be equal the the height of the header
+        ========================================== */
+        window.addEventListener('scroll', function () {
+                var masthead = document.getElementById('masthead');
+                if (!masthead) { return; }
+                masthead.classList.toggle('sticky', window.pageYOffset >= 100);
         });
-});
 
-
-/*!
- * Navigation hover
- */
-jQuery(function ($) {
-        $('.menu-item-has-children').hover(
-                function(){$(this).find('.dropdown-menu').addClass('show')},
-        function(){$(this).find('.dropdown-menu').removeClass('show')}
-        );
-});
+        /*!
+         * Navigation hover
+         */
+        ready(function () {
+                Array.prototype.forEach.call(document.querySelectorAll('.menu-item-has-children'), function (item) {
+                        item.addEventListener('mouseenter', function () {
+                                Array.prototype.forEach.call(item.querySelectorAll('.dropdown-menu'), function (m) { m.classList.add('show'); });
+                        });
+                        item.addEventListener('mouseleave', function () {
+                                Array.prototype.forEach.call(item.querySelectorAll('.dropdown-menu'), function (m) { m.classList.remove('show'); });
+                        });
+                });
+        });
+})();
 
 
 /*!
