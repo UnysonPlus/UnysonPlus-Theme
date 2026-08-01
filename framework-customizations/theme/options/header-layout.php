@@ -393,6 +393,15 @@ $options = [
 						],
 					],
 
+					'container_width' => [
+						'label' => __( 'Container Width', 'unysonplus' ),
+						'desc'  => __( 'CONTENT width of the header bar when Container = Fixed Width. Leave empty to align with the site-wide Container Width (General → Layout). Like that setting, this is the content width — the gutter sits outside it — so a header narrower than the body (a common source pattern) can be matched exactly without touching the global.', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'px', 'rem', 'em' ],
+						'value' => [ 'value' => '', 'unit' => 'px' ],
+						'min'   => 0,
+					],
+
 					'min_height' => [
 						'label' => __( 'Main Header Height', 'unysonplus' ),
 						'desc'  => __( 'Minimum height of the main header row.', 'unysonplus' ),

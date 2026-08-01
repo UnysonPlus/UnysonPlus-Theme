@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.3.162
+Version: 2.3.164
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -182,17 +182,29 @@ body.up-noselect [contenteditable] {
 body .fw-container,
 body .container {
 	width: 100%;
-	max-width: var(--container-max-desktop, 1170px);
+	/* "Container Width" is the CONTENT width (like Tailwind's max-w-*): the gutter lives OUTSIDE it,
+	   so the content is EXACTLY the value set — not that value minus the padding. (Was
+	   `max-width: var(--container-max-desktop)`, which — with box-sizing:border-box — let the
+	   left/right gutter eat ~2*gutter off the content, making e.g. a 1280/max-w-7xl setting render
+	   ~1216 of content.) The gutter only shrinks the content once the viewport < width + 2*gutter. */
+	max-width: calc(var(--container-max-desktop, 1170px) + 2 * var(--container-gutter, clamp(1.25rem, 3vw, 2rem)));
 	margin-left: auto;
 	margin-right: auto;
 }
 @media (min-width: 768px) and (max-width: 991.98px) {
 	body .fw-container,
-	body .container { max-width: var(--container-max-tablet, 45rem); }
+	body .container { max-width: calc(var(--container-max-tablet, 45rem) + 2 * var(--container-gutter, clamp(1.25rem, 3vw, 2rem))); }
 }
 @media (max-width: 767.98px) {
 	body .fw-container,
 	body .container { max-width: var(--container-max-mobile, 100%); }
+}
+/* Header Container Width (Header → Layout) — lets the header bar use its OWN content width,
+   independent of the site-wide Container Width the body/footer use (a common source pattern:
+   a header on `max-w-7xl px-8` renders narrower content than a footer on `max-w-7xl`). When
+   --header-container-max is unset it falls back to the global, so the header is unchanged. */
+body .site-header .fw-container {
+	max-width: calc(var(--header-container-max, var(--container-max-desktop, 1170px)) + 2 * var(--container-gutter, clamp(1.25rem, 3vw, 2rem)));
 }
 
 /* Headings — driven by Typography tokens (Preset scale or per-heading overrides).

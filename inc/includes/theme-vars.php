@@ -425,6 +425,13 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			$hmh = unysonplus_css_length( isset( $header_layout['min_height'] ) ? $header_layout['min_height'] : '' );
 			if ( $hmh !== '' ) { $out['--header-min-height'] = $hmh; }
 
+			// Header Container Width (Fixed-Width mode) — CONTENT width for the header's own
+			// .fw-container, independent of the site-wide Container Width the footer/body use.
+			// Consumed by the scoped `.site-header .fw-container` max-width rule in style.css,
+			// which falls back to --container-max-desktop when this is unset.
+			$hcw = unysonplus_css_length( isset( $header_layout['container_width'] ) ? $header_layout['container_width'] : '' );
+			if ( $hcw !== '' ) { $out['--header-container-max'] = $hcw; }
+
 			$hmh_mobile = unysonplus_css_length( isset( $header_layout['mobile_min_height'] ) ? $header_layout['mobile_min_height'] : '' );
 			if ( $hmh_mobile !== '' ) { $out['--header-min-height-mobile'] = $hmh_mobile; }
 
