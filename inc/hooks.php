@@ -539,10 +539,17 @@ endif;
 */
 if ( !function_exists('unysonplus_add_wc_items_to_nav_menu') && unysonplus_is_woocommerce_activated() ) :
         function unysonplus_add_wc_items_to_nav_menu( $items, $args ) {
-                if (is_user_logged_in() && $args->theme_location == 'primary-right') {
-                        $items .= '<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-account nav-item"><a href="'. get_permalink( get_option('woocommerce_myaccount_page_id') ) .'" class="nav-link">My Account</a></li>';
+                // Only the dedicated WooCommerce header-right location gets the account +
+                // cart affordances. Previously the Cart <li> was appended to EVERY menu
+                // (unconditionally, outside the location check), so it leaked onto the main
+                // `primary` nav — visible on desktop wherever the Bootstrap d-md-none utility
+                // CSS wasn't loaded to hide it. Scope the whole block to `primary-right`.
+                if ( 'primary-right' !== $args->theme_location ) {
+                        return $items;
                 }
-                elseif (!is_user_logged_in() && $args->theme_location == 'primary-right') {
+                if ( is_user_logged_in() ) {
+                        $items .= '<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-account nav-item"><a href="'. get_permalink( get_option('woocommerce_myaccount_page_id') ) .'" class="nav-link">My Account</a></li>';
+                } else {
                         $items .= '<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-login nav-item"><a href="' . get_permalink( wc_get_page_id( 'myaccount' ) ) . '" class="nav-link">Sign in  /  Register</a></li>';
                 }
                 $items .= '<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-cart nav-item d-sm-block d-md-none"><a href="' . get_permalink( wc_get_page_id( 'cart' ) ) . '" class="nav-link">Cart</a></li>';

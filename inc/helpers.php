@@ -188,7 +188,14 @@ if(! function_exists('unysonplus_logo')) :
                                 // registered sizes has none, so 1x screens over-download the full file.
                                 // (A manual image_2x below still wins when it is set.)
                                 $_lid = ! empty( $header_logo['image']['attachment_id'] ) ? (int) $header_logo['image']['attachment_id'] : 0;
-                                if ( $_lid && empty( $header_logo['image_2x']['url'] ) ) {
+                                // An SVG logo is resolution-independent — it needs no srcset, and fw_resize()
+                                // can't raster-resize it (it returns null and warns "array offset on null" in
+                                // class-fw-resize.php). Skip the whole rendition loop for SVGs so the header
+                                // never throws that warning — including after an admin re-save wipes image_2x.
+                                $_lmime  = $_lid ? get_post_mime_type( $_lid ) : '';
+                                $_is_svg = ( 'image/svg+xml' === $_lmime )
+                                        || ( ! empty( $header_logo['image']['url'] ) && preg_match( '/\.svg(?:$|\?)/i', $header_logo['image']['url'] ) );
+                                if ( $_lid && ! $_is_svg && empty( $header_logo['image_2x']['url'] ) ) {
                                 	$_meta2 = wp_get_attachment_metadata( $_lid );
                                 	$_ow    = ! empty( $_meta2['width'] ) ? (int) $_meta2['width'] : 0;
                                 	$_ourl  = wp_get_attachment_url( $_lid );
