@@ -307,15 +307,28 @@
 /* Uppercase navigation — primary menu links. */
 .site-header--uppercase-nav .header-main .menu-item > a { text-transform: uppercase; letter-spacing: .04em; }
 
-/* Translucent / Glass — frosted, semi-transparent header background. */
-.site-header--glass {
+/* Translucent / Glass — frosted, semi-transparent header background.
+   The `.site-header` prefix raises specificity to (0,2,0) so glass beats the core
+   `.site-header { background-color: var(--header-bg) }` base fill in style.css (0,1,0)
+   — otherwise, since style.css loads AFTER this file, the solid header colour would
+   win and there'd be no glass. */
+.site-header.site-header--glass {
 	background: color-mix(in srgb, var(--header-bg, #fff) 72%, transparent);
 	-webkit-backdrop-filter: saturate(1.4) blur(10px);
 	backdrop-filter: saturate(1.4) blur(10px);
 }
-/* Keep glass translucent when stuck (base rule would otherwise repaint it solid). */
-.site-header--glass.header-sticky.is-stuck:not(.site-header--transparent) {
-	background: color-mix(in srgb, var(--header-bg, #fff) 78%, transparent);
+/* Glass is a CONSISTENT background: when it's on, the header keeps the exact same
+   frosted fill at the top and on scroll — the scroll state must NOT repaint it. Three
+   rules fight to repaint a stuck header: the transparent-overlay `.is-stuck{background:#fff}`
+   (0,2,0), the core sticky system `style.css .site-header.header-sticky.is-stuck
+   { background-color: var(--header-sticky-bg) }` (0,3,0, and it loads AFTER this file),
+   and the plain sticky base. Re-assert the IDENTICAL glass fill at (0,4,0) — the leading
+   `.site-header` raises specificity above all of them — so a Glass header stays frosted,
+   not solid `--header-sticky-bg` (which is ~95% of the header colour = near-opaque). The
+   frost TINT comes from Main Header Background (--header-bg): set it dark and glass reads
+   dark, but it stays translucent + blurred, the same top and scrolled. */
+.site-header.site-header--glass.header-sticky.is-stuck {
+	background: color-mix(in srgb, var(--header-bg, #fff) 72%, transparent);
 }
 
 /* =========================================================
