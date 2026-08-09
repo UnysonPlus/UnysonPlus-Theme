@@ -199,6 +199,10 @@ function unysonplus_render_footer_element( $element ) {
                         unysonplus_nav_menu( 'secondary' );
                         break;
 
+                case 'links':
+                        unysonplus_render_links_element( $settings );
+                        break;
+
                 case 'menu':
                         unysonplus_render_menu( $settings );
                         break;
@@ -642,6 +646,34 @@ function unysonplus_render_menu( $settings ) {
                 'menu_class'      => 'builder-menu-list list-unstyled',
                 'item_spacing'    => 'discard',
         ) );
+}
+endif;
+
+
+if ( ! function_exists( 'unysonplus_render_links_element' ) ) :
+/**
+ * Links element — an INLINE, structured list of {label,url} rows (the Site Converter's target for footer
+ * link columns). Stores its links directly (no registered WP menu / menu_id), so a link can never vanish
+ * from a missing menu object. Renders an optional heading + a `<nav><ul class="footer-menu">` — the same
+ * markup footer link columns have always used, so existing footer CSS styles it unchanged.
+ */
+function unysonplus_render_links_element( $settings ) {
+	$rows = ( ! empty( $settings['links_items'] ) && is_array( $settings['links_items'] ) ) ? $settings['links_items'] : array();
+	if ( ! $rows ) { return; }
+	$title = ! empty( $settings['links_title'] ) ? trim( (string) $settings['links_title'] ) : '';
+	if ( $title !== '' ) {
+		echo '<h4 class="footer-links-title">' . esc_html( unysonplus_footer_resolve_tokens( $title ) ) . '</h4>';
+	}
+	echo '<nav class="footer-menu-nav"><ul class="footer-menu fw-footer-links list-unstyled">';
+	foreach ( $rows as $row ) {
+		$label = isset( $row['label'] ) ? trim( (string) $row['label'] ) : '';
+		$url   = isset( $row['url'] ) ? trim( (string) $row['url'] ) : '';
+		if ( $label === '' && $url === '' ) { continue; }
+		if ( $label === '' ) { $label = $url; }
+		$href = $url !== '' ? $url : '#';
+		echo '<li><a href="' . esc_url( $href ) . '">' . esc_html( $label ) . '</a></li>';
+	}
+	echo '</ul></nav>';
 }
 endif;
 

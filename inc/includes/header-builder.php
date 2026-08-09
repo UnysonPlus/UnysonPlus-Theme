@@ -229,6 +229,10 @@ function unysonplus_render_header_element( $element ) {
                         unysonplus_render_social_icons();
                         break;
 
+                case 'links':
+                        unysonplus_render_links_element( $settings );
+                        break;
+
                 case 'menu':
                         unysonplus_render_menu( $settings );
                         break;
@@ -423,7 +427,15 @@ if ( ! function_exists( 'unysonplus_render_icon_text' ) ) :
  * @param array $settings icon_text element settings.
  */
 function unysonplus_render_icon_text( $settings ) {
-        $icon = ! empty( $settings['icontext_icon']['icon-class'] ) ? $settings['icontext_icon']['icon-class'] : '';
+        // Render the icon from the FULL icon-v2 value (inline SVG / library glyph / font icon) via
+        // sc_icon_render — not just a legacy `icon-class` string. The old code only handled font classes,
+        // so an SVG icon (e.g. a converted contact row's inline map-pin/phone/mail) rendered nothing.
+        $icon_val = isset( $settings['icontext_icon'] ) ? $settings['icontext_icon'] : '';
+        $icon = function_exists( 'unysonplus_hf_toggle_icon_svg' ) ? unysonplus_hf_toggle_icon_svg( $icon_val, 'header-icon-text__icon' ) : '';
+        // Back-compat: a bare legacy icon-class string still renders as a Font Awesome <i>.
+        if ( $icon === '' && ! empty( $settings['icontext_icon']['icon-class'] ) ) {
+                $icon = '<i class="' . esc_attr( $settings['icontext_icon']['icon-class'] ) . '" aria-hidden="true"></i>';
+        }
         $text = isset( $settings['icontext_text'] ) ? trim( (string) $settings['icontext_text'] ) : '';
         if ( $text === '' && $icon === '' ) { return; }
 
@@ -431,12 +443,6 @@ function unysonplus_render_icon_text( $settings ) {
         $val  = isset( $settings['icontext_link'] ) ? trim( (string) $settings['icontext_link'] ) : '';
         // Email / Phone fall back to the visible text when no explicit target is set.
         if ( $val === '' && ( $type === 'email' || $type === 'phone' ) ) { $val = $text; }
-
-        // Enqueue the icon's pack so a non-FA glyph renders (FA loads globally).
-        if ( ! empty( $settings['icontext_icon'] ) && function_exists( 'fw' ) && isset( fw()->backend )
-                && method_exists( fw()->backend, 'option_type' ) && isset( fw()->backend->option_type( 'icon' )->packs_loader ) ) {
-                fw()->backend->option_type( 'icon' )->packs_loader->enqueue_pack_for_icon( $settings['icontext_icon'] );
-        }
 
         $href = ''; $rel = '';
         switch ( $type ) {
@@ -456,7 +462,7 @@ function unysonplus_render_icon_text( $settings ) {
                         break;
         }
 
-        $inner  = $icon !== '' ? '<i class="' . esc_attr( $icon ) . '" aria-hidden="true"></i> ' : '';
+        $inner  = $icon !== '' ? $icon . ' ' : ''; // $icon is already rendered markup (SVG or <i>)
         $inner .= '<span>' . esc_html( $text ) . '</span>';
 
         if ( $href !== '' ) {

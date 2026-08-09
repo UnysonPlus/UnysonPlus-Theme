@@ -216,6 +216,34 @@ function unysonplus_hf_newsletter_options() {
 endif;
 
 
+if ( ! function_exists( 'unysonplus_hf_links_options' ) ) :
+/**
+ * Option fields for the Links header/footer element — a simple, STRUCTURED list of navigation links
+ * (label + URL rows) rendered as a `<nav><ul class="footer-menu">`. Unlike the Menu element it stores its
+ * links INLINE (no registered WP menu / menu_id), so the links can never silently vanish if a menu object
+ * is missing — the reason the Site Converter maps footer link columns here instead of the Menu element.
+ * An optional heading renders above the list.
+ *
+ * @return array
+ */
+function unysonplus_hf_links_options() {
+	return array(
+		'links_title' => array( 'label' => __( 'Heading', 'unysonplus' ), 'desc' => __( 'Optional heading above the links (e.g. "Company"). Leave empty for none.', 'unysonplus' ), 'type' => 'text', 'value' => '' ),
+		'links_items' => array(
+			'label'       => __( 'Links', 'unysonplus' ),
+			'type'        => 'addable-box',
+			'value'       => array(),
+			'box-options' => array(
+				'label' => array( 'label' => __( 'Label', 'unysonplus' ), 'type' => 'text', 'value' => '', 'dynamic_content' => false ),
+				'url'   => array( 'label' => __( 'URL', 'unysonplus' ), 'desc' => __( 'Full URL or in-page anchor (e.g. https://…, /about, or #contact).', 'unysonplus' ), 'type' => 'text', 'value' => '', 'dynamic_content' => false ),
+			),
+			'template' => '{{- label || url }}',
+		),
+	);
+}
+endif;
+
+
 /* ============================================================
  * Element pickers (the popup shown when you click "Add" in a column)
  * ============================================================ */
@@ -309,6 +337,7 @@ function unysonplus_footer_element_popup() {
 						'footer_logo'     => __( 'Footer Logo', 'unysonplus' ),
 						'menu'            => __( 'Menu', 'unysonplus' ),
 						'menu_area'       => __( 'Menu Area', 'unysonplus' ),
+						'links'           => __( 'Links', 'unysonplus' ),
 						'cta_button'      => __( 'CTA Button', 'unysonplus' ),
 						'icon_text'       => __( 'Icon Text', 'unysonplus' ),
 						'search'          => __( 'Search', 'unysonplus' ),
@@ -327,6 +356,7 @@ function unysonplus_footer_element_popup() {
 			'choices' => array(
 				'cta_button' => unysonplus_hf_cta_button_options(),
 				'newsletter' => unysonplus_hf_newsletter_options(),
+				'links'      => unysonplus_hf_links_options(),
 				'phone' => array(
 					'phone_number' => array( 'label' => __( 'Phone Number', 'unysonplus' ), 'type' => 'text', 'value' => '' ),
 				),
@@ -487,6 +517,7 @@ function unysonplus_header_element_popup() {
 						'logo'            => __( 'Logo', 'unysonplus' ),
 						'menu'            => __( 'Menu', 'unysonplus' ),
 						'menu_area'       => __( 'Menu Area', 'unysonplus' ),
+						'links'           => __( 'Links', 'unysonplus' ),
 						'cta_button'      => __( 'CTA Button', 'unysonplus' ),
 						'icon_text'       => __( 'Icon Text', 'unysonplus' ),
 						'search'          => __( 'Search', 'unysonplus' ),
@@ -505,6 +536,7 @@ function unysonplus_header_element_popup() {
 			'choices' => array(
 				'cta_button' => unysonplus_hf_cta_button_options(),
 				'newsletter' => unysonplus_hf_newsletter_options(),
+				'links'      => unysonplus_hf_links_options(),
 				'phone' => array(
 					'phone_number' => array( 'label' => __( 'Phone Number', 'unysonplus' ), 'type' => 'text', 'value' => '' ),
 				),
