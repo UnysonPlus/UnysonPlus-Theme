@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.4.67
+Version: 2.4.71
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -110,7 +110,7 @@ a { color: var(--color-primary); text-decoration: none; }
 /* Global link hover: body-link tokens only — NEVER the menu token (--menu-link-hover
    is white on dark-header sites, which made every prose/card link vanish on hover).
    The menu styles its own hover via the scoped .menu rules. */
-a:hover, a:focus-visible { color: var(--body-link-hover, var(--color-primary, #0d6efd)); }
+a:not(.btn):hover, a:not(.btn):focus-visible { color: var(--body-link-hover, var(--color-primary, #0d6efd)); }
 /* Body/content link colors (Typography → Body Link Color). Fall back to the base
    link color so an unset value keeps current behavior.
    Scoped to `:not([class])` so ONLY bare prose links get the body-link color —
@@ -820,6 +820,9 @@ body .container-fluid {
 }
 a.header-icon-text:hover { opacity: 0.85; }
 .header-icon-text i { font-size: 1em; line-height: 1; }
+/* SVG / library glyph in an Icon Text element (a font <i> is sized above). Cap to the text size and
+   don't let it shrink, so a converted contact row's inline map-pin/phone/mail sits neatly beside the line. */
+.header-icon-text__icon { width: 1.1em; height: 1.1em; flex: 0 0 auto; }
 
 /* --- Brand / logo --- */
 .site-title,

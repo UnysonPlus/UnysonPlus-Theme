@@ -489,3 +489,10 @@
 @media (max-width: 782px) {
 	.footer-section .footer-row--auto { justify-content: center; gap: 28px; }
 }
+
+/* Converter footer link / contact columns render as a raw <ul class="fw-footer-links"> inside a text
+   element; strip the default bullet + list indent so the column reads as a clean stacked list — matching
+   the source, whose Tailwind reset removes list markers (the ul had space-y-* for rhythm, not bullets). */
+.footer-element ul.fw-footer-links { list-style: none; margin: 0; padding: 0; }
+.footer-element ul.fw-footer-links > li { margin: 0 0 0.5rem; }
+.footer-element ul.fw-footer-links > li:last-child { margin-bottom: 0; }

@@ -194,6 +194,27 @@ function unysonplus_hf_cta_button_options() {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_hf_newsletter_options' ) ) :
+/**
+ * Option fields for the Newsletter header/footer element — an email-signup form. Maps to the
+ * `newsletter` shortcode (a working AJAX form: notifies the admin via wp_mail, and exposes the
+ * `fw_newsletter_subscribe` hook for Mailchimp/ESP integrations). Rendered inline (heading + email
+ * field + button), the shape a footer "Stay Connected" band uses.
+ *
+ * @return array
+ */
+function unysonplus_hf_newsletter_options() {
+	return array(
+		'newsletter_title'    => array( 'label' => __( 'Heading', 'unysonplus' ), 'desc' => __( 'Small heading above the form, e.g. "Stay Connected". Leave empty for none.', 'unysonplus' ), 'type' => 'text', 'value' => __( 'Stay Connected', 'unysonplus' ) ),
+		'newsletter_desc'     => array( 'label' => __( 'Description', 'unysonplus' ), 'type' => 'textarea', 'value' => '' ),
+		'newsletter_email_ph' => array( 'label' => __( 'Email Placeholder', 'unysonplus' ), 'type' => 'text', 'value' => __( 'Your email', 'unysonplus' ) ),
+		'newsletter_button'   => array( 'label' => __( 'Button Label', 'unysonplus' ), 'type' => 'text', 'value' => __( 'Subscribe', 'unysonplus' ) ),
+		'newsletter_success'  => array( 'label' => __( 'Success Message', 'unysonplus' ), 'type' => 'text', 'value' => __( 'Thanks for subscribing!', 'unysonplus' ) ),
+		'newsletter_list_id'  => array( 'label' => __( 'List ID', 'unysonplus' ), 'desc' => __( 'Optional identifier passed to the fw_newsletter_subscribe hook for list integrations (Mailchimp, etc.).', 'unysonplus' ), 'type' => 'text', 'value' => '' ),
+	);
+}
+endif;
+
 
 /* ============================================================
  * Element pickers (the popup shown when you click "Add" in a column)
@@ -292,6 +313,7 @@ function unysonplus_footer_element_popup() {
 						'icon_text'       => __( 'Icon Text', 'unysonplus' ),
 						'search'          => __( 'Search', 'unysonplus' ),
 						'social_icons'    => __( 'Social Icons', 'unysonplus' ),
+						'newsletter'      => __( 'Newsletter', 'unysonplus' ),
 						'custom_html'     => __( 'Custom HTML', 'unysonplus' ),
 						'text'            => __( 'Text', 'unysonplus' ),
 						'widget_area'     => __( 'Widget Area', 'unysonplus' ),
@@ -304,6 +326,7 @@ function unysonplus_footer_element_popup() {
 			),
 			'choices' => array(
 				'cta_button' => unysonplus_hf_cta_button_options(),
+				'newsletter' => unysonplus_hf_newsletter_options(),
 				'phone' => array(
 					'phone_number' => array( 'label' => __( 'Phone Number', 'unysonplus' ), 'type' => 'text', 'value' => '' ),
 				),
@@ -481,6 +504,7 @@ function unysonplus_header_element_popup() {
 			),
 			'choices' => array(
 				'cta_button' => unysonplus_hf_cta_button_options(),
+				'newsletter' => unysonplus_hf_newsletter_options(),
 				'phone' => array(
 					'phone_number' => array( 'label' => __( 'Phone Number', 'unysonplus' ), 'type' => 'text', 'value' => '' ),
 				),
@@ -623,7 +647,7 @@ function unysonplus_footer_row_template() {
 		return $tpl;
 	}
 	$ch                      = unysonplus_hf_choices();
-	$element_label_map       = '{"logo":"Logo","footer_logo":"Footer Logo","menu":"Menu","menu_area":"Menu Area","cta_button":"CTA Button","phone":"Phone Number","icon_text":"Icon Text","search":"Search","social_icons":"Social Icons","custom_html":"Custom HTML","text":"Text","widget_area":"Widget Area","copyright_text":"Copyright Text","back_to_top":"Back to Top","builder_section":"Builder Section"}';
+	$element_label_map       = '{"logo":"Logo","footer_logo":"Footer Logo","menu":"Menu","menu_area":"Menu Area","cta_button":"CTA Button","phone":"Phone Number","icon_text":"Icon Text","search":"Search","social_icons":"Social Icons","newsletter":"Newsletter","custom_html":"Custom HTML","text":"Text","widget_area":"Widget Area","copyright_text":"Copyright Text","back_to_top":"Back to Top","builder_section":"Builder Section"}';
 	$sidebar_label_map       = json_encode( $ch['sidebar'], JSON_UNESCAPED_UNICODE );
 	$menu_label_map          = json_encode( array_map( 'strval', $ch['menu'] ), JSON_UNESCAPED_UNICODE );
 	$menu_location_label_map = json_encode( $ch['menu_location'], JSON_UNESCAPED_UNICODE );
@@ -646,7 +670,7 @@ function unysonplus_header_row_template() {
 	$menu_location_label_map = json_encode( $ch['menu_location'], JSON_UNESCAPED_UNICODE );
 	$builder_label_map       = json_encode( array_map( 'strval', $ch['builder'] ), JSON_UNESCAPED_UNICODE );
 
-	$tpl = '{{= (function(){ var el = element_type["element"]; var lbl = ({"logo":"Logo","cta_button":"CTA Button","phone":"Phone Number","icon_text":"Icon Text","search":"Search","social_icons":"Social Icons","custom_html":"Custom HTML","text":"Text","menu":"Menu","menu_area":"Menu Area","widget_area":"Widget Area","builder_section":"Builder Section","spacer":"Spacer","divider":"Divider"})[el] || el; if (el === "widget_area" && element_type["widget_area"] && element_type["widget_area"]["sidebar_id"]) { var smap = ' . $sidebar_label_map . '; var sid = element_type["widget_area"]["sidebar_id"]; lbl = (smap[sid] || sid); } if (el === "menu" && element_type["menu"] && element_type["menu"]["menu_id"]) { var mmap = ' . $menu_label_map . '; var mid = element_type["menu"]["menu_id"]; lbl = (mmap[mid] || mid); } if (el === "menu_area" && element_type["menu_area"] && element_type["menu_area"]["menu_location"]) { var amap = ' . $menu_location_label_map . '; var loc = element_type["menu_area"]["menu_location"]; lbl = (amap[loc] || loc); } if (el === "builder_section" && element_type["builder_section"] && element_type["builder_section"]["builder_post_id"]) { var bmap = ' . $builder_label_map . '; var bid = element_type["builder_section"]["builder_post_id"]; lbl = (bmap[bid] || bid); } if (el === "text" && element_type["text"] && element_type["text"]["text_content"]) { var _t = String(element_type["text"]["text_content"]).replace(/<[^>]*>/g," ").replace(/&[a-z#0-9]+;/gi," ").replace(/\s+/g," ").trim(); if (_t) lbl = (_t.length > 45 ? _t.substring(0,45) + "…" : _t); } if (el === "custom_html" && element_type["custom_html"] && element_type["custom_html"]["custom_html_content"]) { var _h = String(element_type["custom_html"]["custom_html_content"]).replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim(); if (_h) lbl = (_h.length > 45 ? _h.substring(0,45) + "…" : _h); } if (el === "icon_text" && element_type["icon_text"] && element_type["icon_text"]["icontext_text"]) { var _i = String(element_type["icon_text"]["icontext_text"]).replace(/\s+/g," ").trim(); if (_i) lbl = (_i.length > 45 ? _i.substring(0,45) + "…" : _i); } if (el === "cta_button" && element_type["cta_button"] && element_type["cta_button"]["cta_text"]) { var _cta = String(element_type["cta_button"]["cta_text"]).replace(/\s+/g," ").trim(); if (_cta) lbl = (_cta.length > 45 ? _cta.substring(0,45) + "…" : _cta); } return lbl; })() }}';
+	$tpl = '{{= (function(){ var el = element_type["element"]; var lbl = ({"logo":"Logo","cta_button":"CTA Button","phone":"Phone Number","icon_text":"Icon Text","search":"Search","social_icons":"Social Icons","newsletter":"Newsletter","custom_html":"Custom HTML","text":"Text","menu":"Menu","menu_area":"Menu Area","widget_area":"Widget Area","builder_section":"Builder Section","spacer":"Spacer","divider":"Divider"})[el] || el; if (el === "widget_area" && element_type["widget_area"] && element_type["widget_area"]["sidebar_id"]) { var smap = ' . $sidebar_label_map . '; var sid = element_type["widget_area"]["sidebar_id"]; lbl = (smap[sid] || sid); } if (el === "menu" && element_type["menu"] && element_type["menu"]["menu_id"]) { var mmap = ' . $menu_label_map . '; var mid = element_type["menu"]["menu_id"]; lbl = (mmap[mid] || mid); } if (el === "menu_area" && element_type["menu_area"] && element_type["menu_area"]["menu_location"]) { var amap = ' . $menu_location_label_map . '; var loc = element_type["menu_area"]["menu_location"]; lbl = (amap[loc] || loc); } if (el === "builder_section" && element_type["builder_section"] && element_type["builder_section"]["builder_post_id"]) { var bmap = ' . $builder_label_map . '; var bid = element_type["builder_section"]["builder_post_id"]; lbl = (bmap[bid] || bid); } if (el === "text" && element_type["text"] && element_type["text"]["text_content"]) { var _t = String(element_type["text"]["text_content"]).replace(/<[^>]*>/g," ").replace(/&[a-z#0-9]+;/gi," ").replace(/\s+/g," ").trim(); if (_t) lbl = (_t.length > 45 ? _t.substring(0,45) + "…" : _t); } if (el === "custom_html" && element_type["custom_html"] && element_type["custom_html"]["custom_html_content"]) { var _h = String(element_type["custom_html"]["custom_html_content"]).replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim(); if (_h) lbl = (_h.length > 45 ? _h.substring(0,45) + "…" : _h); } if (el === "icon_text" && element_type["icon_text"] && element_type["icon_text"]["icontext_text"]) { var _i = String(element_type["icon_text"]["icontext_text"]).replace(/\s+/g," ").trim(); if (_i) lbl = (_i.length > 45 ? _i.substring(0,45) + "…" : _i); } if (el === "cta_button" && element_type["cta_button"] && element_type["cta_button"]["cta_text"]) { var _cta = String(element_type["cta_button"]["cta_text"]).replace(/\s+/g," ").trim(); if (_cta) lbl = (_cta.length > 45 ? _cta.substring(0,45) + "…" : _cta); } return lbl; })() }}';
 	return $tpl;
 }
 endif;

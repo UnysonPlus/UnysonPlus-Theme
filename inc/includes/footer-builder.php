@@ -231,6 +231,10 @@ function unysonplus_render_footer_element( $element ) {
                         unysonplus_render_social_icons();
                         break;
 
+                case 'newsletter':
+                        unysonplus_render_newsletter_element( $settings );
+                        break;
+
                 case 'custom_html':
                         unysonplus_render_custom_html( $settings );
                         break;
@@ -269,6 +273,41 @@ function unysonplus_render_footer_element( $element ) {
                         do_action( 'unysonplus_render_hf_element', $type, $settings, $element, 'footer' );
                         break;
         }
+}
+endif;
+
+
+if ( ! function_exists( 'unysonplus_render_newsletter_element' ) ) :
+/**
+ * Render the Newsletter header/footer element — a working AJAX email-signup form (the `newsletter`
+ * shortcode). Maps the element's fields onto the shortcode's inline attributes and renders it INLINE
+ * (heading + email field + button), the shape a footer "Stay Connected" band uses. The form notifies
+ * the admin via wp_mail out of the box and exposes the `fw_newsletter_subscribe` hook for ESP
+ * integrations — no extra plugin needed. Degrades to nothing when the shortcode isn't available.
+ *
+ * @param array $settings The element's saved field values.
+ */
+function unysonplus_render_newsletter_element( $settings ) {
+        if ( ! shortcode_exists( 'newsletter' ) ) { return; }
+        $settings = is_array( $settings ) ? $settings : array();
+        $g = function ( $k, $d = '' ) use ( $settings ) {
+                return ( isset( $settings[ $k ] ) && $settings[ $k ] !== '' ) ? (string) $settings[ $k ] : $d;
+        };
+        $atts = array(
+                'design'            => 'inline',
+                'title'             => $g( 'newsletter_title' ),
+                'description'       => $g( 'newsletter_desc' ),
+                'email_placeholder' => $g( 'newsletter_email_ph', __( 'Your email', 'unysonplus' ) ),
+                'button_label'      => $g( 'newsletter_button', __( 'Subscribe', 'unysonplus' ) ),
+                'success_message'   => $g( 'newsletter_success' ),
+                'list_id'           => $g( 'newsletter_list_id' ),
+        );
+        $sc = '[newsletter';
+        foreach ( $atts as $k => $v ) {
+                if ( $v !== '' ) { $sc .= ' ' . $k . '="' . esc_attr( $v ) . '"'; }
+        }
+        $sc .= ']';
+        echo do_shortcode( $sc );
 }
 endif;
 
