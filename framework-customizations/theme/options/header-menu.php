@@ -204,6 +204,23 @@ $options = [
 						],
 					],
 
+					'menu_link_letter_spacing' => [
+						'label' => __( 'Menu Letter Spacing', 'unysonplus' ),
+						'desc'  => __( 'Tracking of the top-level menu links (e.g. 0.15em for a wide, uppercase nav). Leave empty for normal.', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'em', 'px', 'rem' ],
+						'value' => [ 'value' => '', 'unit' => 'em' ],
+					],
+
+					'menu_link_uppercase' => [
+						'label'        => __( 'Uppercase Menu', 'unysonplus' ),
+						'desc'         => __( 'Render the top-level menu links in UPPERCASE.', 'unysonplus' ),
+						'type'         => 'switch',
+						'value'        => 'no',
+						'left-choice'  => [ 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ],
+						'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
+					],
+
 					/* Colors — palette presets (track Theme Settings → Colors). */
 					'menu_link_color'       => $color_field( __( 'Menu Link Color', 'unysonplus' ), __( 'Color of top-level menu links. Leave empty to use the body text color.', 'unysonplus' ), 'text' ),
 					'menu_link_hover_color' => $color_field( __( 'Menu Link Hover / Active Color', 'unysonplus' ), __( 'Color of menu links on hover and for the current page. Also the accent for the Underline / Bar styles. Leave empty to use the primary color.', 'unysonplus' ), 'text' ),

@@ -230,6 +230,26 @@ if (!function_exists('_action_theme_print_google_fonts_link')) :
          */
         function _action_theme_print_google_fonts_link() {
                 $link = (string) get_option('fw_theme_google_fonts_link', '');
+
+                // SELF-HEAL a stale cache. The link is only rebuilt on `fw_settings_form_saved`, so a
+                // PROGRAMMATIC typography change — e.g. the Site Converter importing a theme's fonts, or a
+                // theme switch — leaves the previous families cached (the classic "Nunito still loads, the
+                // real heading font never loads" symptom). If any family the live Typography settings need is
+                // missing from the cached link, rebuild it now from the current settings (once; the rebuilt
+                // link then matches, so later loads skip this).
+                if ( function_exists( 'unysonplus_typography_config' ) && function_exists( 'fw_get_db_settings_option' ) && function_exists( '_action_theme_process_google_fonts' ) ) {
+                        $cfg  = unysonplus_typography_config( fw_get_db_settings_option( 'typography', array() ) );
+                        $need = isset( $cfg['google'] ) && is_array( $cfg['google'] ) ? $cfg['google'] : array();
+                        $stale = false;
+                        foreach ( $need as $fam ) {
+                                if ( $fam !== '' && strpos( $link, str_replace( ' ', '+', $fam ) ) === false ) { $stale = true; break; }
+                        }
+                        if ( ( $stale || $link === '' ) && $need ) {
+                                _action_theme_process_google_fonts();
+                                $link = (string) get_option( 'fw_theme_google_fonts_link', '' );
+                        }
+                }
+
                 if ($link === '') { return; }
 
                 // 1) Force display=swap on every fonts.googleapis.com CSS URL.

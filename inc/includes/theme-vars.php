@@ -662,6 +662,13 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			// Menu Link Font Weight (select slug '300'..'900'). Empty = the theme default (500).
 			$mfw = isset( $menu['menu_link_font_weight'] ) ? preg_replace( '/[^0-9]/', '', (string) $menu['menu_link_font_weight'] ) : '';
 			if ( $mfw !== '' ) { $out['--menu-link-font-weight'] = $mfw; }
+			// Menu Link Letter Spacing (unit-input) + UPPERCASE (switch) — the `tracking-*` / `uppercase`
+			// source utilities have their own native controls so a converted nav keeps its typographic feel.
+			$mls = unysonplus_css_length( isset( $menu['menu_link_letter_spacing'] ) ? $menu['menu_link_letter_spacing'] : '' );
+			if ( $mls !== '' ) { $out['--menu-link-letter-spacing'] = $mls; }
+			if ( isset( $menu['menu_link_uppercase'] ) && ( 'yes' === $menu['menu_link_uppercase'] || true === $menu['menu_link_uppercase'] || '1' === (string) $menu['menu_link_uppercase'] ) ) {
+				$out['--menu-link-transform'] = 'uppercase';
+			}
 			// Menu Font Family (typography-v2, family only). Empty = inherit the body font.
 			// Composed with the same system-sans fallback stack the Typography tokens use.
 			$mff = isset( $menu['menu_font']['family'] ) ? trim( (string) $menu['menu_font']['family'] ) : '';
