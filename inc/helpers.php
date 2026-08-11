@@ -337,7 +337,11 @@ if(! function_exists('unysonplus_logo')) :
                         } else {
                                 // Icon-only with NO icon picked falls back to the text wordmark
                                 // (an empty home link would be useless and inaccessible).
-                                $logo = ( $lockup_tagline !== '' ) ? $text_html : $title_text;
+                                // Always render the title inside `.site-title-text` (not bare $title_text) so the
+				// lockup hooks — Header → Identity "logo custom CSS" and the Site Converter's
+				// never-drop logo typography (`.site-title-text{…}`) — have an element to target
+				// even for a plain inline/stacked text wordmark with no icon.
+				$logo = $text_html;
                         }
                 }
 

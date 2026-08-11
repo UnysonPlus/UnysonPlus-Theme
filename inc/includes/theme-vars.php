@@ -496,7 +496,14 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 
 			// Logo width (Header → Identity) — an explicit display width overrides
 			// the header-height cap (see .site-title img in style.css).
-			$header_logo = fw_get_db_settings_option( 'header_logo', array() );
+			// Use the FLATTENED logo config (leaf values hoisted out of
+			// header_logo[logo_type][simple|custom][...]) — the raw nested option keeps
+			// title_size / title_weight / width under logo_type/custom, so reading them off
+			// the top level always came back empty and --site-title-size never emitted (the
+			// Site Converter's captured 30px logo size silently fell back to the default).
+			$header_logo = function_exists( 'unysonplus_header_logo_cfg' )
+				? unysonplus_header_logo_cfg()
+				: fw_get_db_settings_option( 'header_logo', array() );
 			if ( is_array( $header_logo ) ) {
 				$logo_w = unysonplus_css_length( isset( $header_logo['width'] ) ? $header_logo['width'] : '' );
 				if ( $logo_w !== '' ) {
