@@ -147,6 +147,13 @@ $options = [
 				'desc'        => __( 'Syntax-highlighted code field (WordPress CodeMirror). The top-level "mode" key selects the language: css, javascript, htmlmixed, php, json or xml.', 'unysonplus' ),
 				'placeholder' => "/* Write CSS here */\nselector { … }",
 			],
+			'demo_svg_code'                  => [
+				'label'       => __( 'SVG Code', 'unysonplus' ),
+				'type'        => 'svg-code',
+				'value'       => '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>',
+				'desc'        => __( 'Inline-SVG field: paste <code>&lt;svg&gt;…&lt;/svg&gt;</code> markup or upload a .svg (read client-side with FileReader — it never goes through the media library, so no SVG-mime block). Scripts, event handlers and external references are stripped server-side on save. Use <code>fill="currentColor"</code> to inherit the element colour.', 'unysonplus' ),
+				'placeholder' => '<svg viewBox="0 0 24 24">…</svg>',
+			],
 		],
 	],
 	'grp_toggle' => [
@@ -421,6 +428,57 @@ $options = [
 					__( 'Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium',
 						'unysonplus' )
 				),
+			],
+			'demo_button_set'                => [
+				'label'   => __( 'Button Set', 'unysonplus' ),
+				'type'    => 'button-set',
+				'value'   => 'c2',
+				'desc'    => __( 'Segmented control. Same stored value as a radio (the choice key), shown on one row instead of a vertical list.',
+					'unysonplus' ),
+				'choices' => [
+					'c1' => __( 'Choice 1', 'unysonplus' ),
+					'c2' => __( 'Choice 2', 'unysonplus' ),
+					'c3' => __( 'Choice 3', 'unysonplus' ),
+				],
+				'help'    => sprintf( "%s 
+
+'\"<br/><br/>
+
+ <b>%s</b>",
+					__( 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+						'unysonplus' ),
+					__( 'Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium',
+						'unysonplus' )
+				),
+			],
+			'demo_button_set_multi'          => [
+				'label'    => __( 'Button Set (multiple)', 'unysonplus' ),
+				'type'     => 'button-set',
+				'multiple' => true,
+				'stretch'  => true,
+				'value'    => [ 'header' => true, 'sidebar' => true ],
+				'desc'     => __( 'Multi-select mode. Stores the same shape as checkboxes — array( key => true ) — and stretches to share the row evenly.',
+					'unysonplus' ),
+				'choices'  => [
+					'header'  => __( 'Header', 'unysonplus' ),
+					'footer'  => __( 'Footer', 'unysonplus' ),
+					'sidebar' => __( 'Sidebar', 'unysonplus' ),
+				],
+			],
+			'demo_button_set_icons'          => [
+				'label'          => __( 'Button Set (icons, deselectable)', 'unysonplus' ),
+				'type'           => 'button-set',
+				'value'          => 'center',
+				'show_labels'    => false,
+				'allow_deselect' => true,
+				'desc'           => __( 'Icon-only buttons — the label becomes the tooltip and accessible name. Deselectable: click the active button again to clear it (for "no override").',
+					'unysonplus' ),
+				'choices'        => [
+					'left'    => [ 'label' => __( 'Left', 'unysonplus' ),    'icon' => 'dashicons dashicons-editor-alignleft' ],
+					'center'  => [ 'label' => __( 'Center', 'unysonplus' ),  'icon' => 'dashicons dashicons-editor-aligncenter' ],
+					'right'   => [ 'label' => __( 'Right', 'unysonplus' ),   'icon' => 'dashicons dashicons-editor-alignright' ],
+					'justify' => [ 'label' => __( 'Justify', 'unysonplus' ), 'icon' => 'dashicons dashicons-editor-justify' ],
+				],
 			],
 			'demo_image_picker'              => [
 				'label'   => __( 'Image Picker', 'unysonplus' ),

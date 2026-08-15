@@ -496,3 +496,12 @@
 .footer-element ul.fw-footer-links { list-style: none; margin: 0; padding: 0; }
 .footer-element ul.fw-footer-links > li { margin: 0 0 0.5rem; }
 .footer-element ul.fw-footer-links > li:last-child { margin-bottom: 0; }
+
+/* Atomic Heading + Link elements (the composable replacement for the old compound
+   "Links" element). Each sits in its own .footer-element / .header-element wrapper, so the
+   column's flow stacks them; a run of Link elements under a Heading reads as a link column.
+   The Heading reuses .footer-links-title for its type styling; here we only add rhythm. */
+.footer-element .hf-heading,
+.header-element .hf-heading { margin: 0 0 0.5rem; }
+.footer-element .footer-link,
+.header-element .footer-link { display: inline-block; text-decoration: none; }

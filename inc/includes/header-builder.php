@@ -229,8 +229,12 @@ function unysonplus_render_header_element( $element ) {
                         unysonplus_render_social_icons();
                         break;
 
-                case 'links':
-                        unysonplus_render_links_element( $settings );
+                case 'heading':
+                        unysonplus_render_heading_element( $settings );
+                        break;
+
+                case 'link':
+                        unysonplus_render_link_element( $settings );
                         break;
 
                 case 'menu':
@@ -592,12 +596,37 @@ function unysonplus_render_social_icons() {
                         if ( $hex !== '' ) { $brand_attr = ' style="--social-brand:' . esc_attr( $hex ) . '"'; }
                 }
 
-                // Icon: the picked one, else a name-matched Font Awesome fallback.
-                $icon_class = ! empty( $profile['icon']['icon-class'] ) ? $profile['icon']['icon-class'] : unysonplus_social_fa_class( $name );
+                /**
+                 * Icon: render the PICKED value through the central renderer.
+                 *
+                 * This used to read only $profile['icon']['icon-class'], which
+                 * exists solely for icon-font picks — so an SVG / emoji /
+                 * uploaded icon was silently discarded and replaced by a
+                 * name-matched Font Awesome class whose CSS often isn't on the
+                 * page, leaving the front end with no visible icon at all.
+                 * sc_icon_render() handles every icon type and enqueues the
+                 * pack it needs; the FA guess is now only a last resort for
+                 * profiles that have no icon picked.
+                 */
+                $icon_html = '';
+
+                if ( ! empty( $profile['icon'] ) && function_exists( 'sc_icon_render' ) ) {
+                        $icon_html = sc_icon_render( $profile['icon'] );
+                }
+
+                if ( $icon_html === '' ) {
+                        $icon_class = ! empty( $profile['icon']['icon-class'] )
+                                ? $profile['icon']['icon-class']
+                                : unysonplus_social_fa_class( $name );
+
+                        if ( $icon_class !== '' ) {
+                                $icon_html = '<i class="' . esc_attr( $icon_class ) . '" aria-hidden="true"></i>';
+                        }
+                }
 
                 echo '<a href="' . esc_url( $profile['link'] ) . '" class="header-social-icon"' . $target . $brand_attr . ' aria-label="' . esc_attr( $name ) . '" title="' . esc_attr( $name ) . '">';
-                if ( $icon_class !== '' ) {
-                        echo '<i class="' . esc_attr( $icon_class ) . '" aria-hidden="true"></i>';
+                if ( $icon_html !== '' ) {
+                        echo $icon_html; // phpcs:ignore WordPress.Security.EscapingOutput -- sc_icon_render() sanitises SVG; the <i> branch escapes its class.
                 } else {
                         echo '<span class="header-social-icon__label">' . esc_html( $name ) . '</span>';
                 }

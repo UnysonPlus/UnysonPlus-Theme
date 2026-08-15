@@ -199,8 +199,12 @@ function unysonplus_render_footer_element( $element ) {
                         unysonplus_nav_menu( 'secondary' );
                         break;
 
-                case 'links':
-                        unysonplus_render_links_element( $settings );
+                case 'heading':
+                        unysonplus_render_heading_element( $settings );
+                        break;
+
+                case 'link':
+                        unysonplus_render_link_element( $settings );
                         break;
 
                 case 'menu':
@@ -650,30 +654,40 @@ function unysonplus_render_menu( $settings ) {
 endif;
 
 
-if ( ! function_exists( 'unysonplus_render_links_element' ) ) :
+if ( ! function_exists( 'unysonplus_render_heading_element' ) ) :
 /**
- * Links element — an INLINE, structured list of {label,url} rows (the Site Converter's target for footer
- * link columns). Stores its links directly (no registered WP menu / menu_id), so a link can never vanish
- * from a missing menu object. Renders an optional heading + a `<nav><ul class="footer-menu">` — the same
- * markup footer link columns have always used, so existing footer CSS styles it unchanged.
+ * Heading element — a single heading (text + level h2–h6). Titles a footer/header column,
+ * typically above a stack of Link elements. Reuses the `.footer-links-title` class so it
+ * inherits the heading styling footer columns already have; the tag is user-chosen (h1 is
+ * excluded — reserved for the page title).
  */
-function unysonplus_render_links_element( $settings ) {
-	$rows = ( ! empty( $settings['links_items'] ) && is_array( $settings['links_items'] ) ) ? $settings['links_items'] : array();
-	if ( ! $rows ) { return; }
-	$title = ! empty( $settings['links_title'] ) ? trim( (string) $settings['links_title'] ) : '';
-	if ( $title !== '' ) {
-		echo '<h4 class="footer-links-title">' . esc_html( unysonplus_footer_resolve_tokens( $title ) ) . '</h4>';
-	}
-	echo '<nav class="footer-menu-nav"><ul class="footer-menu fw-footer-links list-unstyled">';
-	foreach ( $rows as $row ) {
-		$label = isset( $row['label'] ) ? trim( (string) $row['label'] ) : '';
-		$url   = isset( $row['url'] ) ? trim( (string) $row['url'] ) : '';
-		if ( $label === '' && $url === '' ) { continue; }
-		if ( $label === '' ) { $label = $url; }
-		$href = $url !== '' ? $url : '#';
-		echo '<li><a href="' . esc_url( $href ) . '">' . esc_html( $label ) . '</a></li>';
-	}
-	echo '</ul></nav>';
+function unysonplus_render_heading_element( $settings ) {
+	$text = ! empty( $settings['heading_text'] ) ? trim( (string) $settings['heading_text'] ) : '';
+	if ( $text === '' ) { return; }
+	$level = ! empty( $settings['heading_level'] ) ? (string) $settings['heading_level'] : 'h3';
+	if ( ! in_array( $level, array( 'h2', 'h3', 'h4', 'h5', 'h6' ), true ) ) { $level = 'h3'; }
+	echo '<' . $level . ' class="footer-links-title hf-heading">' . esc_html( unysonplus_footer_resolve_tokens( $text ) ) . '</' . $level . '>';
+}
+endif;
+
+
+if ( ! function_exists( 'unysonplus_render_link_element' ) ) :
+/**
+ * Link element — a SINGLE inline link (label + URL + open-in target), rendered as one
+ * `<a class="footer-link">`. Stack several (optionally under a Heading element) to build a
+ * link column; each element sits in its own wrapper, so the column's flow stacks them. New
+ * tab adds rel="noopener noreferrer". Replaces the old compound "Links" element.
+ */
+function unysonplus_render_link_element( $settings ) {
+	$label = ! empty( $settings['link_label'] ) ? trim( (string) $settings['link_label'] ) : '';
+	$url   = ! empty( $settings['link_url'] ) ? trim( (string) $settings['link_url'] ) : '';
+	if ( $label === '' && $url === '' ) { return; }
+	if ( $label === '' ) { $label = $url; }
+	$href   = $url !== '' ? $url : '#';
+	$target = ( ! empty( $settings['link_target'] ) && $settings['link_target'] === '_blank' )
+		? ' target="_blank" rel="noopener noreferrer"'
+		: '';
+	echo '<a class="footer-link hf-link" href="' . esc_url( $href ) . '"' . $target . '>' . esc_html( unysonplus_footer_resolve_tokens( $label ) ) . '</a>';
 }
 endif;
 
