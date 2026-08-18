@@ -216,7 +216,8 @@ endif;
 
 if(! function_exists( 'unysonplus_option_button_colors' )) :
 	/**
-	 * Color palette default values
+	 * Button color choices ( 'btn-<slug>' => color name ), read from the
+	 * 'button_colors' setting or the built-in button-color defaults.
 	 */
 	function unysonplus_option_button_colors() {
 		$button_colors = fw_get_db_settings_option('button_colors');
@@ -254,7 +255,8 @@ endif;
 
 if( ! function_exists( 'unysonplus_option_button_sizes' )) :
 	/**
-	 * Color palette default values
+	 * Button size choices ( 'btn-<slug>' => size name ), read from the
+	 * 'button_sizes' setting or the built-in button-size defaults.
 	 */
 	function unysonplus_option_button_sizes() {
 		$button_colors = fw_get_db_settings_option('button_sizes');
@@ -272,7 +274,8 @@ endif;
 
 if( ! function_exists( 'unysonplus_option_font_sizes' )) :
 	/**
-	 * Color palette default values
+	 * Font size choices built from the typography setting ( named sizes plus
+	 * the h1-h6 / paragraph sizes ).
 	 */
 	function unysonplus_option_font_sizes() {
 		$typography = fw_get_db_settings_option('typography');
@@ -552,6 +555,28 @@ if( ! function_exists('unysonplus_option_bg_atts')):
 endif;
 
 
+if(! function_exists('unysonplus_option_link_target')) :
+	/**
+	 * The shared "target" select used by every link-source column of
+	 * unysonplus_option_link(). Returned verbatim so all four columns stay identical.
+	 */
+	function unysonplus_option_link_target() {
+		return array(
+			'label'   => __( '', 'unysonplus' ),
+			'type'    => 'select',
+			'value'   => '_self',
+			'desc'    => __( 'Target attribute. How the link will be opened.','unysonplus' ),
+			'choices' => array(
+				'_self'  	=> __( 'Open link in same window', 'unysonplus' ),
+				'_blank'  	=> __( 'Open link in new window', 'unysonplus' ),
+				//'lightbox' 	=> __( 'Open link inside a lightbox', 'unysonplus' ),
+				//'modal' 	=> __( 'Open link inside bootstrap modal', 'unysonplus' ),
+			),
+		);
+	}
+endif;
+
+
 if(! function_exists('unysonplus_option_link')) :
 	/**
 	 * Link Options
@@ -582,18 +607,7 @@ if(! function_exists('unysonplus_option_link')) :
 						'value' => '',
 						'desc'  => __( 'Enter the URL. Leave Manual Link empty to disable.', 'unysonplus' )
 					),
-					'target'      => array(
-						'label'   => __( '', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => '_self',
-						'desc'    => __( 'Target attribute. How the link will be opened.','unysonplus' ),
-						'choices' => array(
-							'_self'  	=> __( 'Open link in same window', 'unysonplus' ),
-							'_blank'  	=> __( 'Open link in new window', 'unysonplus' ),
-							//'lightbox' 	=> __( 'Open link inside a lightbox', 'unysonplus' ),
-							//'modal' 	=> __( 'Open link inside bootstrap modal', 'unysonplus' ),
-						),
-					),
+					'target'      => unysonplus_option_link_target(),
 				),
 				'page' => array(
 					'href'      => array(
@@ -604,18 +618,7 @@ if(! function_exists('unysonplus_option_link')) :
 						'source'=> 'page',
 						'limit' => 1,
 					),
-					'target'      => array(
-						'label'   => __( '', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => '_self',
-						'desc'    => __( 'Target attribute. How the link will be opened.','unysonplus' ),
-						'choices' => array(
-							'_self'  	=> __( 'Open link in same window', 'unysonplus' ),
-							'_blank'  	=> __( 'Open link in new window', 'unysonplus' ),
-							//'lightbox' 	=> __( 'Open link inside a lightbox', 'unysonplus' ),
-							//'modal' 	=> __( 'Open link inside bootstrap modal', 'unysonplus' ),
-						),
-					),
+					'target'      => unysonplus_option_link_target(),
 				),
 				'post' => array(
 					'href'      => array(
@@ -626,18 +629,7 @@ if(! function_exists('unysonplus_option_link')) :
 						'source'     => 'post',
 						'limit' => 1,
 					),
-					'target'      => array(
-						'label'   => __( '', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => '_self',
-						'desc'    => __( 'Target attribute. How the link will be opened.','unysonplus' ),
-						'choices' => array(
-							'_self'  	=> __( 'Open link in same window', 'unysonplus' ),
-							'_blank'  	=> __( 'Open link in new window', 'unysonplus' ),
-							//'lightbox' 	=> __( 'Open link inside a lightbox', 'unysonplus' ),
-							//'modal' 	=> __( 'Open link inside bootstrap modal', 'unysonplus' ),
-						),
-					),
+					'target'      => unysonplus_option_link_target(),
 				),
 				'media' => array(
 					'href'                    => array(
@@ -646,18 +638,7 @@ if(! function_exists('unysonplus_option_link')) :
 						'type'        => 'upload',
 						'images_only' => false,
 					),
-					'target'      => array(
-						'label'   => __( '', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => '_self',
-						'desc'    => __( 'Target attribute. How the link will be opened.','unysonplus' ),
-						'choices' => array(
-							'_self'  	=> __( 'Open link in same window', 'unysonplus' ),
-							'_blank'  	=> __( 'Open link in new window', 'unysonplus' ),
-							//'lightbox' 	=> __( 'Open link inside a lightbox', 'unysonplus' ),
-							//'modal' 	=> __( 'Open link inside bootstrap modal', 'unysonplus' ),
-						),
-					),
+					'target'      => unysonplus_option_link_target(),
 				),
 			),
 			'show_borders' => false,
@@ -687,73 +668,40 @@ endif;
 
 if(! function_exists('unysonplus_option_float')) :
 	/**
-	 * Link Options
+	 * Float / responsive alignment option — a `multiple` field whose choices
+	 * float an element left/right, center it, or disable floating per breakpoint.
 	 */
 	function unysonplus_option_float( $label = 'Alignment', $desc = 'Floats an element to the left or right, or disable floating, based on the current viewport size.' ) {
+		// label per breakpoint ( '' = all devices ). The float-* / mx-*-auto slugs
+		// are derived from the breakpoint segment, so all five blocks stay identical.
+		$breakpoints = array(
+			''   => 'For All Devices ( Default )',
+			'sm' => 'Small devices (landscape phones, 576px and up)',
+			'md' => 'Medium devices (tablets, 768px and up)',
+			'lg' => 'Large devices (desktops, 992px and up)',
+			'xl' => 'Extra large devices (large desktops, 1200px and up)',
+		);
+		$choices = array( '' => __('None', 'unysonplus') );
+		foreach ( $breakpoints as $bp => $bp_label ) {
+			$seg = ( $bp === '' ) ? '' : '-' . $bp;
+			$choices[] = array(
+				'attr'    	=> array(
+					'label'         => __( $bp_label, 'unysonplus' ),
+				),
+				'choices' => array(
+					'float' . $seg . '-start'       => __( 'Float left', 'unysonplus' ),
+					'float' . $seg . '-end'         => __( 'Float right', 'unysonplus' ),
+					'mx' . $seg . '-auto d-block'   => __( 'Centered', 'unysonplus' ),
+					'float' . $seg . '-none'        => __( 'Don\'t float', 'unysonplus' ),
+				),
+			);
+		}
 		return array(
 			'type'    => 'multiple',
 			'label'   => __( $label, 'unysonplus' ),
 			'desc'		=> __( $desc, 'unysonplus' ),
 			'value' => '',
-			'choices' => array(
-				'' 						=> __('None', 'unysonplus'),
-				array(
-					'attr'    	=> array(
-						'label'         => __( 'For All Devices ( Default )', 'unysonplus' ),
-						//'data-whatever' => 'some data',
-					),
-					'choices' => array(
-							'float-start' 		=> __( 'Float left', 'unysonplus' ),
-							'float-end' 	=> __( 'Float right', 'unysonplus' ),
-						'mx-auto d-block'	=> __( 'Centered', 'unysonplus' ),
-						'float-none' 		=> __( 'Don\'t float', 'unysonplus' ),
-					),
-				),
-				array(
-					'attr'    	=> array(
-						'label'         => __( 'Small devices (landscape phones, 576px and up)', 'unysonplus' ),
-					),
-					'choices' => array(
-							'float-sm-start' 	=> __( 'Float left', 'unysonplus' ),
-							'float-sm-end' 	=> __( 'Float right', 'unysonplus' ),
-						'mx-sm-auto d-block' 			=> __( 'Centered', 'unysonplus' ),
-						'float-sm-none' 	=> __( 'Don\'t float', 'unysonplus' ),
-					),
-				),
-				array(
-					'attr'    	=> array(
-						'label'         => __( 'Medium devices (tablets, 768px and up)', 'unysonplus' ),
-					),
-					'choices' => array(
-							'float-md-start' 	=> __( 'Float left', 'unysonplus' ),
-							'float-md-end' 	=> __( 'Float right', 'unysonplus' ),
-						'mx-md-auto d-block' => __( 'Centered', 'unysonplus' ),
-						'float-md-none' 	=> __( 'Don\'t float', 'unysonplus' ),
-					),
-				),
-				array(
-					'attr'    	=> array(
-						'label'         => __( 'Large devices (desktops, 992px and up)', 'unysonplus' ),
-					),
-					'choices' => array(
-							'float-lg-start' 	=> __( 'Float left', 'unysonplus' ),
-							'float-lg-end' 	=> __( 'Float right', 'unysonplus' ),
-						'mx-lg-auto d-block' 			=> __( 'Centered', 'unysonplus' ),
-						'float-lg-none' 	=> __( 'Don\'t float', 'unysonplus' ),
-					),
-				),
-				array(
-					'attr'    	=> array(
-						'label'         => __( 'Extra large devices (large desktops, 1200px and up)', 'unysonplus' ),
-					),
-					'choices' => array(
-							'float-xl-start' 	=> __( 'Float left', 'unysonplus' ),
-							'float-xl-end' 	=> __( 'Float right', 'unysonplus' ),
-						'mx-xl-auto d-block' 			=> __( 'Centered', 'unysonplus' ),
-						'float-xl-none' 	=> __( 'Don\'t float', 'unysonplus' ),
-					),
-				),
-			),
+			'choices' => $choices,
 		);
 	}
 endif;
@@ -953,6 +901,40 @@ endif;
 if( ! function_exists('unysonplus_option_alignment') ) :
 	function unysonplus_option_alignment() {
 		$uri = get_template_directory_uri();
+		// Per-breakpoint responsive image-pickers. Every breakpoint produces the
+		// same five float-{bp}-* choices, so build them in a loop instead of
+		// repeating the ~43-line block four times.
+		$align_breakpoints = array(
+			'sm' => array( 'Small',       'Small devices (landscape phones, 576px and up)' ),
+			'md' => array( 'Medium',      'Medium devices (tablets, 768px and up)' ),
+			'lg' => array( 'Large',       'Large devices (desktops, 992px and up)' ),
+			'xl' => array( 'Extra Large', 'Extra large devices (large desktops, 1200px and up)' ),
+		);
+		$align_img = function ( $file, $title ) use ( $uri ) {
+			return array(
+				'small' => array(
+					'height' => 50,
+					'src' => $uri .'/images/image-picker/' . $file,
+					'title' => __( $title, 'unysonplus' )
+				),
+			);
+		};
+		$popup_options = array();
+		foreach ( $align_breakpoints as $bp => $meta ) {
+			$popup_options[ $bp ] = array(
+				'label' => __( $meta[0], 'unysonplus' ),
+				'desc'  => __( $meta[1], 'unysonplus' ),
+				'type'  => 'image-picker',
+				'value' => '',
+				'choices' => array(
+					''                          => $align_img( 'align-default.png', 'Default' ),
+					'float-' . $bp . '-none'    => $align_img( 'align-none.png',    'None' ),
+					'float-' . $bp . '-start'   => $align_img( 'align-left.png',    'Left' ),
+					'mx-' . $bp . '-auto d-block' => $align_img( 'align-center.png', 'Center' ),
+					'float-' . $bp . '-end'     => $align_img( 'align-right.png',   'Right' ),
+				),
+			);
+		}
 		return array(
 			'type'    => 'group',
 			'options' => array(
@@ -1000,183 +982,8 @@ if( ! function_exists('unysonplus_option_alignment') ) :
 					'desc'  		=> __( '', 'unysonplus' ),
 					'popup-title' => __('Responsive Breakpoints', 'unysonplus'),
 					'button' 		=> __('Responsive Breakpoints', 'unysonplus'),
-					'popup-title' => __('Responsive Breakpoints', 'unysonplus'),
 					'size' 			=> 'small', // small, medium, large
-					'popup-options' => array(
-						'sm' =>	array(
-							'label' => __( 'Small', 'unysonplus' ),
-							'desc'  => __( 'Small devices (landscape phones, 576px and up)', 'unysonplus' ),
-							'type'  => 'image-picker',
-							'value' => '',
-							'choices' => array(
-								'' => array(
-									'small' => array(
-										'height' => 50,
-
-										'src' => $uri .'/images/image-picker/align-default.png',
-										'title' => __( 'Default','unysonplus' )
-									),
-								),
-								'float-sm-none' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-none.png',
-										'title' => __( 'None','unysonplus' )
-									),
-								),
-									'float-sm-start' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-left.png',
-										'title' => __( 'Left','unysonplus' )
-									),
-								),
-								'mx-sm-auto d-block' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-center.png',
-										'title' => __( 'Center','unysonplus' )
-									),
-								),
-									'float-sm-end' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-right.png',
-										'title' => __( 'Right','unysonplus' )
-									),
-								),
-							),
-						),
-						'md' =>	array(
-							'label' => __( 'Medium', 'unysonplus' ),
-							'desc'  => __( 'Medium devices (tablets, 768px and up)', 'unysonplus' ),
-							'type'  => 'image-picker',
-							'value' => '',
-							'choices' => array(
-								'' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-default.png',
-										'title' => __( 'Default','unysonplus' )
-									),
-								),
-								'float-md-none' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-none.png',
-										'title' => __( 'None','unysonplus' )
-									),
-								),
-									'float-md-start' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-left.png',
-										'title' => __( 'Left','unysonplus' )
-									),
-								),
-								'mx-md-auto d-block' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-center.png',
-										'title' => __( 'Center','unysonplus' )
-									),
-								),
-									'float-md-end' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-right.png',
-										'title' => __( 'Right','unysonplus' )
-									),
-								),
-							),
-						),
-						'lg' =>	array(
-							'label' => __( 'Large', 'unysonplus' ),
-							'desc'  => __( 'Large devices (desktops, 992px and up)', 'unysonplus' ),
-							'type'  => 'image-picker',
-							'value' => '',
-							'choices' => array(
-								'' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-default.png',
-										'title' => __( 'Default','unysonplus' )
-									),
-								),
-								'float-lg-none' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-none.png',
-										'title' => __( 'None','unysonplus' )
-									),
-								),
-									'float-lg-start' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-left.png',
-										'title' => __( 'Left','unysonplus' )
-									),
-								),
-								'mx-lg-auto d-block' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-center.png',
-										'title' => __( 'Center','unysonplus' )
-									),
-								),
-									'float-lg-end' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-right.png',
-										'title' => __( 'Right','unysonplus' )
-									),
-								),
-							),
-						),
-						'xl' =>	array(
-							'label' => __( 'Extra Large', 'unysonplus' ),
-							'desc'  => __( 'Extra large devices (large desktops, 1200px and up)', 'unysonplus' ),
-							'type'  => 'image-picker',
-							'value' => '',
-							'choices' => array(
-								'' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-default.png',
-										'title' => __( 'Default','unysonplus' )
-									),
-								),
-								'float-xl-none' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-none.png',
-										'title' => __( 'None','unysonplus' )
-									),
-								),
-									'float-xl-start' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-left.png',
-										'title' => __( 'Left','unysonplus' )
-									),
-								),
-								'mx-xl-auto d-block' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-center.png',
-										'title' => __( 'Center','unysonplus' )
-									),
-								),
-									'float-xl-end' => array(
-									'small' => array(
-										'height' => 50,
-										'src' => $uri .'/images/image-picker/align-right.png',
-										'title' => __( 'Right','unysonplus' )
-									),
-								),
-							),
-						),
-					),
+					'popup-options' => $popup_options,
 				),
 			),
 		);
@@ -1648,7 +1455,6 @@ if(!function_exists('unysonplus_option_spacing')) :
 						'desc'  		=> __( '', 'unysonplus' ),
 						'popup-title' => __('Responsive Breakpoints', 'unysonplus'),
 						'button' 		=> __('Responsive Breakpoints', 'unysonplus'),
-						'popup-title' => __('Responsive Breakpoints', 'unysonplus'),
 						'size' 			=> 'medium', // small, medium, large
 						'popup-options' => array(
 							'sm'		=> unysonplus_option_bs_spacing( 'sm' ),
@@ -1669,7 +1475,6 @@ if(!function_exists('unysonplus_option_spacing')) :
 						'desc'  		=> __( '', 'unysonplus' ),
 						'popup-title' => __('Responsive Breakpoints', 'unysonplus'),
 						'button' 		=> __('Responsive Breakpoints', 'unysonplus'),
-						'popup-title' => __('Responsive Breakpoints', 'unysonplus'),
 						'size' 			=> 'medium', // small, medium, large
 						'popup-options' => array(
 							'msm'		=> unysonplus_option_box( 'Phones', 'Margin for small devices (landscape phones, <strong>576px</strong> and up)' ),
@@ -1690,27 +1495,35 @@ if(!function_exists('unysonplus_option_spacing')) :
 endif;
 
 
+if(!function_exists('unysonplus_breakpoint_meta')) :
+	/**
+	 * Shared breakpoint metadata for the Bootstrap spacing/margin builders:
+	 * returns array( <label>, <device phrase> ) for a breakpoint slug
+	 * ( '' = all devices ). The margin / margin+padding descriptions are built
+	 * from the device phrase by the callers.
+	 */
+	function unysonplus_breakpoint_meta( $breakpoint ) {
+		$map = array(
+			'sm' => array( 'Phones',         'small devices (landscape phones, <strong>576px</strong> and up)' ),
+			'md' => array( 'Tablets',        'medium devices (tablets  phones, <strong>768px</strong> and up)' ),
+			'lg' => array( 'Desktops',       'large devices (desktops, <strong>992px</strong> and up)' ),
+			'xl' => array( 'Large Desktops', 'extra large devices (large desktops, <strong>1200px</strong> and up)' ),
+		);
+		if( isset( $map[ $breakpoint ] ) ) {
+			return $map[ $breakpoint ];
+		}
+		return array( '', 'all devices' );
+	}
+endif;
+
+
 if(!function_exists('unysonplus_option_bs_spacing')) :
 	/**
-	 * Margin & Padding Options
+	 * Bootstrap margin & padding multi-select for one breakpoint.
 	 */
 	function unysonplus_option_bs_spacing( $breakpoint ) {
-		if( $breakpoint == 'sm' ) {
-			$breakpointlabel = 'Phones';
-			$breakpointdesc = 'Margin and Padding for small devices (landscape phones, <strong>576px</strong> and up)';
-		}elseif( $breakpoint == 'md' ) {
-			$breakpointlabel = 'Tablets';
-			$breakpointdesc = 'Margin and Padding for medium devices (tablets  phones, <strong>768px</strong> and up)';
-		}elseif( $breakpoint == 'lg' ) {
-			$breakpointlabel = 'Desktops';
-			$breakpointdesc = 'Margin and Padding for large devices (desktops, <strong>992px</strong> and up)';
-		}elseif( $breakpoint == 'xl' ) {
-			$breakpointlabel = 'Large Desktops';
-			$breakpointdesc = 'Margin and Padding for extra large devices (large desktops, <strong>1200px</strong> and up)';
-		}else{
-			$breakpointlabel = '';
-			$breakpointdesc = 'Margin and Padding for all devices';
-		}
+		list( $breakpointlabel, $device ) = unysonplus_breakpoint_meta( $breakpoint );
+		$breakpointdesc = 'Margin and Padding for ' . $device;
 		return array(
 			'type'      => 'multi-select',
 			'label'     => __( $breakpointlabel, 'unysonplus' ),
@@ -1750,25 +1563,11 @@ endif;
 
 if(!function_exists('unysonplus_option_bs_margin')) :
 	/**
-	 * Margin & Padding Options
+	 * Bootstrap margin ( margin-only ) multi-select for one breakpoint.
 	 */
 	function unysonplus_option_bs_margin( $breakpoint ) {
-		if( $breakpoint == 'sm' ) {
-			$breakpointlabel = 'Phones';
-			$breakpointdesc = 'Margin for small devices (landscape phones, <strong>576px</strong> and up)';
-		}elseif( $breakpoint == 'md' ) {
-			$breakpointlabel = 'Tablets';
-			$breakpointdesc = 'Margin for medium devices (tablets  phones, <strong>768px</strong> and up)';
-		}elseif( $breakpoint == 'lg' ) {
-			$breakpointlabel = 'Desktops';
-			$breakpointdesc = 'Margin for large devices (desktops, <strong>992px</strong> and up)';
-		}elseif( $breakpoint == 'xl' ) {
-			$breakpointlabel = 'Large Desktops';
-			$breakpointdesc = 'Margin for extra large devices (large desktops, <strong>1200px</strong> and up)';
-		}else{
-			$breakpointlabel = '';
-			$breakpointdesc = 'Margin for all devices';
-		}
+		list( $breakpointlabel, $device ) = unysonplus_breakpoint_meta( $breakpoint );
+		$breakpointdesc = 'Margin for ' . $device;
 		return array(
 			'type'      => 'multi-select',
 			'label'     => __( $breakpointlabel, 'unysonplus' ),
@@ -1783,7 +1582,7 @@ endif;
 
 if(!function_exists('unysonplus_option_bs_margin_choices')) :
 	/**
-	 * Margin & Padding Options
+	 * Bootstrap margin class choices ( margin sides only ) for a breakpoint.
 	 */
 	function unysonplus_option_bs_margin_choices( $breakpoint ) {
 		return array_merge(
@@ -1801,7 +1600,8 @@ endif;
 
 if(!function_exists('unysonplus_option_bs_spacing_size_choices')) :
 	/**
-	 * Margin & Padding Options
+	 * Bootstrap spacing size-choice ladder ( 0..5 + auto ) for one
+	 * property ( m|p ), side and breakpoint.
 	 */
 	function unysonplus_option_bs_spacing_size_choices( $property, $sides, $breakpoint ) {
 		$spacer = 16;
@@ -1876,7 +1676,6 @@ if(!function_exists('unysonplus_option_margin')) :
 						'desc'  		=> __( '', 'unysonplus' ),
 						'popup-title' => __('Responsive Breakpoints', 'unysonplus'),
 						'button' 		=> __('Responsive Breakpoints', 'unysonplus'),
-						'popup-title' => __('Responsive Breakpoints', 'unysonplus'),
 						'size' 			=> 'medium', // small, medium, large
 						'popup-options' => array(
 							'sm'		=> unysonplus_option_bs_margin( 'sm' ),
@@ -1896,7 +1695,6 @@ if(!function_exists('unysonplus_option_margin')) :
 						'desc'  		=> __( '', 'unysonplus' ),
 						'popup-title' => __('Responsive Breakpoints', 'unysonplus'),
 						'button' 		=> __('Responsive Breakpoints', 'unysonplus'),
-						'popup-title' => __('Responsive Breakpoints', 'unysonplus'),
 						'size' 			=> 'medium', // small, medium, large
 						'popup-options' => array(
 							'msm'		=> unysonplus_option_box( 'Phones', 'Margin for small devices (landscape phones, <strong>576px</strong> and up)' ),
@@ -2042,21 +1840,9 @@ if(!function_exists('unysonplus_option_box_border_radius')) :
 	}
 endif; 
 
-// This function is deprecated
-if(! function_exists('get_css_box_measurements')){
-	function get_css_box_measurements($side_size) {
-		if($side_size['select'] == 'custom'):
-			return 'unquote("'.$side_size['custom']['size'].'")';
-		else:
-			return $side_size['select'];
-		endif;
-	}
-}
-
-
 if( !function_exists('unysonplus_option_advanced_tab') ):
 	/**
-	 * Get Link
+	 * Advanced options tab — an "Advanced" tab exposing custom ID and Class fields.
 	 */
 	function unysonplus_option_advanced_tab() {
 		return array(

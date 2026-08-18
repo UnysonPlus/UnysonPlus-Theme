@@ -20,7 +20,8 @@ All hook names are prefixed `unysonplus_`. Naming convention:
 - [Layout wrappers](#layout-wrappers) — main, sidebar
 - [Loop](#loop) — post lists, archive titles
 - [Entry / Article](#entry--article) — single posts, content, title
-- [Filter hooks](#filter-hooks) — *(none currently exposed; future placeholder)*
+- [Filter hooks](#filter-hooks) — HF builder, presets, menu, SEO/schema, WooCommerce
+- [Element / preset extension actions](#element--preset-extension-actions)
 - [Usage examples](#usage-examples)
 
 ---
@@ -71,9 +72,61 @@ All hook names are prefixed `unysonplus_`. Naming convention:
 
 ## Filter hooks
 
-The theme does not yet expose any custom `apply_filters()` hooks. This
-section is a placeholder; filters will be added in a future release if
-specific extension points emerge from user feedback.
+The theme exposes ~20 filters, grouped below. Add a callback and return the modified value.
+
+### Header / Footer builder (extend the builder)
+| Filter | Purpose |
+|---|---|
+| `unysonplus_hf_elements` | Register a new header/footer builder element (`{label, context, options}`) |
+| `unysonplus_hf_column_elements` | Inject / reorder a column's elements at render time |
+| `unysonplus_footer_extra_bars` | Register extra footer bars beyond the built-in four |
+
+### Presets
+| Filter | Purpose |
+|---|---|
+| `unysonplus_settings_preset_groups` | Register / modify Theme-Settings preset groups |
+| `unysonplus_preset_library_group_pool` | The preset-library remote group pool |
+| `unysonplus_preset_library_install_dir` | Where installed presets are written |
+
+### Menu
+| Filter | Purpose |
+|---|---|
+| `unysonplus_menu_icon_option` | Customize the menu-item icon option |
+| `unysonplus_menu_sublabel_locations` | Which menu locations render sub-labels |
+
+### SEO / meta / schema
+| Filter | Purpose |
+|---|---|
+| `unysonplus_emit_meta` | Short-circuit `<head>` meta emission (return false to skip) |
+| `unysonplus_emit_schema` | Short-circuit JSON-LD schema emission |
+| `unysonplus_schema_same_as` | The schema `sameAs` URL list |
+| `unysonplus_llms_txt` | The generated `llms.txt` body |
+
+### WooCommerce
+`unysonplus_woocommerce_loop_columns`, `unysonplus_woocommerce_products_per_page`,
+`unysonplus_woocommerce_related_count`, `unysonplus_woocommerce_sidebar`,
+`unysonplus_woocommerce_thumbnail_columns`.
+
+### Misc
+| Filter | Purpose |
+|---|---|
+| `unysonplus_fontawesome_kit_url` | Override the Font Awesome kit URL |
+| `unysonplus_site_wide_ux_tabs` | Register Site-wide UX setting tabs |
+| `unysonplus_starter_page_templates` | Register starter page templates |
+
+---
+
+## Element / preset extension actions
+
+Beyond the structural actions above, these power the extension APIs — the primary way a
+child theme or addon customizes the builder without forking a file:
+
+| Action | Fires |
+|---|---|
+| `unysonplus_render_hf_element` | Render a registered header/footer element (generic dispatch) |
+| `unysonplus_render_hf_element_{type}` | Render a specific element type — register your render callback here |
+| `unysonplus_page_hero_inner` | Inside the page hero band |
+| `unysonplus_settings_preset_applied` | After a preset is applied — args: `$group`, `$values` |
 
 ---
 

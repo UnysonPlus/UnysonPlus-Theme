@@ -64,17 +64,11 @@ class Theme_Includes {
         /**
          * Both frontend and backend
          */
-        //self::include_child_first('/startup.php');
-        //self::include_child_first('/helpers-unyson.php');
         self::include_child_first('/helpers.php');
         self::include_child_first('/helpers-shortcode-options.php');
         self::include_child_first('/helpers-shortcode-get-option.php');
         self::include_child_first('/hooks.php');
         self::include_child_first('/menus.php');
-        //self::include_child_first('/customizer.php');
-        //self::include_child_first('/hooks-structure.php');
-        //self::include_child_first('/template-tags.php');
-        //self::include_child_first('/wp-sass/wp-sass.php');
 
         // Automatically include all PHP files from organized subfolders
         $subfolders = ['helpers', 'shortcodes', 'widgets', 'menus', 'includes', 'classes'];
@@ -223,7 +217,6 @@ class Theme_Includes {
     public static function _action_init(): void {
         self::include_child_first('/menus.php');
         self::include_child_first('/post-types.php');
-        //self::include_child_first('/optimization.php');
     }
 
     /**

@@ -46,7 +46,7 @@ $options = [
 		'choices' => [
 			'yes' => [
 				'copyright_columns'        => unysonplus_footer_columns_field( 'copyright', 3, 1, $copyright_default ),
-				'copyright_custom_styling' => unysonplus_footer_custom_styling( 'copyright' ),
+				'copyright_custom_styling' => unysonplus_hf_custom_styling( 'copyright' ),
 			],
 		],
 		'show_borders' => false,

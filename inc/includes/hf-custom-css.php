@@ -513,7 +513,7 @@ function unysonplus_hf_build_global_css() {
 		// Logo Custom CSS (Custom Logo Layout → Advanced): raw CSS for the lockup, appended last
 		// so it can override the generated rules above. Author-scoped to the logo hooks.
 		if ( ! empty( $logo['logo_custom_css'] ) && is_string( $logo['logo_custom_css'] ) ) {
-			$css .= "\n" . trim( $logo['logo_custom_css'] ) . "\n";
+			$css .= "\n" . unysonplus_css_safe( trim( $logo['logo_custom_css'] ) ) . "\n";
 		}
 	}
 
@@ -688,26 +688,53 @@ function unysonplus_hf_uploads_servable( $dir ) {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_css_safe' ) ) :
+/**
+ * Make an author-entered CSS string safe to place inside a <style> block.
+ *
+ * The generated stylesheet is normally served as a .css FILE (where a value can't
+ * break out), but this theme falls back to an inline <style> block when the uploads
+ * dir isn't servable — there a value containing `</style><script>` would execute.
+ * Stripping every `<` makes any tag/breakout impossible while leaving the `>` child
+ * combinator intact (no valid CSS uses `<`); we also neutralise the legacy IE
+ * `expression()` and `javascript:` vectors. Applied to raw custom-CSS options and to
+ * the whole inline fallback.
+ *
+ * @param string $css
+ * @return string
+ */
+function unysonplus_css_safe( $css ) {
+	$css = str_replace( '<', '', (string) $css );
+	$css = preg_replace( '/expression\s*\(/i', '(', $css );
+	$css = preg_replace( '/javascript\s*:/i', '', $css );
+	return $css;
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_hf_enqueue_css' ) ) :
 /**
- * Enqueue the generated stylesheet, keeping it fresh by content hash. The CSS is
- * (re)built every front-end load — the same work the old inline emitters did —
- * and only written to disk when its hash changes, so there is no staleness and
- * no added compute cost, while the browser caches the file across page loads.
- * Falls back to a single <style> block when the file can't be written OR the
- * uploads dir isn't local to the site (cloned-site misconfig). Also enqueues any
- * Google fonts chosen in section typography.
+ * Enqueue the generated stylesheet. Design (per the save hooks below): the file is
+ * (re)built on settings save / customizer save / preset apply, and LAZILY here only
+ * when it is missing or the theme version changed. On a warm cache we therefore skip
+ * the ~700-line theme-vars/tokens/hf rebuild every request and just enqueue the cached
+ * file, busted by filemtime. Falls back to one sanitized <style> block when the file
+ * can't be written OR the uploads dir isn't local to the site (cloned-site misconfig).
+ * Also enqueues any Google fonts chosen in section typography.
  */
 function unysonplus_hf_enqueue_css() {
-	$css   = unysonplus_generated_css();
 	$paths = unysonplus_hf_css_paths();
 
 	$enqueued_file = false;
 	if ( $paths !== null && unysonplus_hf_uploads_servable( $paths['dir'] ) ) {
-		$hash = md5( $css );
-		if ( get_option( 'unysonplus_hf_css_hash' ) !== $hash || ! file_exists( $paths['file'] ) ) {
+		// Lazy self-heal: rebuild only when the file is absent or the theme version
+		// changed (a theme update can change the CSS-generation logic). Normal setting
+		// changes rebuild via unysonplus_hf_regenerate_css() on the save/preset hooks.
+		$theme_v = (string) wp_get_theme()->get( 'Version' );
+		if ( ! file_exists( $paths['file'] ) || get_option( 'unysonplus_hf_css_theme_ver' ) !== $theme_v ) {
+			$css = unysonplus_generated_css();
 			if ( unysonplus_hf_write_css_file( $css ) ) {
-				update_option( 'unysonplus_hf_css_hash', $hash, false );
+				update_option( 'unysonplus_hf_css_hash', md5( $css ), false );
+				update_option( 'unysonplus_hf_css_theme_ver', $theme_v, false );
 			}
 		}
 		if ( file_exists( $paths['file'] ) ) {
@@ -720,18 +747,24 @@ function unysonplus_hf_enqueue_css() {
 		}
 	}
 
-	// Fallback: emit the CSS as one <style> block (a stylesheet block, not
-	// per-element inline) when the uploads dir isn't writable.
-	if ( ! $enqueued_file && $css !== '' ) {
-		wp_register_style( 'unysonplus-hf-custom-inline', false, array( 'parent-style' ) );
-		wp_enqueue_style( 'unysonplus-hf-custom-inline' );
-		wp_add_inline_style( 'unysonplus-hf-custom-inline', $css );
+	// Fallback: emit the CSS as one <style> block when the uploads dir isn't servable.
+	// Sanitized so a custom-CSS value can't break out of the inline <style>.
+	if ( ! $enqueued_file ) {
+		$css = unysonplus_generated_css();
+		if ( $css !== '' ) {
+			wp_register_style( 'unysonplus-hf-custom-inline', false, array( 'parent-style' ) );
+			wp_enqueue_style( 'unysonplus-hf-custom-inline' );
+			wp_add_inline_style( 'unysonplus-hf-custom-inline', unysonplus_css_safe( $css ) );
+		}
 	}
 
 	unysonplus_hf_enqueue_google_fonts();
 }
 endif;
 add_action( 'wp_enqueue_scripts', 'unysonplus_hf_enqueue_css', 30 );
+// Keep the cached file correct after programmatic setting changes that don't fire the
+// settings-save hooks (applying a Component/Theme preset writes options directly).
+add_action( 'unysonplus_settings_preset_applied', 'unysonplus_hf_regenerate_css', 20 );
 
 if ( ! function_exists( 'unysonplus_hf_enqueue_google_fonts' ) ) :
 /** Enqueue a combined Google Fonts stylesheet for any section typography that uses one. */

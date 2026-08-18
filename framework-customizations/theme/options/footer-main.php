@@ -25,6 +25,6 @@ $options = [
 
 	'main_footer_columns' => unysonplus_footer_columns_field( 'main_footer', 6, 3 ),
 
-	'main_footer_custom_styling' => unysonplus_footer_custom_styling( 'main_footer' ),
+	'main_footer_custom_styling' => unysonplus_hf_custom_styling( 'main_footer' ),
 
 ];

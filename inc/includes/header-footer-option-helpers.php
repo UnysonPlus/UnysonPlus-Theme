@@ -267,6 +267,140 @@ function unysonplus_hf_heading_options() {
 endif;
 
 
+if ( ! function_exists( 'unysonplus_hf_phone_options' ) ) :
+/**
+ * Leaf options for the (legacy) Phone element — shared by the header + footer element
+ * popups so the two stay byte-identical.
+ *
+ * @return array
+ */
+function unysonplus_hf_phone_options() {
+	return array(
+		'phone_number' => array( 'label' => __( 'Phone Number', 'unysonplus' ), 'type' => 'text', 'value' => '' ),
+	);
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_custom_html_options' ) ) :
+/**
+ * Leaf options for the Custom HTML element — shared by the header + footer element popups.
+ *
+ * @return array
+ */
+function unysonplus_hf_custom_html_options() {
+	return array(
+		'custom_html_content' => array( 'label' => __( 'Custom HTML', 'unysonplus' ), 'type' => 'textarea', 'value' => '' ),
+	);
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_menu_options' ) ) :
+/**
+ * Leaf options for the Menu element (pick a WP menu) — shared by the header + footer popups.
+ *
+ * @return array
+ */
+function unysonplus_hf_menu_options() {
+	$ch = unysonplus_hf_choices();
+	return array(
+		'menu_id' => array(
+			'label'   => __( 'Select Menu', 'unysonplus' ),
+			'type'    => 'select',
+			'value'   => '',
+			'choices' => $ch['menu'],
+			'desc'    => __( 'Choose a menu created in Appearance > Menus.', 'unysonplus' ),
+		),
+	);
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_menu_area_options' ) ) :
+/**
+ * Leaf options for the Menu Area element (pick a theme menu location) — shared header + footer.
+ *
+ * @return array
+ */
+function unysonplus_hf_menu_area_options() {
+	$ch = unysonplus_hf_choices();
+	return array(
+		'menu_location' => array(
+			'label'   => __( 'Menu Location', 'unysonplus' ),
+			'type'    => 'select',
+			'value'   => 'primary',
+			'choices' => $ch['menu_location'],
+			'desc'    => __( 'Select a theme menu location.', 'unysonplus' ),
+		),
+	);
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_text_options' ) ) :
+/**
+ * Leaf options for the Text element (wp-editor) — shared by the header + footer popups.
+ *
+ * @return array
+ */
+function unysonplus_hf_text_options() {
+	return array(
+		'text_content' => array(
+			'label'         => __( 'Text', 'unysonplus' ),
+			'type'          => 'wp-editor',
+			'value'         => '',
+			'desc'          => __( 'Add rich text content. Use the {{current_year}} dynamic tag for the current year.', 'unysonplus' ),
+			'tinymce'       => true,
+			'shortcodes'    => true,
+			'size'          => 'large',
+			'editor_height' => 200,
+			'reinit'        => true,
+			'wpautop'       => true,
+		),
+	);
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_widget_area_options' ) ) :
+/**
+ * Leaf options for the Widget Area element (pick a registered sidebar) — shared header + footer.
+ *
+ * @return array
+ */
+function unysonplus_hf_widget_area_options() {
+	$ch = unysonplus_hf_choices();
+	return array(
+		'sidebar_id' => array(
+			'label'   => __( 'Widget Area', 'unysonplus' ),
+			'type'    => 'select',
+			'value'   => 'sidebar-right',
+			'choices' => $ch['sidebar'],
+			'desc'    => __( 'Select a registered widget area.', 'unysonplus' ),
+		),
+	);
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_builder_section_options' ) ) :
+/**
+ * Leaf options for the Builder Section element (pick a saved page-builder layout) — shared by
+ * the header + footer popups. The description differs per context, so it's passed in.
+ *
+ * @param string $desc Context-specific description for the Saved Layout select.
+ * @return array
+ */
+function unysonplus_hf_builder_section_options( $desc ) {
+	$ch = unysonplus_hf_choices();
+	return array(
+		'builder_post_id' => array(
+			'label'   => __( 'Saved Layout', 'unysonplus' ),
+			'type'    => 'select',
+			'value'   => '',
+			'choices' => $ch['builder'],
+			'desc'    => $desc,
+		),
+	);
+}
+endif;
+
+
 /* ============================================================
  * Element pickers (the popup shown when you click "Add" in a column)
  * ============================================================ */
@@ -382,9 +516,7 @@ function unysonplus_footer_element_popup() {
 				'newsletter' => unysonplus_hf_newsletter_options(),
 				'heading'    => unysonplus_hf_heading_options(),
 				'link'       => unysonplus_hf_link_options(),
-				'phone' => array(
-					'phone_number' => array( 'label' => __( 'Phone Number', 'unysonplus' ), 'type' => 'text', 'value' => '' ),
-				),
+				'phone' => unysonplus_hf_phone_options(),
 				'icon_text' => array(
 					'icontext_icon' => array(
 						'type'         => 'icon',
@@ -417,50 +549,11 @@ function unysonplus_footer_element_popup() {
 						'value' => '',
 					),
 				),
-				'custom_html' => array(
-					'custom_html_content' => array( 'label' => __( 'Custom HTML', 'unysonplus' ), 'type' => 'textarea', 'value' => '' ),
-				),
-				'menu' => array(
-					'menu_id' => array(
-						'label'   => __( 'Select Menu', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => '',
-						'choices' => $ch['menu'],
-						'desc'    => __( 'Choose a menu created in Appearance > Menus.', 'unysonplus' ),
-					),
-				),
-				'menu_area' => array(
-					'menu_location' => array(
-						'label'   => __( 'Menu Location', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => 'primary',
-						'choices' => $ch['menu_location'],
-						'desc'    => __( 'Select a theme menu location.', 'unysonplus' ),
-					),
-				),
-				'text' => array(
-					'text_content' => array(
-						'label'         => __( 'Text', 'unysonplus' ),
-						'type'          => 'wp-editor',
-						'value'         => '',
-						'desc'          => __( 'Add rich text content. Use the {{current_year}} dynamic tag for the current year.', 'unysonplus' ),
-						'tinymce'       => true,
-						'shortcodes'    => true,
-						'size'          => 'large',
-						'editor_height' => 200,
-						'reinit'        => true,
-						'wpautop'       => true,
-					),
-				),
-				'widget_area' => array(
-					'sidebar_id' => array(
-						'label'   => __( 'Widget Area', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => 'sidebar-right',
-						'choices' => $ch['sidebar'],
-						'desc'    => __( 'Select a registered widget area.', 'unysonplus' ),
-					),
-				),
+				'custom_html' => unysonplus_hf_custom_html_options(),
+				'menu' => unysonplus_hf_menu_options(),
+				'menu_area' => unysonplus_hf_menu_area_options(),
+				'text' => unysonplus_hf_text_options(),
+				'widget_area' => unysonplus_hf_widget_area_options(),
 				'footer_logo' => array(
 					'footer_logo_image' => array(
 						'label' => __( 'Footer Logo', 'unysonplus' ),
@@ -484,15 +577,7 @@ function unysonplus_footer_element_popup() {
 						'desc'  => __( 'Leave empty to show only an arrow icon.', 'unysonplus' ),
 					),
 				),
-				'builder_section' => array(
-					'builder_post_id' => array(
-						'label'   => __( 'Saved Layout', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => '',
-						'choices' => $ch['builder'],
-						'desc'    => __( 'Render a page-builder layout inside this footer column — for bespoke designs the standard elements can\'t express.', 'unysonplus' ),
-					),
-				),
+				'builder_section' => unysonplus_hf_builder_section_options( __( 'Render a page-builder layout inside this footer column — for bespoke designs the standard elements can\'t express.', 'unysonplus' ) ),
 				'snippet' => unysonplus_hf_snippet_options(),
 			),
 			'show_borders' => false,
@@ -564,9 +649,7 @@ function unysonplus_header_element_popup() {
 				'newsletter' => unysonplus_hf_newsletter_options(),
 				'heading'    => unysonplus_hf_heading_options(),
 				'link'       => unysonplus_hf_link_options(),
-				'phone' => array(
-					'phone_number' => array( 'label' => __( 'Phone Number', 'unysonplus' ), 'type' => 'text', 'value' => '' ),
-				),
+				'phone' => unysonplus_hf_phone_options(),
 				'icon_text' => array(
 					'icontext_icon' => array(
 						'type'         => 'icon',
@@ -591,21 +674,6 @@ function unysonplus_header_element_popup() {
 							'email' => __( 'Email (mailto:)', 'unysonplus' ),
 							'phone' => __( 'Phone (tel:)', 'unysonplus' ),
 						),
-						'footer_logo_show_title' => array(
-							'label'        => __( 'Show Site Title', 'unysonplus' ),
-							'type'         => 'switch',
-							'value'        => 'no',
-							'right-choice' => array( 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ),
-							'left-choice'  => array( 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ),
-							'desc'         => __( 'Show the site title as a wordmark beside the image — an image + text lockup, like the header logo.', 'unysonplus' ),
-						),
-						'footer_logo_title' => array(
-							'label'           => __( 'Title Text', 'unysonplus' ),
-							'type'            => 'text',
-							'value'           => '',
-							'desc'            => __( 'Optional wordmark text (Show Site Title on). Empty = the Site Title.', 'unysonplus' ),
-							'dynamic_content' => false,
-						),
 					),
 					'icontext_link' => array(
 						'label' => __( 'Link', 'unysonplus' ),
@@ -614,59 +682,12 @@ function unysonplus_header_element_popup() {
 						'value' => '',
 					),
 				),
-				'custom_html' => array(
-					'custom_html_content' => array( 'label' => __( 'Custom HTML', 'unysonplus' ), 'type' => 'textarea', 'value' => '' ),
-				),
-				'menu' => array(
-					'menu_id' => array(
-						'label'   => __( 'Select Menu', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => '',
-						'choices' => $ch['menu'],
-						'desc'    => __( 'Choose a menu created in Appearance > Menus.', 'unysonplus' ),
-					),
-				),
-				'menu_area' => array(
-					'menu_location' => array(
-						'label'   => __( 'Menu Location', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => 'primary',
-						'choices' => $ch['menu_location'],
-						'desc'    => __( 'Select a theme menu location.', 'unysonplus' ),
-					),
-				),
-				'text' => array(
-					'text_content' => array(
-						'label'         => __( 'Text', 'unysonplus' ),
-						'type'          => 'wp-editor',
-						'value'         => '',
-						'desc'          => __( 'Add rich text content. Use the {{current_year}} dynamic tag for the current year.', 'unysonplus' ),
-						'tinymce'       => true,
-						'shortcodes'    => true,
-						'size'          => 'large',
-						'editor_height' => 200,
-						'reinit'        => true,
-						'wpautop'       => true,
-					),
-				),
-				'widget_area' => array(
-					'sidebar_id' => array(
-						'label'   => __( 'Widget Area', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => 'sidebar-right',
-						'choices' => $ch['sidebar'],
-						'desc'    => __( 'Select a registered widget area.', 'unysonplus' ),
-					),
-				),
-				'builder_section' => array(
-					'builder_post_id' => array(
-						'label'   => __( 'Saved Layout', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => '',
-						'choices' => $ch['builder'],
-						'desc'    => __( 'Render a page-builder layout inside this slot — for bespoke header designs the standard elements can\'t express.', 'unysonplus' ),
-					),
-				),
+				'custom_html' => unysonplus_hf_custom_html_options(),
+				'menu' => unysonplus_hf_menu_options(),
+				'menu_area' => unysonplus_hf_menu_area_options(),
+				'text' => unysonplus_hf_text_options(),
+				'widget_area' => unysonplus_hf_widget_area_options(),
+				'builder_section' => unysonplus_hf_builder_section_options( __( 'Render a page-builder layout inside this slot — for bespoke header designs the standard elements can\'t express.', 'unysonplus' ) ),
 				'snippet' => unysonplus_hf_snippet_options(),
 			),
 			'show_borders' => false,
@@ -711,6 +732,29 @@ function unysonplus_hf_row_label_js() {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_hf_row_label_maps_js' ) ) :
+/**
+ * The map-driven branches of the row-label underscore template (widget_area / menu /
+ * menu_area / builder_section / text / custom_html), shared by the footer + header row
+ * templates. The four JSON label maps are injected so a collapsed row shows the chosen
+ * item's label. Keeps the leading + trailing space so it splices into the template
+ * byte-identically to the old inline code.
+ */
+function unysonplus_hf_row_label_maps_js( $sidebar_label_map, $menu_label_map, $menu_location_label_map, $builder_label_map ) {
+	return ' if (el === "widget_area" && element_type["widget_area"] && element_type["widget_area"]["sidebar_id"]) { var smap = ' . $sidebar_label_map . '; var sid = element_type["widget_area"]["sidebar_id"]; lbl = (smap[sid] || sid); } if (el === "menu" && element_type["menu"] && element_type["menu"]["menu_id"]) { var mmap = ' . $menu_label_map . '; var mid = element_type["menu"]["menu_id"]; lbl = (mmap[mid] || mid); } if (el === "menu_area" && element_type["menu_area"] && element_type["menu_area"]["menu_location"]) { var amap = ' . $menu_location_label_map . '; var loc = element_type["menu_area"]["menu_location"]; lbl = (amap[loc] || loc); } if (el === "builder_section" && element_type["builder_section"] && element_type["builder_section"]["builder_post_id"]) { var bmap = ' . $builder_label_map . '; var bid = element_type["builder_section"]["builder_post_id"]; lbl = (bmap[bid] || bid); } if (el === "text" && element_type["text"] && element_type["text"]["text_content"]) { var _t = String(element_type["text"]["text_content"]).replace(/<[^>]*>/g," ").replace(/&[a-z#0-9]+;/gi," ").replace(/\s+/g," ").trim(); if (_t) lbl = (_t.length > 45 ? _t.substring(0,45) + "…" : _t); } if (el === "custom_html" && element_type["custom_html"] && element_type["custom_html"]["custom_html_content"]) { var _h = String(element_type["custom_html"]["custom_html_content"]).replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim(); if (_h) lbl = (_h.length > 45 ? _h.substring(0,45) + "…" : _h); } ';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_row_label_tail_js' ) ) :
+/**
+ * The icon_text + cta_button branches of the row-label underscore template, shared by the
+ * footer + header row templates. Trailing space preserved for byte-identical splicing.
+ */
+function unysonplus_hf_row_label_tail_js() {
+	return 'if (el === "icon_text" && element_type["icon_text"] && element_type["icon_text"]["icontext_text"]) { var _i = String(element_type["icon_text"]["icontext_text"]).replace(/\s+/g," ").trim(); if (_i) lbl = (_i.length > 45 ? _i.substring(0,45) + "…" : _i); } if (el === "cta_button" && element_type["cta_button"] && element_type["cta_button"]["cta_text"]) { var _cta = String(element_type["cta_button"]["cta_text"]).replace(/\s+/g," ").trim(); if (_cta) lbl = (_cta.length > 45 ? _cta.substring(0,45) + "…" : _cta); } ';
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_footer_row_template' ) ) :
 function unysonplus_footer_row_template() {
 	static $tpl = null;
@@ -724,7 +768,7 @@ function unysonplus_footer_row_template() {
 	$menu_location_label_map = json_encode( $ch['menu_location'], JSON_UNESCAPED_UNICODE );
 	$builder_label_map       = json_encode( array_map( 'strval', $ch['builder'] ), JSON_UNESCAPED_UNICODE );
 
-	$tpl = '{{= (function(){ var el = element_type["element"]; var lbl = (' . $element_label_map . ')[el] || el; ' . unysonplus_hf_row_label_js() . ' if (el === "widget_area" && element_type["widget_area"] && element_type["widget_area"]["sidebar_id"]) { var smap = ' . $sidebar_label_map . '; var sid = element_type["widget_area"]["sidebar_id"]; lbl = (smap[sid] || sid); } if (el === "menu" && element_type["menu"] && element_type["menu"]["menu_id"]) { var mmap = ' . $menu_label_map . '; var mid = element_type["menu"]["menu_id"]; lbl = (mmap[mid] || mid); } if (el === "menu_area" && element_type["menu_area"] && element_type["menu_area"]["menu_location"]) { var amap = ' . $menu_location_label_map . '; var loc = element_type["menu_area"]["menu_location"]; lbl = (amap[loc] || loc); } if (el === "builder_section" && element_type["builder_section"] && element_type["builder_section"]["builder_post_id"]) { var bmap = ' . $builder_label_map . '; var bid = element_type["builder_section"]["builder_post_id"]; lbl = (bmap[bid] || bid); } if (el === "text" && element_type["text"] && element_type["text"]["text_content"]) { var _t = String(element_type["text"]["text_content"]).replace(/<[^>]*>/g," ").replace(/&[a-z#0-9]+;/gi," ").replace(/\s+/g," ").trim(); if (_t) lbl = (_t.length > 45 ? _t.substring(0,45) + "…" : _t); } if (el === "custom_html" && element_type["custom_html"] && element_type["custom_html"]["custom_html_content"]) { var _h = String(element_type["custom_html"]["custom_html_content"]).replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim(); if (_h) lbl = (_h.length > 45 ? _h.substring(0,45) + "…" : _h); } if (el === "copyright_text" && element_type["copyright_text"] && element_type["copyright_text"]["copyright_content"]) { var _c = String(element_type["copyright_text"]["copyright_content"]).replace(/<[^>]*>/g," ").replace(/&[a-z#0-9]+;/gi," ").replace(/\s+/g," ").trim(); if (_c) lbl = (_c.length > 45 ? _c.substring(0,45) + "…" : _c); } if (el === "icon_text" && element_type["icon_text"] && element_type["icon_text"]["icontext_text"]) { var _i = String(element_type["icon_text"]["icontext_text"]).replace(/\s+/g," ").trim(); if (_i) lbl = (_i.length > 45 ? _i.substring(0,45) + "…" : _i); } if (el === "cta_button" && element_type["cta_button"] && element_type["cta_button"]["cta_text"]) { var _cta = String(element_type["cta_button"]["cta_text"]).replace(/\s+/g," ").trim(); if (_cta) lbl = (_cta.length > 45 ? _cta.substring(0,45) + "…" : _cta); } return lbl; })() }}';
+	$tpl = '{{= (function(){ var el = element_type["element"]; var lbl = (' . $element_label_map . ')[el] || el; ' . unysonplus_hf_row_label_js() . unysonplus_hf_row_label_maps_js( $sidebar_label_map, $menu_label_map, $menu_location_label_map, $builder_label_map ) . 'if (el === "copyright_text" && element_type["copyright_text"] && element_type["copyright_text"]["copyright_content"]) { var _c = String(element_type["copyright_text"]["copyright_content"]).replace(/<[^>]*>/g," ").replace(/&[a-z#0-9]+;/gi," ").replace(/\s+/g," ").trim(); if (_c) lbl = (_c.length > 45 ? _c.substring(0,45) + "…" : _c); } ' . unysonplus_hf_row_label_tail_js() . 'return lbl; })() }}';
 	return $tpl;
 }
 endif;
@@ -741,7 +785,7 @@ function unysonplus_header_row_template() {
 	$menu_location_label_map = json_encode( $ch['menu_location'], JSON_UNESCAPED_UNICODE );
 	$builder_label_map       = json_encode( array_map( 'strval', $ch['builder'] ), JSON_UNESCAPED_UNICODE );
 
-	$tpl = '{{= (function(){ var el = element_type["element"]; var lbl = ({"logo":"Logo","cta_button":"CTA Button","phone":"Phone Number","icon_text":"Icon Text","search":"Search","social_icons":"Social Icons","newsletter":"Newsletter","custom_html":"Custom HTML","text":"Text","menu":"Menu","menu_area":"Menu Area","widget_area":"Widget Area","builder_section":"Builder Section","spacer":"Spacer","divider":"Divider"})[el] || el; ' . unysonplus_hf_row_label_js() . ' if (el === "widget_area" && element_type["widget_area"] && element_type["widget_area"]["sidebar_id"]) { var smap = ' . $sidebar_label_map . '; var sid = element_type["widget_area"]["sidebar_id"]; lbl = (smap[sid] || sid); } if (el === "menu" && element_type["menu"] && element_type["menu"]["menu_id"]) { var mmap = ' . $menu_label_map . '; var mid = element_type["menu"]["menu_id"]; lbl = (mmap[mid] || mid); } if (el === "menu_area" && element_type["menu_area"] && element_type["menu_area"]["menu_location"]) { var amap = ' . $menu_location_label_map . '; var loc = element_type["menu_area"]["menu_location"]; lbl = (amap[loc] || loc); } if (el === "builder_section" && element_type["builder_section"] && element_type["builder_section"]["builder_post_id"]) { var bmap = ' . $builder_label_map . '; var bid = element_type["builder_section"]["builder_post_id"]; lbl = (bmap[bid] || bid); } if (el === "text" && element_type["text"] && element_type["text"]["text_content"]) { var _t = String(element_type["text"]["text_content"]).replace(/<[^>]*>/g," ").replace(/&[a-z#0-9]+;/gi," ").replace(/\s+/g," ").trim(); if (_t) lbl = (_t.length > 45 ? _t.substring(0,45) + "…" : _t); } if (el === "custom_html" && element_type["custom_html"] && element_type["custom_html"]["custom_html_content"]) { var _h = String(element_type["custom_html"]["custom_html_content"]).replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim(); if (_h) lbl = (_h.length > 45 ? _h.substring(0,45) + "…" : _h); } if (el === "icon_text" && element_type["icon_text"] && element_type["icon_text"]["icontext_text"]) { var _i = String(element_type["icon_text"]["icontext_text"]).replace(/\s+/g," ").trim(); if (_i) lbl = (_i.length > 45 ? _i.substring(0,45) + "…" : _i); } if (el === "cta_button" && element_type["cta_button"] && element_type["cta_button"]["cta_text"]) { var _cta = String(element_type["cta_button"]["cta_text"]).replace(/\s+/g," ").trim(); if (_cta) lbl = (_cta.length > 45 ? _cta.substring(0,45) + "…" : _cta); } return lbl; })() }}';
+	$tpl = '{{= (function(){ var el = element_type["element"]; var lbl = ({"logo":"Logo","cta_button":"CTA Button","phone":"Phone Number","icon_text":"Icon Text","search":"Search","social_icons":"Social Icons","newsletter":"Newsletter","custom_html":"Custom HTML","text":"Text","menu":"Menu","menu_area":"Menu Area","widget_area":"Widget Area","builder_section":"Builder Section","spacer":"Spacer","divider":"Divider"})[el] || el; ' . unysonplus_hf_row_label_js() . unysonplus_hf_row_label_maps_js( $sidebar_label_map, $menu_label_map, $menu_location_label_map, $builder_label_map ) . unysonplus_hf_row_label_tail_js() . 'return lbl; })() }}';
 	return $tpl;
 }
 endif;
@@ -1452,18 +1496,5 @@ function unysonplus_hf_custom_styling( $prefix ) {
 		),
 		'show_borders' => false,
 	);
-}
-endif;
-
-if ( ! function_exists( 'unysonplus_footer_custom_styling' ) ) :
-/**
- * Back-compat alias — footer section files call this; delegates to the shared
- * header/footer styling block.
- *
- * @param string $prefix e.g. 'pre_footer', 'main_footer', 'post_footer', 'copyright'
- * @return array
- */
-function unysonplus_footer_custom_styling( $prefix ) {
-	return unysonplus_hf_custom_styling( $prefix );
 }
 endif;

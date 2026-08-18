@@ -669,21 +669,6 @@ if(! function_exists('unysonplus_social_profiles')){
 }
 
 
-/**
- * Add More Menu Items
- */
-/*add_filter( 'wp_nav_menu_items', 'your_custom_menu_item', 10, 2 );
-function your_custom_menu_item ( $items, $args ) {
-    if ($args->theme_location == 'main') {
-        $items .= '
-              <li class="pull-right"><a href="./">Default <span class="sr-only">(current)</span></a></li>
-              <li class="pull-right"><a href="../navbar-static-top/">Static top</a></li>
-              <li class="pull-right"><a href="../navbar-fixed-top/">Fixed top</a></li>
-            ';
-    }
-    return $items;
-}*/
-
 if(! function_exists('unysonplus_header_info')){
         function unysonplus_header_info() { ?>
         <?php $header_info = fw_get_db_settings_option('header_info'); 
@@ -713,33 +698,6 @@ function unysonplus_inline_info() {
 endif;
 
 
-if (! function_exists('unysonplus_post_thumbnail') ) :
-/**
- * Display an optional post thumbnail. NOT USED... To be deleted soon
- */
-function unysonplus_post_thumbnail() {
-        if ( post_password_required() || is_attachment() || ! has_post_thumbnail() ) {
-                return;
-        }
-
-        if ( is_singular() ) :
-        ?>
-
-        <div class="post-thumbnail">
-                <?php the_post_thumbnail(); ?>
-        </div><!-- .post-thumbnail -->
-
-        <?php else : ?>
-
-        <a class="post-thumbnail" href="<?php the_permalink(); ?>" aria-hidden="true">
-                <?php
-                        the_post_thumbnail( 'post-thumbnail', array( 'alt' => get_the_title() ) );
-                ?>
-        </a>
-
-        <?php endif; // End is_singular()
-}
-endif;
 
 
 /**

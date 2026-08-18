@@ -25,6 +25,6 @@ $options = [
 
 	'pre_footer_columns' => unysonplus_footer_columns_field( 'pre_footer', 6, 1 ),
 
-	'pre_footer_custom_styling' => unysonplus_footer_custom_styling( 'pre_footer' ),
+	'pre_footer_custom_styling' => unysonplus_hf_custom_styling( 'pre_footer' ),
 
 ];

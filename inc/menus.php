@@ -1,6 +1,45 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { die( 'Direct access forbidden.' ); }
 
 /**
+ * Read one stored Theme Settings option value WITHOUT building the options tree.
+ *
+ * `fw_get_db_settings_option()` is the normal accessor, but it is only safe once the
+ * request is past bootstrap: it instantiates the whole Theme Settings option schema to
+ * merge in defaults (~175 MB / ~0.5 s on an admin request). Callers that run on early
+ * hooks — `after_setup_theme`, `init` — must use this instead.
+ *
+ * Returns the raw saved value (no defaults merged), or $default when the option has
+ * never been saved.
+ *
+ * @param string $option_id Top-level settings option id.
+ * @param mixed  $default
+ * @return mixed
+ */
+if ( ! function_exists( 'unysonplus_raw_settings_option' ) ) :
+function unysonplus_raw_settings_option( $option_id, $default = null ) {
+    static $values = null;
+
+    if ( null === $values ) {
+        if ( ! class_exists( 'FW_WP_Option' ) || ! function_exists( 'fw' ) ) {
+            return $default;
+        }
+        // Same storage the settings model writes to (FW_Db_Options_Model_Settings::set_values()).
+        // FW_WP_Option::get() is a thin get_option()/get_site_option() wrapper — cheap.
+        $values = FW_WP_Option::get(
+            'fw_theme_settings_options:' . fw()->theme->manifest->get_id(),
+            null,
+            array()
+        );
+        if ( ! is_array( $values ) ) {
+            $values = array();
+        }
+    }
+
+    return array_key_exists( $option_id, $values ) ? $values[ $option_id ] : $default;
+}
+endif;
+
+/**
  * Theme Menu Registration
  */
 if ( ! function_exists( 'unysonplus_register_menus' ) ) :
@@ -22,9 +61,18 @@ function unysonplus_register_menus() {
     $menus['overlay']    = __( 'Overlay menu (Overlay header mode)', 'unysonplus' );
     $menus['off-canvas'] = __( 'Off-Canvas menu (Off-Canvas header mode)', 'unysonplus' );
 
-    if ( function_exists( 'fw_get_db_settings_option' ) ) {
-        $header_topbar = fw_get_db_settings_option( 'header_topbar' );
+    // Read the stored Theme Settings value RAW — do NOT call fw_get_db_settings_option()
+    // here. This runs on `after_setup_theme`, i.e. during bootstrap of EVERY request
+    // including admin-ajax.php, and that helper goes through FW_Db_Options_Model, which
+    // builds the ENTIRE Theme Settings option tree (every tab, every option type, plus
+    // the `fw_settings_options` filter that pulls in extension options) just to merge
+    // defaults. On an admin request that tree costs ~175 MB and ~0.5 s — it was single-
+    // handedly pushing wp-admin past the 512 MB memory_limit and killing admin-ajax.
+    // We only need two booleans, and only when the user has actually saved them, so the
+    // raw option is enough: an unsaved topbar has no menus to register anyway.
+    $header_topbar = unysonplus_raw_settings_option( 'header_topbar' );
 
+    if ( is_array( $header_topbar ) ) {
         if ( ! empty( $header_topbar['yes'] ) && is_array( $header_topbar['yes'] ) ) {
             if ( ! empty( $header_topbar['yes']['topbar_left_menu']['display'] ) && $header_topbar['yes']['topbar_left_menu']['display'] === 'yes' ) {
                 $menus['top-left'] = __( 'Top left menu', 'unysonplus' );

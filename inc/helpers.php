@@ -135,34 +135,37 @@ if ( ! function_exists( 'unysonplus_upload_option_src' ) ) :
         }
 endif;
 
-if(! function_exists('unysonplus_logo')) :
+if ( ! function_exists( 'unysonplus_predefined_color_class' ) ) :
         /**
-         * The Logo
+         * Return the predefined-palette CSS class from a colors-picker option value.
+         *
+         * The Header → Identity color pickers (Site Title color, Tagline color) store
+         * a mutually-exclusive shape: either a `predefined` palette class OR a custom
+         * hex (the hex is emitted to the generated CSS file, never inline here). This
+         * yields the palette class when one is chosen, or '' otherwise.
+         *
+         * @param mixed $cfg The color option value (expected array with 'predefined').
+         * @return string The palette class, or '' when none / not an array.
          */
-        function unysonplus_logo() {
-                $header_logo = unysonplus_header_logo_cfg();
-                // Resolve the Simple-Logo image against the CURRENT site (never the
-                // stored localhost URL) so a cloned / deployed site can't 404 - an
-                // absent attachment yields '' and we fall through to the text logo.
-                $unyson_image_src = ( function_exists( 'unysonplus_upload_option_src' ) && ! empty( $header_logo['image'] ) )
-                        ? unysonplus_upload_option_src( $header_logo['image'] )
-                        : ( ! empty( $header_logo['image']['url'] ) ? $header_logo['image']['url'] : '' );
-                $has_unyson_image = ( $unyson_image_src !== '' );
-                $has_logo_icon    = false; // set true when a text logo renders with a Logo Icon beside it
-                $logo_layout_class = '';   // 'site-logo--{layout}' for the text-logo lockup
-                $tagline_in_lockup = false; // true when the tagline is rendered INSIDE the lockup (stacked/eyebrow)
+        function unysonplus_predefined_color_class( $cfg ) {
+                if ( is_array( $cfg ) && ! empty( $cfg['predefined'] ) ) {
+                        return $cfg['predefined'];
+                }
+                return '';
+        }
+endif;
 
-                // Alt text for the image logo: explicit override, then Site Title, then WP name.
-                $unysonplus_logo_alt = ! empty( $header_logo['alt'] )
-                        ? $header_logo['alt']
-                        : ( ! empty( $header_logo['site_title'] ) ? $header_logo['site_title'] : get_bloginfo( 'name' ) );
-
-                // Logo Type (Header → Identity): 'simple' = image, 'custom' = text/icon lockup.
-                // Back-compat: legacy saves have no logo_type — infer from whether an image is set.
-                $logo_type = ! empty( $header_logo['logo_type'] ) ? $header_logo['logo_type'] : ( $has_unyson_image ? 'simple' : 'custom' );
-                $want_image = ( 'custom' !== $logo_type );
-
-                if ( $want_image && $has_unyson_image ) {
+if ( ! function_exists( 'unysonplus_logo_image_html' ) ) :
+        /**
+         * Build the Simple (image) logo <img>, with px-resize / responsive-srcset /
+         * retina handling. Returns the default <img> HTML for the resolved image src.
+         *
+         * @param array  $header_logo      Flattened header-logo config (see unysonplus_header_logo_cfg()).
+         * @param string $unyson_image_src Current-site-resolved image URL.
+         * @param string $alt              Alt text for the <img>.
+         * @return string The <img> HTML.
+         */
+        function unysonplus_logo_image_html( $header_logo, $unyson_image_src, $alt ) {
                         $img_attr = array();
                         $logo_w  = isset( $header_logo['width'] ) ? $header_logo['width'] : '';
                         // Only an exact pixel width can drive a raster resize; rem/em/empty
@@ -222,53 +225,65 @@ if(! function_exists('unysonplus_logo')) :
                         if ( ! empty( $header_logo['image_2x'] ) && ( $_2x = unysonplus_upload_option_src( $header_logo['image_2x'] ) ) ) {
                                 $img_attr['srcset'] = $img_attr['src'] . ' 1x, ' . $_2x . ' 2x';
                         }
-                        $img_attr['alt']   = $unysonplus_logo_alt;
+                        $img_attr['alt']   = $alt;
                         $img_attr['class'] = 'site-logo site-logo--default img-fluid';
 
-                        $logo = fw_html_tag( 'img', $img_attr );
+                        return fw_html_tag( 'img', $img_attr );
+        }
+endif;
 
-                        // Optional sticky-header and mobile logo variants. CSS decides
-                        // which one is visible (see .site-logo--sticky / --mobile in
-                        // style.css); the wrapper gets has-sticky-logo / has-mobile-logo.
-                        // Optional variants — each re-resolved on this site (skipped if
-                        // its attachment isn't present here, so no variant can 404).
-                        if ( ! empty( $header_logo['sticky_image'] ) && ( $_v = unysonplus_upload_option_src( $header_logo['sticky_image'] ) ) ) {
-                                $logo .= fw_html_tag( 'img', array(
+if ( ! function_exists( 'unysonplus_logo_variants_html' ) ) :
+        /**
+         * Build the optional sticky / mobile / transparent logo <img> variants.
+         *
+         * CSS decides which variant is visible (see .site-logo--sticky / --mobile /
+         * --transparent in style.css); the wrapper gets the matching has-*-logo class.
+         * Each variant is re-resolved on THIS site and skipped if its attachment isn't
+         * present here, so no variant can 404.
+         *
+         * @param array  $header_logo Flattened header-logo config.
+         * @param string $alt         Alt text for each variant <img>.
+         * @return string Concatenated variant <img> HTML (or '' when none).
+         */
+        function unysonplus_logo_variants_html( $header_logo, $alt ) {
+                $out = '';
+                foreach ( array(
+                        'sticky_image'      => '--sticky',
+                        'mobile_image'      => '--mobile',
+                        'transparent_image' => '--transparent',
+                ) as $_key => $_suffix ) {
+                        if ( ! empty( $header_logo[ $_key ] ) && ( $_v = unysonplus_upload_option_src( $header_logo[ $_key ] ) ) ) {
+                                $out .= fw_html_tag( 'img', array(
                                         'src'   => $_v,
-                                        'alt'   => $unysonplus_logo_alt,
-                                        'class' => 'site-logo site-logo--sticky img-fluid',
+                                        'alt'   => $alt,
+                                        'class' => 'site-logo site-logo' . $_suffix . ' img-fluid',
                                 ) );
                         }
-                        if ( ! empty( $header_logo['mobile_image'] ) && ( $_v = unysonplus_upload_option_src( $header_logo['mobile_image'] ) ) ) {
-                                $logo .= fw_html_tag( 'img', array(
-                                        'src'   => $_v,
-                                        'alt'   => $unysonplus_logo_alt,
-                                        'class' => 'site-logo site-logo--mobile img-fluid',
-                                ) );
-                        }
-                        // Transparent-header variant — shown while the header is transparent
-                        // and not yet stuck (see .site-logo--transparent in style.css).
-                        if ( ! empty( $header_logo['transparent_image'] ) && ( $_v = unysonplus_upload_option_src( $header_logo['transparent_image'] ) ) ) {
-                                $logo .= fw_html_tag( 'img', array(
-                                        'src'   => $_v,
-                                        'alt'   => $unysonplus_logo_alt,
-                                        'class' => 'site-logo site-logo--transparent img-fluid',
-                                ) );
-                        }
-                } elseif ( $want_image && ( $custom_logo_id = get_theme_mod( 'custom_logo' ) ) && ( $custom_logo_url = wp_get_attachment_url( $custom_logo_id ) ) ) {
-                        $img_attr = [];
-                        $img_attr['src']    = $custom_logo_url;
-                        $meta = wp_get_attachment_metadata( $custom_logo_id );
-                        $img_attr['width']  = ! empty( $meta['width'] )  ? $meta['width']  : '';
-                        $img_attr['height'] = ! empty( $meta['height'] ) ? $meta['height'] : '';
-                        $img_attr['alt']    = get_post_meta( $custom_logo_id, '_wp_attachment_image_alt', true );
-                        $img_attr['class']  = 'site-logo img-fluid';
+                }
+                return $out;
+        }
+endif;
 
-                        $logo = fw_html_tag( 'img', $img_attr );
-                } else {
-                        // Text (wordmark) logo — optionally paired with a Logo Icon (an inline-SVG
-                        // brand mark) so it reads as the modern "icon + wordmark" logo while the text
-                        // stays real, editable, and accessible.
+if ( ! function_exists( 'unysonplus_logo_text_lockup_html' ) ) :
+        /**
+         * Build the Text (wordmark) logo lockup — optionally paired with a Logo Icon
+         * (an inline-SVG brand mark) so it reads as the modern "icon + wordmark" logo
+         * while the text stays real, editable, and accessible.
+         *
+         * Returns an array carrying both the HTML and the wrapper-flag side-effects the
+         * coordinator needs:
+         *   - 'html'              => string  The lockup HTML.
+         *   - 'has_logo_icon'     => bool    True when a Logo Icon renders beside the text.
+         *   - 'logo_layout_class' => string  'site-logo--{arrange} site-logo--icon-{side}'.
+         *   - 'tagline_in_lockup' => bool    True when the tagline rides inside the lockup.
+         *
+         * @param array $header_logo Flattened header-logo config.
+         * @return array See above.
+         */
+        function unysonplus_logo_text_lockup_html( $header_logo ) {
+                        $has_logo_icon     = false;
+                        $logo_layout_class = '';
+                        $tagline_in_lockup = false;
                         $title_text = ! empty( $header_logo['site_title'] ) ? $header_logo['site_title'] : get_bloginfo( 'name' );
                         // Logo Layout: "<arrangement>-<side>", e.g. eyebrow-left. Arrangement =
                         // inline|stacked|eyebrow; side = which side the icon sits on (left|right).
@@ -343,6 +358,79 @@ if(! function_exists('unysonplus_logo')) :
 				// even for a plain inline/stacked text wordmark with no icon.
 				$logo = $text_html;
                         }
+                        return array(
+                                'html'              => $logo,
+                                'has_logo_icon'     => $has_logo_icon,
+                                'logo_layout_class' => $logo_layout_class,
+                                'tagline_in_lockup' => $tagline_in_lockup,
+                        );
+        }
+endif;
+
+if(! function_exists('unysonplus_logo')) :
+        /**
+         * Render the header logo — brand link wrapper plus (for image logos) the
+         * separate site-description tagline.
+         *
+         * Coordinator only: resolves the Header → Identity logo config, picks one of
+         * three logo forms, and echoes the assembled markup. The config shape (from
+         * unysonplus_header_logo_cfg()) drives everything:
+         *   - logo_type: 'simple' (image) | 'custom' (text/icon lockup); legacy saves
+         *     infer it from whether an 'image' is set.
+         *   - image / image_2x / sticky_image / mobile_image / transparent_image:
+         *     `upload` option values ({attachment_id, url}) for the Simple logo + variants.
+         *   - width: a size value; only an exact px width drives a raster resize.
+         *   - alt / site_title: alt-text sources for the image / accessible name.
+         *   - logo_layout ('<arrange>-<side>' | 'icon-only'), logo_icon, logo_icon_frame,
+         *     logo_icon_color, tagline_text: the Custom (text) lockup inputs.
+         *   - color / tagline_color: predefined-palette or custom-hex color pickers.
+         *
+         * The three forms: (1) Simple image — unysonplus_logo_image_html() +
+         * unysonplus_logo_variants_html(); (2) core Customizer custom_logo fallback;
+         * (3) Text lockup — unysonplus_logo_text_lockup_html().
+         */
+        function unysonplus_logo() {
+                $header_logo = unysonplus_header_logo_cfg();
+                // Resolve the Simple-Logo image against the CURRENT site (never the
+                // stored localhost URL) so a cloned / deployed site can't 404 - an
+                // absent attachment yields '' and we fall through to the text logo.
+                $unyson_image_src = ( function_exists( 'unysonplus_upload_option_src' ) && ! empty( $header_logo['image'] ) )
+                        ? unysonplus_upload_option_src( $header_logo['image'] )
+                        : ( ! empty( $header_logo['image']['url'] ) ? $header_logo['image']['url'] : '' );
+                $has_unyson_image = ( $unyson_image_src !== '' );
+                $has_logo_icon    = false; // set true when a text logo renders with a Logo Icon beside it
+                $logo_layout_class = '';   // 'site-logo--{layout}' for the text-logo lockup
+                $tagline_in_lockup = false; // true when the tagline is rendered INSIDE the lockup (stacked/eyebrow)
+
+                // Alt text for the image logo: explicit override, then Site Title, then WP name.
+                $unysonplus_logo_alt = ! empty( $header_logo['alt'] )
+                        ? $header_logo['alt']
+                        : ( ! empty( $header_logo['site_title'] ) ? $header_logo['site_title'] : get_bloginfo( 'name' ) );
+
+                // Logo Type (Header → Identity): 'simple' = image, 'custom' = text/icon lockup.
+                // Back-compat: legacy saves have no logo_type — infer from whether an image is set.
+                $logo_type = ! empty( $header_logo['logo_type'] ) ? $header_logo['logo_type'] : ( $has_unyson_image ? 'simple' : 'custom' );
+                $want_image = ( 'custom' !== $logo_type );
+
+                if ( $want_image && $has_unyson_image ) {
+                        $logo = unysonplus_logo_image_html( $header_logo, $unyson_image_src, $unysonplus_logo_alt );
+                        $logo .= unysonplus_logo_variants_html( $header_logo, $unysonplus_logo_alt );
+                } elseif ( $want_image && ( $custom_logo_id = get_theme_mod( 'custom_logo' ) ) && ( $custom_logo_url = wp_get_attachment_url( $custom_logo_id ) ) ) {
+                        $img_attr = [];
+                        $img_attr['src']    = $custom_logo_url;
+                        $meta = wp_get_attachment_metadata( $custom_logo_id );
+                        $img_attr['width']  = ! empty( $meta['width'] )  ? $meta['width']  : '';
+                        $img_attr['height'] = ! empty( $meta['height'] ) ? $meta['height'] : '';
+                        $img_attr['alt']    = get_post_meta( $custom_logo_id, '_wp_attachment_image_alt', true );
+                        $img_attr['class']  = 'site-logo img-fluid';
+
+                        $logo = fw_html_tag( 'img', $img_attr );
+                } else {
+                        $lockup            = unysonplus_logo_text_lockup_html( $header_logo );
+                        $logo              = $lockup['html'];
+                        $has_logo_icon     = $lockup['has_logo_icon'];
+                        $logo_layout_class = $lockup['logo_layout_class'];
+                        $tagline_in_lockup = $lockup['tagline_in_lockup'];
                 }
 
                 // Site Title Color (Header → Identity): mutually-exclusive preset
@@ -350,12 +438,10 @@ if(! function_exists('unysonplus_logo')) :
                 // Colors the text site title; harmless when an image logo shows.
                 $unysonplus_brand_link_attr = array( 'href' => esc_url( home_url( '/' ) ), 'rel' => 'home' );
                 $unysonplus_logo_color      = isset( $header_logo['color'] ) ? $header_logo['color'] : array();
-                if ( is_array( $unysonplus_logo_color ) ) {
-                        // Custom hex is emitted to the generated CSS file (.site-title a);
-                        // the predefined palette is a class. No inline style here.
-                        if ( ! empty( $unysonplus_logo_color['predefined'] ) ) {
-                                $unysonplus_brand_link_attr['class'] = $unysonplus_logo_color['predefined'];
-                        }
+                // Custom hex is emitted to the generated CSS file (.site-title a);
+                // the predefined palette is a class. No inline style here.
+                if ( ( $_cls = unysonplus_predefined_color_class( $unysonplus_logo_color ) ) !== '' ) {
+                        $unysonplus_brand_link_attr['class'] = $_cls;
                 }
                 //if ( is_front_page() || is_home() ) {
                 //      $tag = 'h1';
@@ -385,14 +471,12 @@ if(! function_exists('unysonplus_logo')) :
                 if ( ( $description || is_customize_preview() ) && ! $tagline_in_lockup && 'custom' !== $logo_type ) {
                         $description_class = array( 'site-description' );
                         // Tagline color: mutually-exclusive palette preset class or custom hex.
+                        // Custom hex is emitted to the generated CSS file (.site-description);
+                        // the predefined palette is a class. No inline style here.
                         $unysonplus_desc_attr  = array();
                         $unysonplus_tag_color  = isset( $header_logo['tagline_color'] ) ? $header_logo['tagline_color'] : array();
-                        if ( is_array( $unysonplus_tag_color ) ) {
-                                // Custom hex is emitted to the generated CSS file (.site-description);
-                                // the predefined palette is a class. No inline style here.
-                                if ( ! empty( $unysonplus_tag_color['predefined'] ) ) {
-                                        $description_class[] = $unysonplus_tag_color['predefined'];
-                                }
+                        if ( ( $_tcls = unysonplus_predefined_color_class( $unysonplus_tag_color ) ) !== '' ) {
+                                $description_class[] = $_tcls;
                         }
                         $unysonplus_desc_attr['class'] = join( ' ', $description_class );
                         echo fw_html_tag( 'p', $unysonplus_desc_attr, $description );
@@ -565,83 +649,6 @@ function unysonplus_cdn_fallback( $cdn_url, $local_url ) {
 }
 endif;
 
-
-/*
-if ( ! function_exists( 'unysonplus_author_info_box' ) ) :
-        /**
-         * Display Author Info Box
-         */
-        /*
-function unysonplus_author_info_box() {
-    $content_posts = fw_get_db_settings_option('content_posts');
-
-    if ( empty( $content_posts['author-box'] ) ) {
-        return;
-    }
-
-    if ( ! is_single() ) {
-        return;
-    }
-
-    global $post;
-
-    $author_id = $post->post_author;
-
-    // Get author's display name or fallback to nickname
-    $display_name = get_the_author_meta( 'display_name', $author_id );
-    if ( empty( $display_name ) ) {
-        $display_name = get_the_author_meta( 'nickname', $author_id );
-    }
-
-    // Get author's bio, website, and posts URL
-    $user_description = get_the_author_meta( 'user_description', $author_id );
-    $user_website     = get_the_author_meta( 'url', $author_id );
-    $user_posts       = get_author_posts_url( $author_id );
-
-    // Get avatar
-    $avatar = get_avatar( get_the_author_meta( 'user_email', $author_id ), 90, null, null, [
-        'class' => 'alignleft',
-    ]);
-
-    // Start building HTML
-    $author_details = $avatar;
-
-    if ( ! empty( $display_name ) ) {
-        $author_details .= sprintf(
-            '<h3 class="author-name">%s %s</h3>',
-            esc_html__( 'About', 'unysonplus' ),
-            esc_html( $display_name )
-        );
-    }
-
-    if ( ! empty( $user_description ) ) {
-        $author_details .= '<p class="author_details">' . wp_kses_post( nl2br( $user_description ) ) . '</p>';
-    }
-
-    // Author links
-    $links = sprintf(
-        '<a href="%s">%s</a>',
-        esc_url( $user_posts ),
-        sprintf( esc_html__( 'View all posts by %s', 'unysonplus' ), esc_html( $display_name ) )
-    );
-
-    if ( ! empty( $user_website ) ) {
-        $links .= ' | <a href="' . esc_url( $user_website ) . '" target="_blank" rel="nofollow">' . esc_html__( 'Website', 'unysonplus' ) . '</a>';
-    }
-
-    $author_details .= '<p class="author_links">' . $links . '</p>';
-
-    echo '<div class="author-bio">' . $author_details . '</div>';
-}
-add_action( 'unysonplus_entry_footer', 'unysonplus_author_info_box' );
-endif;
-
-
-// Allow HTML in author bio section 
-remove_filter('pre_user_description', 'wp_filter_kses');
-endif;
-*/
-
 if ( ! function_exists( 'fw_theme_posted_on' ) ) :
 /**
  * Print HTML with meta information for the current post-date/time and author.
@@ -805,13 +812,11 @@ if ( ! function_exists( 'unysonplus_get_image_width' ) ) :
  * @return int|false Width of the image size or false if the size doesn't exist.
  */
 function unysonplus_get_image_width( $size ) {
-    $size_data = unysonplus_get_image_size( $size );
+    // Read the sizes array directly — unysonplus_get_image_size() returns a "WxH"
+    // STRING, so isset($size_data['width']) on it always failed (bug fix).
+    $sizes = unysonplus_get_image_sizes();
 
-    if ( ! $size_data || ! isset( $size_data['width'] ) ) {
-        return false;
-    }
-
-    return (int) $size_data['width'];
+    return isset( $sizes[ $size ]['width'] ) ? (int) $sizes[ $size ]['width'] : false;
 }
 endif;
 
@@ -825,13 +830,10 @@ if ( ! function_exists( 'unysonplus_get_image_height' ) ) :
  * @return int|false Height of the image size or false if the size doesn't exist.
  */
 function unysonplus_get_image_height( $size ) {
-    $size_data = unysonplus_get_image_size( $size );
+    // Read the sizes array directly (see unysonplus_get_image_width note).
+    $sizes = unysonplus_get_image_sizes();
 
-    if ( ! $size_data || ! isset( $size_data['height'] ) ) {
-        return false;
-    }
-
-    return (int) $size_data['height'];
+    return isset( $sizes[ $size ]['height'] ) ? (int) $sizes[ $size ]['height'] : false;
 }
 endif;
 

@@ -139,18 +139,10 @@ if ( ! function_exists( 'unysonplus_emit_theme_vars' ) ) :
 	}
 endif;
 
-if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
-	/**
-	 * Build the design-token map. Reads Unyson options when available;
-	 * otherwise emits defaults only.
-	 *
-	 * @return array<string,string>  --custom-property => value
-	 */
-	function unysonplus_collect_theme_vars() : array {
-		$unyson = function_exists( 'fw_get_db_settings_option' );
-
-		// Defaults — used when Unyson is inactive or an option is empty.
-		$out = array(
+if ( ! function_exists( 'unysonplus_theme_vars_defaults' ) ) :
+	/** Baseline defaults — used when Unyson is inactive or an option is empty. */
+	function unysonplus_theme_vars_defaults( array &$out ) {
+		$out += array(
 			'--color-primary'     => '#0d6efd',
 			'--color-accent'      => '#6610f2',
 			'--color-text'        => '#212529',
@@ -215,18 +207,18 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			'--sidebar-width'         => '300px',
 			'--vertical-header-width' => '260px',
 		);
+	}
+endif;
 
-		if ( ! $unyson ) {
-			return $out;
-		}
-
-		/* Color design-tokens come from the user's Color Presets (Theme Settings →
+if ( ! function_exists( 'unysonplus_theme_vars_color_presets' ) ) :
+	/* Color design-tokens come from the user's Color Presets (Theme Settings →
 		 * General → Color Presets) — the SAME source the plugin uses for its
 		 * `.bg-{slug}` / `.text-{slug}` utilities and `:root --color-{slug}` vars.
 		 * Without this the theme's hardcoded defaults (e.g. --color-accent: #6610f2)
 		 * print later in <head> and override the user's preset (#fd7e14) on every
 		 * `.bg-accent` element. Only the tokens that mirror a preset are pulled in;
 		 * --color-text stays driven by Typography, --color-bg by the layout. */
+	function unysonplus_theme_vars_color_presets( array &$out ) {
 		if ( function_exists( 'unysonplus_color_preset_slug_map' ) ) {
 			$color_presets = unysonplus_color_preset_slug_map();
 			foreach ( array( 'primary', 'accent', 'muted' ) as $cslug ) {
@@ -235,14 +227,25 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 				}
 			}
 		}
+	}
+endif;
 
-		/* General → Layout / Sidebar / Preloader (the tab was split into three
-		 * storage keys; merge them so the reads below are key-name stable). */
+if ( ! function_exists( 'unysonplus_theme_vars_build_layout' ) ) :
+	/* General → Layout / Sidebar / Preloader (the tab was split into three
+	 * storage keys; merge them so the reads below are key-name stable). */
+	function unysonplus_theme_vars_build_layout() : array {
 		$layout = array();
 		foreach ( array( 'general_layout', 'general_sidebar', 'general_preloader', 'general_scroll', 'general_base' ) as $layout_opt ) {
 			$layout_raw = fw_get_db_settings_option( $layout_opt, array() );
 			if ( is_array( $layout_raw ) ) { $layout = array_merge( $layout, $layout_raw ); }
 		}
+		return $layout;
+	}
+endif;
+
+if ( ! function_exists( 'unysonplus_theme_vars_layout' ) ) :
+	/** General → Layout / Sidebar / Preloader / Scroll / Base tokens. */
+	function unysonplus_theme_vars_layout( array &$out, array $layout ) {
 		if ( ! empty( $layout ) ) {
 			$lget = function ( $k, $d = '' ) use ( $layout ) {
 				return ( isset( $layout[ $k ] ) && $layout[ $k ] !== '' && $layout[ $k ] !== null ) ? $layout[ $k ] : $d;
@@ -282,45 +285,13 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 
 			// Site background (Background Pro: color + gradient + image layers).
 			// Video is intentionally NOT applied to the site-wide body background.
+			// Reuses the shared Background Pro parser with the --site-bg prefix; it
+			// emits the SAME keys (--site-bg-color / -image / -position / -repeat /
+			// -attachment / -size) as the old inline copy, overwriting the two default
+			// keys in place and appending the rest (identical order).
 			$bg = ( isset( $layout['site_background'] ) && is_array( $layout['site_background'] ) ) ? $layout['site_background'] : array();
-			if ( $bg ) {
-				// Color (custom hex/rgba or theme preset) via the same resolver the rest of the theme uses.
-				$color_val = fw_akg( 'color/value', $bg );
-				if ( is_array( $color_val ) && function_exists( 'unysonplus_get_option_color_picker' ) ) {
-					$color = unysonplus_get_option_color_picker( $color_val );
-					if ( is_string( $color ) && '' !== $color ) { $out['--site-bg-color'] = $color; }
-				}
-
-				// background-image stack: image on top of gradient.
-				$images = array();
-
-				$img_url = fw_akg( 'image/src/url', $bg );
-				if ( $img_url ) {
-					$images[] = 'url(' . esc_url_raw( $img_url ) . ')';
-
-					// Per-image presentation overrides (style.css supplies fallbacks otherwise).
-					$pos      = fw_akg( 'image/position', $bg, 'center center' );
-					$rep      = fw_akg( 'image/repeat', $bg, 'no-repeat' );
-					$att      = fw_akg( 'image/attachment', $bg, 'scroll' );
-					$size_sel = fw_akg( 'image/size/selected', $bg, 'cover' );
-					$size     = ( 'custom' === $size_sel ) ? fw_akg( 'image/size/custom', $bg, 'auto' ) : $size_sel;
-					if ( $pos )  { $out['--site-bg-position']   = $pos; }
-					if ( $rep )  { $out['--site-bg-repeat']     = $rep; }
-					if ( $att )  { $out['--site-bg-attachment'] = $att; }
-					if ( $size ) { $out['--site-bg-size']       = $size; }
-				}
-
-				$stops = fw_akg( 'gradient/data/stops', $bg );
-				if ( is_array( $stops ) && count( $stops ) >= 2
-					&& class_exists( 'FW_Option_Type_Gradient_V2' )
-					&& method_exists( 'FW_Option_Type_Gradient_V2', 'to_css' ) ) {
-					$grad = FW_Option_Type_Gradient_V2::to_css( fw_akg( 'gradient/data', $bg ) );
-					if ( $grad ) { $images[] = $grad; }
-				}
-
-				if ( $images ) {
-					$out['--site-bg-image'] = implode( ', ', $images );
-				}
+			if ( $bg && function_exists( 'unysonplus_background_pro_css_vars' ) ) {
+				$out = array_merge( $out, unysonplus_background_pro_css_vars( $bg, '--site-bg' ) );
 			}
 
 			// Site background pattern overlay (background-image option type: a
@@ -412,7 +383,12 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 				if ( ( $v = unysonplus_css_length( $lget( 'layout_container_width_mobile' ) ) ) !== '' )  { $out['--container-max-mobile']  = $v; }
 			}
 		}
+	}
+endif;
 
+if ( ! function_exists( 'unysonplus_theme_vars_header_layout' ) ) :
+	/** Header → Layout tokens (needs $layout for the legacy vertical-width fallback). */
+	function unysonplus_theme_vars_header_layout( array &$out, array $layout ) {
 		// Header layout — container, min_height, bg_color, topbar.
 		$header_layout = fw_get_db_settings_option( 'header_layout', array() );
 		if ( is_array( $header_layout ) ) {
@@ -493,7 +469,12 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 		// Top Bar / Bottom Bar styling (bg, typography, link, borders) is compiled
 		// into the generated header/footer CSS file (inc/includes/hf-custom-css.php),
 		// not emitted as :root tokens here.
+	}
+endif;
 
+if ( ! function_exists( 'unysonplus_theme_vars_header_logo' ) ) :
+	/** Header → Identity logo width + site-title typography tokens. */
+	function unysonplus_theme_vars_header_logo( array &$out ) {
 			// Logo width (Header → Identity) — an explicit display width overrides
 			// the header-height cap (see .site-title img in style.css).
 			// Use the FLATTENED logo config (leaf values hoisted out of
@@ -519,7 +500,12 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 					$out['--site-title-weight'] = $header_logo['title_weight'];
 				}
 			}
+	}
+endif;
 
+if ( ! function_exists( 'unysonplus_theme_vars_footer' ) ) :
+	/** Footer padding / colors / borders / background tokens. */
+	function unysonplus_theme_vars_footer( array &$out ) {
 		// Footer — direct settings keys (used by footer.php). Length values
 		// get unit normalization; color values pass through.
 		$footer_lengths = array(
@@ -614,7 +600,12 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 				}
 			}
 		}
+	}
+endif;
 
+if ( ! function_exists( 'unysonplus_theme_vars_typography' ) ) :
+	/** Typography → body text color + link color / underline tokens. */
+	function unysonplus_theme_vars_typography( array &$out ) {
 		// Body text color from typography (aliases the existing --body-color emitted by css-tokens.php).
 		$typography = fw_get_db_settings_option( 'typography', array() );
 		if ( ! empty( $typography['body']['color'] ) ) {
@@ -645,7 +636,12 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			$out['--body-link-decoration']       = 'none';
 			$out['--body-link-decoration-hover'] = 'none';
 		}
+	}
+endif;
 
+if ( ! function_exists( 'unysonplus_theme_vars_header_menu' ) ) :
+	/** Header → Menu styling → the --menu-* tokens. */
+	function unysonplus_theme_vars_header_menu( array &$out ) {
 		// Header → Menu styling (maps to the --menu-* tokens consumed by style.css).
 		// Colors run through the preset resolver (predefined → a live-linked
 		// var(--color-slug), custom → hex, legacy plain-hex string → passthrough).
@@ -697,7 +693,12 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			$mdr = unysonplus_css_length( isset( $menu['menu_dropdown_radius'] ) ? $menu['menu_dropdown_radius'] : '' );
 			if ( $mdr !== '' ) { $out['--menu-dropdown-radius'] = $mdr; }
 		}
+	}
+endif;
 
+if ( ! function_exists( 'unysonplus_theme_vars_mega_menu' ) ) :
+	/** Header → Mega Menu → the --mm-* tokens. */
+	function unysonplus_theme_vars_mega_menu( array &$out ) {
 		// Header → Mega Menu (Panel). Only meaningful when the extension is active,
 		// but reading the stored group is harmless either way. Folds into the --mm-*
 		// tokens consumed by the extension's baseline stylesheet.
@@ -818,7 +819,12 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			if ( ! empty( $mega['mm_mobile_hide_desc'] ) )  { $out['--mm-mobile-desc-display'] = 'none'; }
 			if ( ! empty( $mega['mm_mobile_hide_icons'] ) ) { $out['--mm-mobile-icon-display'] = 'none'; }
 		}
+	}
+endif;
 
+if ( ! function_exists( 'unysonplus_theme_vars_social' ) ) :
+	/** Social tab → the --social-* tokens. */
+	function unysonplus_theme_vars_social( array &$out ) {
 		// Social icon style (Social tab → social_style). Size/gap → lengths; colors →
 		// the preset resolver. Shape / brand / hover-fx ride wrapper classes (set in
 		// unysonplus_render_social_icons), not vars.
@@ -838,6 +844,40 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 			$shb = unysonplus_preset_color_to_css( isset( $ss['social_icon_hover_bg'] ) ? $ss['social_icon_hover_bg'] : '' );
 			if ( $shb !== '' ) { $out['--social-icon-hover-bg'] = $shb; }
 		}
+	}
+endif;
+
+if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
+	/**
+	 * Build the design-token map. Reads Unyson options when available;
+	 * otherwise emits defaults only. Thin orchestrator over the per-concern
+	 * helpers above — each appends its keys to $out IN ORDER (order matters:
+	 * the CSS cascade and any serialize() of the result both depend on it).
+	 *
+	 * @return array<string,string>  --custom-property => value
+	 */
+	function unysonplus_collect_theme_vars() : array {
+		$out = array();
+		unysonplus_theme_vars_defaults( $out );
+
+		if ( ! function_exists( 'fw_get_db_settings_option' ) ) {
+			return $out;
+		}
+
+		unysonplus_theme_vars_color_presets( $out );
+
+		// $layout is shared: the header-layout block reads it for the legacy
+		// vertical-width fallback, so build it once and pass it to both.
+		$layout = unysonplus_theme_vars_build_layout();
+		unysonplus_theme_vars_layout( $out, $layout );
+		unysonplus_theme_vars_header_layout( $out, $layout );
+
+		unysonplus_theme_vars_header_logo( $out );
+		unysonplus_theme_vars_footer( $out );
+		unysonplus_theme_vars_typography( $out );
+		unysonplus_theme_vars_header_menu( $out );
+		unysonplus_theme_vars_mega_menu( $out );
+		unysonplus_theme_vars_social( $out );
 
 		return $out;
 	}
