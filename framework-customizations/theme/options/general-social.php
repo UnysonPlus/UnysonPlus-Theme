@@ -80,6 +80,7 @@ $options = array(
 		'inner-options' => array(
 			'group_social_style' => array(
 				'type'    => 'group',
+				'title'   => __( 'Icon Style & Colors', 'unysonplus' ),
 				'options' => array(
 					'social_icon_style' => array(
 						'label'   => __( 'Icon Style', 'unysonplus' ),

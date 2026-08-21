@@ -149,6 +149,7 @@ $options = [
 		'inner-options' => [
 			'group_menu' => [
 				'type'    => 'group',
+				'title'   => __( 'Menu Items', 'unysonplus' ),
 				'options' => [
 
 					/* Item style — the hover/active treatment for top-level nav
@@ -251,6 +252,7 @@ $options = [
 			/* Dropdown / submenu panel. */
 			'group_submenu' => [
 				'type'    => 'group',
+				'title'   => __( 'Dropdowns / Submenus', 'unysonplus' ),
 				'options' => [
 					'menu_dropdown_style' => [
 						'type'    => 'image-picker',

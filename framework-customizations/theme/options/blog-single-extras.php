@@ -15,6 +15,10 @@ $options = [
 		'label'         => false,
 		'desc'          => false,
 		'inner-options' => [
+			'grp_bse_bctoc' => [
+				'type'    => 'group',
+				'title'   => __( 'Breadcrumbs & TOC', 'unysonplus' ),
+				'options' => [
 			'single_breadcrumbs' => [
 				'label'        => __( 'Breadcrumbs', 'unysonplus' ),
 				'desc'         => __( 'A Home › Category › Post trail above the title.', 'unysonplus' ),
@@ -36,6 +40,12 @@ $options = [
 				'type'  => 'text',
 				'value' => __( 'In this article', 'unysonplus' ),
 			],
+				],
+			],
+			'grp_bse_share' => [
+				'type'    => 'group',
+				'title'   => __( 'Sharing', 'unysonplus' ),
+				'options' => [
 			'single_share' => [
 				'label'        => __( 'Share Buttons', 'unysonplus' ),
 				'type'         => 'switch',
@@ -65,6 +75,12 @@ $options = [
 					'copy'     => __( 'Copy link', 'unysonplus' ),
 				],
 			],
+				],
+			],
+			'grp_bse_tags' => [
+				'type'    => 'group',
+				'title'   => __( 'Tags & Comments', 'unysonplus' ),
+				'options' => [
 			'single_tags' => [
 				'label'        => __( 'Tag Row', 'unysonplus' ),
 				'desc'         => __( 'A styled row of the post’s tags below the content.', 'unysonplus' ),
@@ -80,6 +96,8 @@ $options = [
 				'value'        => 'yes',
 				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Show', 'unysonplus' ) ],
 				'left-choice'  => [ 'value' => 'no',  'label' => __( 'Hide', 'unysonplus' ) ],
+			],
+				],
 			],
 		],
 	],

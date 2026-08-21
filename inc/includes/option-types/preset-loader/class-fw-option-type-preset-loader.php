@@ -39,13 +39,13 @@ class FW_Option_Type_Preset_Loader extends FW_Option_Type {
 			'fw-option-' . $this->get_type(),
 			$uri . '/css/styles.css',
 			array(),
-			'1.0.2'
+			'1.0.3'
 		);
 		wp_enqueue_script(
 			'fw-option-' . $this->get_type(),
 			$uri . '/js/scripts.js',
 			array( 'jquery' ),
-			'1.0.2',
+			'1.0.3',
 			true
 		);
 

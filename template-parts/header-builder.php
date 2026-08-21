@@ -90,12 +90,30 @@ $bottombar = $get_section( 'header_bottombar' );
 
 $container = ! empty( $chrome['container'] ) ? $chrome['container'] : 'container';
 
-// Behavior: header_behavior select supersedes legacy sticky_header; per-page
-// "Transparent" overrides for that page.
-$behavior = ! empty( $chrome['header_behavior'] ) ? $chrome['header_behavior'] : '';
-if ( $behavior === '' && ! empty( $chrome['sticky_header'] ) && $chrome['sticky_header'] === 'yes' ) { $behavior = 'sticky'; }
-if ( function_exists( 'fw_get_db_post_option' ) && fw_get_db_post_option( get_the_ID(), 'page_header' ) === 'transparent' ) { $behavior = 'transparent-overlay'; }
-if ( $behavior === '' ) { $behavior = 'static'; }
+// Behavior — the TWO-STATE model: POSITION (static/sticky/overlay) is orthogonal to the At-top /
+// On-scroll appearance, so any combination works. A read-side LEGACY SHIM maps an older saved
+// header_behavior onto the new position (+ the matching on-scroll toggle) so a not-yet-re-picked
+// header still renders sensibly — no DB migration.
+$hlg      = function_exists( 'unysonplus_header_layout_get' );
+$legacy   = ! empty( $chrome['header_behavior'] ) ? (string) $chrome['header_behavior'] : '';
+$position = ! empty( $chrome['header_position'] ) ? (string) $chrome['header_position'] : '';
+if ( $position === '' && $legacy !== '' ) {
+	$position = ( $legacy === 'transparent-overlay' ) ? 'overlay'
+		: ( in_array( $legacy, array( 'sticky', 'sticky-shrink', 'hide-on-scroll' ), true ) ? 'sticky' : 'static' );
+}
+if ( $position === '' && ! empty( $chrome['sticky_header'] ) && $chrome['sticky_header'] === 'yes' ) { $position = 'sticky'; }
+if ( function_exists( 'fw_get_db_post_option' ) && fw_get_db_post_option( get_the_ID(), 'page_header' ) === 'transparent' ) { $position = 'overlay'; }
+if ( $position === '' ) { $position = 'static'; }
+
+// On-scroll state (takes effect only when the master switch is on). Legacy shim: old sticky-shrink
+// enables shrink; old hide-on-scroll enables hide.
+$scroll_change  = ( $hlg && unysonplus_header_layout_get( 'header_scroll_change', 'no' ) === 'yes' );
+$scroll_shrink  = ( $scroll_change && $hlg && unysonplus_header_layout_get( 'scroll_shrink', 'no' ) === 'yes' );
+if ( $legacy === 'sticky-shrink' ) { $scroll_change = true; $scroll_shrink = true; }
+$hide_on_scroll = ( $hlg && unysonplus_header_layout_get( 'header_hide_on_scroll', 'no' ) === 'yes' ) || ( $legacy === 'hide-on-scroll' );
+
+// Internal composite kept for data-hf-behavior + the existing sticky/overlay positioning CSS.
+$behavior = ( $position === 'overlay' ) ? 'transparent-overlay' : $position; // static | sticky | transparent-overlay
 
 // Section column arrays (a bar renders only when a column has content).
 $topbar_left   = ! empty( $topbar['topbar_left'] )   ? $topbar['topbar_left']   : array();
@@ -125,25 +143,51 @@ if ( ! $unyson || ( empty( $main_left ) && empty( $main_center ) && empty( $main
 
 // Header classes.
 $header_classes = array( 'site-header', 'site-header--' . sanitize_html_class( $behavior ) );
-if ( in_array( $behavior, array( 'sticky', 'sticky-shrink', 'hide-on-scroll', 'transparent-overlay' ), true ) ) { $header_classes[] = 'header-sticky'; }
-if ( $behavior === 'transparent-overlay' ) { $header_classes[] = 'site-header--transparent'; }
+if ( in_array( $position, array( 'sticky', 'overlay' ), true ) ) { $header_classes[] = 'header-sticky'; }
+if ( $position === 'overlay' ) { $header_classes[] = 'site-header--transparent'; }
+if ( $hide_on_scroll ) { $header_classes[] = 'site-header--hide'; }
 if ( function_exists( 'fw_get_db_post_option' ) && fw_get_db_post_option( get_the_ID(), 'page_header' ) === 'd-none' ) { $header_classes[] = 'd-none'; }
 
-$mobile_bp = ! empty( $chrome['mobile_breakpoint'] ) ? $chrome['mobile_breakpoint'] : 'lg';
-$header_classes[] = 'header-collapse-' . sanitize_html_class( $mobile_bp );
+// Collapse breakpoint: a custom pixel width (Header → Mobile & Tablet) overrides the md/lg
+// preset. The custom class is targeted by the per-request <style> in wp_head
+// (unysonplus_custom_breakpoint_css), which reproduces the collapse + mobile bar + layout
+// rules at that width so everything engages together.
+$mobile_bp    = fw_get_db_settings_option( 'mobile_breakpoint', 'lg' );
+if ( empty( $mobile_bp ) ) { $mobile_bp = 'lg'; }
+$mbp_px       = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'mobile_breakpoint_px', array() ) : array();
+$mbp_px_val   = ( is_array( $mbp_px ) && isset( $mbp_px['value'] ) && is_numeric( $mbp_px['value'] ) && (float) $mbp_px['value'] > 0 ) ? (float) $mbp_px['value'] : 0;
+$header_classes[] = $mbp_px_val > 0 ? 'header-collapse-custom' : ( 'header-collapse-' . sanitize_html_class( $mobile_bp ) );
 
 // Mobile controls: hide the top / bottom bar on small screens.
-if ( isset( $chrome['mobile_hide_topbar'] ) && $chrome['mobile_hide_topbar'] === 'yes' )       { $header_classes[] = 'header-hide-topbar-m'; }
-if ( isset( $chrome['mobile_hide_bottombar'] ) && $chrome['mobile_hide_bottombar'] === 'yes' ) { $header_classes[] = 'header-hide-bottombar-m'; }
+if ( fw_get_db_settings_option( 'mobile_hide_topbar', 'no' ) === 'yes' )    { $header_classes[] = 'header-hide-topbar-m'; }
+if ( fw_get_db_settings_option( 'mobile_hide_bottombar', 'no' ) === 'yes' ) { $header_classes[] = 'header-hide-bottombar-m'; }
+
+// Mobile Header Layout (Header → Mobile & Tablet). A top-level key (not in the
+// header_layout group); the class engages the CSS in header-footer-builder.css that
+// re-arranges logo + hamburger below the collapse width. 'default' = no class.
+$mobile_layout = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'mobile_header_layout', 'default' ) : 'default';
+if ( is_string( $mobile_layout ) && $mobile_layout !== '' && $mobile_layout !== 'default' ) {
+	$header_classes[] = 'header-mlayout--' . sanitize_html_class( $mobile_layout );
+}
 
 $header_design = function_exists( 'unysonplus_header_layout_get' ) ? unysonplus_header_layout_get( 'header_design', 'classic' ) : 'classic';
 if ( $header_design && $header_design !== 'classic' ) { $header_classes[] = 'site-header--design-' . sanitize_html_class( $header_design ); }
 
-if ( function_exists( 'unysonplus_header_layout_get' ) ) {
+if ( $hlg ) {
+	// Appearance — AT TOP (the resting look; also the scrolled look when Change-on-scroll is off).
 	if ( unysonplus_header_layout_get( 'header_border', 'no' ) === 'yes' )        { $header_classes[] = 'site-header--border'; }
 	if ( unysonplus_header_layout_get( 'header_shadow', 'no' ) === 'yes' )        { $header_classes[] = 'site-header--shadow'; }
 	if ( unysonplus_header_layout_get( 'header_uppercase_nav', 'no' ) === 'yes' ) { $header_classes[] = 'site-header--uppercase-nav'; }
 	if ( unysonplus_header_layout_get( 'header_glass', 'no' ) === 'yes' )         { $header_classes[] = 'site-header--glass'; }
+	// Appearance — ON SCROLL (applied only while stuck, and only when the master switch is on). The
+	// --scroll-change class gates the CSS so the At-top rules stop at .is-stuck and these take over.
+	if ( $scroll_change ) {
+		$header_classes[] = 'site-header--scroll-change';
+		if ( unysonplus_header_layout_get( 'scroll_glass', 'no' ) === 'yes' )  { $header_classes[] = 'site-header--scroll-glass'; }
+		if ( unysonplus_header_layout_get( 'scroll_border', 'no' ) === 'yes' ) { $header_classes[] = 'site-header--scroll-border'; }
+		if ( unysonplus_header_layout_get( 'scroll_shadow', 'no' ) === 'yes' ) { $header_classes[] = 'site-header--scroll-shadow'; }
+		if ( $scroll_shrink )                                                  { $header_classes[] = 'site-header--scroll-shrink'; }
+	}
 }
 
 // Bootstrap color-mode from the header background luma. bg_color is now a compact
@@ -201,8 +245,26 @@ if ( $layout_mode === 'overlay' ) {
 	}
 }
 // Mobile drawer side (standard side drawer only — overlay styles are fullscreen).
-if ( $layout_mode !== 'overlay' && isset( $chrome['mobile_drawer_side'] ) && $chrome['mobile_drawer_side'] === 'left' ) {
+if ( $layout_mode !== 'overlay' && fw_get_db_settings_option( 'mobile_drawer_side', 'right' ) === 'left' ) {
 	$drawer_classes[] = 'primary-navigation-drawer--left';
+}
+// Drawer Item Dividers (Header → Layout → Mobile). Off by default; the class adds a
+// hairline rule between drawer menu items (see style.css).
+if ( fw_get_db_settings_option( 'drawer_dividers', 'no' ) === 'yes' ) {
+	$drawer_classes[] = 'primary-navigation-drawer--dividers';
+}
+// Drawer submenu behaviour (Header → Mobile & Tablet). Top-level keys; the mode class
+// drives the navigation.js branch (accordion / flyout / expand-all) + style.css.
+if ( function_exists( 'fw_get_db_settings_option' ) ) {
+	$submenu_mode = (string) fw_get_db_settings_option( 'mobile_submenu_mode', 'accordion' );
+	if ( $submenu_mode !== '' ) { $drawer_classes[] = 'primary-navigation-drawer--submenu-' . sanitize_html_class( $submenu_mode ); }
+	if ( fw_get_db_settings_option( 'mobile_submenu_parent_link', 'yes' ) === 'no' ) { $drawer_classes[] = 'primary-navigation-drawer--parent-toggle'; }
+	// Drawer open animation (Phase 2). 'slide' is the default (no class).
+	$drawer_anim = (string) fw_get_db_settings_option( 'drawer_animation', 'slide' );
+	if ( $drawer_anim !== '' && $drawer_anim !== 'slide' ) { $drawer_classes[] = 'primary-navigation-drawer--anim-' . sanitize_html_class( $drawer_anim ); }
+	// Dismissal (Phase 2) — both ON by default; a class opts out (navigation.js checks it).
+	if ( fw_get_db_settings_option( 'drawer_close_on_click', 'yes' ) === 'no' ) { $drawer_classes[] = 'primary-navigation-drawer--no-close-on-click'; }
+	if ( fw_get_db_settings_option( 'drawer_swipe_close', 'yes' ) === 'no' )    { $drawer_classes[] = 'primary-navigation-drawer--no-swipe'; }
 }
 
 // Header Design sub-option CSS vars → inline style on <header>.

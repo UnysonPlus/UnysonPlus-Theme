@@ -34,11 +34,6 @@ $options = [
 		'title'   => __( 'Text &amp; Numeric', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
-			'grp_text_2_head' => [
-				'type'  => 'html-full',
-				'label' => false,
-				'html'  => '<h3 style="margin:1.25em 0 .5em;padding-bottom:.35em;border-bottom:1px solid #dcdcde;font-size:15px;color:#1d2327;">Text &amp; Numeric</h3>',
-			],
 			'demo_text_2'                      => [
 				'label' => __( 'Text', 'unysonplus' ),
 				'type'  => 'text',
@@ -152,11 +147,6 @@ $options = [
 		'title'   => __( 'Toggles', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
-			'grp_toggle_2_head' => [
-				'type'  => 'html-full',
-				'label' => false,
-				'html'  => '<h3 style="margin:1.25em 0 .5em;padding-bottom:.35em;border-bottom:1px solid #dcdcde;font-size:15px;color:#1d2327;">Toggles</h3>',
-			],
 			'demo_checkbox_2'                  => [
 				'label' => __( 'Checkbox', 'unysonplus' ),
 				'type'  => 'checkbox',
@@ -219,11 +209,6 @@ $options = [
 		'title'   => __( 'Choices &amp; Selects', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
-			'grp_choice_2_head' => [
-				'type'  => 'html-full',
-				'label' => false,
-				'html'  => '<h3 style="margin:1.25em 0 .5em;padding-bottom:.35em;border-bottom:1px solid #dcdcde;font-size:15px;color:#1d2327;">Choices &amp; Selects</h3>',
-			],
 			'demo_select_2'                    => [
 				'label'   => __( 'Select', 'unysonplus' ),
 				'type'    => 'select',
@@ -523,11 +508,6 @@ $options = [
 		'title'   => __( 'Icons', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
-			'grp_icons_2_head' => [
-				'type'  => 'html-full',
-				'label' => false,
-				'html'  => '<h3 style="margin:1.25em 0 .5em;padding-bottom:.35em;border-bottom:1px solid #dcdcde;font-size:15px;color:#1d2327;">Icons</h3>',
-			],
 			'demo_icon_2'                      => [
 				'label'        => __( 'Icon', 'unysonplus' ),
 				'type'         => 'icon',
@@ -549,11 +529,6 @@ $options = [
 		'title'   => __( 'Media, Uploads &amp; Embeds', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
-			'grp_media_2_head' => [
-				'type'  => 'html-full',
-				'label' => false,
-				'html'  => '<h3 style="margin:1.25em 0 .5em;padding-bottom:.35em;border-bottom:1px solid #dcdcde;font-size:15px;color:#1d2327;">Media, Uploads &amp; Embeds</h3>',
-			],
 			'demo_upload_2'                    => [
 				'label'       => __( 'Single Upload', 'unysonplus' ),
 				'desc'        => __( 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
@@ -621,11 +596,6 @@ $options = [
 		'title'   => __( 'Color &amp; Backgrounds', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
-			'grp_color_2_head' => [
-				'type'  => 'html-full',
-				'label' => false,
-				'html'  => '<h3 style="margin:1.25em 0 .5em;padding-bottom:.35em;border-bottom:1px solid #dcdcde;font-size:15px;color:#1d2327;">Color &amp; Backgrounds</h3>',
-			],
 			'demo_color_picker_2'              => [
 				'label' => __( 'Color Picker', 'unysonplus' ),
 				'type'  => 'color-picker',
@@ -840,11 +810,6 @@ $options = [
 		'title'   => __( 'Spacing, Layout &amp; Dimensions', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
-			'grp_space_2_head' => [
-				'type'  => 'html-full',
-				'label' => false,
-				'html'  => '<h3 style="margin:1.25em 0 .5em;padding-bottom:.35em;border-bottom:1px solid #dcdcde;font-size:15px;color:#1d2327;">Spacing, Layout &amp; Dimensions</h3>',
-			],
 			'demo_spacing_2'                   => [
 				'label' => __( 'Spacing (Margin + Padding)', 'unysonplus' ),
 				'type'  => 'spacing',
@@ -915,11 +880,6 @@ $options = [
 		'title'   => __( 'Buttons, Typography &amp; Effects', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
-			'grp_button_2_head' => [
-				'type'  => 'html-full',
-				'label' => false,
-				'html'  => '<h3 style="margin:1.25em 0 .5em;padding-bottom:.35em;border-bottom:1px solid #dcdcde;font-size:15px;color:#1d2327;">Buttons, Typography &amp; Effects</h3>',
-			],
 			'demo_button_presets_2'            => [
 				'label'         => __( 'Button Presets', 'unysonplus' ),
 				'type'          => 'button-presets',
@@ -1000,11 +960,6 @@ $options = [
 		'title'   => __( 'Date, Sliders &amp; Range', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
-			'grp_date_2_head' => [
-				'type'  => 'html-full',
-				'label' => false,
-				'html'  => '<h3 style="margin:1.25em 0 .5em;padding-bottom:.35em;border-bottom:1px solid #dcdcde;font-size:15px;color:#1d2327;">Date, Sliders &amp; Range</h3>',
-			],
 			'demo_date_picker_2'         => [
 				'label' => __( 'Date Picker', 'unysonplus' ),
 				'type'  => 'date-picker',
@@ -1119,11 +1074,6 @@ $options = [
 		'title'   => __( 'Borders &amp; Tables', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
-			'grp_border_2_head' => [
-				'type'  => 'html-full',
-				'label' => false,
-				'html'  => '<h3 style="margin:1.25em 0 .5em;padding-bottom:.35em;border-bottom:1px solid #dcdcde;font-size:15px;color:#1d2327;">Borders &amp; Tables</h3>',
-			],
 			'demo_border_presets_2'      => [
 				'label' => __( 'Border Presets', 'unysonplus' ),
 				'type'  => 'border-presets',
@@ -1154,11 +1104,6 @@ $options = [
 		'title'   => __( 'Containers &amp; Repeatables', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
-			'grp_cont_2_head' => [
-				'type'  => 'html-full',
-				'label' => false,
-				'html'  => '<h3 style="margin:1.25em 0 .5em;padding-bottom:.35em;border-bottom:1px solid #dcdcde;font-size:15px;color:#1d2327;">Containers &amp; Repeatables</h3>',
-			],
 			'demo_addable_popup_2'             => [
 				'label'         => __( 'Addable Popup', 'unysonplus' ),
 				'type'          => 'addable-popup',

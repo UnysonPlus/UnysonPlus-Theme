@@ -37,6 +37,19 @@ $options = [
 							],
 						],
 					],
+					'tab_mobile' => [
+						'title'   => __( 'Mobile & Tablet', 'unysonplus' ),
+						'type'    => 'tab',
+						'options' => [
+							'header_mobile_box' => [
+								'title'   => __( 'Mobile & Tablet', 'unysonplus' ),
+								'type'    => 'box',
+								'options' => [
+									fw()->theme->get_options( 'header-mobile' ),
+								],
+							],
+						],
+					],
 					'tab_menu' => [
 						'title'   => __( 'Menu', 'unysonplus' ),
 						'type'    => 'tab',

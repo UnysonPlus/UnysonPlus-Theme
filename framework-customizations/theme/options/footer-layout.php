@@ -58,6 +58,7 @@ $options = [
 	// Footer layout MODE — normal band vs. overlaid on the last section.
 	'group_footer_mode' => [
 		'type'    => 'group',
+		'title'   => __( 'Footer Mode', 'unysonplus' ),
 		'options' => [
 			'footer_overlay_last_section' => [
 				'label'        => __( 'Overlay on Last Section', 'unysonplus' ),
@@ -83,6 +84,7 @@ $options = [
 	],
 	'group_footer_colors' => [
 		'type'    => 'group',
+		'title'   => __( 'Colors', 'unysonplus' ),
 		'options' => [
 			'footer_text_color' => $footer_color(
 				__( 'Text Color', 'unysonplus' ),
@@ -96,6 +98,7 @@ $options = [
 	],
 	'group_footer_border' => [
 		'type'    => 'group',
+		'title'   => __( 'Top Border', 'unysonplus' ),
 		'options' => [
 			// ONE shared border (width · style · colour) applied to the edges chosen in
 			// "Border Sides" below — users won't set different widths per edge, and a
@@ -171,6 +174,7 @@ $options = [
 	],
 	'group_footer_spacing' => [
 		'type'    => 'group',
+		'title'   => __( 'Spacing', 'unysonplus' ),
 		'options' => [
 			'footer_padding_top'    => $footer_spacing(
 				__( 'Padding Top', 'unysonplus' ),

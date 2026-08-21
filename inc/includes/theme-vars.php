@@ -398,6 +398,12 @@ if ( ! function_exists( 'unysonplus_theme_vars_header_layout' ) ) :
 				// color-mix keeps the ~95% sticky tint working for a preset var() too.
 				$out['--header-sticky-bg'] = 'color-mix(in srgb, ' . $hbg . ' 95%, transparent)';
 			}
+			// Two-state model: the SCROLLED header fill (Header -> Layout -> Appearance on scroll ->
+			// Scrolled Background). Consumed by .site-header--scroll-change.is-stuck; the CSS falls back
+			// to --header-bg when this is unset, so a scroll-change header with no scrolled colour just
+			// keeps its at-top fill.
+			$hsbg = isset( $header_layout['scroll_bg_color'] ) ? unysonplus_preset_color_to_css( $header_layout['scroll_bg_color'] ) : '';
+			if ( $hsbg !== '' ) { $out['--header-scroll-bg'] = $hsbg; }
 			$hmh = unysonplus_css_length( isset( $header_layout['min_height'] ) ? $header_layout['min_height'] : '' );
 			if ( $hmh !== '' ) { $out['--header-min-height'] = $hmh; }
 
@@ -408,7 +414,8 @@ if ( ! function_exists( 'unysonplus_theme_vars_header_layout' ) ) :
 			$hcw = unysonplus_css_length( isset( $header_layout['container_width'] ) ? $header_layout['container_width'] : '' );
 			if ( $hcw !== '' ) { $out['--header-container-max'] = $hcw; }
 
-			$hmh_mobile = unysonplus_css_length( isset( $header_layout['mobile_min_height'] ) ? $header_layout['mobile_min_height'] : '' );
+			// mobile_min_height consolidated to a top-level key (Header → Mobile & Tablet).
+			$hmh_mobile = unysonplus_css_length( fw_get_db_settings_option( 'mobile_min_height', '' ) );
 			if ( $hmh_mobile !== '' ) { $out['--header-min-height-mobile'] = $hmh_mobile; }
 
 			// Sticky-shrink logo height (Behavior = Sticky + Shrink); CSS falls back to 40px.
@@ -421,6 +428,51 @@ if ( ! function_exists( 'unysonplus_theme_vars_header_layout' ) ) :
 			if ( isset( $valign_map[ $valign ] ) && $valign !== 'center' ) { $out['--header-valign'] = $valign_map[ $valign ]; }
 			$egap = unysonplus_css_length( isset( $header_layout['header_element_gap'] ) ? $header_layout['header_element_gap'] : '' );
 			if ( $egap !== '' ) { $out['--header-element-gap'] = $egap; }
+
+			// Mobile drawer PANEL appearance — consolidated to TOP-LEVEL keys (Header → Mobile
+			// & Tablet). The drawer used to inherit the desktop menu palette (tuned for a header
+			// over a hero), so its links rendered washed-out on a solid panel. These scope the
+			// panel's own look; each falls back in CSS to a legible default.
+			$dbg = unysonplus_preset_color_to_css( fw_get_db_settings_option( 'drawer_bg', '' ) );
+			if ( $dbg !== '' ) { $out['--drawer-bg'] = $dbg; }
+			$dlc = unysonplus_preset_color_to_css( fw_get_db_settings_option( 'drawer_link_color', '' ) );
+			if ( $dlc !== '' ) { $out['--drawer-color'] = $dlc; }
+			$dla = unysonplus_preset_color_to_css( fw_get_db_settings_option( 'drawer_link_active_color', '' ) );
+			if ( $dla !== '' ) { $out['--drawer-active'] = $dla; }
+			$dls = unysonplus_css_length( fw_get_db_settings_option( 'drawer_link_size', '' ) );
+			if ( $dls !== '' ) { $out['--drawer-link-size'] = $dls; }
+			$dis = unysonplus_css_length( fw_get_db_settings_option( 'drawer_item_spacing', '' ) );
+			if ( $dis !== '' ) { $out['--drawer-item-gap'] = $dis; }
+			$dal_map = array( 'left' => 'flex-start', 'center' => 'center', 'right' => 'flex-end' );
+			$dal_txt = array( 'left' => 'left', 'center' => 'center', 'right' => 'right' );
+			$dal = (string) fw_get_db_settings_option( 'drawer_align', 'left' );
+			if ( isset( $dal_map[ $dal ] ) && $dal !== 'left' ) {
+				$out['--drawer-align']      = $dal_map[ $dal ];
+				$out['--drawer-text-align'] = $dal_txt[ $dal ];
+			}
+
+			// Mobile BAR background (Header → Mobile & Tablet). A top-level key, applied by
+			// header-footer-builder.css only below the collapse width, so the desktop header
+			// keeps its own background.
+			$mbar = fw_get_db_settings_option( 'mobile_bar_bg', '' );
+			$mbar_css = is_string( $mbar ) ? unysonplus_preset_color_to_css( $mbar ) : '';
+			if ( $mbar_css !== '' ) { $out['--mobile-bar-bg'] = $mbar_css; }
+
+			// Drawer MOTION & SCRIM (Phase 2, Header → Mobile & Tablet). Panel size/shape + the
+			// dim overlay. Consumed by .primary-navigation-drawer in style.css; each falls back to
+			// a sensible default when unset.
+			$dw = unysonplus_css_length( fw_get_db_settings_option( 'drawer_width', '' ) );
+			if ( $dw !== '' ) { $out['--drawer-width'] = $dw; }
+			$drad = unysonplus_css_length( fw_get_db_settings_option( 'drawer_radius', '' ) );
+			if ( $drad !== '' ) { $out['--drawer-radius'] = $drad; }
+			$dsc = unysonplus_preset_color_to_css( fw_get_db_settings_option( 'drawer_scrim_color', '' ) );
+			if ( $dsc !== '' ) { $out['--drawer-scrim-color'] = $dsc; }
+			$dso = fw_get_db_settings_option( 'drawer_scrim_opacity', 50 );
+			if ( is_numeric( $dso ) && (int) $dso !== 50 ) { $out['--drawer-scrim-opacity'] = round( max( 0, min( 100, (int) $dso ) ) / 100, 2 ); }
+			$dsb = unysonplus_css_length( fw_get_db_settings_option( 'drawer_scrim_blur', '' ) );
+			if ( $dsb !== '' ) { $out['--drawer-scrim-blur'] = $dsb; }
+			$dimh = unysonplus_css_length( fw_get_db_settings_option( 'drawer_item_min_height', '' ) );
+			if ( $dimh !== '' ) { $out['--drawer-item-minh'] = $dimh; }
 
 			// Vertical header rail width. Now housed inside the header_mode multi-picker's
 			// Vertical reveals — the accessor resolves the active mode's value (and the

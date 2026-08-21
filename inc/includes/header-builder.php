@@ -47,21 +47,62 @@ if ( ! function_exists( 'unysonplus_render_drawer_content' ) ) :
  * @param string $fallback_location Menu location to show when no content is configured.
  */
 function unysonplus_render_drawer_content( $fallback_location = 'off-canvas' ) {
-	$hl       = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'header_layout', array() ) : array();
-	$elements = ( is_array( $hl ) && ! empty( $hl['offcanvas_content'] ) && is_array( $hl['offcanvas_content'] ) )
-		? $hl['offcanvas_content']
-		: array();
+	// offcanvas_content consolidated to a top-level key (Header → Mobile & Tablet).
+	$oc       = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'offcanvas_content', array() ) : array();
+	$elements = ( ! empty( $oc ) && is_array( $oc ) ) ? $oc : array();
+
+	// Drawer SEARCH (Phase 2). Optional search form at the top of the drawer.
+	if ( function_exists( 'fw_get_db_settings_option' ) && fw_get_db_settings_option( 'drawer_search', 'no' ) === 'yes' ) {
+		echo '<div class="drawer-search">';
+		get_search_form();
+		echo '</div>';
+	}
 
 	if ( empty( $elements ) ) {
 		// unysonplus_drawer_nav_menu() already falls back to Primary when the location
 		// has no menu assigned, so this reproduces each mode's historical default.
 		unysonplus_drawer_nav_menu( $fallback_location );
+		// The inline header CTA is HIDDEN on mobile (it overflows the bar and pushes the toggle off-screen);
+		// re-render it here so the primary action (e.g. "Book Now") MOVES INTO the drawer rather than vanishing.
+		if ( function_exists( 'unysonplus_header_cta_elements' ) ) {
+			$drawer_ctas = unysonplus_header_cta_elements();
+			if ( $drawer_ctas ) {
+				echo '<div class="drawer-cta">';
+				foreach ( $drawer_ctas as $cta_el ) {
+					echo '<div class="header-element header-element--cta_button">';
+					unysonplus_render_header_element( $cta_el );
+					echo '</div>';
+				}
+				echo '</div>';
+			}
+		}
 		return;
 	}
 
 	echo '<div class="primary-navigation-drawer__content">';
 	unysonplus_render_header_column( $elements, 'start' );
 	echo '</div>';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_header_cta_elements' ) ) :
+/**
+ * Collect the CTA Button elements placed in the Main Header (any column) — used to re-surface the header
+ * CTA inside the mobile drawer, since the inline CTA is hidden on mobile so the hamburger stays reachable.
+ *
+ * @return array List of cta_button element nodes.
+ */
+function unysonplus_header_cta_elements() {
+	$hm  = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'header_main', array() ) : array();
+	$out = array();
+	if ( ! is_array( $hm ) ) { return $out; }
+	foreach ( array( 'main_left', 'main_center', 'main_right' ) as $zone ) {
+		if ( empty( $hm[ $zone ] ) || ! is_array( $hm[ $zone ] ) ) { continue; }
+		foreach ( $hm[ $zone ] as $el ) {
+			if ( isset( $el['element_type']['element'] ) && 'cta_button' === $el['element_type']['element'] ) { $out[] = $el; }
+		}
+	}
+	return $out;
 }
 endif;
 
@@ -77,8 +118,8 @@ if ( ! function_exists( 'unysonplus_offcanvas_icons' ) ) :
  * @return array{open: mixed, close: mixed}
  */
 function unysonplus_offcanvas_icons() {
-	$hl  = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'header_layout', array() ) : array();
-	$val = ( is_array( $hl ) && isset( $hl['offcanvas_trigger_icon'] ) ) ? $hl['offcanvas_trigger_icon'] : null;
+	// offcanvas_trigger_icon consolidated to a top-level key (Header → Mobile & Tablet).
+	$val = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'offcanvas_trigger_icon', null ) : null;
 
 	if ( is_array( $val ) && ( array_key_exists( 'open', $val ) || array_key_exists( 'close', $val ) ) ) {
 		// Current shape: [ 'open' => …, 'close' => … ].
@@ -117,24 +158,163 @@ function unysonplus_hf_toggle_icon_svg( $icon, $class ) {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_render_mobile_bottom_nav' ) ) :
+/**
+ * Mobile bottom tab bar (Phase 3, Header → Mobile & Tablet → Bottom Navigation).
+ *
+ * A fixed bottom bar on phones built from the first N top-level Primary-menu items —
+ * an app-like alternative/companion to the drawer. Output at wp_footer; shown/hidden
+ * purely in CSS (below the collapse width). No-op unless enabled and a Primary menu
+ * with items exists.
+ */
+function unysonplus_render_mobile_bottom_nav() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) ) { return; }
+	if ( fw_get_db_settings_option( 'mobile_bottom_nav', 'no' ) !== 'yes' ) { return; }
+
+	$locations = get_nav_menu_locations();
+	$menu_id   = isset( $locations['primary'] ) ? (int) $locations['primary'] : 0;
+	if ( ! $menu_id ) { return; }
+	$items = wp_get_nav_menu_items( $menu_id );
+	if ( empty( $items ) ) { return; }
+
+	$top = array_values( array_filter( (array) $items, function ( $it ) {
+		return isset( $it->menu_item_parent ) && (int) $it->menu_item_parent === 0;
+	} ) );
+	if ( empty( $top ) ) { return; }
+
+	$max    = (int) fw_get_db_settings_option( 'mobile_bottom_nav_max', '5' );
+	if ( $max < 1 ) { $max = 5; }
+	$labels = fw_get_db_settings_option( 'mobile_bottom_nav_labels', 'yes' ) !== 'no';
+	$top    = array_slice( $top, 0, $max );
+
+	$cls = 'mobile-bottom-nav' . ( $labels ? '' : ' mobile-bottom-nav--no-labels' );
+	echo '<nav class="' . esc_attr( $cls ) . '" aria-label="' . esc_attr__( 'Mobile navigation', 'unysonplus' ) . '"><ul>';
+	foreach ( $top as $it ) {
+		$current = ( ! empty( $it->classes ) && is_array( $it->classes )
+			&& ( in_array( 'current-menu-item', $it->classes, true ) || in_array( 'current_page_item', $it->classes, true ) ) );
+		// A menu item can carry an icon via the icon meta the theme's nav walker reads;
+		// fall back to a small dot so an icon-only bar still has a target.
+		$icon = '';
+		if ( function_exists( 'sc_icon_render' ) ) {
+			$mi = get_post_meta( $it->ID, '_menu_item_unysonplus_icon', true );
+			if ( $mi ) { $icon = sc_icon_render( $mi, array( 'class' => 'mbn-icon', 'aria_hidden' => true ) ); }
+		}
+		if ( $icon === '' ) { $icon = '<span class="mbn-icon mbn-icon--dot" aria-hidden="true"></span>'; }
+		printf(
+			'<li class="%s"><a href="%s"%s>%s<span class="mbn-label">%s</span></a></li>',
+			$current ? 'is-current' : '',
+			esc_url( $it->url ),
+			$current ? ' aria-current="page"' : '',
+			$icon, // phpcs:ignore — icon markup
+			esc_html( $it->title )
+		);
+	}
+	echo '</ul></nav>';
+}
+add_action( 'wp_footer', 'unysonplus_render_mobile_bottom_nav' );
+endif;
+
+if ( ! function_exists( 'unysonplus_mobile_body_classes' ) ) :
+/**
+ * Body classes for the mobile bottom bar + per-device toggles (Phase 3). Kept in
+ * body_class so the page can pad its bottom (behind the fixed bar) and CSS can gate
+ * the safe-area / no-sticky treatments.
+ */
+function unysonplus_mobile_body_classes( $classes ) {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) ) { return $classes; }
+	if ( fw_get_db_settings_option( 'mobile_bottom_nav', 'no' ) === 'yes' && has_nav_menu( 'primary' ) ) { $classes[] = 'has-bottom-nav'; }
+	if ( fw_get_db_settings_option( 'mobile_safe_area', 'no' ) === 'yes' )      { $classes[] = 'mobile-safe-area'; }
+	if ( fw_get_db_settings_option( 'mobile_disable_sticky', 'no' ) === 'yes' ) { $classes[] = 'mobile-no-sticky'; }
+	return $classes;
+}
+add_filter( 'body_class', 'unysonplus_mobile_body_classes' );
+endif;
+
+if ( ! function_exists( 'unysonplus_custom_breakpoint_css' ) ) :
+/**
+ * Emit the custom collapse-width CSS (Header → Mobile & Tablet → Custom Collapse Width).
+ *
+ * When a pixel width is set, the header carries `header-collapse-custom` instead of the
+ * md/lg preset class. The static CSS only knows the two presets, so this prints a small
+ * per-request <style> reproducing the collapse (hide inline nav / show hamburger), the
+ * mobile bar background and the mobile header layouts at that exact width — so every
+ * mobile control engages at the same custom breakpoint. No-op unless a width is set.
+ */
+function unysonplus_custom_breakpoint_css() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) ) { return; }
+	$bp  = fw_get_db_settings_option( 'mobile_breakpoint_px', array() );
+	$val = ( is_array( $bp ) && isset( $bp['value'] ) && is_numeric( $bp['value'] ) ) ? (float) $bp['value'] : 0;
+	if ( $val <= 0 ) { return; }
+
+	$below = rtrim( rtrim( number_format( $val - 0.02, 2, '.', '' ), '0' ), '.' );
+	$at    = rtrim( rtrim( number_format( $val, 2, '.', '' ), '0' ), '.' );
+	$S     = '.site-header.header-collapse-custom';
+	$L     = '.header-collapse-custom';
+
+	$css  = '@media (max-width:' . $below . 'px){';
+	$css .= $S . ' .header-element--menu,' . $S . ' .header-element--menu_area,' . $S . ' .header-element--cta_button{display:none}';
+	$css .= $S . ' .menu-toggle{display:inline-flex}';
+	$css .= $S . ' .header-main{background-color:var(--mobile-bar-bg)}';
+	// Mobile layouts (mirror of header-footer-builder.css, scoped to the custom class).
+	$css .= $L . '.header-mlayout--toggle-left .header-main .header-row{position:relative;justify-content:flex-start}';
+	$css .= $L . '.header-mlayout--toggle-left .header-main .header-col--end{order:-1}';
+	$css .= $L . '.header-mlayout--toggle-left .header-main .header-col--start{position:absolute;left:50%;transform:translateX(-50%)}';
+	$css .= $L . '.header-mlayout--logo-right .header-main .header-row{justify-content:space-between}';
+	$css .= $L . '.header-mlayout--logo-right .header-main .header-col--end{order:-1}';
+	$css .= $L . '.header-mlayout--logo-right .header-main .header-col--start{order:2}';
+	$css .= $L . '.header-mlayout--center-below .header-main .header-row{flex-wrap:wrap;row-gap:.5rem;justify-content:center}';
+	$css .= $L . '.header-mlayout--center-below .header-main .header-col--start{flex:0 0 100%;display:flex;justify-content:center;order:1}';
+	$css .= $L . '.header-mlayout--center-below .header-main .header-col--center{flex:0 0 100%;display:flex;justify-content:center;order:2}';
+	$css .= $L . '.header-mlayout--center-below .header-main .header-col--end{flex:0 0 100%;display:flex;justify-content:center;order:3}';
+	$css .= '}';
+	$css .= '@media (min-width:' . $at . 'px){' . $S . ' .menu-toggle{display:none}}';
+
+	echo '<style id="unysonplus-header-breakpoint">' . $css . '</style>'; // phpcs:ignore — static CSS, values sanitized numeric
+}
+add_action( 'wp_head', 'unysonplus_custom_breakpoint_css', 20 );
+endif;
+
 if ( ! function_exists( 'unysonplus_render_menu_toggle' ) ) :
 function unysonplus_render_menu_toggle( $extra_class = '' ) {
 	$icons = unysonplus_offcanvas_icons();
+	$get   = 'fw_get_db_settings_option';
+
+	// Hamburger DESIGN (Header → Mobile & Tablet). Only applies to the built-in bars —
+	// a custom Open icon set under Header → Layout takes precedence (icon mode).
+	$style   = function_exists( $get ) ? (string) $get( 'mobile_toggle_style', 'bars' ) : 'bars';
+	$animate = function_exists( $get ) ? ( $get( 'mobile_toggle_animate', 'yes' ) !== 'no' ) : true;
+	$label   = function_exists( $get ) ? trim( (string) $get( 'mobile_toggle_label', '' ) ) : '';
+	$size    = function_exists( $get ) ? $get( 'mobile_toggle_size', array() ) : array();
+	$color   = function_exists( $get ) ? $get( 'mobile_toggle_color', '' ) : '';
 
 	$classes = 'menu-toggle' . ( $extra_class !== '' ? ' ' . $extra_class : '' );
 
 	$inner = unysonplus_hf_toggle_icon_svg( $icons['open'], 'menu-toggle__icon' );
 	if ( $inner === '' ) {
-		// Default: the classic hamburger bars.
-		$inner = '<span class="menu-toggle__bar"></span><span class="menu-toggle__bar"></span><span class="menu-toggle__bar"></span>';
-		$classes .= ' menu-toggle--bars';
+		// Built-in bars. A label wraps them in .menu-toggle__bars so the icon+text sit in a row.
+		$bars    = '<span class="menu-toggle__bar"></span><span class="menu-toggle__bar"></span><span class="menu-toggle__bar"></span>';
+		$inner   = ( $label !== '' ) ? '<span class="menu-toggle__bars">' . $bars . '</span>' : $bars;
+		$classes .= ' menu-toggle--bars menu-toggle--style-' . sanitize_html_class( $style !== '' ? $style : 'bars' );
+		if ( ! $animate ) { $classes .= ' menu-toggle--no-animate'; }
 	} else {
 		$classes .= ' menu-toggle--icon';
 	}
+	if ( $label !== '' ) {
+		$inner   .= '<span class="menu-toggle__label">' . esc_html( $label ) . '</span>';
+		$classes .= ' menu-toggle--has-label';
+	}
+
+	// Per-toggle CSS vars (fresh per request, no dependency on the cached generated CSS).
+	$style_attr = '';
+	$len        = function_exists( 'unysonplus_css_length' ) ? unysonplus_css_length( $size ) : '';
+	if ( $len !== '' ) { $style_attr .= '--toggle-size:' . $len . ';'; }
+	$color_css = function_exists( 'unysonplus_preset_color_to_css' ) ? unysonplus_preset_color_to_css( $color ) : ( is_string( $color ) ? $color : '' );
+	if ( $color_css !== '' ) { $style_attr .= '--toggle-color:' . $color_css . ';'; }
 
 	printf(
-		'<button type="button" class="%s" aria-controls="primary-navigation-drawer" aria-expanded="false" aria-label="%s">%s</button>',
+		'<button type="button" class="%s"%s aria-controls="primary-navigation-drawer" aria-expanded="false" aria-label="%s">%s</button>',
 		esc_attr( $classes ),
+		$style_attr !== '' ? ' style="' . esc_attr( $style_attr ) . '"' : '',
 		esc_attr__( 'Toggle navigation', 'unysonplus' ),
 		$inner // phpcs:ignore — icon markup / static spans
 	);
@@ -151,14 +331,40 @@ if ( ! function_exists( 'unysonplus_render_drawer_close' ) ) :
  */
 function unysonplus_render_drawer_close() {
 	$icons = unysonplus_offcanvas_icons();
+	$get   = 'fw_get_db_settings_option';
+
+	// Close-button DESIGN (Phase 2, Header → Mobile & Tablet). A custom Close icon
+	// (Trigger & Close Icons) still wins; otherwise pick a built-in glyph/style.
+	$style = function_exists( $get ) ? (string) $get( 'drawer_close_style', 'default' ) : 'default';
+	$pos   = function_exists( $get ) ? (string) $get( 'drawer_close_position', 'in-panel' ) : 'in-panel';
+	$csize = function_exists( $get ) ? $get( 'drawer_close_size', array() ) : array();
+	$ccol  = function_exists( $get ) ? $get( 'drawer_close_color', '' ) : '';
 
 	$svg     = unysonplus_hf_toggle_icon_svg( $icons['close'], 'primary-navigation-drawer__close-icon' );
-	$classes = 'primary-navigation-drawer__close' . ( $svg !== '' ? ' primary-navigation-drawer__close--icon' : '' );
-	$inner   = ( $svg !== '' ) ? $svg : '&times;';
+	$classes = 'primary-navigation-drawer__close';
+	if ( $svg !== '' ) {
+		$classes .= ' primary-navigation-drawer__close--icon';
+		$inner    = $svg;
+	} elseif ( 'arrow' === $style ) {
+		$inner = '&lsaquo;';
+	} elseif ( 'text' === $style ) {
+		$classes .= ' primary-navigation-drawer__close--text';
+		$inner    = '<span class="primary-navigation-drawer__close-text">' . esc_html__( 'Close', 'unysonplus' ) . '</span>';
+	} else {
+		$inner = '&times;';
+	}
+	if ( 'floating' === $pos ) { $classes .= ' primary-navigation-drawer__close--floating'; }
+
+	$style_attr = '';
+	$len = function_exists( 'unysonplus_css_length' ) ? unysonplus_css_length( $csize ) : '';
+	if ( $len !== '' ) { $style_attr .= '--close-size:' . $len . ';'; }
+	$col = function_exists( 'unysonplus_preset_color_to_css' ) ? unysonplus_preset_color_to_css( $ccol ) : ( is_string( $ccol ) ? $ccol : '' );
+	if ( $col !== '' ) { $style_attr .= '--close-color:' . $col . ';'; }
 
 	printf(
-		'<button type="button" class="%s" data-drawer-close aria-label="%s">%s</button>',
+		'<button type="button" class="%s"%s data-drawer-close aria-label="%s">%s</button>',
 		esc_attr( $classes ),
+		$style_attr !== '' ? ' style="' . esc_attr( $style_attr ) . '"' : '',
 		esc_attr__( 'Close menu', 'unysonplus' ),
 		$inner // phpcs:ignore — icon markup / static entity
 	);
@@ -233,7 +439,11 @@ function unysonplus_render_header_element( $element ) {
                         unysonplus_render_heading_element( $settings );
                         break;
 
-                case 'link':
+                case 'list_item':
+                        unysonplus_render_list_item_element( $settings );
+                        break;
+
+                case 'link': // legacy — superseded by list_item; still rendered for older saved headers.
                         unysonplus_render_link_element( $settings );
                         break;
 
@@ -473,6 +683,63 @@ function unysonplus_render_icon_text( $settings ) {
                 echo '<a class="header-icon-text" href="' . $href . '"' . $rel . '>' . $inner . '</a>'; // phpcs:ignore -- href pre-escaped per type
         } else {
                 echo '<span class="header-icon-text">' . $inner . '</span>';
+        }
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_render_list_item_element' ) ) :
+/**
+ * List Item element — the UNIFIED header/footer row that supersedes the old `link` + `icon_text` elements:
+ * a line of TEXT, an optional ICON, and an optional smart LINK (Website / Email → mailto: / Phone → tel:).
+ * A run of 2+ consecutive List Item elements auto-groups into a semantic <ul><li> list at render (see the
+ * footer column renderer); a lone one stays a standalone link / span. One element expresses a menu link, a
+ * plain text line, an icon+text contact row, and a clickable email/phone.
+ *
+ * @param array $settings list_item element settings (li_text, li_icon, li_link_type, li_link, li_target).
+ */
+function unysonplus_render_list_item_element( $settings ) {
+        $icon_val = isset( $settings['li_icon'] ) ? $settings['li_icon'] : '';
+        $icon = function_exists( 'unysonplus_hf_toggle_icon_svg' ) ? unysonplus_hf_toggle_icon_svg( $icon_val, 'list-item__icon' ) : '';
+        if ( $icon === '' && ! empty( $settings['li_icon']['icon-class'] ) ) {
+                $icon = '<i class="' . esc_attr( $settings['li_icon']['icon-class'] ) . '" aria-hidden="true"></i>';
+        }
+        $text = isset( $settings['li_text'] ) ? trim( (string) $settings['li_text'] ) : '';
+        if ( $text === '' && $icon === '' ) { return; }
+
+        $type = ! empty( $settings['li_link_type'] ) ? $settings['li_link_type'] : 'none';
+        $val  = isset( $settings['li_link'] ) ? trim( (string) $settings['li_link'] ) : '';
+        // Email / Phone fall back to the visible text when no explicit target is set.
+        if ( $val === '' && ( $type === 'email' || $type === 'phone' ) ) { $val = $text; }
+
+        $href = ''; $rel = '';
+        switch ( $type ) {
+                case 'url':
+                        $href = esc_url( $val );
+                        if ( ! empty( $settings['li_target'] ) && '_blank' === $settings['li_target'] ) {
+                                $rel = ' target="_blank" rel="noopener noreferrer"';
+                        } else {
+                                // External URL → new tab (mirrors the icon_text / tag_list convention).
+                                $host = wp_parse_url( $val, PHP_URL_HOST );
+                                if ( $host && $host !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {
+                                        $rel = ' target="_blank" rel="noopener noreferrer"';
+                                }
+                        }
+                        break;
+                case 'email':
+                        $href = 'mailto:' . antispambot( $val );
+                        break;
+                case 'phone':
+                        $href = 'tel:' . preg_replace( '/[^0-9+]/', '', $val );
+                        break;
+        }
+
+        $inner  = $icon !== '' ? $icon . ' ' : ''; // $icon is already rendered markup (SVG or <i>)
+        $inner .= '<span class="list-item__text">' . esc_html( $text ) . '</span>';
+
+        if ( $href !== '' ) {
+                echo '<a class="footer-link hf-link list-item" href="' . $href . '"' . $rel . '>' . $inner . '</a>'; // phpcs:ignore -- href pre-escaped per type
+        } else {
+                echo '<span class="list-item">' . $inner . '</span>';
         }
 }
 endif;

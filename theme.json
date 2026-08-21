@@ -19,15 +19,16 @@
 			]
 		},
 		"typography": {
+			"fluid": true,
 			"fontFamilies": [
 				{ "slug": "body",    "name": "Body",    "fontFamily": "var(--font-body)" },
 				{ "slug": "heading", "name": "Heading", "fontFamily": "var(--font-heading)" }
 			],
 			"fontSizes": [
-				{ "slug": "small",   "name": "Small",       "size": "0.875rem" },
-				{ "slug": "medium",  "name": "Medium",      "size": "1rem" },
-				{ "slug": "large",   "name": "Large",       "size": "1.25rem" },
-				{ "slug": "x-large", "name": "Extra Large", "size": "1.75rem" }
+				{ "slug": "small",   "name": "Small",       "size": "0.875rem", "fluid": false },
+				{ "slug": "medium",  "name": "Medium",      "size": "1rem",     "fluid": false },
+				{ "slug": "large",   "name": "Large",       "size": "1.25rem",  "fluid": { "min": "1.0625rem", "max": "1.25rem" } },
+				{ "slug": "x-large", "name": "Extra Large", "size": "1.75rem",  "fluid": { "min": "1.3125rem", "max": "1.75rem" } }
 			]
 		},
 		"spacing": {

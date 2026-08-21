@@ -35,6 +35,7 @@ $options = [
 			/* ===== Text selection ===== */
 			'group_base_selection' => [
 				'type'    => 'group',
+				'title'   => __( 'Text Selection', 'unysonplus' ),
 				'options' => [
 					'base_selection_bg'    => $color( __( 'Selection Background', 'unysonplus' ), __( 'Highlight color when a visitor selects text. Leave empty for the browser default.', 'unysonplus' ), 'bg' ),
 					'base_selection_color' => $color( __( 'Selection Text Color', 'unysonplus' ), __( 'Text color inside a selection. Leave empty to keep the text\'s own color.', 'unysonplus' ), 'text' ),
@@ -44,6 +45,8 @@ $options = [
 			/* ===== Content protection (opt-in deterrents) ===== */
 			'group_base_protection' => [
 				'type'    => 'group',
+				'title'   => __( 'Content Protection', 'unysonplus' ),
+				'desc'    => __( 'Casual copy-paste deterrents only — content stays readable via View Source / Reader mode / DevTools. Form fields are never affected.', 'unysonplus' ),
 				'options' => [
 					'base_disable_text_selection' => [
 						'type'         => 'switch',
@@ -75,6 +78,7 @@ $options = [
 			/* ===== Custom scrollbar ===== */
 			'group_base_scrollbar' => [
 				'type'    => 'group',
+				'title'   => __( 'Custom Scrollbar', 'unysonplus' ),
 				'options' => [
 					'base_scrollbar_color' => $color( __( 'Scrollbar Color', 'unysonplus' ), __( 'Color of the scrollbar thumb. Set this to enable the custom scrollbar; leave empty for the browser default.', 'unysonplus' ), 'bg' ),
 					'base_scrollbar_width' => [
@@ -91,6 +95,7 @@ $options = [
 			/* ===== Focus outline ===== */
 			'group_base_focus' => [
 				'type'    => 'group',
+				'title'   => __( 'Focus Outline', 'unysonplus' ),
 				'options' => [
 					'base_focus_color' => $color( __( 'Focus Outline Color', 'unysonplus' ), __( 'Color of the keyboard-focus ring around links, buttons and fields. Leave empty to use the primary color.', 'unysonplus' ), 'bg' ),
 					'base_focus_width' => [

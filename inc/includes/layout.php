@@ -711,8 +711,8 @@ function unysonplus_layout_body_classes( $classes ) {
 	// Header → Layout: Scroll Spy (active-section menu highlighting + smooth anchor
 	// scroll). Gated behind a body class so normal multi-page sites are unaffected;
 	// navigation.js + style.css key off body.nav-scrollspy.
-	if ( function_exists( 'unysonplus_header_layout_get' )
-		&& unysonplus_header_layout_get( 'nav_scrollspy', 'no' ) === 'yes' ) {
+	if ( function_exists( 'fw_get_db_settings_option' )
+		&& fw_get_db_settings_option( 'nav_scrollspy', 'no' ) === 'yes' ) {
 		$classes[] = 'nav-scrollspy';
 	}
 

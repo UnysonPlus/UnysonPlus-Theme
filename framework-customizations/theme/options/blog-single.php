@@ -15,6 +15,10 @@ $options = [
 		'label'         => false,
 		'desc'          => false,
 		'inner-options' => [
+			'grp_bs_layout' => [
+				'type'    => 'group',
+				'title'   => __( 'Layout', 'unysonplus' ),
+				'options' => [
 			'single_sidebar' => [
 				'label'   => __( 'Sidebar', 'unysonplus' ),
 				'desc'    => __( 'Sidebar for single posts. "Inherit" uses the General → Layout default.', 'unysonplus' ),
@@ -43,6 +47,12 @@ $options = [
 					'below-title' => __( 'Below title', 'unysonplus' ),
 				],
 			],
+				],
+			],
+			'grp_bs_meta' => [
+				'type'    => 'group',
+				'title'   => __( 'Meta & Author', 'unysonplus' ),
+				'options' => [
 			'single_meta' => [
 				'label'   => __( 'Post Meta', 'unysonplus' ),
 				'type'    => 'checkboxes',
@@ -63,6 +73,12 @@ $options = [
 				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Show', 'unysonplus' ) ],
 				'left-choice'  => [ 'value' => 'no',  'label' => __( 'Hide', 'unysonplus' ) ],
 			],
+				],
+			],
+			'grp_bs_related' => [
+				'type'    => 'group',
+				'title'   => __( 'Related Posts', 'unysonplus' ),
+				'options' => [
 			'single_related' => [
 				'label'        => __( 'Related Posts', 'unysonplus' ),
 				'type'         => 'switch',
@@ -105,12 +121,20 @@ $options = [
 					'1-1'  => '1:1 (square)',
 				],
 			],
+				],
+			],
+			'grp_bs_nav' => [
+				'type'    => 'group',
+				'title'   => __( 'Navigation', 'unysonplus' ),
+				'options' => [
 			'single_post_nav' => [
 				'label'        => __( 'Previous / Next Navigation', 'unysonplus' ),
 				'type'         => 'switch',
 				'value'        => 'yes',
 				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Show', 'unysonplus' ) ],
 				'left-choice'  => [ 'value' => 'no',  'label' => __( 'Hide', 'unysonplus' ) ],
+			],
+				],
 			],
 		],
 	],

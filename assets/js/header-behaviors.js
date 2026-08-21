@@ -9,7 +9,9 @@
 	'use strict';
 
 	var header = document.getElementById( 'masthead' );
-	if ( ! header || header.getAttribute( 'data-hf-behavior' ) !== 'hide-on-scroll' ) {
+	// Hide-on-scroll is now an independent toggle expressed as the .site-header--hide class (was the
+	// data-hf-behavior="hide-on-scroll" enum value), so it composes with any header position.
+	if ( ! header || ! header.classList.contains( 'site-header--hide' ) ) {
 		return;
 	}
 

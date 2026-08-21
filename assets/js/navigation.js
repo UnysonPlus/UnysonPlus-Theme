@@ -136,6 +136,45 @@
 			drawer.querySelectorAll( '[data-drawer-close]' ),
 			function ( el ) { el.addEventListener( 'click', closeDrawer ); }
 		);
+
+		// Close on link click (Phase 2, default ON — opt out via --no-close-on-click).
+		// Closes when a real menu link is tapped, but NOT for submenu openers (the +/chevron
+		// button, a "‹ Back" row, a parent acting as a toggle, or a bare "#" href).
+		if ( ! drawer.classList.contains( 'primary-navigation-drawer--no-close-on-click' ) ) {
+			drawer.addEventListener( 'click', function ( e ) {
+				var a = e.target.closest && e.target.closest( 'a[href]' );
+				if ( ! a || ! drawer.contains( a ) ) { return; }
+				if ( a.classList.contains( 'submenu-back-btn' ) ) { return; }
+				var href = a.getAttribute( 'href' ) || '';
+				if ( href === '' || href === '#' ) { return; }
+				var li = a.closest( '.menu-item-has-children' );
+				if ( li && a === li.querySelector( ':scope > a' )
+					&& drawer.classList.contains( 'primary-navigation-drawer--parent-toggle' ) ) { return; }
+				closeDrawer();
+			} );
+		}
+
+		// Swipe to close (Phase 2, default ON — opt out via --no-swipe). A horizontal swipe on
+		// the panel toward its own edge (right for a right drawer, left for a left drawer) dismisses.
+		if ( ! drawer.classList.contains( 'primary-navigation-drawer--no-swipe' ) ) {
+			var panel = drawer.querySelector( '.primary-navigation-drawer__panel' );
+			if ( panel ) {
+				var sx = 0, sy = 0, track = false;
+				panel.addEventListener( 'touchstart', function ( e ) {
+					if ( e.touches.length !== 1 ) { track = false; return; }
+					sx = e.touches[0].clientX; sy = e.touches[0].clientY; track = true;
+				}, { passive: true } );
+				panel.addEventListener( 'touchend', function ( e ) {
+					if ( ! track ) { return; }
+					track = false;
+					var dx = e.changedTouches[0].clientX - sx;
+					var dy = e.changedTouches[0].clientY - sy;
+					if ( Math.abs( dx ) < 60 || Math.abs( dy ) > Math.abs( dx ) ) { return; }
+					var isLeft = drawer.classList.contains( 'primary-navigation-drawer--left' );
+					if ( ( isLeft && dx < 0 ) || ( ! isLeft && dx > 0 ) ) { closeDrawer(); }
+				}, { passive: true } );
+			}
+		}
 	}
 
 	/* ---------- Dropdown menus (desktop) ---------- */
@@ -145,9 +184,20 @@
 			var anchor = parent.querySelector( ':scope > a' );
 			if ( ! anchor ) { return; }
 
-			// Append a dedicated submenu toggle button inside the drawer (mobile),
-			// so users can open submenus without navigating away.
-			if ( parent.closest( '#' + DRAWER_ID ) ) {
+			// Drawer submenus. Behaviour is chosen in Theme Settings (Header → Mobile &
+			// Tablet → Submenu Behaviour) and surfaced as a class on the drawer:
+			//   --submenu-accordion (default) · --submenu-flyout · --submenu-expand-all
+			// Parent-as-link vs toggle-only is --parent-toggle. See style.css for the CSS.
+			var drawerEl = parent.closest( '#' + DRAWER_ID );
+			if ( drawerEl ) {
+				var modeMatch  = drawerEl.className.match( /primary-navigation-drawer--submenu-([\w-]+)/ );
+				var mode       = modeMatch ? modeMatch[1] : 'accordion';
+				var parentTog  = drawerEl.classList.contains( 'primary-navigation-drawer--parent-toggle' );
+				var submenu    = parent.querySelector( ':scope > .sub-menu' );
+
+				// Expand-all: every level shown statically (CSS) — no toggle, no handlers.
+				if ( mode === 'expand-all' || ! submenu ) { return; }
+
 				var btn = document.createElement( 'button' );
 				btn.type = 'button';
 				btn.className = 'submenu-toggle';
@@ -155,11 +205,40 @@
 				btn.setAttribute( 'aria-label', 'Toggle submenu' );
 				parent.insertBefore( btn, anchor.nextSibling );
 
-				btn.addEventListener( 'click', function ( e ) {
+				if ( mode === 'flyout' ) {
+					// Flyout: the child list slides in as a panel with a "‹ Back" row.
+					var back    = document.createElement( 'li' );
+					back.className = 'submenu-back';
+					var backBtn = document.createElement( 'button' );
+					backBtn.type = 'button';
+					backBtn.className = 'submenu-back-btn';
+					backBtn.textContent = '‹ ' + ( anchor.textContent || 'Back' ).trim();
+					back.appendChild( backBtn );
+					submenu.insertBefore( back, submenu.firstChild );
+
+					var openFly = function ( e ) {
+						e.preventDefault();
+						submenu.classList.add( 'is-flyout-open' );
+						btn.setAttribute( 'aria-expanded', 'true' );
+					};
+					btn.addEventListener( 'click', openFly );
+					backBtn.addEventListener( 'click', function ( e ) {
+						e.preventDefault();
+						submenu.classList.remove( 'is-flyout-open' );
+						btn.setAttribute( 'aria-expanded', 'false' );
+					} );
+					if ( parentTog ) { anchor.addEventListener( 'click', openFly ); }
+					return;
+				}
+
+				// Accordion (default): expand the child list in place.
+				var toggleAccordion = function ( e ) {
 					e.preventDefault();
 					var open = parent.classList.toggle( SUBMENU_OPEN );
 					btn.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
-				} );
+				};
+				btn.addEventListener( 'click', toggleAccordion );
+				if ( parentTog ) { anchor.addEventListener( 'click', toggleAccordion ); }
 				return;
 			}
 

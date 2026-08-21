@@ -63,17 +63,13 @@ function _ups_element( $type, $settings = null ) {
 endif;
 
 if ( ! function_exists( '_ups_icontext' ) ) :
-/** Icon Text element item (icon + text + optional smart link). $icon = FA class. */
+/** List Item element item (text + optional icon + optional smart link). $icon = FA class ('' for none).
+ *  Emits the unified `list_item` element (superseded the old `icon_text`); a run auto-groups into a <ul>. */
 function _ups_icontext( $icon, $text, $link_type = 'none', $link = '' ) {
-	return array( 'element_type' => array(
-		'element'   => 'icon_text',
-		'icon_text' => array(
-			'icontext_icon'      => array( 'type' => 'icon-font', 'icon-class' => $icon ),
-			'icontext_text'      => $text,
-			'icontext_link_type' => $link_type,
-			'icontext_link'      => $link,
-		),
-	) );
+	$li = array( 'li_text' => $text, 'li_link_type' => $link_type, 'li_link' => $link );
+	if ( $icon !== '' ) { $li['li_icon'] = array( 'type' => 'icon-font', 'icon-class' => $icon ); }
+	if ( 'url' === $link_type ) { $li['li_target'] = '_self'; }
+	return array( 'element_type' => array( 'element' => 'list_item', 'list_item' => $li ) );
 }
 endif;
 
@@ -311,24 +307,39 @@ function _unysonplus_preset_group_header_layout() {
 	// Header (Layout / chrome) → whole-header looks. One pick sets the layout mode +
 	// design + behaviour + chrome toggles, showcasing the theme's layout modes. The
 	// `header_mode` value is the full nested multi-picker shape (mode + its reveal).
+	// The TWO-STATE model (see the Header Layout doc): POSITION + At-top appearance + a separate On-scroll
+	// appearance. allowed_keys must list every key a preset can set/reset, so the whole two-state surface.
 	$hl_keys = array(
-		'header_mode', 'container', 'header_behavior', 'header_border', 'header_shadow',
-		'header_glass', 'header_uppercase_nav', 'bg_color', 'mobile_breakpoint',
+		'header_mode', 'container', 'header_position', 'header_hide_on_scroll',
+		'bg_color', 'header_glass', 'header_border', 'header_shadow', 'header_uppercase_nav',
+		'header_scroll_change', 'scroll_bg_color', 'scroll_glass', 'scroll_border', 'scroll_shadow', 'scroll_shrink',
 	);
 	$topd = function ( $design, $sub = array() ) {   // header_mode for a Top design
 		return array( 'mode' => 'top', 'top' => array( 'header_design' => array_merge( array( 'design' => $design ), $sub ) ) );
 	};
-	$hl = function ( $mode, $behavior, $toggles = array(), $container = 'container' ) {
+	// $atTop / $onScroll are small flag maps ('border','shadow','glass','uppercase' / 'glass','border','shadow','shrink').
+	// A non-empty $onScroll turns on Change-appearance-on-scroll; leave it empty for a header that looks the
+	// same both states.
+	$hl = function ( $mode, $position, $atTop = array(), $onScroll = array(), $container = 'container' ) {
 		return array(
-			'header_mode'          => $mode,
-			'container'            => $container,
-			'header_behavior'      => $behavior,
-			'header_border'        => ! empty( $toggles['border'] )    ? 'yes' : 'no',
-			'header_shadow'        => ! empty( $toggles['shadow'] )    ? 'yes' : 'no',
-			'header_glass'         => ! empty( $toggles['glass'] )     ? 'yes' : 'no',
-			'header_uppercase_nav' => ! empty( $toggles['uppercase'] ) ? 'yes' : 'no',
-			'bg_color'             => _ups_color(),
-			'mobile_breakpoint'    => 'lg',
+			'header_mode'           => $mode,
+			'container'             => $container,
+			'header_position'       => $position,
+			'header_hide_on_scroll' => ! empty( $atTop['hide'] ) ? 'yes' : 'no',
+			// Appearance — At top.
+			'bg_color'              => _ups_color(),
+			'header_glass'          => ! empty( $atTop['glass'] )     ? 'yes' : 'no',
+			'header_border'         => ! empty( $atTop['border'] )    ? 'yes' : 'no',
+			'header_shadow'         => ! empty( $atTop['shadow'] )    ? 'yes' : 'no',
+			'header_uppercase_nav'  => ! empty( $atTop['uppercase'] ) ? 'yes' : 'no',
+			// (mobile_breakpoint consolidated to a top-level key — no longer a header_layout preset value.)
+			// Appearance — On scroll.
+			'header_scroll_change'  => ! empty( $onScroll ) ? 'yes' : 'no',
+			'scroll_bg_color'       => _ups_color(),
+			'scroll_glass'          => ! empty( $onScroll['glass'] )  ? 'yes' : 'no',
+			'scroll_border'         => ! empty( $onScroll['border'] ) ? 'yes' : 'no',
+			'scroll_shadow'         => ! empty( $onScroll['shadow'] ) ? 'yes' : 'no',
+			'scroll_shrink'         => ! empty( $onScroll['shrink'] ) ? 'yes' : 'no',
 		);
 	};
 	$presets = array(
@@ -342,6 +353,11 @@ function _unysonplus_preset_group_header_layout() {
 			'desc'   => __( 'Slim bar that sticks on scroll, hairline border, uppercase nav.', 'unysonplus' ),
 			'values' => $hl( $topd( 'classic' ), 'sticky', array( 'border' => 1, 'uppercase' => 1 ) ),
 		),
+		'sticky-shrink' => array(
+			'label'  => __( 'Sticky Shrink', 'unysonplus' ),
+			'desc'   => __( 'Sticky bar that tightens its padding and shrinks the logo on scroll, gaining a shadow.', 'unysonplus' ),
+			'values' => $hl( $topd( 'classic' ), 'sticky', array( 'border' => 1 ), array( 'shrink' => 1, 'shadow' => 1 ) ),
+		),
 		'pill' => array(
 			'label'  => __( 'Floating Pill', 'unysonplus' ),
 			'desc'   => __( 'Rounded floating nav, sticky with a soft shadow.', 'unysonplus' ),
@@ -354,12 +370,100 @@ function _unysonplus_preset_group_header_layout() {
 		),
 		'transparent' => array(
 			'label'  => __( 'Transparent Hero', 'unysonplus' ),
-			'desc'   => __( 'Frosted, transparent header that overlays the hero.', 'unysonplus' ),
-			'values' => $hl( $topd( 'classic' ), 'transparent-overlay', array( 'glass' => 1 ), 'container-fluid' ),
+			'desc'   => __( 'Clear over the hero, then frosts into a glass bar on scroll — the two-state header.', 'unysonplus' ),
+			'values' => $hl( $topd( 'classic' ), 'overlay', array(), array( 'glass' => 1, 'border' => 1 ), 'container-fluid' ),
 		),
 	);
 
 	return array( 'label' => __( 'Header', 'unysonplus' ), 'allowed_keys' => $hl_keys, 'presets' => $presets );
+}
+endif;
+
+if ( ! function_exists( '_unysonplus_preset_group_header_mobile' ) ) :
+function _unysonplus_preset_group_header_mobile() {
+	// Mobile & Tablet — ready-made drawer/hamburger looks. This is a FLAT group: every
+	// value is a TOP-LEVEL Theme Settings key (the Mobile & Tablet tab stores flat), so
+	// the apply handler writes each key individually (see the 'flat' branch there).
+	$keys = array(
+		'mobile_header_layout', 'mobile_bar_bg', 'mobile_toggle_style', 'mobile_toggle_animate',
+		'mobile_toggle_label', 'mobile_drawer_side', 'drawer_align', 'drawer_dividers',
+		'drawer_animation', 'drawer_scrim_opacity', 'drawer_item_min_height', 'drawer_search',
+		'drawer_close_style', 'drawer_close_position', 'drawer_close_on_click', 'drawer_swipe_close',
+		'mobile_submenu_mode', 'mobile_submenu_parent_link',
+	);
+	$presets = array(
+		'classic_drawer' => array(
+			'label'  => __( 'Classic Drawer', 'unysonplus' ),
+			'desc'   => __( 'Logo left, hamburger right; a right side panel that slides in with an accordion submenu. The familiar default.', 'unysonplus' ),
+			'values' => array(
+				'mobile_header_layout'       => 'default',
+				'mobile_toggle_style'        => 'bars',
+				'mobile_toggle_animate'      => 'yes',
+				'mobile_toggle_label'        => '',
+				'mobile_drawer_side'         => 'right',
+				'drawer_align'               => 'left',
+				'drawer_dividers'            => 'no',
+				'drawer_animation'           => 'slide',
+				'drawer_scrim_opacity'       => 50,
+				'drawer_item_min_height'     => _ups_unit( '', 'px' ),
+				'drawer_search'              => 'no',
+				'drawer_close_style'         => 'default',
+				'drawer_close_position'      => 'in-panel',
+				'drawer_close_on_click'      => 'yes',
+				'drawer_swipe_close'         => 'yes',
+				'mobile_submenu_mode'        => 'accordion',
+				'mobile_submenu_parent_link' => 'yes',
+			),
+		),
+		'app_bar' => array(
+			'label'  => __( 'App Bar', 'unysonplus' ),
+			'desc'   => __( 'Centered logo with a "Menu" toggle, comfortable tap targets, a flyout submenu and a search field — an app-like feel.', 'unysonplus' ),
+			'values' => array(
+				'mobile_header_layout'       => 'toggle-left',
+				'mobile_toggle_style'        => 'bars',
+				'mobile_toggle_animate'      => 'yes',
+				'mobile_toggle_label'        => __( 'Menu', 'unysonplus' ),
+				'mobile_drawer_side'         => 'left',
+				'drawer_align'               => 'left',
+				'drawer_dividers'            => 'yes',
+				'drawer_animation'           => 'slide',
+				'drawer_scrim_opacity'       => 40,
+				'drawer_item_min_height'     => _ups_unit( '48', 'px' ),
+				'drawer_search'              => 'yes',
+				'drawer_close_style'         => 'arrow',
+				'drawer_close_position'      => 'in-panel',
+				'drawer_close_on_click'      => 'yes',
+				'drawer_swipe_close'         => 'yes',
+				'mobile_submenu_mode'        => 'flyout',
+				'mobile_submenu_parent_link' => 'yes',
+			),
+		),
+		'fullscreen_overlay' => array(
+			'label'  => __( 'Fullscreen Overlay', 'unysonplus' ),
+			'desc'   => __( 'A full-viewport menu that fades in, centered links, an expanded tree and a floating "Close" — bold and immersive.', 'unysonplus' ),
+			'values' => array(
+				'mobile_header_layout'       => 'default',
+				'mobile_toggle_style'        => 'bars',
+				'mobile_toggle_animate'      => 'yes',
+				'mobile_toggle_label'        => '',
+				'mobile_drawer_side'         => 'right',
+				'drawer_align'               => 'center',
+				'drawer_dividers'            => 'no',
+				'drawer_animation'           => 'fullscreen',
+				'drawer_scrim_opacity'       => 50,
+				'drawer_item_min_height'     => _ups_unit( '48', 'px' ),
+				'drawer_search'              => 'no',
+				'drawer_close_style'         => 'text',
+				'drawer_close_position'      => 'floating',
+				'drawer_close_on_click'      => 'yes',
+				'drawer_swipe_close'         => 'no',
+				'mobile_submenu_mode'        => 'expand-all',
+				'mobile_submenu_parent_link' => 'yes',
+			),
+		),
+	);
+
+	return array( 'label' => __( 'Mobile & Tablet', 'unysonplus' ), 'flat' => true, 'allowed_keys' => $keys, 'presets' => $presets );
 }
 endif;
 
@@ -912,6 +1016,7 @@ function unysonplus_settings_preset_groups() {
 		'copyright_settings'  => _unysonplus_preset_group_copyright(),
 		'typography'          => _unysonplus_preset_group_typography(),
 		'header_layout'       => _unysonplus_preset_group_header_layout(),
+		'header_mobile'       => _unysonplus_preset_group_header_mobile(),
 		'general_pages'       => _unysonplus_preset_group_general_pages(),
 		'blog_index'          => _unysonplus_preset_group_blog_index(),
 		'blog_card'           => _unysonplus_preset_group_blog_card(),
@@ -935,9 +1040,19 @@ function unysonplus_settings_preset_current_json( $group ) {
 	$groups = unysonplus_settings_preset_groups();
 	if ( empty( $groups[ $group ] ) ) { return '{}'; }
 	$allowed = isset( $groups[ $group ]['allowed_keys'] ) ? (array) $groups[ $group ]['allowed_keys'] : array();
-	$current = fw_get_db_settings_option( $group, array() );
-	if ( ! is_array( $current ) ) { $current = array(); }
-	if ( $allowed ) { $current = array_intersect_key( $current, array_flip( $allowed ) ); }
+	// A "flat" group's keys are TOP-LEVEL Theme Settings (e.g. the Mobile & Tablet tab),
+	// not nested under one option named $group — read each allowed key individually.
+	if ( ! empty( $groups[ $group ]['flat'] ) ) {
+		$current = array();
+		foreach ( $allowed as $k ) {
+			$v = fw_get_db_settings_option( $k, null );
+			if ( $v !== null ) { $current[ $k ] = $v; }
+		}
+	} else {
+		$current = fw_get_db_settings_option( $group, array() );
+		if ( ! is_array( $current ) ) { $current = array(); }
+		if ( $allowed ) { $current = array_intersect_key( $current, array_flip( $allowed ) ); }
+	}
 	$json = wp_json_encode( $current );
 	return is_string( $json ) ? $json : '{}';
 }
@@ -992,14 +1107,19 @@ function unysonplus_ajax_apply_settings_preset() {
 		wp_send_json_error( array( 'message' => __( 'The framework is unavailable.', 'unysonplus' ) ) );
 	}
 
-	$current = fw_get_db_settings_option( $group, array() );
-	if ( ! is_array( $current ) ) { $current = array(); }
-	// Overlay the preset onto the current value with the `+` union (NOT array_merge):
-	// array_merge RENUMBERS integer-like keys, which would destroy the footer sections'
-	// numeric choice-reveal buckets (e.g. the '4' key holding a 4-column layout gets
-	// reindexed to 0 and lost). `$values + $current` preserves every key and still lets
-	// the preset win on the keys it defines; string-keyed groups behave identically.
-	fw_set_db_settings_option( $group, $values + $current );
+	if ( ! empty( $conf['flat'] ) ) {
+		// Flat group (Mobile & Tablet): each preset value is its own TOP-LEVEL key.
+		foreach ( $values as $k => $v ) { fw_set_db_settings_option( $k, $v ); }
+	} else {
+		$current = fw_get_db_settings_option( $group, array() );
+		if ( ! is_array( $current ) ) { $current = array(); }
+		// Overlay the preset onto the current value with the `+` union (NOT array_merge):
+		// array_merge RENUMBERS integer-like keys, which would destroy the footer sections'
+		// numeric choice-reveal buckets (e.g. the '4' key holding a 4-column layout gets
+		// reindexed to 0 and lost). `$values + $current` preserves every key and still lets
+		// the preset win on the keys it defines; string-keyed groups behave identically.
+		fw_set_db_settings_option( $group, $values + $current );
+	}
 
 	// Refresh the cached front-end CSS so the change shows without a manual Save;
 	// typography presets also need the Google-fonts <link> rebuilt for the new

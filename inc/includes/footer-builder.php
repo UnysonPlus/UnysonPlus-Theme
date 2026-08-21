@@ -176,7 +176,7 @@ endif;
 
 
 if ( ! function_exists( 'unysonplus_render_footer_element' ) ) :
-function unysonplus_render_footer_element( $element ) {
+function unysonplus_render_footer_element( $element, $feat = '' ) {
         if ( empty( $element['element_type']['element'] ) ) return;
 
         $type     = $element['element_type']['element'];
@@ -200,10 +200,14 @@ function unysonplus_render_footer_element( $element ) {
                         break;
 
                 case 'heading':
-                        unysonplus_render_heading_element( $settings );
+                        unysonplus_render_heading_element( $settings, $feat );
                         break;
 
-                case 'link':
+                case 'list_item':
+                        unysonplus_render_list_item_element( $settings );
+                        break;
+
+                case 'link': // legacy — superseded by list_item; still rendered for older saved footers.
                         unysonplus_render_link_element( $settings );
                         break;
 
@@ -248,7 +252,7 @@ function unysonplus_render_footer_element( $element ) {
                         break;
 
                 case 'text':
-                        unysonplus_render_text_element( $settings );
+                        unysonplus_render_text_element( $settings, $feat );
                         break;
 
                 case 'widget_area':
@@ -367,7 +371,27 @@ function unysonplus_render_footer_column( $column_data, $col_class ) {
 
         echo '<div class="' . esc_attr( $col_class ) . '">';
         echo '<div class="footer-column">';
-        foreach ( $column_data as $element ) {
+
+        // Auto-group a RUN of 2+ consecutive LISTABLE elements (List Item, or the legacy Link / Icon Text)
+        // into ONE semantic <ul><li> list — a menu / contact / info column reads as a real list, not a stack
+        // of loose divs. A lone listable element stays standalone. This runs at RENDER, so the elements stay
+        // individually editable in the builder. Pre-pass tags each listable element with its run length.
+        $listable = array( 'list_item' => 1, 'link' => 1, 'icon_text' => 1 );
+        $column_data = array_values( $column_data );
+        $count = count( $column_data );
+        $run_len = array();
+        for ( $i = 0; $i < $count; ) {
+                $t = ! empty( $column_data[ $i ]['element_type']['element'] ) ? $column_data[ $i ]['element_type']['element'] : '';
+                if ( isset( $listable[ $t ] ) ) {
+                        $j = $i;
+                        while ( $j < $count && isset( $listable[ ! empty( $column_data[ $j ]['element_type']['element'] ) ? $column_data[ $j ]['element_type']['element'] : '' ] ) ) { $j++; }
+                        for ( $k = $i; $k < $j; $k++ ) { $run_len[ $k ] = $j - $i; }
+                        $i = $j;
+                } else { $i++; }
+        }
+
+        $open_list = false;
+        foreach ( $column_data as $idx => $element ) {
                 if ( empty( $element['element_type']['element'] ) ) continue;
                 $type = $element['element_type']['element'];
 
@@ -381,11 +405,41 @@ function unysonplus_render_footer_column( $column_data, $col_class ) {
                         }
                         if ( $safe ) { $extra_class = ' ' . implode( ' ', $safe ); }
                 }
+                $vis = function_exists( 'unysonplus_element_visibility_classes' ) ? unysonplus_element_visibility_classes( $element ) : '';
 
-                echo '<div class="footer-element footer-element--' . esc_attr( $type ) . esc_attr( function_exists( 'unysonplus_element_visibility_classes' ) ? unysonplus_element_visibility_classes( $element ) : '' ) . esc_attr( $extra_class ) . '">';
-                unysonplus_render_footer_element( $element );
-                echo '</div>';
+                // $feat = the element's FEATURE classes (per-element visibility + custom CSS class),
+                // to ride on the element's own tag instead of a wrapper. `footer-element` is only added
+                // when there IS a hide-* class, because visibility CSS is `.footer-element.hide-*`.
+                $feat = ( $vis !== '' ? ' footer-element' . $vis : '' ) . $extra_class;
+
+                // Types that render a single semantic tag take $feat directly — no wrapper <div> (clean DOM).
+                $self_wrapped = ( $type === 'heading' || $type === 'text' );
+
+                $grouped = ( isset( $listable[ $type ] ) && isset( $run_len[ $idx ] ) && $run_len[ $idx ] >= 2 );
+                if ( $grouped ) {
+                        if ( ! $open_list ) { echo '<ul class="footer-links footer-links-list">'; $open_list = true; }
+                        // Bare <li> — the redundant footer-element--list_item classes are dropped; $feat
+                        // (visibility/custom) appears only when actually set.
+                        $li_cls = trim( $feat );
+                        echo '<li' . ( $li_cls !== '' ? ' class="' . esc_attr( $li_cls ) . '"' : '' ) . '>';
+                        unysonplus_render_footer_element( $element );
+                        echo '</li>';
+                        // Close the <ul> at the end of the run (runs are maximal, so the next element isn't listable).
+                        $next_type = ( isset( $column_data[ $idx + 1 ]['element_type']['element'] ) ) ? $column_data[ $idx + 1 ]['element_type']['element'] : '';
+                        if ( ! isset( $listable[ $next_type ] ) ) { echo '</ul>'; $open_list = false; }
+                } else {
+                        if ( $open_list ) { echo '</ul>'; $open_list = false; }
+                        if ( $self_wrapped ) {
+                                // Heading / Text render their own tag with $feat — no wrapper div.
+                                unysonplus_render_footer_element( $element, $feat );
+                        } else {
+                                echo '<div class="footer-element footer-element--' . esc_attr( $type ) . esc_attr( $vis ) . esc_attr( $extra_class ) . '">';
+                                unysonplus_render_footer_element( $element );
+                                echo '</div>';
+                        }
+                }
         }
+        if ( $open_list ) { echo '</ul>'; }
         echo '</div>';
         echo '</div>';
 }
@@ -624,12 +678,14 @@ endif;
 
 
 if ( ! function_exists( 'unysonplus_render_text_element' ) ) :
-function unysonplus_render_text_element( $settings ) {
+function unysonplus_render_text_element( $settings, $feat = '' ) {
         $content = ! empty( $settings['text_content'] ) ? $settings['text_content'] : '';
         if ( empty( $content ) ) return;
         $content = unysonplus_footer_resolve_tokens( $content );
 
-        echo '<div class="builder-text-element">' . do_shortcode( wpautop( wp_kses_post( $content ) ) ) . '</div>';
+        // Single div — the element's visibility/custom classes ($feat) ride on it, so the old
+        // outer `footer-element--text` wrapper div is gone (clean DOM).
+        echo '<div class="builder-text-element' . esc_attr( $feat ) . '">' . do_shortcode( wpautop( wp_kses_post( $content ) ) ) . '</div>';
 }
 endif;
 
@@ -661,12 +717,14 @@ if ( ! function_exists( 'unysonplus_render_heading_element' ) ) :
  * inherits the heading styling footer columns already have; the tag is user-chosen (h1 is
  * excluded — reserved for the page title).
  */
-function unysonplus_render_heading_element( $settings ) {
+function unysonplus_render_heading_element( $settings, $feat = '' ) {
 	$text = ! empty( $settings['heading_text'] ) ? trim( (string) $settings['heading_text'] ) : '';
 	if ( $text === '' ) { return; }
 	$level = ! empty( $settings['heading_level'] ) ? (string) $settings['heading_level'] : 'h3';
 	if ( ! in_array( $level, array( 'h2', 'h3', 'h4', 'h5', 'h6' ), true ) ) { $level = 'h3'; }
-	echo '<' . $level . ' class="footer-links-title hf-heading">' . esc_html( unysonplus_footer_resolve_tokens( $text ) ) . '</' . $level . '>';
+	// $feat carries the element's visibility (`footer-element hide-*`) + custom class, applied
+	// directly on the heading tag so no extra wrapper <div> is needed (clean DOM).
+	echo '<' . $level . ' class="footer-links-title hf-heading' . esc_attr( $feat ) . '">' . esc_html( unysonplus_footer_resolve_tokens( $text ) ) . '</' . $level . '>';
 }
 endif;
 

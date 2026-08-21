@@ -66,6 +66,7 @@ $options = [
 			// saved shape stays header_logo[logo_type] / header_logo[favicon]; no migration.
 			'group_logo' => [
 			'type'    => 'group',
+			'title'   => __( 'Logo', 'unysonplus' ),
 			'options' => [
 			'logo_type' => [
 				'type'         => 'multi-picker',
@@ -270,6 +271,7 @@ $options = [
 			// browser-tab icon, not part of the header lockup, so it gets its own group.
 			'group_favicon' => [
 			'type'    => 'group',
+			'title'   => __( 'Favicon', 'unysonplus' ),
 			'options' => [
 			'favicon' => [
 				'label'       => __( 'Favicon / Site Icon', 'unysonplus' ),

@@ -15,6 +15,10 @@ $options = [
 		'label'         => false,
 		'desc'          => false,
 		'inner-options' => [
+			'grp_ba_archive' => [
+				'type'    => 'group',
+				'title'   => __( 'Archive', 'unysonplus' ),
+				'options' => [
 			'archive_header' => [
 				'label'        => __( 'Archive Header', 'unysonplus' ),
 				'desc'         => __( 'The title block at the top of archive / search pages.', 'unysonplus' ),
@@ -67,6 +71,12 @@ $options = [
 					'right'   => __( 'Right', 'unysonplus' ),
 				],
 			],
+				],
+			],
+			'grp_ba_search' => [
+				'type'    => 'group',
+				'title'   => __( 'Search Results', 'unysonplus' ),
+				'options' => [
 			'search_layout' => [
 				'label'   => __( 'Search Results Layout', 'unysonplus' ),
 				'type'    => 'select',
@@ -82,6 +92,8 @@ $options = [
 				'desc'  => __( 'Optional. Leave blank for the default message.', 'unysonplus' ),
 				'type'  => 'text',
 				'value' => '',
+			],
+				],
 			],
 		],
 	],

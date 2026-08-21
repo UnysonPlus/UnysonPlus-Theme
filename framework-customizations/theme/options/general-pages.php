@@ -29,6 +29,10 @@ $options = [
 		'label'  => false,
 		'desc'   => false,
 		'inner-options' => [
+			'grp_pages_presets' => [
+				'type'    => 'group',
+				'title'   => __( 'Site-Wide Presets', 'unysonplus' ),
+				'options' => [
 			'default_header_preset' => [
 				'label'   => __( 'Site-Wide Header Preset', 'unysonplus' ),
 				'desc'    => __( 'Use a Header Preset across the whole site by default. Per-content selections (Header & Footer box on a page/post) still override this. "Default" uses the header configured under Theme Settings → Header.', 'unysonplus' ),
@@ -43,6 +47,12 @@ $options = [
 				'value'   => '',
 				'choices' => $footer_preset_choices,
 			],
+			],
+			],
+			'grp_pages_display' => [
+				'type'    => 'group',
+				'title'   => __( 'Layout & Display', 'unysonplus' ),
+				'options' => [
 			'default_page_layout' => [
 				'label'   => __( 'Default Page Layout', 'unysonplus' ),
 				'desc'    => __( 'Which named template should the default page.php behave like? Per-page Template selections still override this.', 'unysonplus' ),
@@ -78,6 +88,8 @@ $options = [
 				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
 				'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
 				'value'        => 'no',
+			],
+			],
 			],
 		],
 	],

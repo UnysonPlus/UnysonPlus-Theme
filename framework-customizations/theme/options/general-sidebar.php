@@ -66,6 +66,7 @@ $options = [
 			/* ===== Placement ===== */
 			'group_sidebar' => [
 				'type'    => 'group',
+				'title'   => __( 'Placement', 'unysonplus' ),
 				'options' => [
 					'layout_sidebar_position' => [
 						'label'   => __( 'Default Sidebar Position', 'unysonplus' ),
@@ -107,6 +108,7 @@ $options = [
 			/* ===== Responsive & Sticky ===== */
 			'group_sidebar_responsive' => [
 				'type'    => 'group',
+				'title'   => __( 'Responsive & Sticky', 'unysonplus' ),
 				'options' => [
 					'layout_sidebar_sticky' => [
 						'label'        => __( 'Sticky Sidebar', 'unysonplus' ),
@@ -158,6 +160,7 @@ $options = [
 			/* ===== Styling ===== */
 			'group_sidebar_style' => [
 				'type'    => 'group',
+				'title'   => __( 'Styling', 'unysonplus' ),
 				'options' => [
 					'layout_sidebar_bg'           => $color( __( 'Sidebar Background', 'unysonplus' ), __( 'Background of the sidebar column. Leave empty for transparent.', 'unysonplus' ), 'bg' ),
 					'layout_sidebar_padding' => [

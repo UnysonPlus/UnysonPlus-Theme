@@ -17,6 +17,10 @@ $options = [
 		'label'         => false,
 		'desc'          => false,
 		'inner-options' => [
+			'grp_bi_layout' => [
+				'type'    => 'group',
+				'title'   => __( 'Layout', 'unysonplus' ),
+				'options' => [
 			'blog_layout' => [
 				'label'   => __( 'Layout', 'unysonplus' ),
 				'desc'    => __( 'How the posts listing is arranged.', 'unysonplus' ),
@@ -47,6 +51,12 @@ $options = [
 					'overlay'  => __( 'Overlay (text over image)', 'unysonplus' ),
 				],
 			],
+				],
+			],
+			'grp_bi_image' => [
+				'type'    => 'group',
+				'title'   => __( 'Featured Image', 'unysonplus' ),
+				'options' => [
 			'blog_featured_image' => [
 				'label'        => __( 'Featured Image', 'unysonplus' ),
 				'type'         => 'switch',
@@ -76,6 +86,12 @@ $options = [
 					'lift' => __( 'Lift (raise card)', 'unysonplus' ),
 				],
 			],
+				],
+			],
+			'grp_bi_content' => [
+				'type'    => 'group',
+				'title'   => __( 'Content & Meta', 'unysonplus' ),
+				'options' => [
 			'blog_category_badge' => [
 				'label'        => __( 'Category Badge', 'unysonplus' ),
 				'desc'         => __( 'Overlay the primary category as a pill on the featured image.', 'unysonplus' ),
@@ -142,6 +158,12 @@ $options = [
 				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
 				'left-choice'  => [ 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ],
 			],
+				],
+			],
+			'grp_bi_pagination' => [
+				'type'    => 'group',
+				'title'   => __( 'Pagination', 'unysonplus' ),
+				'options' => [
 			'blog_posts_per_page' => [
 				'label' => __( 'Posts Per Page', 'unysonplus' ),
 				'desc'  => __( 'Override how many posts show per page. Leave blank to use Settings → Reading.', 'unysonplus' ),
@@ -156,6 +178,8 @@ $options = [
 					'numbers'   => __( 'Numbered', 'unysonplus' ),
 					'prev_next' => __( 'Older / Newer', 'unysonplus' ),
 					'load_more' => __( 'Load More button', 'unysonplus' ),
+				],
+			],
 				],
 			],
 		],

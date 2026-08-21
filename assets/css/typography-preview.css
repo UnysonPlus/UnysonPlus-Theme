@@ -1,0 +1,109 @@
+/* Typography tab — live specimen preview panel (with device toggles). Injected at the top of the
+   Typography options by assets/js/typography-preview.js. The specimen text sits on the site's own
+   canvas (--upw-bg / --upw-ink), whose WIDTH follows the selected device (--upw-dev); the tag and
+   the px/rem readout flank the canvas and don't shrink with the device. */
+.upw-typo-prev {
+	--upw-bg: #ffffff;
+	--upw-ink: #1d2327;
+	--upw-dev: 1fr;
+	margin: 20px 20px 24px;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	background: #fff;
+	overflow: hidden;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+}
+.upw-typo-prev__head {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	padding: 10px 16px 10px 20px;
+	background: #2c3338;              /* WordPress admin dark gray */
+	color: #f0f0f1;
+}
+.upw-typo-prev__title { font-size: 13px; font-weight: 600; letter-spacing: .02em; }
+.upw-typo-prev__note { font-size: 11.5px; opacity: .78; }
+.upw-typo-prev__devices {
+	margin-left: auto;
+	display: inline-flex;
+	gap: 2px;
+	background: rgba(255, 255, 255, .08);
+	border-radius: 7px;
+	padding: 2px;
+}
+.upw-dev {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 26px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #c9ccd0;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background .12s, color .12s;
+}
+.upw-dev:hover { color: #fff; }
+.upw-dev.is-on { background: #fff; color: #1d2327; }
+
+.upw-typo-prev__body {
+	padding: 16px 18px;
+	background: #f0f0f1;             /* neutral stage so the canvas column reads */
+}
+.upw-typo-prev__row {
+	display: grid;
+	/* Fixed meta column so the canvas (1fr / device width) ends at the SAME x on every row —
+	   an `auto` meta column varies with the readout length and jags the canvas' right edge. */
+	grid-template-columns: 30px var(--upw-dev) 96px;
+	align-items: center;
+	column-gap: 14px;
+	/* Centre the tag·canvas·meta group when the canvas is a fixed device width (tablet/mobile);
+	   no effect on desktop, where the 1fr canvas already fills the width. */
+	justify-content: center;
+}
+/* The canvas cells stack contiguously into one column carrying the site's bg + ink. */
+.upw-typo-prev__canvas {
+	min-width: 0;
+	background: var(--upw-bg);
+	color: var(--upw-ink);
+	padding: 9px 16px;
+}
+.upw-typo-prev__row:first-child .upw-typo-prev__canvas { border-radius: 6px 6px 0 0; padding-top: 12px; }
+.upw-typo-prev__row:last-child .upw-typo-prev__canvas  { border-radius: 0 0 6px 6px; padding-bottom: 12px; }
+.upw-typo-prev__row + .upw-typo-prev__row .upw-typo-prev__canvas {
+	border-top: 1px solid rgba(128, 128, 128, .22);
+}
+.upw-typo-prev__spec {
+	display: block;
+	min-width: 0;
+	line-height: 1.2;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.upw-typo-prev__tag {
+	color: #7c7f85;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+	text-align: right;
+}
+.upw-typo-prev__meta {
+	color: #a0a3a8;
+	font-size: 11px;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+	text-align: right;
+}
+
+/* A per-heading Size cell that the Fluid Heading Scale has taken over — dimmed + locked so it's clear
+   the ratio is driving sizing (line-height / spacing / colour beside it stay editable). */
+.fw-option-typography-v2-option-size.upw-typo-size-off {
+	opacity: .4;
+	pointer-events: none;
+	filter: grayscale(1);
+}

@@ -98,6 +98,7 @@ $options = [
 			/* Dropdown panel container. */
 			'group_mm_panel' => [
 				'type'    => 'group',
+				'title'   => __( 'Panel', 'unysonplus' ),
 				'options' => [
 					'mm_panel_design' => [
 						'type'    => 'image-picker',
@@ -179,6 +180,7 @@ $options = [
 			/* Column headings — the column's own (first) link, shown above its items. */
 			'group_mm_heading' => [
 				'type'    => 'group',
+				'title'   => __( 'Column Headings', 'unysonplus' ),
 				'options' => [
 					'mm_heading_style' => [
 						'type'    => 'select',
@@ -224,6 +226,7 @@ $options = [
 			/* Dropdown items (the links + descriptions inside each column). */
 			'group_mm_items' => [
 				'type'    => 'group',
+				'title'   => __( 'Items', 'unysonplus' ),
 				'options' => [
 					'mm_item_color' => $color_field(
 						__( 'Item Link Color', 'unysonplus' ),
@@ -283,6 +286,7 @@ $options = [
 			/* Animation & open behavior. */
 			'group_mm_behavior' => [
 				'type'    => 'group',
+				'title'   => __( 'Behavior', 'unysonplus' ),
 				'options' => [
 					'mm_animation' => [
 						'type'    => 'select',
@@ -332,6 +336,7 @@ $options = [
 			   stacked layout there and standalone alike. */
 			'group_mm_responsive' => [
 				'type'    => 'group',
+				'title'   => __( 'Responsive', 'unysonplus' ),
 				'options' => [
 					'mm_mobile_columns' => [
 						'type'    => 'select',

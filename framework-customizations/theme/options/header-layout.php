@@ -311,8 +311,9 @@ $options = [
 		'type'          => 'multi',
 		'label'         => false,
 		'inner-options' => [
-			'group_header_layout' => [
+			'group_layout_mode' => [
 				'type'    => 'group',
+				'title'   => __( 'Header Layout Mode', 'unysonplus' ),
 				'options' => [
 
 					/* Header Layout Mode as an INLINE multi-picker: the picker tile grid
@@ -351,37 +352,13 @@ $options = [
 						],
 					],
 
-					/* --- Off-Canvas / drawer panel ---
-					   The slide-in panel is SHARED: it is the whole menu in Off-Canvas mode
-					   and the mobile drawer in every other mode, so these two options serve
-					   both. Content uses the same element list as a header column (Menu,
-					   Snippet, CTA Button, Social Icons, Custom HTML, …) — empty keeps the
-					   historical default (the Off-Canvas menu), so existing sites don't
-					   change. Rendered by unysonplus_render_drawer_content() /
-					   unysonplus_render_menu_toggle() in inc/includes/header-builder.php. */
-					'offcanvas_content' => array_merge(
-						unysonplus_header_column( __( 'Off-Canvas Content', 'unysonplus' ), [] ),
-						[
-							'desc' => __( 'What the off-canvas / mobile drawer panel shows. Add any header element — <b>Menu</b>, <b>Snippet</b> (any shortcode / custom markup), CTA Button, Social Icons, Custom HTML — and order them freely. <b>Leave empty for the default</b>: the Off-Canvas menu (falling back to Primary).', 'unysonplus' ),
-						]
-					),
-					/* Trigger + Close icons on one inline row (multi-inline). Open = the
-					   toggle button that reveals the panel; Close = the X inside it.
-					   Saved shape: [ 'open' => <icon>, 'close' => <icon> ] — a legacy
-					   scalar (the old single icon-v2 value) is still honored as 'open'
-					   by unysonplus_render_menu_toggle(). Empty 'open' → hamburger bars;
-					   empty 'close' → the classic &times;. */
-					'offcanvas_trigger_icon' => [
-						'label' => __( 'Trigger & Close Icons', 'unysonplus' ),
-						'type'  => 'multi-inline',
-						'value' => [ 'open' => '', 'close' => '' ],
-						'desc'  => __( '<b>Open</b> = the button that reveals the off-canvas / mobile drawer panel (default: hamburger bars). <b>Close</b> = the button inside the open panel (default: &times;). Both apply in every header mode. Leave either empty for its default.', 'unysonplus' ),
-						'fw_multi_options' => [
-							'open'  => [ 'type' => 'icon', 'title' => __( 'Open', 'unysonplus' ) ],
-							'close' => [ 'type' => 'icon', 'title' => __( 'Close', 'unysonplus' ) ],
-						],
-					],
 
+				],
+			],
+			'group_structure' => [
+				'type'    => 'group',
+				'title'   => __( 'Structure & Dimensions', 'unysonplus' ),
+				'options' => [
 					/* --- Structure & dimensions --- */
 					'container' => [
 						'label'   => __( 'Container', 'unysonplus' ),
@@ -411,51 +388,37 @@ $options = [
 						'min'   => 0,
 					],
 
-					'mobile_min_height' => [
-						'label' => __( 'Mobile Header Height', 'unysonplus' ),
-						'desc'  => __( 'Main header height on phones (below 768px). Leave empty to reuse the desktop height.', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'rem', 'px', 'em' ],
-						'value' => [ 'value' => '', 'unit' => 'rem' ],
-						'min'   => 0,
-					],
 
-					'mobile_breakpoint' => [
-						'label'   => __( 'Collapse to Mobile Menu At', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => 'lg',
-						'choices' => [
-							'lg' => __( 'Below 992px (tablet & phone)', 'unysonplus' ),
-							'md' => __( 'Below 768px (phone only)', 'unysonplus' ),
-						],
-						'desc'    => __( 'Screen width below which the inline menu collapses to the hamburger drawer.', 'unysonplus' ),
-					],
-
-					/* --- Scroll behavior --- */
-					'header_behavior' => [
-						'label'   => __( 'Header Behavior', 'unysonplus' ),
+				],
+			],
+			'group_behavior' => [
+				'type'    => 'group',
+				'title'   => __( 'Position & Motion', 'unysonplus' ),
+				'options' => [
+					/* --- Behavior: POSITION + motion. The two-state model (see the Header Layout
+					   doc): position is orthogonal to the At-top / On-scroll appearance below, so any
+					   combination (e.g. transparent overlay + shrink on scroll) is possible. --- */
+					'header_position' => [
+						'label'   => __( 'Header Position', 'unysonplus' ),
 						'type'    => 'select',
 						'value'   => 'static',
 						'choices' => [
-							'static'              => __( 'Static (scrolls away with the page)', 'unysonplus' ),
-							'sticky'              => __( 'Sticky (follows scroll)', 'unysonplus' ),
-							'sticky-shrink'       => __( 'Sticky + Shrink on scroll', 'unysonplus' ),
-							'hide-on-scroll'      => __( 'Sticky, hide on scroll down / reveal up', 'unysonplus' ),
-							'transparent-overlay' => __( 'Transparent over the first section', 'unysonplus' ),
+							'static'  => __( 'Static (scrolls away with the page)', 'unysonplus' ),
+							'sticky'  => __( 'Sticky (pins to the top on scroll)', 'unysonplus' ),
+							'overlay' => __( 'Transparent overlay (sits over the first section, then pins)', 'unysonplus' ),
 						],
-						'desc'    => __( 'How the header behaves on scroll. This supersedes the old Sticky switch and General → Layout → Header Position Behavior. Per-page "Transparent" still overrides it for that page.', 'unysonplus' ),
+						'desc'    => __( 'How the header is positioned. Shrink / hide / a different look on scroll are separate options below, so any combination is possible. Per-page "Transparent" still overrides this for that page.', 'unysonplus' ),
 					],
-					'sticky_shrink_height' => [
-						'label' => __( 'Shrunk Logo Height', 'unysonplus' ),
-						'desc'  => __( 'Logo height once the header shrinks (Behavior = Sticky + Shrink). Leave empty for the default (40px).', 'unysonplus' ),
-						'type'  => 'unit-input',
-						'units' => [ 'px', 'rem' ],
-						'value' => [ 'value' => '', 'unit' => 'px' ],
-						'min'   => 0,
-					],
+					'header_hide_on_scroll' => $toggle_field( __( 'Hide on scroll down', 'unysonplus' ), __( 'Slide the header up out of view when scrolling down, reveal on scroll up (Sticky / Overlay only).', 'unysonplus' ) ),
 
-					/* --- Appearance / chrome. The toggles apply on top of any mode/design;
-					   tiny class-gated CSS in header-footer-builder.css — no conditional partial. */
+				],
+			],
+			'group_attop' => [
+				'type'    => 'group',
+				'title'   => __( 'Appearance — At Top', 'unysonplus' ),
+				'options' => [
+					/* --- Appearance — AT TOP (the resting look). Composes with any position/design;
+					   tiny class-gated CSS in header-footer-builder.css. --- */
 					// Main Header Background — preset-linked colour (house style): a preset
 					// dropdown tied to Theme Settings → Colors PLUS a custom picker.
 					// Guarded so it falls back to a plain picker if the shortcodes helper
@@ -475,11 +438,53 @@ $options = [
 							'value' => '',
 						],
 
+					'header_glass'         => $toggle_field( __( 'Translucent / Glass', 'unysonplus' ), __( 'A frosted, semi-transparent header background (backdrop blur) at rest.', 'unysonplus' ) ),
 					'header_border'        => $toggle_field( __( 'Header Border', 'unysonplus' ), __( 'A hairline rule under the header.', 'unysonplus' ) ),
 					'header_shadow'        => $toggle_field( __( 'Header Shadow', 'unysonplus' ), __( 'A soft drop shadow that lifts the header off the page.', 'unysonplus' ) ),
-					'header_glass'         => $toggle_field( __( 'Translucent / Glass', 'unysonplus' ), __( 'A frosted, semi-transparent header background (backdrop blur).', 'unysonplus' ) ),
 					'header_uppercase_nav' => $toggle_field( __( 'Uppercase Navigation', 'unysonplus' ), __( 'Uppercase the primary menu links with a touch of letter-spacing.', 'unysonplus' ) ),
 
+				],
+			],
+			'group_onscroll' => [
+				'type'    => 'group',
+				'title'   => __( 'Appearance — On Scroll', 'unysonplus' ),
+				'options' => [
+					/* --- Appearance — ON SCROLL. Turn the master switch on to give the header a
+					   DIFFERENT look once it sticks; leave it off and the scrolled header keeps the
+					   At-top look. Every field composes independently (glass-on-scroll-only, shrink,
+					   a solid scrolled bar, …). --- */
+					'header_scroll_change' => $toggle_field( __( 'Change appearance on scroll', 'unysonplus' ), __( 'When on, the options below REPLACE the At-top look once the header sticks. When off, the header looks the same scrolled.', 'unysonplus' ) ),
+					'scroll_bg_color' => function_exists( 'sc_color_field_compact' )
+						? sc_color_field_compact( [
+							'label' => __( 'Scrolled Background', 'unysonplus' ),
+							'desc'  => __( 'Header fill once stuck (needs Change appearance on scroll). Empty = keep the At-top background.', 'unysonplus' ),
+							'kind'  => 'bg',
+						] )
+						: [
+							'label' => __( 'Scrolled Background', 'unysonplus' ),
+							'desc'  => __( 'Header fill once stuck. Empty = keep the At-top background.', 'unysonplus' ),
+							'type'  => 'rgba-color-picker',
+							'value' => '',
+						],
+					'scroll_glass'  => $toggle_field( __( 'Glass on scroll', 'unysonplus' ), __( 'Frost the header once stuck — e.g. a clear header over the hero that frosts on scroll.', 'unysonplus' ) ),
+					'scroll_border' => $toggle_field( __( 'Border on scroll', 'unysonplus' ), __( 'Add the hairline rule once stuck.', 'unysonplus' ) ),
+					'scroll_shadow' => $toggle_field( __( 'Shadow on scroll', 'unysonplus' ), __( 'Add the drop shadow once stuck.', 'unysonplus' ) ),
+					'scroll_shrink' => $toggle_field( __( 'Shrink logo on scroll', 'unysonplus' ), __( 'Tighten the header padding and shrink the logo once stuck.', 'unysonplus' ) ),
+					'sticky_shrink_height' => [
+						'label' => __( 'Shrunk Logo Height', 'unysonplus' ),
+						'desc'  => __( 'Logo height once the header shrinks (Shrink logo on scroll). Leave empty for the default (40px).', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'px', 'rem' ],
+						'value' => [ 'value' => '', 'unit' => 'px' ],
+						'min'   => 0,
+					],
+
+				],
+			],
+			'group_rowalign' => [
+				'type'    => 'group',
+				'title'   => __( 'Row Alignment & Spacing', 'unysonplus' ),
+				'options' => [
 					/* --- Row alignment / element spacing (applies to all header rows). --- */
 					'header_valign' => [
 						'label'   => __( 'Vertical Alignment', 'unysonplus' ),
@@ -501,30 +506,27 @@ $options = [
 						'min'   => 0,
 					],
 
-						/* --- Mobile (below 768px). Per-element device visibility lives on
-						   each element; these are quick header-wide mobile controls. --- */
-						'mobile_drawer_side' => [
-							'label'   => __( 'Mobile Menu Side', 'unysonplus' ),
-							'desc'    => __( 'Which side the mobile navigation drawer slides in from.', 'unysonplus' ),
-							'type'    => 'select',
-							'value'   => 'right',
-							'choices' => [
-								'right' => __( 'Right', 'unysonplus' ),
-								'left'  => __( 'Left', 'unysonplus' ),
-							],
-						],
-						'nav_scrollspy' => [
-							'label'        => __( 'Scroll Spy', 'unysonplus' ),
-							'desc'         => __( 'One-page navigation: highlight the menu item for the section currently in view, and smooth-scroll to it on click (landing below the sticky header). Works in every header mode — Top, Vertical and the Overlay / Off-canvas drawers. Give each Section a CSS ID (its Advanced tab) and point menu items (Custom Links) at #that-id. Leave off for normal multi-page sites.', 'unysonplus' ),
-							'type'         => 'switch',
-							'value'        => 'no',
-							'right-choice' => [ 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ],
-							'left-choice'  => [ 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ],
-						],
-						'mobile_hide_topbar'    => $toggle_field( __( 'Hide Top Bar on Mobile', 'unysonplus' ), __( 'Hide the entire Top Bar row on small screens (below 768px).', 'unysonplus' ) ),
-						'mobile_hide_bottombar' => $toggle_field( __( 'Hide Bottom Bar on Mobile', 'unysonplus' ), __( 'Hide the entire Bottom Bar row on small screens (below 768px).', 'unysonplus' ) ),
 
 				],
+			],
+		],
+	],
+
+	/* Scroll Spy — one-page navigation (active-section highlight + smooth scroll). NOT
+	   mobile-specific (works in every header mode), so it lives here, not in Mobile & Tablet.
+	   A TOP-LEVEL key (this `group` is a leaf container that doesn't nest storage), read in
+	   inc/includes/layout.php and emitted by the Site Converter. */
+	'grp_nav' => [
+		'type'    => 'group',
+		'title'   => __( 'Navigation', 'unysonplus' ),
+		'options' => [
+			'nav_scrollspy' => [
+				'label'        => __( 'Scroll Spy', 'unysonplus' ),
+				'desc'         => __( 'One-page navigation: highlight the menu item for the section currently in view, and smooth-scroll to it on click (landing below the sticky header). Works in every header mode. Give each Section a CSS ID (its Advanced tab) and point menu items (Custom Links) at #that-id. Leave off for normal multi-page sites.', 'unysonplus' ),
+				'type'         => 'switch',
+				'value'        => 'no',
+				'right-choice' => [ 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ],
+				'left-choice'  => [ 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ],
 			],
 		],
 	],

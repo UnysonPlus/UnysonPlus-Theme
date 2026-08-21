@@ -55,6 +55,7 @@ $options = [
 			/* ============ A. Site Container ============ */
 			'group_container' => [
 				'type'    => 'group',
+				'title'   => __( 'Site Container', 'unysonplus' ),
 				'options' => [
 					/* Site Width Mode is a multi-picker: the picker chooses the mode,
 					   and only the chosen mode's options are revealed (Boxed → width/
@@ -156,6 +157,7 @@ $options = [
 			/* ============ B. Spacing System ============ */
 			'group_spacing' => [
 				'type'    => 'group',
+				'title'   => __( 'Spacing System', 'unysonplus' ),
 				'options' => [
 					'layout_section_spacing' => [
 						'label'   => __( 'Content Density', 'unysonplus' ),

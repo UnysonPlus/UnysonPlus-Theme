@@ -101,31 +101,161 @@ if ( ! function_exists( 'unysonplus_css_tokens_css' ) ) :
 
 		if ( empty( $tokens ) ) { return ''; }
 
-		// Mobile overrides for typography font-size tokens (tiered scaling, shared with plugin)
-		$mobile_overrides = array();
-		if ( function_exists( 'unysonplus_mobile_font_size_scale' ) ) {
+		// Type scale (Phase 2): build the modular scale from the saved settings —
+		// base size = the Body size, ratios from the Type Scale controls. When the
+		// "Fluid Heading Scale" switch is on, H1–H6 font-size is driven from the
+		// scale steps (each already an accessibility-safe clamp); their line-height /
+		// spacing / colour still come from the per-heading overrides.
+		$scale_opts = array();
+		if ( isset( $typography['body'] ) && is_array( $typography['body'] ) && isset( $typography['body']['size'] )
+			&& function_exists( 'unysonplus_css_length' ) && function_exists( 'unysonplus_font_size_to_px' ) ) {
+			$base_px = unysonplus_font_size_to_px( unysonplus_css_length( $typography['body']['size'] ) );
+			if ( $base_px ) { $scale_opts['base_px'] = $base_px; }
+		}
+		if ( ! empty( $typography['type_scale_ratio'] ) )        { $r  = floatval( $typography['type_scale_ratio'] );        if ( $r  > 1 ) { $scale_opts['ratio']        = $r;  } }
+		if ( ! empty( $typography['type_scale_ratio_mobile'] ) ) { $rm = floatval( $typography['type_scale_ratio_mobile'] ); if ( $rm > 1 ) { $scale_opts['ratio_mobile'] = $rm; } }
+
+		$scale = function_exists( 'unysonplus_generate_type_scale' ) ? unysonplus_generate_type_scale( $scale_opts ) : array();
+
+		if ( $scale && ! empty( $typography['type_scale_enable'] ) && 'yes' === $typography['type_scale_enable'] ) {
+			$map = apply_filters( 'unysonplus_type_scale_heading_map', array( 'h1' => '6', 'h2' => '5', 'h3' => '4', 'h4' => '3', 'h5' => '2', 'h6' => '1' ) );
+			foreach ( $map as $tag => $key ) {
+				if ( isset( $scale[ $key ] ) ) { $tokens[ "--{$tag}-font-size" ] = $scale[ $key ]['value']; }
+			}
+		}
+
+		// Fluid typography: rewrite each remaining px/rem/em heading/body font-size
+		// token to an accessibility-safe clamp() that scales smoothly from a mobile
+		// floor up to the authored size (replaces the old single-breakpoint step-down
+		// that left tablets on desktop sizes). Any value already a clamp() — e.g. a
+		// scale-driven heading above — is left as-is; body (min == max) stays fixed.
+		if ( function_exists( 'unysonplus_fluid_font_clamp' ) && function_exists( 'unysonplus_mobile_font_size_scale' ) ) {
 			foreach ( $tokens as $name => $value ) {
 				if ( ! preg_match( '/^--(h[1-6]|body)-font-size$/', $name, $tag ) ) { continue; }
-				if ( ! preg_match( '/^(\d+(?:\.\d+)?)px$/', $value, $m ) ) { continue; }
-				$desktop_px = floatval( $m[1] );
-				$mobile_px  = unysonplus_mobile_font_size_scale( $desktop_px, $tag[1] );
-				if ( $mobile_px != $desktop_px ) {
-					$mobile_overrides[ $name ] = $mobile_px . 'px';
+				if ( strpos( $value, 'clamp(' ) !== false ) { continue; }
+				$desktop_px = function_exists( 'unysonplus_font_size_to_px' ) ? unysonplus_font_size_to_px( $value ) : null;
+				if ( $desktop_px === null || $desktop_px <= 0 ) { continue; }
+				if ( 'body' === $tag[1] ) {
+					// BODY grows GENTLY on large screens (Google/Utopia model) rather than shrinking: the
+					// authored size is the mobile floor (min), growing to size × grow on wide viewports (max).
+					// Headings do the opposite (authored = desktop max, shrink on mobile). Grow is filterable;
+					// default 1.15 (e.g. 16px → ~18px). rem + vw preferred value keeps browser-zoom accessible.
+					$grow      = (float) apply_filters( 'unysonplus_body_fluid_grow', 1.15 );
+					$max_px    = ( $grow > 1 ) ? round( $desktop_px * $grow, 2 ) : $desktop_px;
+					$mobile_px = $desktop_px;                       // authored size = the mobile floor
+					$clamp     = unysonplus_fluid_font_clamp( $max_px, $mobile_px );
+				} else {
+					$mobile_px = unysonplus_mobile_font_size_scale( $desktop_px, $tag[1] );
+					$clamp     = unysonplus_fluid_font_clamp( $desktop_px, $mobile_px );
+				}
+				if ( $clamp !== null ) {
+					$tokens[ $name ] = $clamp;
+				} else {
+					// No fluid range (small size at/below the mobile floor, min == max): emit it as REM
+					// instead of the authored px, so the whole scale is rem-anchored and every size honours
+					// the reader's browser font-size preference (the clamp() sizes above are already rem).
+					$tokens[ $name ] = rtrim( rtrim( number_format( $desktop_px / 16, 4, '.', '' ), '0' ), '.' ) . 'rem';
 				}
 			}
 		}
 
-		$css = ':root{';
+		// Type-scale tokens (Phase 1 engine): emit the modular scale as --fs-* and a
+		// matching per-step --lh-* line-height, so headings, shortcodes and custom
+		// CSS can reference a single coherent, fluid scale. Additive — does not
+		// disturb the authored --hN-font-size tokens above.
+		foreach ( $scale as $key => $step ) {
+			$tokens[ '--fs-' . $key ] = $step['value'];
+			if ( isset( $step['line_height'] ) ) {
+				$tokens[ '--lh-' . $key ] = $step['line_height'];
+			}
+		}
+
+		// Semantic role aliases (Phase 4): friendly names elements/shortcodes can use
+		// instead of numeric steps. Var references keep a single source of truth — a
+		// scale change flows through automatically. Filterable so a child theme can
+		// remap a role to a different step.
+		$roles = apply_filters( 'unysonplus_type_scale_roles', array(
+			'display' => '6', 'lead' => '1', 'body' => '0', 'caption' => 'n1',
+		) );
+		foreach ( $roles as $role => $key ) {
+			if ( isset( $scale[ $key ] ) ) {
+				$tokens[ '--fs-' . $role ] = 'var(--fs-' . $key . ')';
+				$tokens[ '--lh-' . $role ] = 'var(--lh-' . $key . ')';
+			}
+		}
+
+		// Font-loading CLS (Phase 3): for a web font with known metric overrides,
+		// emit a metric-matched fallback @font-face and splice it into the font
+		// stack so the swap from fallback → web font does not shift layout. Modifies
+		// --font-body / --font-heading in place; no-op for fonts without metrics.
+		$fallback_faces = function_exists( 'unysonplus_font_fallback_css' ) ? unysonplus_font_fallback_css( $tokens ) : '';
+
+		$css = $fallback_faces . ':root{';
 		foreach ( $tokens as $name => $value ) {
 			$css .= $name . ':' . $value . ';';
 		}
 		$css .= '}';
-		if ( ! empty( $mobile_overrides ) ) {
-			$css .= '@media (max-width:767.98px){:root{';
-			foreach ( $mobile_overrides as $name => $value ) { $css .= $name . ':' . $value . ';'; }
-			$css .= '}}';
-		}
 		return $css;
+	}
+endif;
+
+if ( ! function_exists( 'unysonplus_font_fallback_metrics' ) ) :
+	/**
+	 * Metric-override data for building a zero-CLS fallback @font-face per web font.
+	 * The overrides make a system font (the `fallback`) occupy the same space as the
+	 * web font, so the swap does not shift layout (Cumulative Layout Shift). Values
+	 * are the standard computed overrides for each family. Filterable — add
+	 * { 'Family' => [...] } to cover more fonts.
+	 *
+	 * @return array<string,array<string,string>>
+	 */
+	function unysonplus_font_fallback_metrics() {
+		return apply_filters( 'unysonplus_font_fallback_metrics', array(
+			'Open Sans' => array(
+				'fallback'          => 'Arial',
+				'size-adjust'       => '103.2%',
+				'ascent-override'   => '106.88%',
+				'descent-override'  => '29.3%',
+				'line-gap-override' => '0%',
+			),
+		) );
+	}
+endif;
+
+if ( ! function_exists( 'unysonplus_font_fallback_css' ) ) :
+	/**
+	 * Build fallback @font-face rules for any registered web font in use, and splice
+	 * the fallback family into the matching --font-* stack (right after the primary,
+	 * before the system stack). Returns the @font-face CSS (or ''). $tokens is passed
+	 * by reference and modified in place.
+	 *
+	 * @param array $tokens The CSS-variable map being assembled.
+	 * @return string
+	 */
+	function unysonplus_font_fallback_css( array &$tokens ) {
+		$metrics = unysonplus_font_fallback_metrics();
+		if ( empty( $metrics ) ) { return ''; }
+
+		$faces = '';
+		$emitted = array();
+		foreach ( array( '--font-body', '--font-heading' ) as $token ) {
+			if ( empty( $tokens[ $token ] ) ) { continue; }
+			if ( ! preg_match( "/^'([^']+)'/", $tokens[ $token ], $m ) ) { continue; }
+			$family = $m[1];
+			if ( ! isset( $metrics[ $family ] ) ) { continue; }
+
+			$fb_name = $family . ' Fallback';
+			if ( ! isset( $emitted[ $fb_name ] ) ) {
+				$md     = $metrics[ $family ];
+				$faces .= "@font-face{font-family:'" . $fb_name . "';src:local('" . $md['fallback'] . "');"
+					. 'size-adjust:' . $md['size-adjust'] . ';ascent-override:' . $md['ascent-override'] . ';'
+					. 'descent-override:' . $md['descent-override'] . ';line-gap-override:' . $md['line-gap-override'] . ';}';
+				$emitted[ $fb_name ] = true;
+			}
+			// Insert the fallback family right after the primary quoted family.
+			$tokens[ $token ] = preg_replace( "/^('[^']+',)/", "$1 '" . $fb_name . "',", $tokens[ $token ], 1 );
+		}
+		return $faces;
 	}
 endif;
 
@@ -165,6 +295,11 @@ if ( ! function_exists( 'unysonplus_typography_to_vars' ) ) :
 		// emitting it would force black headings over the theme's inherited text colour.
 		if ( ! empty( $font['color'] ) && ! in_array( strtolower( (string) $font['color'] ), array( '#000000', '#000' ), true ) ) {
 			$out[ "--{$prefix}-color" ] = $font['color'];
+		}
+		// text-transform: a heading font uppercased purely by CSS (a display face like Syncopate) reproduces
+		// its casing through this token, consumed by the hN rules that read var(--{prefix}-text-transform).
+		if ( ! empty( $font['text-transform'] ) && in_array( strtolower( (string) $font['text-transform'] ), array( 'uppercase', 'lowercase', 'capitalize', 'none' ), true ) ) {
+			$out[ "--{$prefix}-text-transform" ] = strtolower( (string) $font['text-transform'] );
 		}
 
 		// Weight / style: emit ONLY explicit, non-neutral values. A "regular"/400 weight

@@ -233,8 +233,7 @@
 }
 .site-header--transparent.is-stuck {
 	position: fixed;
-	background: #fff;
-	box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .08);
+	/* background handled by the two-state STUCK rule below (no forced white) */
 }
 /* The router also adds .header-sticky to a transparent-overlay header (it needs it
    for the JS is-stuck toggle), and `.site-header.header-sticky { position: sticky }`
@@ -260,30 +259,36 @@
    hides under the admin bar. (This selector ties style.css's on specificity, so it
    must carry the offset too — otherwise whichever loads last wins with top:0.) */
 .site-header.header-sticky { position: sticky; top: var(--admin-bar-offset, 0px); z-index: 1030; }
-.site-header.header-sticky.is-stuck:not(.site-header--transparent) {
-	background: #fff;
-	box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .08);
-}
+/* STUCK background — the TWO-STATE model. These win at (0,4,0) over the core style.css
+   `.site-header.header-sticky.is-stuck { background: var(--header-sticky-bg) }` (0,3,0), so the
+   old forced white/near-opaque repaint is retired. Change-on-scroll OFF => the stuck header
+   inherits the At-top --header-bg (same look both states); ON => it repaints to
+   --header-scroll-bg (falling back to --header-bg when no scrolled colour was set). Glass, if on
+   for the active state, overrides the fill below. */
+.site-header.header-sticky.is-stuck:not(.site-header--scroll-change) { background: var(--header-bg); box-shadow: none; }
+.site-header.header-sticky.is-stuck.site-header--scroll-change { background: var(--header-scroll-bg, var(--header-bg)); }
 
 /* Sticky + shrink — the shrunk logo height is configurable (Header → Layout →
    Shrunk Logo Height → --header-shrink-logo), defaulting to 40px. Covers both the
    theme logo (.site-logo) and the Site Logo shortcode (.sc-site-logo__img). */
-.site-header[data-hf-behavior="sticky-shrink"] { transition: padding .2s ease; }
-.site-header[data-hf-behavior="sticky-shrink"].is-stuck { padding-top: .25rem; padding-bottom: .25rem; }
-.site-header[data-hf-behavior="sticky-shrink"] .sc-site-logo__img,
-.site-header[data-hf-behavior="sticky-shrink"] .site-logo { transition: max-height .2s ease; }
-.site-header[data-hf-behavior="sticky-shrink"].is-stuck .sc-site-logo__img,
-.site-header[data-hf-behavior="sticky-shrink"].is-stuck .site-logo { max-height: var(--header-shrink-logo, 40px); }
+/* Shrink on scroll — now an INDEPENDENT toggle (.site-header--scroll-shrink), so it composes with
+   ANY position (e.g. a transparent overlay that shrinks its logo on scroll). Shrunk logo height is
+   configurable (--header-shrink-logo, default 40px); covers the theme logo + the Site Logo shortcode. */
+.site-header--scroll-shrink { transition: padding .2s ease; }
+.site-header--scroll-shrink.is-stuck { padding-top: .25rem; padding-bottom: .25rem; }
+.site-header--scroll-shrink .sc-site-logo__img,
+.site-header--scroll-shrink .site-logo { transition: max-height .2s ease; }
+.site-header--scroll-shrink.is-stuck .sc-site-logo__img,
+.site-header--scroll-shrink.is-stuck .site-logo { max-height: var(--header-shrink-logo, 40px); }
 
-/* Hide on scroll down (header-behaviors.js toggles .is-hidden) */
-.site-header[data-hf-behavior="hide-on-scroll"] { transition: transform .3s ease; will-change: transform; }
-.site-header[data-hf-behavior="hide-on-scroll"].is-hidden { transform: translateY(-100%); }
-/* Keyboard a11y: a header holding focus (or an open menu) is never left off-screen, even between
-   scroll ticks. Belt-and-suspenders with the JS headerBusy() guard. */
-.site-header[data-hf-behavior="hide-on-scroll"].is-hidden:focus-within { transform: none; }
-/* Reduced motion: the JS bails (header stays put), but if is-hidden is ever set, don't animate. */
+/* Hide on scroll down — an independent toggle (.site-header--hide); header-behaviors.js toggles .is-hidden. */
+.site-header--hide { transition: transform .3s ease; will-change: transform; }
+.site-header--hide.is-hidden { transform: translateY(-100%); }
+/* Keyboard a11y: a header holding focus (or an open menu) is never left off-screen. */
+.site-header--hide.is-hidden:focus-within { transform: none; }
+/* Reduced motion: the JS bails, but if is-hidden is ever set, don't animate. */
 @media (prefers-reduced-motion: reduce) {
-	.site-header[data-hf-behavior="hide-on-scroll"] { transition: none; }
+	.site-header--hide { transition: none; }
 }
 
 /* =========================================================
@@ -292,43 +297,44 @@
  * glass background wins over the .is-stuck white repaint by source order.
  * ========================================================= */
 
+/* TWO-STATE chrome. Each look applies (a) at top always, (b) when stuck WITHOUT Change-on-scroll
+   (inherit), and the On-scroll variants apply (c) when stuck WITH the matching --scroll-* class.
+   box-shadow doesn't stack across selectors, so Border / Shadow / both are separate rule sets. */
+
 /* Border — a hairline rule under the header (inset shadow: no height / layout shift). */
-.site-header--border { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .16); }
-.site-header--border.is-stuck { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .22); }
+.site-header--border:not(.is-stuck),
+.site-header--border.is-stuck:not(.site-header--scroll-change),
+.site-header--scroll-border.is-stuck { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .18); }
 
 /* Shadow — a soft drop shadow lifting the header off the page. */
-.site-header--shadow { box-shadow: 0 6px 22px -10px rgba(15, 23, 42, .28); }
-.site-header--shadow.is-stuck { box-shadow: 0 10px 28px -8px rgba(15, 23, 42, .34); }
+.site-header--shadow:not(.is-stuck),
+.site-header--shadow.is-stuck:not(.site-header--scroll-change),
+.site-header--scroll-shadow.is-stuck { box-shadow: 0 6px 22px -10px rgba(15, 23, 42, .28); }
 
-/* Border + Shadow together — box-shadow doesn't stack across selectors, so compose. */
-.site-header--border.site-header--shadow { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .16), 0 6px 22px -10px rgba(15, 23, 42, .28); }
-.site-header--border.site-header--shadow.is-stuck { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .22), 0 10px 28px -8px rgba(15, 23, 42, .34); }
+/* Border + Shadow together — compose (a single box-shadow with both layers). */
+.site-header--border.site-header--shadow:not(.is-stuck),
+.site-header--border.site-header--shadow.is-stuck:not(.site-header--scroll-change),
+.site-header--scroll-border.site-header--scroll-shadow.is-stuck { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .18), 0 6px 22px -10px rgba(15, 23, 42, .28); }
 
 /* Uppercase navigation — primary menu links. */
 .site-header--uppercase-nav .header-main .menu-item > a { text-transform: uppercase; letter-spacing: .04em; }
 
-/* Translucent / Glass — frosted, semi-transparent header background.
-   The `.site-header` prefix raises specificity to (0,2,0) so glass beats the core
-   `.site-header { background-color: var(--header-bg) }` base fill in style.css (0,1,0)
-   — otherwise, since style.css loads AFTER this file, the solid header colour would
-   win and there'd be no glass. */
-.site-header.site-header--glass {
+/* Translucent / Glass — TWO-STATE frosted background. The `.site-header` prefix + the state
+   qualifiers keep specificity above both the core `.site-header { background: var(--header-bg) }`
+   (0,1,0) and the two-state stuck-bg rules above, so glass wins for whichever state is active.
+   AT-TOP glass (header_glass) tints from --header-bg; ON-SCROLL glass (scroll_glass) tints from
+   --header-scroll-bg. This is what finally enables "clear over the hero -> frost only on scroll":
+   set At-top with no glass, and Change-on-scroll + Glass-on-scroll. */
+.site-header.site-header--glass:not(.is-stuck),
+.site-header.site-header--glass.is-stuck:not(.site-header--scroll-change) {
 	background: color-mix(in srgb, var(--header-bg, #fff) 72%, transparent);
 	-webkit-backdrop-filter: saturate(1.4) blur(10px);
 	backdrop-filter: saturate(1.4) blur(10px);
 }
-/* Glass is a CONSISTENT background: when it's on, the header keeps the exact same
-   frosted fill at the top and on scroll — the scroll state must NOT repaint it. Three
-   rules fight to repaint a stuck header: the transparent-overlay `.is-stuck{background:#fff}`
-   (0,2,0), the core sticky system `style.css .site-header.header-sticky.is-stuck
-   { background-color: var(--header-sticky-bg) }` (0,3,0, and it loads AFTER this file),
-   and the plain sticky base. Re-assert the IDENTICAL glass fill at (0,4,0) — the leading
-   `.site-header` raises specificity above all of them — so a Glass header stays frosted,
-   not solid `--header-sticky-bg` (which is ~95% of the header colour = near-opaque). The
-   frost TINT comes from Main Header Background (--header-bg): set it dark and glass reads
-   dark, but it stays translucent + blurred, the same top and scrolled. */
-.site-header.site-header--glass.header-sticky.is-stuck {
-	background: color-mix(in srgb, var(--header-bg, #fff) 72%, transparent);
+.site-header.header-sticky.site-header--scroll-glass.is-stuck {
+	background: color-mix(in srgb, var(--header-scroll-bg, var(--header-bg, #fff)) 72%, transparent);
+	-webkit-backdrop-filter: saturate(1.4) blur(10px);
+	backdrop-filter: saturate(1.4) blur(10px);
 }
 
 /* =========================================================
@@ -349,22 +355,138 @@
 	.footer-element.hide-md { display: none !important; }
 }
 
-/* Collapse-to-mobile-menu at 768px (header-collapse-md). The default
-   header-collapse-lg keeps the theme's built-in 992px behavior, so it needs no
-   override here. Higher specificity than the base rules wins regardless of load
-   order. */
-@media (min-width: 768px) {
-	.site-header.header-collapse-md .header-col--center { display: flex; }
-	.site-header.header-collapse-md .menu-toggle { display: none; }
+/* Collapse to the mobile hamburger. Below the chosen breakpoint the INLINE PRIMARY MENU is hidden —
+   wherever it sits (left / center / RIGHT column) — and the toggle is shown; other elements (logo, a CTA)
+   stay in place. Was scoped to `.header-col--center` only, so a menu placed in the right column (a very
+   common layout, and what the Site Converter emits) never collapsed and overlapped the page on mobile.
+   Default breakpoint = lg (992px); header-collapse-md = 768px. Higher specificity than the base rules. */
+
+/* The inline elements that move into the drawer on mobile: the primary menu AND the inline CTA button —
+   an inline CTA is wide and pushes the toggle off-screen (an unreachable menu). The logo + toggle stay,
+   so a collapsed header is always logo-left / hamburger-right and never overflows. Users who want another
+   element on mobile keep it via the off-canvas drawer. */
+
+/* header-collapse-lg (default) — collapse below 992px. */
+@media (max-width: 991.98px) {
+	.site-header.header-collapse-lg .header-element--menu,
+	.site-header.header-collapse-lg .header-element--menu_area,
+	.site-header.header-collapse-lg .header-element--cta_button { display: none; }
+	.site-header.header-collapse-lg .menu-toggle { display: inline-flex; }
 }
+@media (min-width: 992px) {
+	.site-header.header-collapse-lg .menu-toggle { display: none; }
+}
+
+/* header-collapse-md — collapse below 768px. */
 @media (max-width: 767.98px) {
-	.site-header.header-collapse-md .header-col--center { display: none; }
+	.site-header.header-collapse-md .header-element--menu,
+	.site-header.header-collapse-md .header-element--menu_area,
+	.site-header.header-collapse-md .header-element--cta_button { display: none; }
 	.site-header.header-collapse-md .menu-toggle { display: inline-flex; }
+}
+@media (min-width: 768px) {
+	.site-header.header-collapse-md .menu-toggle { display: none; }
 }
 
 /* Mobile main-header height (falls back to the desktop height when unset). */
 @media (max-width: 767.98px) {
 	.header-main { min-height: var(--header-min-height-mobile, var(--header-min-height)); }
+}
+
+/* ── Mobile Header Layout (Header → Mobile & Tablet → Mobile Header Layout) ──────────────────
+   Re-arranges the logo (start column) and hamburger (end column) once the header COLLAPSES.
+   Each layout is gated to its own collapse width so it engages exactly when the toggle shows.
+   'default' emits no class. Assumes logo in .header-col--start, toggle in .header-col--end
+   (the default placement). The rules are duplicated per breakpoint because a header carries
+   only ONE collapse class and each has a different engage width (lg = <992, md = <768).       */
+@media (max-width: 991.98px) {
+	/* Mobile BAR background — only applied when --mobile-bar-bg is set (invalid var ⇒ ignored). */
+	.site-header.header-collapse-lg .header-main { background-color: var(--mobile-bar-bg); }
+
+	/* Toggle left · Logo center */
+	.header-collapse-lg.header-mlayout--toggle-left .header-main .header-row { position: relative; justify-content: flex-start; }
+	.header-collapse-lg.header-mlayout--toggle-left .header-main .header-col--end { order: -1; }
+	.header-collapse-lg.header-mlayout--toggle-left .header-main .header-col--start { position: absolute; left: 50%; transform: translateX(-50%); }
+	/* Logo right · Toggle left */
+	.header-collapse-lg.header-mlayout--logo-right .header-main .header-row { justify-content: space-between; }
+	.header-collapse-lg.header-mlayout--logo-right .header-main .header-col--end { order: -1; }
+	.header-collapse-lg.header-mlayout--logo-right .header-main .header-col--start { order: 2; }
+	/* Logo center · Toggle below (two rows) */
+	.header-collapse-lg.header-mlayout--center-below .header-main .header-row { flex-wrap: wrap; row-gap: 0.5rem; justify-content: center; }
+	.header-collapse-lg.header-mlayout--center-below .header-main .header-col--start { flex: 0 0 100%; display: flex; justify-content: center; order: 1; }
+	.header-collapse-lg.header-mlayout--center-below .header-main .header-col--center { flex: 0 0 100%; display: flex; justify-content: center; order: 2; }
+	.header-collapse-lg.header-mlayout--center-below .header-main .header-col--end { flex: 0 0 100%; display: flex; justify-content: center; order: 3; }
+}
+@media (max-width: 767.98px) {
+	.site-header.header-collapse-md .header-main { background-color: var(--mobile-bar-bg); }
+
+	.header-collapse-md.header-mlayout--toggle-left .header-main .header-row { position: relative; justify-content: flex-start; }
+	.header-collapse-md.header-mlayout--toggle-left .header-main .header-col--end { order: -1; }
+	.header-collapse-md.header-mlayout--toggle-left .header-main .header-col--start { position: absolute; left: 50%; transform: translateX(-50%); }
+	.header-collapse-md.header-mlayout--logo-right .header-main .header-row { justify-content: space-between; }
+	.header-collapse-md.header-mlayout--logo-right .header-main .header-col--end { order: -1; }
+	.header-collapse-md.header-mlayout--logo-right .header-main .header-col--start { order: 2; }
+	.header-collapse-md.header-mlayout--center-below .header-main .header-row { flex-wrap: wrap; row-gap: 0.5rem; justify-content: center; }
+	.header-collapse-md.header-mlayout--center-below .header-main .header-col--start { flex: 0 0 100%; display: flex; justify-content: center; order: 1; }
+	.header-collapse-md.header-mlayout--center-below .header-main .header-col--center { flex: 0 0 100%; display: flex; justify-content: center; order: 2; }
+	.header-collapse-md.header-mlayout--center-below .header-main .header-col--end { flex: 0 0 100%; display: flex; justify-content: center; order: 3; }
+}
+
+/* The header CTA re-surfaced inside the mobile drawer (moved there from the hidden inline bar). */
+.drawer-cta { margin-top: 1.25rem; }
+.drawer-cta .header-element--cta_button { display: block; }
+.drawer-cta .btn { display: block; width: 100%; text-align: center; }
+
+/* ── Mobile bottom tab bar (Phase 3, Header → Mobile & Tablet → Bottom Navigation) ──
+   Hidden by default; a fixed bottom bar on phones, built from the Primary menu. */
+.mobile-bottom-nav { display: none; }
+@media (max-width: 767.98px) {
+	.has-bottom-nav .mobile-bottom-nav {
+		display: block;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: 1040;
+		background: var(--mobile-bar-bg, var(--drawer-bg, #fff));
+		border-top: 1px solid var(--color-border, rgba(0, 0, 0, 0.1));
+		box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
+	}
+	.mobile-bottom-nav ul { display: flex; margin: 0; padding: 0; list-style: none; }
+	.mobile-bottom-nav li { flex: 1 1 0; min-width: 0; text-align: center; }
+	.mobile-bottom-nav a {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 2px;
+		padding: 8px 4px;
+		min-height: 52px;
+		color: var(--drawer-color, var(--color-text));
+		text-decoration: none;
+		font-size: 0.7rem;
+		line-height: 1.1;
+	}
+	.mobile-bottom-nav li.is-current a { color: var(--drawer-active, var(--color-primary)); }
+	.mobile-bottom-nav .mbn-label { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.mobile-bottom-nav--no-labels .mbn-label { display: none; }
+	.mobile-bottom-nav .mbn-icon { font-size: 1.15rem; line-height: 1; }
+	.mobile-bottom-nav .mbn-icon--dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+	/* Keep page content clear of the fixed bar. */
+	.has-bottom-nav { padding-bottom: 56px; }
+}
+
+/* iOS safe-area padding (Phase 3) — notch / home-indicator insets. */
+.mobile-safe-area .site-header.header-sticky { padding-top: env(safe-area-inset-top); }
+.mobile-safe-area .primary-navigation-drawer__panel { padding-top: max(1.5rem, env(safe-area-inset-top)); }
+@media (max-width: 767.98px) {
+	.mobile-safe-area.has-bottom-nav .mobile-bottom-nav { padding-bottom: env(safe-area-inset-bottom); }
+	.mobile-safe-area.has-bottom-nav { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
+}
+
+/* Disable sticky on mobile (Phase 3). */
+@media (max-width: 767.98px) {
+	.mobile-no-sticky .site-header.header-sticky { position: static; }
 }
 
 /* ============================================================
@@ -496,6 +618,22 @@
 .footer-element ul.fw-footer-links { list-style: none; margin: 0; padding: 0; }
 .footer-element ul.fw-footer-links > li { margin: 0 0 0.5rem; }
 .footer-element ul.fw-footer-links > li:last-child { margin-bottom: 0; }
+
+/* Auto-grouped Link elements → a semantic <ul class="footer-links-list"> (footer/header builder wraps a
+   RUN of 2+ consecutive Link elements at render, so a menu column reads as a real list, not loose divs).
+   Each <li> keeps the .footer-element--link class, so the existing .footer-link styling still applies. */
+.footer-column ul.footer-links-list,
+.header-column ul.footer-links-list { list-style: none; margin: 0; padding: 0; }
+.footer-column ul.footer-links-list > li,
+.header-column ul.footer-links-list > li { margin: 0 0 0.5rem; }
+.footer-column ul.footer-links-list > li:last-child,
+.header-column ul.footer-links-list > li:last-child { margin-bottom: 0; }
+
+/* Unified List Item element (text + optional icon + optional link) — icon sits inline before the text.
+   Targeted directly (not via a .footer-element/.header-element ancestor) so a bare <li> works. */
+.list-item { display: inline-flex; align-items: center; gap: .45rem; text-decoration: none; }
+.list-item__icon { display: inline-flex; flex: none; }
+.list-item__icon svg { width: 1em; height: 1em; }
 
 /* Atomic Heading + Link elements (the composable replacement for the old compound
    "Links" element). Each sits in its own .footer-element / .header-element wrapper, so the

@@ -244,6 +244,64 @@ function unysonplus_hf_link_options() {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_hf_list_item_options' ) ) :
+/**
+ * Option fields for the unified LIST ITEM header/footer element — one flexible row that supersedes the
+ * old separate `link` + `icon_text` elements: TEXT, an optional ICON, and an optional LINK with a type
+ * (website / email / phone). A run of consecutive List Item elements auto-groups into a semantic <ul>
+ * at render (footer). A plain text line, a menu link, an icon+text contact row, or a clickable
+ * email/phone are all expressed with this one element.
+ *
+ * @return array
+ */
+function unysonplus_hf_list_item_options() {
+	return array(
+		'li_text' => array(
+			'label' => __( 'Text', 'unysonplus' ),
+			'desc'  => __( 'The row text — e.g. About Us, info@example.com, +1 (555) 123-4567, or 123 Main St.', 'unysonplus' ),
+			'type'  => 'text',
+			'value' => '',
+			'dynamic_content' => false,
+		),
+		'li_icon' => array(
+			'type'         => 'icon',
+			'label'        => __( 'Icon (optional)', 'unysonplus' ),
+			'desc'         => __( 'An optional icon shown before the text (e.g. an envelope, a phone, a map pin). Leave empty for a plain list item.', 'unysonplus' ),
+			'preview_size' => 'small',
+			'modal_size'   => 'medium',
+		),
+		'li_link_type' => array(
+			'label'   => __( 'Link Type', 'unysonplus' ),
+			'type'    => 'select',
+			'value'   => 'none',
+			'choices' => array(
+				'none'  => __( 'No link', 'unysonplus' ),
+				'url'   => __( 'Website URL', 'unysonplus' ),
+				'email' => __( 'Email (mailto:)', 'unysonplus' ),
+				'phone' => __( 'Phone (tel:)', 'unysonplus' ),
+			),
+		),
+		'li_link' => array(
+			'label' => __( 'Link', 'unysonplus' ),
+			'desc'  => __( 'The target — a URL / in-page anchor, an email address, or a phone number. Leave empty for Email / Phone to reuse the Text above.', 'unysonplus' ),
+			'type'  => 'text',
+			'value' => '',
+			'dynamic_content' => false,
+		),
+		'li_target' => array(
+			'label'   => __( 'Open In', 'unysonplus' ),
+			'type'    => 'select',
+			'value'   => '_self',
+			'choices' => array(
+				'_self'  => __( 'Same tab', 'unysonplus' ),
+				'_blank' => __( 'New tab', 'unysonplus' ),
+			),
+			'desc'    => __( 'For a Website URL — New tab adds rel="noopener".', 'unysonplus' ),
+		),
+	);
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_hf_heading_options' ) ) :
 /**
  * Option fields for the Heading header/footer element — a heading text + its HTML level
@@ -495,9 +553,8 @@ function unysonplus_footer_element_popup() {
 						'menu'            => __( 'Menu', 'unysonplus' ),
 						'menu_area'       => __( 'Menu Area', 'unysonplus' ),
 						'heading'         => __( 'Heading', 'unysonplus' ),
-						'link'            => __( 'Link', 'unysonplus' ),
+						'list_item'       => __( 'List Item', 'unysonplus' ),
 						'cta_button'      => __( 'CTA Button', 'unysonplus' ),
-						'icon_text'       => __( 'Icon Text', 'unysonplus' ),
 						'search'          => __( 'Search', 'unysonplus' ),
 						'social_icons'    => __( 'Social Icons', 'unysonplus' ),
 						'newsletter'      => __( 'Newsletter', 'unysonplus' ),
@@ -515,40 +572,8 @@ function unysonplus_footer_element_popup() {
 				'cta_button' => unysonplus_hf_cta_button_options(),
 				'newsletter' => unysonplus_hf_newsletter_options(),
 				'heading'    => unysonplus_hf_heading_options(),
-				'link'       => unysonplus_hf_link_options(),
+				'list_item'  => unysonplus_hf_list_item_options(),
 				'phone' => unysonplus_hf_phone_options(),
-				'icon_text' => array(
-					'icontext_icon' => array(
-						'type'         => 'icon',
-						'label'        => __( 'Icon', 'unysonplus' ),
-						'desc'         => __( 'Icon shown before the text (e.g. an envelope for email, a phone, a pin for an address).', 'unysonplus' ),
-						'preview_size' => 'small',
-						'modal_size'   => 'medium',
-					),
-					'icontext_text' => array(
-						'label' => __( 'Text', 'unysonplus' ),
-						'desc'  => __( 'The text to display — e.g. info@example.com, +1 (555) 123-4567, or 123 Main St.', 'unysonplus' ),
-						'type'  => 'text',
-						'value' => '',
-					),
-					'icontext_link_type' => array(
-						'label'   => __( 'Link Type', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => 'none',
-						'choices' => array(
-							'none'  => __( 'No link', 'unysonplus' ),
-							'url'   => __( 'Website URL', 'unysonplus' ),
-							'email' => __( 'Email (mailto:)', 'unysonplus' ),
-							'phone' => __( 'Phone (tel:)', 'unysonplus' ),
-						),
-					),
-					'icontext_link' => array(
-						'label' => __( 'Link', 'unysonplus' ),
-						'desc'  => __( 'The target — a URL, email address, or phone number. Leave empty for Email / Phone to reuse the Text above.', 'unysonplus' ),
-						'type'  => 'text',
-						'value' => '',
-					),
-				),
 				'custom_html' => unysonplus_hf_custom_html_options(),
 				'menu' => unysonplus_hf_menu_options(),
 				'menu_area' => unysonplus_hf_menu_area_options(),
@@ -628,9 +653,8 @@ function unysonplus_header_element_popup() {
 						'menu'            => __( 'Menu', 'unysonplus' ),
 						'menu_area'       => __( 'Menu Area', 'unysonplus' ),
 						'heading'         => __( 'Heading', 'unysonplus' ),
-						'link'            => __( 'Link', 'unysonplus' ),
+						'list_item'       => __( 'List Item', 'unysonplus' ),
 						'cta_button'      => __( 'CTA Button', 'unysonplus' ),
-						'icon_text'       => __( 'Icon Text', 'unysonplus' ),
 						'search'          => __( 'Search', 'unysonplus' ),
 						'social_icons'    => __( 'Social Icons', 'unysonplus' ),
 						'custom_html'     => __( 'Custom HTML', 'unysonplus' ),
@@ -648,40 +672,8 @@ function unysonplus_header_element_popup() {
 				'cta_button' => unysonplus_hf_cta_button_options(),
 				'newsletter' => unysonplus_hf_newsletter_options(),
 				'heading'    => unysonplus_hf_heading_options(),
-				'link'       => unysonplus_hf_link_options(),
+				'list_item'  => unysonplus_hf_list_item_options(),
 				'phone' => unysonplus_hf_phone_options(),
-				'icon_text' => array(
-					'icontext_icon' => array(
-						'type'         => 'icon',
-						'label'        => __( 'Icon', 'unysonplus' ),
-						'desc'         => __( 'Icon shown before the text (e.g. an envelope for email, a phone, a pin for an address).', 'unysonplus' ),
-						'preview_size' => 'small',
-						'modal_size'   => 'medium',
-					),
-					'icontext_text' => array(
-						'label' => __( 'Text', 'unysonplus' ),
-						'desc'  => __( 'The text to display — e.g. info@example.com, +1 (555) 123-4567, or 123 Main St.', 'unysonplus' ),
-						'type'  => 'text',
-						'value' => '',
-					),
-					'icontext_link_type' => array(
-						'label'   => __( 'Link Type', 'unysonplus' ),
-						'type'    => 'select',
-						'value'   => 'none',
-						'choices' => array(
-							'none'  => __( 'No link', 'unysonplus' ),
-							'url'   => __( 'Website URL', 'unysonplus' ),
-							'email' => __( 'Email (mailto:)', 'unysonplus' ),
-							'phone' => __( 'Phone (tel:)', 'unysonplus' ),
-						),
-					),
-					'icontext_link' => array(
-						'label' => __( 'Link', 'unysonplus' ),
-						'desc'  => __( 'The target — a URL, email address, or phone number. Leave empty for Email / Phone to reuse the Text above.', 'unysonplus' ),
-						'type'  => 'text',
-						'value' => '',
-					),
-				),
 				'custom_html' => unysonplus_hf_custom_html_options(),
 				'menu' => unysonplus_hf_menu_options(),
 				'menu_area' => unysonplus_hf_menu_area_options(),
@@ -741,7 +733,7 @@ if ( ! function_exists( 'unysonplus_hf_row_label_maps_js' ) ) :
  * byte-identically to the old inline code.
  */
 function unysonplus_hf_row_label_maps_js( $sidebar_label_map, $menu_label_map, $menu_location_label_map, $builder_label_map ) {
-	return ' if (el === "widget_area" && element_type["widget_area"] && element_type["widget_area"]["sidebar_id"]) { var smap = ' . $sidebar_label_map . '; var sid = element_type["widget_area"]["sidebar_id"]; lbl = (smap[sid] || sid); } if (el === "menu" && element_type["menu"] && element_type["menu"]["menu_id"]) { var mmap = ' . $menu_label_map . '; var mid = element_type["menu"]["menu_id"]; lbl = (mmap[mid] || mid); } if (el === "menu_area" && element_type["menu_area"] && element_type["menu_area"]["menu_location"]) { var amap = ' . $menu_location_label_map . '; var loc = element_type["menu_area"]["menu_location"]; lbl = (amap[loc] || loc); } if (el === "builder_section" && element_type["builder_section"] && element_type["builder_section"]["builder_post_id"]) { var bmap = ' . $builder_label_map . '; var bid = element_type["builder_section"]["builder_post_id"]; lbl = (bmap[bid] || bid); } if (el === "text" && element_type["text"] && element_type["text"]["text_content"]) { var _t = String(element_type["text"]["text_content"]).replace(/<[^>]*>/g," ").replace(/&[a-z#0-9]+;/gi," ").replace(/\s+/g," ").trim(); if (_t) lbl = (_t.length > 45 ? _t.substring(0,45) + "…" : _t); } if (el === "custom_html" && element_type["custom_html"] && element_type["custom_html"]["custom_html_content"]) { var _h = String(element_type["custom_html"]["custom_html_content"]).replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim(); if (_h) lbl = (_h.length > 45 ? _h.substring(0,45) + "…" : _h); } ';
+	return ' if (el === "widget_area" && element_type["widget_area"] && element_type["widget_area"]["sidebar_id"]) { var smap = ' . $sidebar_label_map . '; var sid = element_type["widget_area"]["sidebar_id"]; lbl = (smap[sid] || sid); } if (el === "menu" && element_type["menu"] && element_type["menu"]["menu_id"]) { var mmap = ' . $menu_label_map . '; var mid = element_type["menu"]["menu_id"]; lbl = (mmap[mid] || mid); } if (el === "menu_area" && element_type["menu_area"] && element_type["menu_area"]["menu_location"]) { var amap = ' . $menu_location_label_map . '; var loc = element_type["menu_area"]["menu_location"]; lbl = (amap[loc] || loc); } if (el === "builder_section" && element_type["builder_section"] && element_type["builder_section"]["builder_post_id"]) { var bmap = ' . $builder_label_map . '; var bid = element_type["builder_section"]["builder_post_id"]; lbl = (bmap[bid] || bid); } if (el === "text" && element_type["text"] && element_type["text"]["text_content"]) { var _t = String(element_type["text"]["text_content"]).replace(/<[^>]*>/g," ").replace(/&[a-z#0-9]+;/gi," ").replace(/\s+/g," ").trim(); if (_t) lbl = _t; } if (el === "custom_html" && element_type["custom_html"] && element_type["custom_html"]["custom_html_content"]) { var _h = String(element_type["custom_html"]["custom_html_content"]).replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim(); if (_h) lbl = (_h.length > 45 ? _h.substring(0,45) + "…" : _h); } ';
 }
 endif;
 
@@ -755,6 +747,53 @@ function unysonplus_hf_row_label_tail_js() {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_hf_row_label_listitem_js' ) ) :
+/**
+ * Row-label branch for the unified List Item element: show the row TEXT with its ICON inline (a
+ * custom-upload image, an inline SVG, or an icon-font class) — so the collapsed row previews the actual
+ * content instead of the bare "list_item" slug. `{{= }}` emits unescaped HTML; text is HTML-escaped here.
+ */
+function unysonplus_hf_row_label_listitem_js() {
+	return 'if (el === "list_item" && element_type["list_item"]) { var _L = element_type["list_item"]; var _esc = function(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }; var _lt = _L["li_text"] ? _esc(String(_L["li_text"]).replace(/\s+/g," ").trim()) : ""; var _I = _L["li_icon"] || {}; var _ic = ""; if (_I["type"] === "custom-upload" && _I["url"]) { _ic = "<img src=\"" + _esc(_I["url"]) + "\" style=\"width:16px;height:16px;object-fit:contain;vertical-align:middle;margin-right:6px;border-radius:2px;\">"; } else if (_I["markup"] && /<svg/i.test(String(_I["markup"]))) { _ic = "<span class=\"hf-li-ico\" style=\"display:inline-block;width:16px;height:16px;vertical-align:middle;margin-right:6px;\">" + _I["markup"] + "</span>"; } else if (_I["icon-class"]) { _ic = "<i class=\"" + _esc(_I["icon-class"]) + "\" style=\"margin-right:6px;\"></i>"; } lbl = _ic + (_lt || "List Item"); } ';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_logo_preview_html' ) ) :
+/** Small HTML preview of the CURRENT site logo (image, or icon + wordmark) for the builder row label. '' when none. */
+function unysonplus_hf_logo_preview_html() {
+	$cfg = function_exists( 'unysonplus_header_logo_cfg' ) ? unysonplus_header_logo_cfg() : array();
+	if ( ! is_array( $cfg ) ) { return ''; }
+	$type = isset( $cfg['logo_type'] ) ? $cfg['logo_type'] : 'simple';
+	if ( 'simple' === $type && ! empty( $cfg['image'] ) ) {
+		$src = function_exists( 'unysonplus_upload_option_src' ) ? unysonplus_upload_option_src( $cfg['image'] ) : ( is_array( $cfg['image'] ) ? (string) ( $cfg['image']['url'] ?? '' ) : '' );
+		return $src !== '' ? '<img src="' . esc_url( $src ) . '" style="height:20px;width:auto;max-width:130px;object-fit:contain;vertical-align:middle;">' : '';
+	}
+	$icon = '';
+	$li   = ( isset( $cfg['logo_icon'] ) && is_array( $cfg['logo_icon'] ) ) ? $cfg['logo_icon'] : array();
+	if ( ( $li['type'] ?? '' ) === 'custom-upload' ) {
+		$src = function_exists( 'unysonplus_upload_option_src' ) ? unysonplus_upload_option_src( $li ) : (string) ( $li['url'] ?? '' );
+		if ( $src !== '' ) { $icon = '<img src="' . esc_url( $src ) . '" style="width:18px;height:18px;object-fit:contain;vertical-align:middle;margin-right:5px;">'; }
+	} elseif ( ! empty( $li['markup'] ) && stripos( (string) $li['markup'], '<svg' ) !== false ) {
+		$icon = '<span class="hf-li-ico" style="display:inline-block;width:18px;height:18px;vertical-align:middle;margin-right:5px;">' . $li['markup'] . '</span>';
+	}
+	$title = ( isset( $cfg['site_title'] ) && $cfg['site_title'] !== '' ) ? (string) $cfg['site_title'] : get_bloginfo( 'name' );
+	$title = esc_html( trim( wp_strip_all_tags( $title ) ) );
+	return ( $icon !== '' || $title !== '' ) ? $icon . '<span style="vertical-align:middle;">' . $title . '</span>' : '';
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_social_preview_html' ) ) :
+/** Compact HTML preview of the configured social icons for the builder row label. '' when none. */
+function unysonplus_hf_social_preview_html() {
+	if ( ! function_exists( 'unysonplus_render_social_icons' ) ) { return ''; }
+	ob_start();
+	unysonplus_render_social_icons();
+	$html = trim( (string) ob_get_clean() );
+	if ( $html === '' ) { return ''; }
+	return '<span class="hf-social-preview" style="display:inline-flex;gap:8px;align-items:center;font-size:15px;line-height:1;">' . $html . '</span>';
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_footer_row_template' ) ) :
 function unysonplus_footer_row_template() {
 	static $tpl = null;
@@ -762,14 +801,27 @@ function unysonplus_footer_row_template() {
 		return $tpl;
 	}
 	$ch                      = unysonplus_hf_choices();
-	$element_label_map       = '{"logo":"Logo","footer_logo":"Footer Logo","menu":"Menu","menu_area":"Menu Area","cta_button":"CTA Button","phone":"Phone Number","icon_text":"Icon Text","search":"Search","social_icons":"Social Icons","newsletter":"Newsletter","custom_html":"Custom HTML","text":"Text","widget_area":"Widget Area","copyright_text":"Copyright Text","back_to_top":"Back to Top","builder_section":"Builder Section"}';
+	$element_label_map       = '{"logo":"Logo","footer_logo":"Footer Logo","menu":"Menu","menu_area":"Menu Area","cta_button":"CTA Button","phone":"Phone Number","list_item":"List Item","icon_text":"Icon Text","search":"Search","social_icons":"Social Icons","newsletter":"Newsletter","custom_html":"Custom HTML","text":"Text","widget_area":"Widget Area","copyright_text":"Copyright Text","back_to_top":"Back to Top","builder_section":"Builder Section"}';
 	$sidebar_label_map       = json_encode( $ch['sidebar'], JSON_UNESCAPED_UNICODE );
 	$menu_label_map          = json_encode( array_map( 'strval', $ch['menu'] ), JSON_UNESCAPED_UNICODE );
 	$menu_location_label_map = json_encode( $ch['menu_location'], JSON_UNESCAPED_UNICODE );
 	$builder_label_map       = json_encode( array_map( 'strval', $ch['builder'] ), JSON_UNESCAPED_UNICODE );
+	$media_js                = unysonplus_hf_row_label_media_js();
 
-	$tpl = '{{= (function(){ var el = element_type["element"]; var lbl = (' . $element_label_map . ')[el] || el; ' . unysonplus_hf_row_label_js() . unysonplus_hf_row_label_maps_js( $sidebar_label_map, $menu_label_map, $menu_location_label_map, $builder_label_map ) . 'if (el === "copyright_text" && element_type["copyright_text"] && element_type["copyright_text"]["copyright_content"]) { var _c = String(element_type["copyright_text"]["copyright_content"]).replace(/<[^>]*>/g," ").replace(/&[a-z#0-9]+;/gi," ").replace(/\s+/g," ").trim(); if (_c) lbl = (_c.length > 45 ? _c.substring(0,45) + "…" : _c); } ' . unysonplus_hf_row_label_tail_js() . 'return lbl; })() }}';
+	$tpl = '{{= (function(){ var el = element_type["element"]; var lbl = (' . $element_label_map . ')[el] || el; ' . unysonplus_hf_row_label_js() . unysonplus_hf_row_label_maps_js( $sidebar_label_map, $menu_label_map, $menu_location_label_map, $builder_label_map ) . 'if (el === "copyright_text" && element_type["copyright_text"] && element_type["copyright_text"]["copyright_content"]) { var _c = String(element_type["copyright_text"]["copyright_content"]).replace(/<[^>]*>/g," ").replace(/&[a-z#0-9]+;/gi," ").replace(/\s+/g," ").trim(); if (_c) lbl = (_c.length > 45 ? _c.substring(0,45) + "…" : _c); } ' . unysonplus_hf_row_label_tail_js() . unysonplus_hf_row_label_listitem_js() . $media_js . 'return lbl; })() }}';
 	return $tpl;
+}
+endif;
+
+if ( ! function_exists( 'unysonplus_hf_row_label_media_js' ) ) :
+/** logo + social_icons row-label branches — inject a server-rendered preview (the actual logo image /
+ *  the configured social icons) as an HTML label. Shared by the footer + header row templates. */
+function unysonplus_hf_row_label_media_js() {
+	$logo   = wp_json_encode( unysonplus_hf_logo_preview_html() );
+	$social = wp_json_encode( unysonplus_hf_social_preview_html() );
+	if ( ! is_string( $logo ) )   { $logo = '""'; }
+	if ( ! is_string( $social ) ) { $social = '""'; }
+	return 'if (el === "logo" || el === "footer_logo") { var _lp = ' . $logo . '; if (_lp) lbl = _lp; } if (el === "social_icons") { var _sp = ' . $social . '; if (_sp) lbl = _sp; } ';
 }
 endif;
 
@@ -785,7 +837,7 @@ function unysonplus_header_row_template() {
 	$menu_location_label_map = json_encode( $ch['menu_location'], JSON_UNESCAPED_UNICODE );
 	$builder_label_map       = json_encode( array_map( 'strval', $ch['builder'] ), JSON_UNESCAPED_UNICODE );
 
-	$tpl = '{{= (function(){ var el = element_type["element"]; var lbl = ({"logo":"Logo","cta_button":"CTA Button","phone":"Phone Number","icon_text":"Icon Text","search":"Search","social_icons":"Social Icons","newsletter":"Newsletter","custom_html":"Custom HTML","text":"Text","menu":"Menu","menu_area":"Menu Area","widget_area":"Widget Area","builder_section":"Builder Section","spacer":"Spacer","divider":"Divider"})[el] || el; ' . unysonplus_hf_row_label_js() . unysonplus_hf_row_label_maps_js( $sidebar_label_map, $menu_label_map, $menu_location_label_map, $builder_label_map ) . unysonplus_hf_row_label_tail_js() . 'return lbl; })() }}';
+	$tpl = '{{= (function(){ var el = element_type["element"]; var lbl = ({"logo":"Logo","cta_button":"CTA Button","phone":"Phone Number","list_item":"List Item","icon_text":"Icon Text","search":"Search","social_icons":"Social Icons","newsletter":"Newsletter","custom_html":"Custom HTML","text":"Text","menu":"Menu","menu_area":"Menu Area","widget_area":"Widget Area","builder_section":"Builder Section","spacer":"Spacer","divider":"Divider"})[el] || el; ' . unysonplus_hf_row_label_js() . unysonplus_hf_row_label_maps_js( $sidebar_label_map, $menu_label_map, $menu_location_label_map, $builder_label_map ) . unysonplus_hf_row_label_tail_js() . unysonplus_hf_row_label_listitem_js() . unysonplus_hf_row_label_media_js() . 'return lbl; })() }}';
 	return $tpl;
 }
 endif;

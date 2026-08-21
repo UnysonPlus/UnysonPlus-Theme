@@ -32,7 +32,16 @@ $current = ( $group !== '' && function_exists( 'unysonplus_settings_preset_curre
 
 	<?php if ( $conf === null ) : ?>
 		<p class="fw-preset-loader-empty"><?php esc_html_e( 'No presets are registered for this section.', 'unysonplus' ); ?></p>
-	<?php else : ?>
+	<?php else :
+		$preset_count = count( $conf['presets'] ); ?>
+
+	<details class="fw-preset-loader-details">
+		<summary class="fw-preset-loader-summary">
+			<span class="fw-preset-loader-summary__label"><?php esc_html_e( 'Browse presets', 'unysonplus' ); ?></span>
+			<span class="fw-preset-loader-summary__hint"><?php echo esc_html( sprintf( _n( '%d preset', '%d presets', $preset_count, 'unysonplus' ), $preset_count ) ); ?></span>
+			<span class="fw-preset-loader-summary__chevron" aria-hidden="true"></span>
+		</summary>
+		<div class="fw-preset-loader-body">
 
 		<div class="fw-preset-loader-cards">
 			<?php foreach ( $conf['presets'] as $key => $preset ) :
@@ -81,6 +90,9 @@ $current = ( $group !== '' && function_exists( 'unysonplus_settings_preset_curre
 		<p class="fw-preset-loader-note">
 			<?php esc_html_e( 'Applying a preset saves these settings and refreshes this tab. Unsaved changes elsewhere on this page will be lost.', 'unysonplus' ); ?>
 		</p>
+
+		</div><!-- .fw-preset-loader-body -->
+	</details>
 
 	<?php endif; ?>
 </div>

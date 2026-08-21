@@ -56,6 +56,10 @@ $options = array(
 		'label'         => false,
 		'inner-options' => array(
 
+			'grp_typo_fonts' => array(
+				'type'    => 'group',
+				'title'   => __( 'Fonts', 'unysonplus' ),
+				'options' => array(
 			'heading_font' => array(
 				'label'      => __( 'Heading Font', 'unysonplus' ),
 				'desc'       => __( 'Font family for all headings (H1–H6). Leave empty to inherit the body font.', 'unysonplus' ),
@@ -77,6 +81,68 @@ $options = array(
 				),
 			),
 
+				),
+			),
+			'grp_typo_scale' => array(
+				'type'    => 'group',
+				'title'   => __( 'Type Scale (fluid)', 'unysonplus' ),
+				'options' => array(
+			'type_scale_enable' => array(
+				'label'        => __( 'Fluid Heading Scale', 'unysonplus' ),
+				'desc'         => __( 'Drive H1–H6 from one fluid modular scale (built from the Body size × the ratio below) instead of the fixed per-heading sizes. Sizes scale smoothly across every screen — no breakpoint jumps — and stay zoom-accessible. When on, the "Heading Sizes (overrides)" sizes below are ignored (their line-height, letter-spacing and colour still apply).', 'unysonplus' ),
+				'type'         => 'switch',
+				'value'        => 'no',
+				'left-choice'  => array( 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ),
+				'right-choice' => array( 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ),
+			),
+			'type_scale_ratio' => array(
+				'label'   => __( 'Scale Ratio (desktop)', 'unysonplus' ),
+				'desc'    => __( 'Step-to-step size multiplier on large screens. Larger = more dramatic jumps between heading levels.', 'unysonplus' ),
+				'type'    => 'select',
+				'value'   => '1.25',
+				'choices' => array(
+					'1.067' => __( 'Minor Second — 1.067 (subtle)', 'unysonplus' ),
+					'1.125' => __( 'Major Second — 1.125', 'unysonplus' ),
+					'1.2'   => __( 'Minor Third — 1.2', 'unysonplus' ),
+					'1.25'  => __( 'Major Third — 1.25 (balanced)', 'unysonplus' ),
+					'1.333' => __( 'Perfect Fourth — 1.333', 'unysonplus' ),
+					'1.414' => __( 'Augmented Fourth — 1.414', 'unysonplus' ),
+					'1.5'   => __( 'Perfect Fifth — 1.5', 'unysonplus' ),
+					'1.618' => __( 'Golden Ratio — 1.618 (dramatic)', 'unysonplus' ),
+				),
+			),
+			'type_scale_ratio_mobile' => array(
+				'label'   => __( 'Scale Ratio (mobile)', 'unysonplus' ),
+				'desc'    => __( 'A gentler multiplier at the small end, so big headings shrink more than body text on phones. Usually one step below the desktop ratio.', 'unysonplus' ),
+				'type'    => 'select',
+				'value'   => '1.2',
+				'choices' => array(
+					'1.067' => __( 'Minor Second — 1.067', 'unysonplus' ),
+					'1.125' => __( 'Major Second — 1.125', 'unysonplus' ),
+					'1.2'   => __( 'Minor Third — 1.2 (balanced)', 'unysonplus' ),
+					'1.25'  => __( 'Major Third — 1.25', 'unysonplus' ),
+					'1.333' => __( 'Perfect Fourth — 1.333', 'unysonplus' ),
+				),
+			),
+				),
+			),
+			'grp_typo_headings' => array(
+				'type'    => 'group',
+				'title'   => __( 'Per-Heading Styling', 'unysonplus' ),
+				'options' => array(
+			'h1' => $heading_override( __( 'H1 Heading (override)', 'unysonplus' ), 36, 1.15, -0.7 ),
+			'h2' => $heading_override( __( 'H2 Heading (override)', 'unysonplus' ), 28, 1.2,  -0.4 ),
+			'h3' => $heading_override( __( 'H3 Heading (override)', 'unysonplus' ), 24, 1.3,  -0.2 ),
+			'h4' => $heading_override( __( 'H4 Heading (override)', 'unysonplus' ), 20, 1.35, 0 ),
+			'h5' => $heading_override( __( 'H5 Heading (override)', 'unysonplus' ), 18, 1.4,  0 ),
+			'h6' => $heading_override( __( 'H6 Heading (override)', 'unysonplus' ), 16, 1.45, 0 ),
+				),
+			),
+			// Content Links last — a secondary detail, kept out of the primary Fonts → Scale → Headings flow.
+			'grp_typo_links' => array(
+				'type'    => 'group',
+				'title'   => __( 'Content Links', 'unysonplus' ),
+				'options' => array(
 			'body_link' => $link_color(
 				__( 'Body Link Color', 'unysonplus' ),
 				__( 'Link color inside post/page content. Leave empty to use the theme primary color.', 'unysonplus' )
@@ -89,29 +155,18 @@ $options = array(
 				'label'   => __( 'Body Link Underline', 'unysonplus' ),
 				'desc'    => __( 'Underline style for links inside post/page content.', 'unysonplus' ),
 				'type'    => 'select',
+				// Default = Always underlined: content links should be distinguishable without relying on
+				// colour alone (WCAG 1.4.1). The "(default)" marker sits on the ACTUAL default value so the
+				// label can never drift from the stored value again.
 				'value'   => 'always',
 				'choices' => array(
-					'hover'  => __( 'On hover only (default)', 'unysonplus' ),
-					'always' => __( 'Always underlined', 'unysonplus' ),
+					'hover'  => __( 'On hover only', 'unysonplus' ),
+					'always' => __( 'Always underlined (default)', 'unysonplus' ),
 					'never'  => __( 'Never underlined', 'unysonplus' ),
 				),
 			),
-
-			/* --- Per-Heading Overrides (Advanced) — fine-tune individual headings on
-			   top of the Preset / Heading Font. Any empty field keeps the preset scale
-			   / theme default; family empty inherits the Heading Font. Kept FLAT (not
-			   in a box) so the `multi` container still stores each h1–h6 value. --- */
-			// Refined default type scale — smaller top, consistent taper, and
-			// progressively looser line-height as sizes shrink (tight 1.15 for the
-			// display h1 up to a comfortable 1.45 for h6). Slight negative tracking
-			// on the three largest headings for a tighter, more premium read. Empty
-			// fields keep the preset scale; these values are the no-preset baseline.
-			'h1' => $heading_override( __( 'H1 Heading (override)', 'unysonplus' ), 36, 1.15, -0.7 ),
-			'h2' => $heading_override( __( 'H2 Heading (override)', 'unysonplus' ), 28, 1.2,  -0.4 ),
-			'h3' => $heading_override( __( 'H3 Heading (override)', 'unysonplus' ), 24, 1.3,  -0.2 ),
-			'h4' => $heading_override( __( 'H4 Heading (override)', 'unysonplus' ), 20, 1.35, 0 ),
-			'h5' => $heading_override( __( 'H5 Heading (override)', 'unysonplus' ), 18, 1.4,  0 ),
-			'h6' => $heading_override( __( 'H6 Heading (override)', 'unysonplus' ), 16, 1.45, 0 ),
+				),
+			),
 		),
 	),
 );
