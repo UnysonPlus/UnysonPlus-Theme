@@ -1,6 +1,13 @@
 <?php if ( ! defined( 'FW' ) ) {
+
 	die( 'Forbidden' );
 }
+
+$fw_upw_pal = function_exists( 'fw_upw_icon_palette' )
+	? fw_upw_icon_palette()
+	: array( 'accent' => '#3858e9' );  // plugin absent: fall back to the brand blue
+
+
 
 /**
  * HEADER → LAYOUT — the header "chrome": layout mode, container, heights,
@@ -35,7 +42,7 @@ $svg_path = get_template_directory() . '/assets/svg/layout';
    file references (not data-URIs), so without it the browser serves an indefinitely
    cached older copy — which is why an edited SVG (e.g. adding the label band) doesn't
    show until a hard refresh. The ?v=<mtime> changes whenever the art changes. */
-$picker = function ( array $pairs, array $labels = array(), $height_small = 80, $height_large = 156 ) use ( $svg, $svg_path ) {
+$picker = function ( array $pairs, array $labels = array(), $height_small = 80, $height_large = 156 ) use ($svg, $svg_path, $fw_upw_pal) {
 	$out = [];
 	foreach ( $pairs as $value => $file ) {
 		$ver = @filemtime( $svg_path . '/' . $file ); // phpcs:ignore -- optional cache-buster
@@ -66,7 +73,7 @@ $vertical_width_field = [
    design's container treatment. Inline data-URI SVG (no asset files → no file-URL cache
    issue). Each non-classic design ships a CSS partial (assets/css/header/designs/<slug>.css)
    loaded ONLY when active (see inc/static.php). 'classic' has no partial. */
-$design_svg = function ( $variant, $label ) {
+$design_svg = function ( $variant, $label ) use ( $fw_upw_pal ) {
 	$w = 120; $h = 54; $barH = 22; $by = 9; $cy = $by + $barH / 2;
 	$bx = ( $variant === 'classic' ) ? 6 : 16;   // pill/card float inset; classic is flush
 	$bw = $w - 2 * $bx;
@@ -79,13 +86,13 @@ $design_svg = function ( $variant, $label ) {
 	}
 	$bar = '<rect x="' . $bx . '" y="' . $by . '" width="' . $bw . '" height="' . $barH . '" rx="' . $rx . '" fill="#ffffff" stroke="#dcdcde"/>';
 	if ( $variant === 'centered' ) {
-		$inner  = '<circle cx="' . ( $w / 2 ) . '" cy="' . $cy . '" r="4" fill="#2271b1"/>';
+		$inner  = '<circle cx="' . ( $w / 2 ) . '" cy="' . $cy . '" r="4" fill="' . $fw_upw_pal['accent'] . '"/>';
 		$inner .= '<rect x="' . ( $bx + 8 ) . '" y="' . ( $cy - 1.5 ) . '" width="14" height="3" rx="1.5" fill="#9aa7b5"/>';
 		$inner .= '<rect x="' . ( $bx + 26 ) . '" y="' . ( $cy - 1.5 ) . '" width="14" height="3" rx="1.5" fill="#9aa7b5"/>';
 		$inner .= '<rect x="' . ( $w - $bx - 22 ) . '" y="' . ( $cy - 1.5 ) . '" width="14" height="3" rx="1.5" fill="#9aa7b5"/>';
 		$inner .= '<rect x="' . ( $w - $bx - 40 ) . '" y="' . ( $cy - 1.5 ) . '" width="14" height="3" rx="1.5" fill="#9aa7b5"/>';
 	} else {
-		$inner = '<circle cx="' . ( $bx + 12 ) . '" cy="' . $cy . '" r="4" fill="#2271b1"/>';
+		$inner = '<circle cx="' . ( $bx + 12 ) . '" cy="' . $cy . '" r="4" fill="' . $fw_upw_pal['accent'] . '"/>';
 		foreach ( array( 20, 40, 60 ) as $off ) {
 			$inner .= '<rect x="' . ( $w - $bx - $off ) . '" y="' . ( $cy - 1.5 ) . '" width="16" height="3" rx="1.5" fill="#9aa7b5"/>';
 		}
@@ -94,7 +101,7 @@ $design_svg = function ( $variant, $label ) {
 	$svg  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $w . ' ' . $h . '" width="' . $w . '" height="' . $h . '">' . $shadow . $bar . $inner . $text . '</svg>';
 	return 'data:image/svg+xml,' . rawurlencode( $svg );
 };
-$design_choice = function ( $variant, $label ) use ( $design_svg ) {
+$design_choice = function ( $variant, $label ) use ($design_svg, $fw_upw_pal) {
 	$uri = $design_svg( $variant, $label );
 	return array(
 		'small' => array( 'height' => 54,  'src' => $uri ),

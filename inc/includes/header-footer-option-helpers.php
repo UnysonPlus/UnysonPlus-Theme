@@ -1105,7 +1105,7 @@ if ( ! function_exists( 'unysonplus_hf_columns_note' ) ) :
  * @return array
  */
 function unysonplus_hf_columns_note() {
-	$html = '<div style="box-sizing:border-box;max-width:100%;padding:10px 12px;background:#f6f7f7;border-left:3px solid #2271b1;border-radius:4px;font-size:12.5px;line-height:1.55;color:#50575e;overflow-wrap:break-word;">'
+	$html = '<div style="box-sizing:border-box;max-width:100%;padding:10px 12px;background:#f6f7f7;border-left:3px solid var(--fw-accent, #3858e9);border-radius:4px;font-size:12.5px;line-height:1.55;color:#50575e;overflow-wrap:break-word;">'
 		. '<strong>' . esc_html__( 'How the columns align', 'unysonplus' ) . '</strong> — '
 		. esc_html__( 'elements align to the column they sit in: Left → left, Center → centered, Right → right. Empty columns collapse, so filling only one column aligns everything to that side (e.g. put everything in the Center column to center the whole row).', 'unysonplus' )
 		. '</div>';
@@ -1287,7 +1287,9 @@ function unysonplus_hf_border_sides_field( $default = array( 'top' ) ) {
 	// (horizontal for top/bottom, vertical for left/right), caption baked in — same
 	// approach as the Container tiles.
 	$svg = function ( $side, $lbl ) {
-		$accent = '#2271b1'; $line = '#c3c4c7';
+		$accent = function_exists( 'fw_upw_icon_palette' )
+			? fw_upw_icon_palette()['accent']
+			: '#3858e9'; $line = '#c3c4c7';
 		$box    = '<rect x="30" y="8" width="44" height="26" rx="3" fill="none" stroke="' . $line . '" stroke-width="1.5"/>';
 		$edges  = array(
 			'top'    => '<rect x="30" y="7"  width="44" height="3" rx="1.5" fill="' . $accent . '"/>',
@@ -1434,7 +1436,9 @@ function unysonplus_hf_custom_styling( $prefix ) {
 	// inset (Fixed Width) or edge-to-edge (Full Width), caption baked in (inline data-URI
 	// SVG, matching the Social Icon Style / menu-style tiles).
 	$container_svg = function ( $variant, $label ) {
-		$accent = '#2271b1'; $line = '#c3c4c7';
+		$accent = function_exists( 'fw_upw_icon_palette' )
+			? fw_upw_icon_palette()['accent']
+			: '#3858e9'; $line = '#c3c4c7';
 		$frame  = '<rect x="1" y="2" width="102" height="42" rx="3" fill="none" stroke="' . $line . '" stroke-width="1.5"/>';
 		$bar    = ( 'container' === $variant )
 			? '<rect x="24" y="13" width="56" height="20" rx="2" fill="' . $accent . '"/>'

@@ -1,6 +1,13 @@
 <?php if ( ! defined( 'FW' ) ) {
+
 	die( 'Forbidden' );
 }
+
+$fw_upw_pal = function_exists( 'fw_upw_icon_palette' )
+	? fw_upw_icon_palette()
+	: array( 'accent' => '#3858e9' );  // plugin absent: fall back to the brand blue
+
+
 
 /**
  * Social Profiles + Social Icon Style — site-wide social links (consumed by the
@@ -22,8 +29,8 @@ $color = function ( $label, $desc, $kind ) {
 
 /* Icon-style preview tiles — a mini social chip in each shape (inline data-URI SVG,
    caption baked in, matching the header-design / menu-style tiles). */
-$style_svg = function ( $variant, $label ) {
-	$w = 104; $h = 66; $accent = '#2271b1'; $cx = 52; $cy = 24; $s = 30;
+$style_svg = function ( $variant, $label ) use ( $fw_upw_pal ) {
+	$w = 104; $h = 66; $accent = $fw_upw_pal['accent']; $cx = 52; $cy = 24; $s = 30;
 	$x = $cx - $s / 2; $y = $cy - $s / 2;
 	$white_dot  = '<circle cx="' . $cx . '" cy="' . $cy . '" r="6" fill="#ffffff"/>';
 	$accent_dot = '<circle cx="' . $cx . '" cy="' . $cy . '" r="6" fill="' . $accent . '"/>';
@@ -47,7 +54,7 @@ $style_svg = function ( $variant, $label ) {
 	$svg  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $w . ' ' . $h . '" width="' . $w . '" height="' . $h . '">' . $chip . $glyph . $text . '</svg>';
 	return 'data:image/svg+xml,' . rawurlencode( $svg );
 };
-$style_choice = function ( $variant, $label ) use ( $style_svg ) {
+$style_choice = function ( $variant, $label ) use ($style_svg, $fw_upw_pal) {
 	$uri = $style_svg( $variant, $label );
 	return array(
 		'small' => array( 'height' => 66, 'src' => $uri ),

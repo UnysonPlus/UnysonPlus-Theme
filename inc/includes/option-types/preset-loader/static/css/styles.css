@@ -32,12 +32,12 @@
 	transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
 }
 .fw-preset-card:hover {
-	border-color: #2271b1;
+	border-color: var(--fw-accent, #3858e9);
 	box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
 }
 .fw-preset-card.is-selected {
-	border-color: #2271b1;
-	box-shadow: 0 0 0 1px #2271b1;
+	border-color: var(--fw-accent, #3858e9);
+	box-shadow: 0 0 0 1px var(--fw-accent, #3858e9);
 	background: #f0f6fc;
 }
 .fw-preset-card.is-disabled,
@@ -101,7 +101,7 @@
 	color: #646970;
 }
 .fw-preset-loader-status.is-error { color: #d63638; }
-.fw-preset-loader-status.is-busy  { color: #2271b1; }
+.fw-preset-loader-status.is-busy  { color: var(--fw-accent, #3858e9); }
 
 .fw-preset-loader-note {
 	margin: 10px 0 0;
@@ -214,7 +214,7 @@
 .fw-preset-loader-summary::-webkit-details-marker { display: none; }
 .fw-preset-loader-summary:hover { background: #f6f7f9; }
 .fw-preset-loader-summary:focus-visible {
-	outline: 2px solid #2271b1;
+	outline: 2px solid var(--fw-accent, #3858e9);
 	outline-offset: -2px;
 }
 .fw-preset-loader-summary__hint {

@@ -1,6 +1,13 @@
 <?php if ( ! defined( 'FW' ) ) {
+
 	die( 'Forbidden' );
 }
+
+$fw_upw_pal = function_exists( 'fw_upw_icon_palette' )
+	? fw_upw_icon_palette()
+	: array( 'accent' => '#3858e9' );  // plugin absent: fall back to the brand blue
+
+
 
 /**
  * HEADER → MEGA MENU — global styling for every Mega Menu panel.
@@ -35,8 +42,8 @@ $color_field = function ( $label, $desc, $kind, $fallback = '' ) {
    treatment (shadow / border / top accent). Inline data-URI SVG (no asset files
    → no file-URL cache issue), caption baked in. Same visual language as the
    Header → Menu "Dropdown Design" tiles so the two read as a family. */
-$panel_style_svg = function ( $variant, $label ) {
-	$w = 120; $h = 76; $accent = '#2271b1'; $grey = '#c3c8cf';
+$panel_style_svg = function ( $variant, $label ) use ( $fw_upw_pal ) {
+	$w = 120; $h = 76; $accent = $fw_upw_pal['accent']; $grey = '#c3c8cf';
 	$px = 26; $py = 12; $pw = 68; $ph = 46; $rx = 6;
 
 	$shadow = ''; $stroke = 'none'; $sw = 0; $topbar = '';
@@ -74,7 +81,7 @@ $panel_style_svg = function ( $variant, $label ) {
 	$svg  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $w . ' ' . $h . '" width="' . $w . '" height="' . $h . '">' . $shadow . $panel . $topbar . $items . $text . '</svg>';
 	return 'data:image/svg+xml,' . rawurlencode( $svg );
 };
-$panel_style_choice = function ( $variant, $label ) use ( $panel_style_svg ) {
+$panel_style_choice = function ( $variant, $label ) use ($panel_style_svg, $fw_upw_pal) {
 	$uri = $panel_style_svg( $variant, $label );
 	return array(
 		'small' => array( 'height' => 76,  'src' => $uri ),

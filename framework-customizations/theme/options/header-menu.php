@@ -1,6 +1,13 @@
 <?php if ( ! defined( 'FW' ) ) {
+
 	die( 'Forbidden' );
 }
+
+$fw_upw_pal = function_exists( 'fw_upw_icon_palette' )
+	? fw_upw_icon_palette()
+	: array( 'accent' => '#3858e9' );  // plugin absent: fall back to the brand blue
+
+
 
 /**
  * HEADER → MENU — primary navigation styling.
@@ -34,8 +41,8 @@ $color_field = function ( $label, $desc, $kind, $fallback = '' ) {
    files → no file-URL cache issue). Each tile shows a 3-item mini nav with the
    middle item rendered in the style; the caption is baked into the SVG (the
    image-picker's show_label is off, matching header-layout.php's design tiles). */
-$menu_style_svg = function ( $variant, $label ) {
-	$w = 132; $h = 58; $accent = '#2271b1'; $grey = '#c3c8cf';
+$menu_style_svg = function ( $variant, $label ) use ( $fw_upw_pal ) {
+	$w = 132; $h = 58; $accent = $fw_upw_pal['accent']; $grey = '#c3c8cf';
 	$iy = 16; $ih = 7; $irx = 3.5; $iw = 30; $ax = 51; // middle (active) item x
 
 	// Inactive side items.
@@ -78,7 +85,7 @@ $menu_style_svg = function ( $variant, $label ) {
 	$svg   = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $w . ' ' . $h . '" width="' . $w . '" height="' . $h . '">' . $bars . $mid . $text . '</svg>';
 	return 'data:image/svg+xml,' . rawurlencode( $svg );
 };
-$menu_style_choice = function ( $variant, $label ) use ( $menu_style_svg ) {
+$menu_style_choice = function ( $variant, $label ) use ($menu_style_svg, $fw_upw_pal) {
 	$uri = $menu_style_svg( $variant, $label );
 	return array(
 		'small' => array( 'height' => 58, 'src' => $uri ),
@@ -89,8 +96,8 @@ $menu_style_choice = function ( $variant, $label ) use ( $menu_style_svg ) {
 /* Dropdown-design preview tiles — a mini dropdown panel (3 item lines) showing
    the overall container treatment (shadow / border / top accent). Same inline
    data-URI approach as the item-style tiles; caption baked in. */
-$dropdown_style_svg = function ( $variant, $label ) {
-	$w = 120; $h = 76; $accent = '#2271b1'; $grey = '#c3c8cf';
+$dropdown_style_svg = function ( $variant, $label ) use ( $fw_upw_pal ) {
+	$w = 120; $h = 76; $accent = $fw_upw_pal['accent']; $grey = '#c3c8cf';
 	$px = 26; $py = 10; $pw = 68; $ph = 46; $rx = 6;
 
 	$shadow = ''; $stroke = 'none'; $sw = 0; $topbar = '';
@@ -126,7 +133,7 @@ $dropdown_style_svg = function ( $variant, $label ) {
 	$svg  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $w . ' ' . $h . '" width="' . $w . '" height="' . $h . '">' . $shadow . $panel . $topbar . $items . $text . '</svg>';
 	return 'data:image/svg+xml,' . rawurlencode( $svg );
 };
-$dropdown_style_choice = function ( $variant, $label ) use ( $dropdown_style_svg ) {
+$dropdown_style_choice = function ( $variant, $label ) use ($dropdown_style_svg, $fw_upw_pal) {
 	$uri = $dropdown_style_svg( $variant, $label );
 	return array(
 		'small' => array( 'height' => 76, 'src' => $uri ),

@@ -157,7 +157,7 @@ class UnysonPlus_Plugin_Installer {
 		?>
 		<style>
 			#unysonplus-install-progress .upi-track{position:relative;height:8px;border-radius:6px;background:#dcdcde;overflow:hidden;max-width:420px}
-			#unysonplus-install-progress .upi-fill{position:absolute;top:0;left:0;height:100%;width:40%;border-radius:6px;background:#2271b1;animation:upiSlide 1.4s ease-in-out infinite}
+			#unysonplus-install-progress .upi-fill{position:absolute;top:0;left:0;height:100%;width:40%;border-radius:6px;background:var(--fw-accent, #3858e9);animation:upiSlide 1.4s ease-in-out infinite}
 			#unysonplus-install-progress.upi-done .upi-fill{width:100%;animation:none;background:#46b450;transition:width .4s ease}
 			#unysonplus-install-progress.upi-error .upi-fill{width:100%;animation:none;background:#d63638}
 			@keyframes upiSlide{0%{left:-40%}50%{left:30%}100%{left:100%}}

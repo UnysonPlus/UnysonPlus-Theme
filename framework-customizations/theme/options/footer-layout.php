@@ -1,6 +1,13 @@
 <?php if ( ! defined( 'FW' ) ) {
+
 	die( 'Forbidden' );
 }
+
+$fw_upw_pal = function_exists( 'fw_upw_icon_palette' )
+	? fw_upw_icon_palette()
+	: array( 'accent' => '#3858e9' );  // plugin absent: fall back to the brand blue
+
+
 
 /* Compact palette-preset colour field (falls back to a raw picker if the shortcodes
    helper isn't loaded). kind 'text' → text-{slug} choices. */
@@ -40,8 +47,8 @@ $footer_spacing = function ( $label, $desc ) {
 /* Border-Sides preview tiles — a mini footer box with an accent line on the top edge,
    bottom edge, or both, caption baked in (inline data-URI SVG, same approach as the
    Container / menu-style tiles). */
-$sides_svg = function ( $variant, $label ) {
-	$accent = '#2271b1'; $line = '#c3c4c7';
+$sides_svg = function ( $variant, $label ) use ( $fw_upw_pal ) {
+	$accent = $fw_upw_pal['accent']; $line = '#c3c4c7';
 	$box  = '<rect x="14" y="8" width="76" height="26" rx="3" fill="none" stroke="' . $line . '" stroke-width="1.5"/>';
 	$top  = in_array( $variant, [ 'top', 'both' ], true )    ? '<rect x="14" y="7"  width="76" height="3" rx="1.5" fill="' . $accent . '"/>' : '';
 	$bot  = in_array( $variant, [ 'bottom', 'both' ], true ) ? '<rect x="14" y="32" width="76" height="3" rx="1.5" fill="' . $accent . '"/>' : '';
@@ -49,7 +56,7 @@ $sides_svg = function ( $variant, $label ) {
 	$svg  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 104 52" width="104" height="52">' . $box . $top . $bot . $text . '</svg>';
 	return 'data:image/svg+xml,' . rawurlencode( $svg );
 };
-$sides_choice = function ( $variant, $label ) use ( $sides_svg ) {
+$sides_choice = function ( $variant, $label ) use ($sides_svg, $fw_upw_pal) {
 	$uri = $sides_svg( $variant, $label );
 	return [ 'small' => [ 'height' => 52, 'src' => $uri ], 'large' => [ 'height' => 74, 'src' => $uri ] ];
 };
