@@ -23,7 +23,7 @@ $options = [
 		'preset_group' => 'main_footer_columns',
 	],
 
-	'main_footer_columns' => unysonplus_footer_columns_field( 'main_footer', 6, 3 ),
+	'main_footer_columns' => unysonplus_footer_columns_field( 'main_footer', 8, 3 ),
 
 	'main_footer_custom_styling' => unysonplus_hf_custom_styling( 'main_footer' ),
 

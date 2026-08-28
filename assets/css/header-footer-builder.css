@@ -229,7 +229,11 @@
 	left: 0;
 	right: 0;
 	z-index: 1030;
-	background: transparent;
+	/* An overlay header with NO Main Header Background stays see-through (--header-bg = transparent
+	   by default). But a FROSTED overlay — a translucent tinted bar over the hero (source
+	   `bg-background/80 backdrop-blur`) — sets --header-bg to that rgba fill, and it must SHOW at rest,
+	   not be forced transparent. So honour --header-bg here; a true clear overlay is unaffected. */
+	background: var(--header-bg, transparent);
 }
 .site-header--transparent.is-stuck {
 	position: fixed;
@@ -611,6 +615,16 @@
 @media (max-width: 782px) {
 	.footer-section .footer-row--auto { justify-content: center; gap: 28px; }
 }
+/* 7-8 column footer → an EVEN grid (mirrors a source `grid-cols-8`): equal-width link columns that grow
+   to fill the row (no content-sizing / edge-spreading), with the first (brand) column wider like a
+   `col-span-2`. flex-wrap still lets them stack on narrow screens. */
+.footer-section .footer-row--equal { justify-content: flex-start; gap: 32px; }
+.footer-section .footer-row--equal > .footer-col--auto { flex: 1 1 0; width: auto; min-width: 130px; }
+.footer-section .footer-row--equal > .footer-col--auto:first-child { flex: 1.7 1 0; min-width: 200px; }
+@media (max-width: 782px) {
+	.footer-section .footer-row--equal > .footer-col--auto,
+	.footer-section .footer-row--equal > .footer-col--auto:first-child { flex-basis: 40%; }
+}
 
 /* Converter footer link / contact columns render as a raw <ul class="fw-footer-links"> inside a text
    element; strip the default bullet + list indent so the column reads as a clean stacked list — matching
@@ -643,3 +657,17 @@
 .header-element .hf-heading { margin: 0 0 0.5rem; }
 .footer-element .footer-link,
 .header-element .footer-link { display: inline-block; text-decoration: none; }
+
+/* Header search — a compact icon that reveals the field on click (popover), instead of an
+   always-expanded box in the bar. Toggled by navigation.js (.is-open); focus-within is the
+   no-JS fallback. The field popover is light for readability on any header theme. */
+.header-search { position: relative; display: inline-flex; align-items: center; }
+.header-search-toggle,
+.header-search-btn { display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; padding: 6px; margin: 0; color: inherit; cursor: pointer; line-height: 0; }
+.header-search-toggle:hover { opacity: .7; }
+.header-search-form { position: absolute; top: calc(100% + 10px); right: 0; display: flex; align-items: center; gap: 2px; background: #fff; border: 1px solid rgba(0,0,0,.12); border-radius: 6px; padding: 4px; box-shadow: 0 12px 30px -10px rgba(0,0,0,.35); opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .18s ease, transform .18s ease, visibility .18s; z-index: 60; }
+.header-search.is-open .header-search-form,
+.header-search:focus-within .header-search-form { opacity: 1; visibility: visible; transform: translateY(0); }
+.header-search-input { border: 0; outline: 0; background: transparent; color: #111; font: inherit; padding: 6px 8px; min-width: 200px; }
+.header-search-btn { color: #555; }
+.header-search-btn:hover { color: #111; }

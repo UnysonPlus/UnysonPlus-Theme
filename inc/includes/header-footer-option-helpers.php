@@ -1023,7 +1023,7 @@ function unysonplus_footer_columns_field( $prefix, $max = 6, $default_count = 1,
 		// center / …). This is what the 12-grid CANNOT express — a brand block beside
 		// content-sized link lists (see footer-builder.php → footer-row--auto). When Off,
 		// the fixed Column Ratio below applies as before.
-		if ( $n >= 2 ) {
+		if ( $n >= 2 && $n <= 6 ) {
 			$reveal[ $prefix . '_auto' ] = array(
 				'type'         => 'switch',
 				'label'        => __( 'Auto Width (fit to content)', 'unysonplus' ),
@@ -1033,15 +1033,23 @@ function unysonplus_footer_columns_field( $prefix, $max = 6, $default_count = 1,
 				'right-choice' => array( 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ),
 			);
 			$reveal[ $prefix . '_justify' ] = unysonplus_footer_justify_field();
+		} elseif ( $n >= 7 ) {
+			// 7/8 columns are always Auto Width (no ratio possible) — show only the
+			// Distribution control so the flex row can still be spread how the user wants.
+			$reveal[ $prefix . '_justify' ] = unysonplus_footer_justify_field();
 		}
 		// Ratio control. 2, 3, 4 and 6 columns → the Split-Slider on the Bootstrap 12-grid
 		// (1/2, 1/3, 1/4, 1/6). 5 columns → the fifths IMAGE-PICKER (`_layout` = f5-* / 5-equal):
 		// the 12-grid can't express fifths, so the picker offers curated compositions of the
 		// 5 grid units (equal, or span a column like 2/5 + 1/5 + 1/5 + 1/5). (1 col = full width.)
 		// Both are ignored at render when Auto Width (above) is On.
+		// 7 and 8 columns have NO ratio control at all: the 12-grid can't cleanly
+		// express sevenths/eighths, so these two counts always render as an Auto Width
+		// flex row (content-sized columns distributed by the Distribution above). The
+		// render side forces auto for count >= 7 (see unysonplus_extract_footer_columns_data).
 		if ( 5 === $n ) {
 			$reveal[ $prefix . '_layout' ] = unysonplus_footer_fifth_ratio_field();
-		} elseif ( $n >= 2 ) {
+		} elseif ( $n >= 2 && $n <= 6 ) {
 			$reveal[ $prefix . '_split' ] = array(
 				'type'        => 'split-slider',
 				'label'       => __( 'Column Ratio', 'unysonplus' ),

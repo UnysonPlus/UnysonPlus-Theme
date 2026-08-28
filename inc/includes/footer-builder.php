@@ -27,7 +27,7 @@ function unysonplus_footer_extra_bars() {
 		$label = ( is_array( $cfg ) && ! empty( $cfg['label'] ) )
 			? (string) $cfg['label']
 			: ucwords( str_replace( array( '_', '-' ), ' ', $id ) );
-		$max = ( is_array( $cfg ) && ! empty( $cfg['max'] ) ) ? max( 1, min( 6, (int) $cfg['max'] ) ) : 6;
+		$max = ( is_array( $cfg ) && ! empty( $cfg['max'] ) ) ? max( 1, min( 8, (int) $cfg['max'] ) ) : 8;
 		$out[ $id ] = array( 'label' => $label, 'max' => $max, 'prefix' => 'footer_x_' . $id );
 	}
 	return $out;
@@ -482,6 +482,12 @@ function unysonplus_extract_footer_columns_data( $section_data, $prefix ) {
         $auto_raw = isset( $choice[ $prefix . '_auto' ] ) ? $choice[ $prefix . '_auto' ] : 'no';
         $auto     = ( 'yes' === $auto_raw || true === $auto_raw || 1 === $auto_raw || '1' === $auto_raw );
         $justify  = isset( $choice[ $prefix . '_justify' ] ) ? (string) $choice[ $prefix . '_justify' ] : 'between';
+        // 7 and 8 columns are ALWAYS auto-width: the 12-grid can't express sevenths/eighths,
+        // so these counts render as a content-sized flex row (matching the option UI, which
+        // offers no ratio control for them).
+        if ( $count >= 7 ) {
+                $auto = true;
+        }
         if ( $count > 1 && $auto ) {
                 $classes = array_fill( 0, $count, 'footer-col--auto' );
         } elseif ( $count > 1 && $is_fifth ) {
@@ -533,6 +539,10 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
                 $jmap = array( 'between' => 'space-between', 'around' => 'space-around', 'center' => 'center', 'start' => 'flex-start', 'end' => 'flex-end' );
                 $jkey = isset( $extracted['justify'] ) ? (string) $extracted['justify'] : 'between';
                 $row_style = ' style="--fa-justify:' . esc_attr( isset( $jmap[ $jkey ] ) ? $jmap[ $jkey ] : 'space-between' ) . '"';
+                // 7-8 columns: EQUAL-width flex (brand column wider) — a many-column footer reads as an even
+                // grid (the source's `grid-cols-8` with a `col-span-2` brand), NOT content-sized columns that
+                // wrap unevenly and get flung to the row edges by space-between.
+                if ( $col_count >= 7 ) { $row_class .= ' footer-row--equal'; }
         }
 
         $has_content = false;

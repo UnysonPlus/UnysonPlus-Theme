@@ -92,6 +92,13 @@ endif;
 if ( ! function_exists( 'unysonplus_onboarding_render_page' ) ) :
 	/** Render the Getting Started dashboard. */
 	function unysonplus_onboarding_render_page() {
+		// Opening the checklist counts as "engaged" — persist the dismissal so the
+		// welcome notice never nags again, even if the user clicked "Get started"
+		// instead of "Dismiss" (previously only Dismiss / the native "×" persisted,
+		// so a user who clicked "Get started" kept seeing the notice on every page).
+		if ( current_user_can( 'edit_theme_options' ) ) {
+			update_user_meta( get_current_user_id(), 'unysonplus_onboarding_dismissed', 1 );
+		}
 		$steps = unysonplus_onboarding_steps();
 		$theme = wp_get_theme( get_template() );
 		?>
@@ -199,7 +206,9 @@ if ( ! function_exists( 'unysonplus_onboarding_notice' ) ) :
 				var body = new FormData();
 				body.append( 'action', 'unysonplus_dismiss_onboarding' );
 				body.append( 'nonce', <?php echo wp_json_encode( $ajax_nonce ); ?> );
-				window.fetch( window.ajaxurl, { method: 'POST', credentials: 'same-origin', body: body } );
+				/* keepalive so the dismissal still records if the user navigates away
+				   immediately after clicking the "×" (WP removes the notice instantly). */
+				window.fetch( window.ajaxurl, { method: 'POST', credentials: 'same-origin', body: body, keepalive: true } );
 			} );
 		} )();
 		</script>

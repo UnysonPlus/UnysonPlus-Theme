@@ -493,3 +493,40 @@
 	// Keep the concentric rings sized to the viewport as it changes.
 	window.addEventListener( 'resize', sizeConcentricRings );
 })();
+
+/**
+ * Header SEARCH icon toggle — click the magnifier to reveal the field popover; click outside or
+ * press Escape to close. Progressive enhancement over the CSS `:focus-within` fallback.
+ */
+( function () {
+	'use strict';
+	function closeAll( except ) {
+		var open = document.querySelectorAll( '.header-search.is-open' );
+		for ( var i = 0; i < open.length; i++ ) {
+			if ( open[ i ] === except ) { continue; }
+			open[ i ].classList.remove( 'is-open' );
+			var t = open[ i ].querySelector( '.header-search-toggle' );
+			if ( t ) { t.setAttribute( 'aria-expanded', 'false' ); }
+		}
+	}
+	document.addEventListener( 'click', function ( e ) {
+		var toggle = e.target.closest ? e.target.closest( '.header-search-toggle' ) : null;
+		if ( toggle ) {
+			var wrap = toggle.closest( '.header-search' );
+			closeAll( wrap );
+			var isOpen = wrap.classList.toggle( 'is-open' );
+			toggle.setAttribute( 'aria-expanded', isOpen ? 'true' : 'false' );
+			if ( isOpen ) { var inp = wrap.querySelector( '.header-search-input' ); if ( inp ) { inp.focus(); } }
+			return;
+		}
+		if ( ! ( e.target.closest && e.target.closest( '.header-search' ) ) ) { closeAll( null ); }
+	} );
+	document.addEventListener( 'keydown', function ( e ) {
+		if ( e.key !== 'Escape' && e.keyCode !== 27 ) { return; }
+		var open = document.querySelector( '.header-search.is-open' );
+		if ( ! open ) { return; }
+		open.classList.remove( 'is-open' );
+		var t = open.querySelector( '.header-search-toggle' );
+		if ( t ) { t.setAttribute( 'aria-expanded', 'false' ); t.focus(); }
+	} );
+} )();

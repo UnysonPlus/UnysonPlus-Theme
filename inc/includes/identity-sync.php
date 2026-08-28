@@ -122,7 +122,11 @@ function unysonplus_identity_sync_text_on_save() {
 	foreach ( array( 'site_title' => 'blogname', 'tagline_text' => 'blogdescription' ) as $field => $core_opt ) {
 		$val = unysonplus_identity_get_text( $field );
 		if ( $val !== '' ) {
-			if ( (string) get_option( $core_opt ) !== $val ) { update_option( $core_opt, $val ); }
+			// blogname / blogdescription are PLAIN TEXT (they land in the document <title>, feeds, emails …),
+			// but the header site_title may carry a two-tone accent wordmark (`Ink<span class="accent">Accent</span>`)
+			// for the logo. Strip tags when mirroring into the core option so the browser tab never shows raw HTML.
+			$core_val = trim( wp_strip_all_tags( $val ) );
+			if ( $core_val !== '' && (string) get_option( $core_opt ) !== $core_val ) { update_option( $core_opt, $core_val ); }
 		} else {
 			$core = (string) get_option( $core_opt );
 			if ( $core !== '' ) { fw_set_db_settings_option( unysonplus_identity_path( $field ), $core ); }
@@ -161,8 +165,12 @@ if ( ! function_exists( 'unysonplus_identity_pull_text_from_core' ) ) :
 function unysonplus_identity_pull_text_from_core( $field, $new ) {
 	if ( ! function_exists( 'fw_set_db_settings_option' ) ) { return; }
 	$new = trim( (string) $new );
-	// Only mirror when the header field is non-empty and now diverges (empty = intentional fallback).
-	if ( unysonplus_identity_get_text( $field ) !== '' && unysonplus_identity_get_text( $field ) !== $new ) {
+	// Only mirror when the header field is non-empty and now diverges (empty = intentional fallback). Compare
+	// the header field STRIPPED of tags: a two-tone logo (`Ink<span class="accent">Accent</span>`) whose plain
+	// text already equals the (plain) core value is the SAME identity — don't clobber its accent markup with
+	// the tagless core string (that would flatten the wordmark right after the push above stripped it).
+	$cur = unysonplus_identity_get_text( $field );
+	if ( $cur !== '' && trim( wp_strip_all_tags( $cur ) ) !== $new ) {
 		fw_set_db_settings_option( unysonplus_identity_path( $field ), $new );
 	}
 }

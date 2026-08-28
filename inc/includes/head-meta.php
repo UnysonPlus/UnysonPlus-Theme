@@ -113,42 +113,78 @@ if ( ! function_exists( 'unysonplus_head_meta' ) ) {
 		}
 
 		$out = '';
-		if ( '' !== $desc ) {
+
+		/**
+		 * Filter the description tag on its own.
+		 *
+		 * Separate from `unysonplus_emit_meta` because a partner can own SOME of
+		 * this surface without owning all of it: the UnysonPlus SEO extension
+		 * emits the description and the canonical but not (yet) Open Graph, so a
+		 * single all-or-nothing switch would either duplicate the description or
+		 * throw away the social tags.
+		 *
+		 * @param bool $emit
+		 */
+		$emit_description = (bool) apply_filters( 'unysonplus_emit_meta_description', true );
+
+		/**
+		 * Filter the canonical link on its own. See above.
+		 *
+		 * @param bool $emit
+		 */
+		$emit_canonical = (bool) apply_filters( 'unysonplus_emit_meta_canonical', true );
+
+		if ( $emit_description && '' !== $desc ) {
 			$out .= sprintf( '<meta name="description" content="%s">' . "\n", esc_attr( $desc ) );
 		}
 		// Canonical: core already prints one on singular; only add it where core does not.
-		if ( ! is_singular() && '' !== $url ) {
+		if ( $emit_canonical && ! is_singular() && '' !== $url ) {
 			$out .= sprintf( '<link rel="canonical" href="%s">' . "\n", esc_url( $url ) );
 		}
 
-		// Open Graph.
-		$out .= sprintf( '<meta property="og:type" content="%s">' . "\n", esc_attr( $type ) );
-		if ( '' !== $title ) {
-			$out .= sprintf( '<meta property="og:title" content="%s">' . "\n", esc_attr( $title ) );
-		}
-		if ( '' !== $desc ) {
-			$out .= sprintf( '<meta property="og:description" content="%s">' . "\n", esc_attr( $desc ) );
-		}
-		if ( '' !== $url ) {
-			$out .= sprintf( '<meta property="og:url" content="%s">' . "\n", esc_url( $url ) );
-		}
-		if ( '' !== $site ) {
-			$out .= sprintf( '<meta property="og:site_name" content="%s">' . "\n", esc_attr( $site ) );
-		}
-		if ( '' !== $image ) {
-			$out .= sprintf( '<meta property="og:image" content="%s">' . "\n", esc_url( $image ) );
-		}
+		/**
+		 * Filter the Open Graph and Twitter card block on its own.
+		 *
+		 * Same reasoning as the two above: the SEO extension took the
+		 * description and the canonical first and the social tags later, so the
+		 * hand-over had to be possible one surface at a time. While the
+		 * extension emits these, the theme must not — two og:title tags is not
+		 * a merge, it is a coin toss.
+		 *
+		 * @param bool $emit
+		 */
+		$emit_social = (bool) apply_filters( 'unysonplus_emit_meta_social', true );
 
-		// Twitter card.
-		$out .= sprintf( '<meta name="twitter:card" content="%s">' . "\n", '' !== $image ? 'summary_large_image' : 'summary' );
-		if ( '' !== $title ) {
-			$out .= sprintf( '<meta name="twitter:title" content="%s">' . "\n", esc_attr( $title ) );
-		}
-		if ( '' !== $desc ) {
-			$out .= sprintf( '<meta name="twitter:description" content="%s">' . "\n", esc_attr( $desc ) );
-		}
-		if ( '' !== $image ) {
-			$out .= sprintf( '<meta name="twitter:image" content="%s">' . "\n", esc_url( $image ) );
+		if ( $emit_social ) {
+			// Open Graph.
+			$out .= sprintf( '<meta property="og:type" content="%s">' . "\n", esc_attr( $type ) );
+			if ( '' !== $title ) {
+				$out .= sprintf( '<meta property="og:title" content="%s">' . "\n", esc_attr( $title ) );
+			}
+			if ( '' !== $desc ) {
+				$out .= sprintf( '<meta property="og:description" content="%s">' . "\n", esc_attr( $desc ) );
+			}
+			if ( '' !== $url ) {
+				$out .= sprintf( '<meta property="og:url" content="%s">' . "\n", esc_url( $url ) );
+			}
+			if ( '' !== $site ) {
+				$out .= sprintf( '<meta property="og:site_name" content="%s">' . "\n", esc_attr( $site ) );
+			}
+			if ( '' !== $image ) {
+				$out .= sprintf( '<meta property="og:image" content="%s">' . "\n", esc_url( $image ) );
+			}
+
+			// Twitter card.
+			$out .= sprintf( '<meta name="twitter:card" content="%s">' . "\n", '' !== $image ? 'summary_large_image' : 'summary' );
+			if ( '' !== $title ) {
+				$out .= sprintf( '<meta name="twitter:title" content="%s">' . "\n", esc_attr( $title ) );
+			}
+			if ( '' !== $desc ) {
+				$out .= sprintf( '<meta name="twitter:description" content="%s">' . "\n", esc_attr( $desc ) );
+			}
+			if ( '' !== $image ) {
+				$out .= sprintf( '<meta name="twitter:image" content="%s">' . "\n", esc_url( $image ) );
+			}
 		}
 
 		echo "\n" . $out; // phpcs:ignore WordPress.Security.EscapeOutput -- each value escaped above.

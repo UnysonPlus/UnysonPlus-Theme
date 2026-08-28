@@ -1316,6 +1316,24 @@ $options = [
 				'template' => '{{- demo_text }}',
 				'limit' => 3,
 			],
+			'demo_addable_box_inline' => [
+				'label'           => __( 'Addable Box (inline)', 'unysonplus' ),
+				'type'            => 'addable-box',
+				'inline'          => true,
+				'value'           => [ [ 'size_name' => 'Large', 'slug' => 'lg' ] ],
+				'desc'            => __( 'The same addable-box with <code>inline => true</code>: each inner option renders as one compact row (label left, input right) instead of the default stacked layout. Opt-in; other addable-boxes are unaffected.', 'unysonplus' ),
+				'add-button-text' => __( 'Add Row', 'unysonplus' ),
+				'template'        => '{{- size_name }}',
+				'limit'           => 5,
+				'box-options'     => [
+					'size_name'     => [ 'label' => __( 'Size Name', 'unysonplus' ), 'type' => 'text', 'value' => '' ],
+					'slug'          => [ 'label' => __( 'Slug', 'unysonplus' ), 'type' => 'text', 'value' => '', 'desc' => __( 'Becomes the CSS class suffix.', 'unysonplus' ) ],
+					'font_size'     => [ 'label' => __( 'Font Size', 'unysonplus' ), 'type' => 'unit-input', 'units' => [ 'px', 'em', 'rem' ], 'value' => [ 'value' => 18, 'unit' => 'px' ] ],
+					'line_height'   => [ 'label' => __( 'Line Height', 'unysonplus' ), 'type' => 'text', 'value' => '', 'desc' => __( 'Unitless is fine (e.g. 1.5), or use a unit.', 'unysonplus' ) ],
+					'padding_y'     => [ 'label' => __( 'Padding Y', 'unysonplus' ), 'type' => 'unit-input', 'units' => [ 'px', 'em', 'rem' ], 'value' => [ 'value' => 11, 'unit' => 'px' ] ],
+					'border_radius' => [ 'label' => __( 'Border Radius', 'unysonplus' ), 'type' => 'unit-input', 'units' => [ 'px', '%', 'em', 'rem' ], 'value' => [ 'value' => 10, 'unit' => 'px' ] ],
+				],
+			],
 			'demo_group' => [
 				'type'    => 'group',
 				'options' => [

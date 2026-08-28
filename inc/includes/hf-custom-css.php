@@ -58,10 +58,15 @@ function unysonplus_hf_style_sections() {
 		array( 'selector' => '.header-topbar',                'prefix' => 'topbar',      'styling' => $nested( 'header_topbar', 'topbar_custom_styling' ) ),
 		array( 'selector' => '.header-main',                  'prefix' => 'main',        'styling' => $nested( 'header_main', 'main_custom_styling' ) ),
 		array( 'selector' => '.header-bottombar',             'prefix' => 'bottombar',   'styling' => $nested( 'header_bottombar', 'bottombar_custom_styling' ) ),
-		array( 'selector' => '.footer-section--pre-footer',   'prefix' => 'pre_footer',  'styling' => $top( 'pre_footer_custom_styling' ) ),
-		array( 'selector' => '.footer-section--main-footer',  'prefix' => 'main_footer', 'styling' => $top( 'main_footer_custom_styling' ) ),
-		array( 'selector' => '.footer-section--post-footer',  'prefix' => 'post_footer', 'styling' => $top( 'post_footer_custom_styling' ) ),
-		array( 'selector' => '.footer-section--copyright',    'prefix' => 'copyright',   'styling' => $nested2( 'copyright_settings', 'yes', 'copyright_custom_styling' ) ),
+		// Footer bars are prefixed with `.footer ` so their Custom-Styling border BEATS the footer-section
+		// divider rule `.footer .footer-section + .footer-section { border-top: var(--footer-section-divider,
+		// none) }` (specificity 0,2,0). A bare `.footer-section--copyright` (0,1,0) lost to it, so a custom
+		// copyright/footer-bar border silently rendered as `none` — this is why a converted © top border kept
+		// disappearing. Matching (0,2,0) + later source order lets the custom border win.
+		array( 'selector' => '.footer .footer-section.footer-section--pre-footer',   'prefix' => 'pre_footer',  'styling' => $top( 'pre_footer_custom_styling' ) ),
+		array( 'selector' => '.footer .footer-section.footer-section--main-footer',  'prefix' => 'main_footer', 'styling' => $top( 'main_footer_custom_styling' ) ),
+		array( 'selector' => '.footer .footer-section.footer-section--post-footer',  'prefix' => 'post_footer', 'styling' => $top( 'post_footer_custom_styling' ) ),
+		array( 'selector' => '.footer .footer-section.footer-section--copyright',    'prefix' => 'copyright',   'styling' => $nested2( 'copyright_settings', 'yes', 'copyright_custom_styling' ) ),
 	);
 }
 endif;

@@ -452,12 +452,15 @@ function unysonplus_render_header_element( $element ) {
                         break;
 
                 case 'menu_area':
-                        if ( ! empty( $settings['menu_location'] ) && $settings['menu_location'] === 'primary' ) {
-                                unysonplus_render_primary_menu_inline();
-                        } else {
-                                unysonplus_render_menu_area( $settings );
-                        }
-                        break;
+			$upw_menu_loc = ! empty( $settings['menu_location'] ) ? $settings['menu_location'] : 'primary';
+			// Primary AND secondary (the split-nav left/right clusters) render inline via the same treatment;
+			// any other location falls back to the generic menu-area render.
+			if ( 'primary' === $upw_menu_loc || 'secondary' === $upw_menu_loc ) {
+				unysonplus_render_primary_menu_inline( $upw_menu_loc );
+			} else {
+				unysonplus_render_menu_area( $settings );
+			}
+			break;
 
                 case 'text':
                         unysonplus_render_text_element( $settings );
@@ -550,15 +553,29 @@ if ( ! function_exists( 'unysonplus_render_primary_menu_inline' ) ) :
  * registered primary menu when assigned; shows an admin-only setup
  * notice otherwise so site editors know to assign one.
  */
-function unysonplus_render_primary_menu_inline() {
-        if ( has_nav_menu( 'primary' ) ) {
-                if ( function_exists( 'unysonplus_nav_menu' ) ) {
+function unysonplus_render_primary_menu_inline( $location = 'primary' ) {
+        if ( has_nav_menu( $location ) ) {
+                if ( 'primary' === $location && function_exists( 'unysonplus_nav_menu' ) ) {
                         unysonplus_nav_menu( 'primary' );
+                } else {
+                        // A non-primary header nav zone (e.g. the split-nav SECONDARY / right cluster): render it
+                        // inline with the SAME `.primary-menu` treatment as the primary, so both zones read as one
+                        // horizontal nav — instead of the global Secondary config's Bootstrap navbar (bulleted block).
+                        wp_nav_menu( array(
+                                'theme_location'  => $location,
+                                'depth'           => 4,
+                                'container'       => 'nav',
+                                'container_class' => sanitize_html_class( $location ) . '-navigation header-inline-menu',
+                                'menu_class'      => 'primary-menu',
+                                'item_spacing'    => 'discard',
+                                'fallback_cb'     => false,
+                        ) );
                 }
                 return;
         }
 
-        if ( ! current_user_can( 'edit_theme_options' ) ) {
+        // The "no menu assigned" admin notice only makes sense for the Primary location.
+        if ( 'primary' !== $location || ! current_user_can( 'edit_theme_options' ) ) {
                 return;
         }
 
@@ -747,12 +764,19 @@ endif;
 
 if ( ! function_exists( 'unysonplus_render_search' ) ) :
 function unysonplus_render_search() {
+        // A compact SEARCH ICON that reveals the field on click (a popover), instead of an always-expanded
+        // box in the bar — the standard, less-heavy header pattern (and what most sources use). navigation.js
+        // toggles `.is-open` on the wrapper; CSS reveals the form. Without JS the <details>-free fallback still
+        // shows the field on focus-within, so search stays usable.
+        $lbl  = esc_attr__( 'Search', 'unysonplus' );
+        $icon = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>';
+        echo '<div class="header-search" data-header-search>';
+        echo '<button type="button" class="header-search-toggle" aria-label="' . $lbl . '" aria-expanded="false">' . $icon . '</button>';
         echo '<form role="search" method="get" class="header-search-form" action="' . esc_url( home_url( '/' ) ) . '">';
-        echo '<input type="search" class="header-search-input" placeholder="' . esc_attr__( 'Search...', 'unysonplus' ) . '" value="' . get_search_query() . '" name="s" />';
-        echo '<button type="submit" class="header-search-btn" aria-label="' . esc_attr__( 'Search', 'unysonplus' ) . '">';
-        echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>';
-        echo '</button>';
+        echo '<input type="search" class="header-search-input" placeholder="' . esc_attr__( 'Search…', 'unysonplus' ) . '" value="' . get_search_query() . '" name="s" />';
+        echo '<button type="submit" class="header-search-btn" aria-label="' . $lbl . '">' . $icon . '</button>';
         echo '</form>';
+        echo '</div>';
 }
 endif;
 

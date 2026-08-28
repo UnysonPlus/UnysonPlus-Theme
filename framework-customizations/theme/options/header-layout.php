@@ -427,9 +427,10 @@ $options = [
 					// tolerates the legacy rgba-string shape from older saves).
 					'bg_color' => function_exists( 'sc_color_field_compact' )
 						? sc_color_field_compact( [
-							'label' => __( 'Main Header Background', 'unysonplus' ),
-							'desc'  => __( 'Leave empty for a transparent header (the page shows behind). Pick a preset or a custom colour to fill it.', 'unysonplus' ),
-							'kind'  => 'bg',
+							'label'  => __( 'Main Header Background', 'unysonplus' ),
+							'desc'   => __( 'Leave empty for a transparent header (the page shows behind). Pick a preset, or a custom colour — the custom picker has an opacity slider for a semi-transparent fill.', 'unysonplus' ),
+							'kind'   => 'bg',
+							'picker' => 'rgba-color-picker',
 						] )
 						: [
 							'label' => __( 'Main Header Background', 'unysonplus' ),
@@ -456,9 +457,10 @@ $options = [
 					'header_scroll_change' => $toggle_field( __( 'Change appearance on scroll', 'unysonplus' ), __( 'When on, the options below REPLACE the At-top look once the header sticks. When off, the header looks the same scrolled.', 'unysonplus' ) ),
 					'scroll_bg_color' => function_exists( 'sc_color_field_compact' )
 						? sc_color_field_compact( [
-							'label' => __( 'Scrolled Background', 'unysonplus' ),
-							'desc'  => __( 'Header fill once stuck (needs Change appearance on scroll). Empty = keep the At-top background.', 'unysonplus' ),
-							'kind'  => 'bg',
+							'label'  => __( 'Scrolled Background', 'unysonplus' ),
+							'desc'   => __( 'Header fill once stuck (needs Change appearance on scroll). Empty = keep the At-top background. The custom picker has an opacity slider for a semi-transparent fill.', 'unysonplus' ),
+							'kind'   => 'bg',
+							'picker' => 'rgba-color-picker',
 						] )
 						: [
 							'label' => __( 'Scrolled Background', 'unysonplus' ),
