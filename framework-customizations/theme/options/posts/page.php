@@ -86,6 +86,14 @@ $layout_options = [
 		'type'  => 'upload',
 		'value' => [],
 	],
+	'page_bg_image_fixed' => [
+		'label'        => __( 'Fixed background image', 'unysonplus' ),
+		'desc'         => __( 'Pin the page background image so the content scrolls over it (parallax feel). Ignored on touch devices, where fixed backgrounds jump.', 'unysonplus' ),
+		'type'         => 'switch',
+		'value'        => 'no',
+		'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
+		'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
+	],
 ];
 
 /* --- Page Title / Hero ------------------------------------------------ */
@@ -225,6 +233,64 @@ $custom_code_options = [
 	],
 ];
 
+/* --- Animations (page-wide) ------------------------------------------- *
+ * The Animation Engine "Add Animation" card stack (same inserter as shortcodes), scoped to the page/body and
+ * limited to page-appropriate modules: Entrance, Scroll Motion, and Backgrounds. Built by the plugin helper
+ * upw_page_animation_fields(). Plus a fixed/scroll toggle for the page-wide Background. Needs animation-engine. */
+$bg_fixed_field = [
+	'page_bg_fixed' => [
+		'label'        => __( 'Background — fixed behind content', 'unysonplus' ),
+		'desc'         => __( 'For a page-wide Background effect above: pin it to the viewport so sections scroll over a still scene (recommended). Off = it scrolls with the page.', 'unysonplus' ),
+		'type'         => 'switch',
+		'value'        => 'yes',
+		'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
+		'left-choice'  => [ 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ],
+	],
+];
+
+/* --- Custom WebGL / Scene Background (advanced) ------------------------ *
+ * A page-wide custom canvas/WebGL scene rendered behind ALL content (e.g. a three.js scene carried from a
+ * source site). The theme loads three.js, injects your optional hidden DOM scaffold + the scene code, and
+ * exposes a scroll hook (window.upwScrollProgress + a 'upw:scroll' event, 0..1) so a scene can bind its
+ * camera to page scroll. Admin-only (raw code, requires unfiltered_html). */
+$webgl_fields = [
+	'page_webgl_enable' => [
+		'label'        => __( 'Custom WebGL Background', 'unysonplus' ),
+		'desc'         => __( 'Run a custom canvas / three.js scene behind the whole page. three.js (r149) is loaded for you. Admin-only.', 'unysonplus' ),
+		'type'         => 'switch',
+		'value'        => 'no',
+		'right-choice' => [ 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ],
+		'left-choice'  => [ 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ],
+	],
+	'page_webgl_scaffold' => [
+		'label' => __( 'Scene DOM (optional)', 'unysonplus' ),
+		'desc'  => __( 'Hidden markup the scene needs — including its canvas, e.g. <code>&lt;canvas id="gl" style="position:fixed;inset:0;z-index:-1;pointer-events:none"&gt;&lt;/canvas&gt;</code>. Injected before the code runs.', 'unysonplus' ),
+		'type'  => 'code-editor',
+		'mode'  => 'htmlmixed',
+		'value' => '',
+	],
+	'page_webgl_code' => [
+		'label' => __( 'Scene code (JS)', 'unysonplus' ),
+		'desc'  => __( 'The scene JavaScript. Runs after three.js + the Scene DOM are ready. Bind to scroll via the <code>upw:scroll</code> event or <code>window.upwScrollProgress</code> (0–1).', 'unysonplus' ),
+		'type'  => 'code-editor',
+		'mode'  => 'js',
+		'value' => '',
+	],
+];
+
+$animation_options = ( function_exists( 'upw_page_animation_fields' ) && upw_page_animation_fields() )
+	? array_merge( upw_page_animation_fields(), $bg_fixed_field, $webgl_fields )
+	: array_merge(
+		[
+			'page_anim_notice' => [
+				'type'  => 'html',
+				'label' => __( 'Page Animations', 'unysonplus' ),
+				'html'  => '<em>' . esc_html__( 'Activate the Animation Engine extension to add page-wide animations (Entrance, Scroll Motion, Background) here.', 'unysonplus' ) . '</em>',
+			],
+		],
+		$webgl_fields
+	);
+
 $options = [
 	// One postbox under the builder; tabs mirror the global Pages tab so the
 	// per-page overrides read as "the same knobs, for this page only".
@@ -253,6 +319,11 @@ $options = [
 				'title'   => __( 'Elements', 'unysonplus' ),
 				'type'    => 'tab',
 				'options' => $elements_options,
+			],
+			'tab_animations' => [
+				'title'   => __( 'Animations', 'unysonplus' ),
+				'type'    => 'tab',
+				'options' => $animation_options,
 			],
 			'tab_general' => [
 				'title'   => __( 'General', 'unysonplus' ),

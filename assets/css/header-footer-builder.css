@@ -271,6 +271,10 @@
    for the active state, overrides the fill below. */
 .site-header.header-sticky.is-stuck:not(.site-header--scroll-change) { background: var(--header-bg); box-shadow: none; }
 .site-header.header-sticky.is-stuck.site-header--scroll-change { background: var(--header-scroll-bg, var(--header-bg)); }
+/* A TRANSPARENT-OVERLAY header stays transparent when stuck (no forced --header-bg fill), so it keeps
+   floating over the content on scroll — the expected behaviour for an overlay nav (e.g. a dark, art-directed
+   landing). Opt into a scrolled fill via Change-on-scroll (--header-scroll-bg) as usual. Wins at (0,5,0). */
+.site-header--transparent-overlay.header-sticky.is-stuck:not(.site-header--scroll-change) { background: transparent; box-shadow: none; }
 
 /* Sticky + shrink — the shrunk logo height is configurable (Header → Layout →
    Shrunk Logo Height → --header-shrink-logo), defaulting to 40px. Covers both the

@@ -847,6 +847,75 @@ add_action( 'wp_body_open', 'unysonplus_render_scroll_progress', 2 );
 
 
 /* ============================================================
+ * Page-wide Background Effect (Page Settings → Animations)
+ * A fixed/absolute full-viewport ambient background behind ALL content, rendered by the Animation Engine's
+ * Backgrounds module (up to 3 stacked layers). Printed at body-open so it sits behind the page.
+ * ============================================================ */
+
+if ( ! function_exists( 'unysonplus_render_page_bg_effect' ) ) :
+function unysonplus_render_page_bg_effect() {
+	if ( ! function_exists( 'upw_bg_page_host' ) || ! function_exists( 'fw_get_db_post_option' ) || ! is_page() ) { return; }
+	$pid = (int) get_queried_object_id();
+	if ( ! $pid ) { return; }
+	// The page's Animations tab saves the Background card under bg_effect / bg_effect__2 … (same keys as a
+	// shortcode). Collect the active slots and render them as a fixed/absolute page-wide host.
+	$slots = array();
+	for ( $i = 1; $i <= 12; $i++ ) {
+		$k = ( 1 === $i ) ? 'bg_effect' : 'bg_effect__' . $i;
+		$v = fw_get_db_post_option( $pid, $k );
+		if ( is_array( $v ) && ! empty( $v['effect'] ) && $v['effect'] !== 'none' ) { $slots[] = $v; }
+	}
+	if ( ! $slots ) { return; }
+	$fixed = ( fw_get_db_post_option( $pid, 'page_bg_fixed' ) !== 'no' );
+	// Built from esc_attr'd attributes in upw_bg_page_host().
+	echo upw_bg_page_host( $slots, $fixed ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+endif;
+add_action( 'wp_body_open', 'unysonplus_render_page_bg_effect', 3 );
+
+/* Page-wide ENTRANCE + SCROLL MOTION — the page's Animations tab (animation / animation_settings /
+ * gsap_motion) applied to a wrapper around the page content, via the SAME sc_build_wrapper_attr pipeline
+ * shortcodes use. Backgrounds are excluded here (rendered as the fixed host above). Opened before
+ * .entry-content and closed after, so the whole content animates as one element. */
+if ( ! function_exists( 'unysonplus_page_anim_wrapper_open' ) ) :
+function unysonplus_page_anim_attrs() {
+	static $attr = null;
+	if ( $attr !== null ) { return $attr; }
+	$attr = array();
+	if ( ! function_exists( 'fw_get_db_post_option' ) || ! function_exists( 'sc_build_wrapper_attr' ) || ! is_page() ) { return $attr; }
+	$pid = (int) get_queried_object_id();
+	if ( ! $pid ) { return $attr; }
+	$atts = array();
+	foreach ( array( 'animation', 'animation_settings', 'gsap_motion' ) as $k ) {
+		$v = fw_get_db_post_option( $pid, $k );
+		if ( $v !== null && $v !== '' && $v !== array() ) { $atts[ $k ] = $v; }
+	}
+	// Only wrap when a real effect is set (an Entrance effect or a Scroll Motion effect — not just defaults).
+	$has = ( isset( $atts['animation']['effect'] ) && $atts['animation']['effect'] && $atts['animation']['effect'] !== 'none' )
+		|| ( isset( $atts['gsap_motion']['effect'] ) && $atts['gsap_motion']['effect'] && $atts['gsap_motion']['effect'] !== 'none' );
+	if ( ! $has ) { return $attr; }
+	$built = apply_filters( 'sc_build_wrapper_attr', array(), $atts );
+	if ( is_array( $built ) ) {
+		$built['class'] = trim( ( isset( $built['class'] ) ? $built['class'] . ' ' : '' ) . 'upw-page-anim' );
+		$attr = $built;
+	}
+	return $attr;
+}
+function unysonplus_page_anim_wrapper_open() {
+	$attr = unysonplus_page_anim_attrs();
+	if ( ! $attr || ! function_exists( 'fw_attr_to_html' ) ) { return; }
+	echo '<div ' . fw_attr_to_html( $attr ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — fw_attr_to_html escapes each value
+}
+function unysonplus_page_anim_wrapper_close() {
+	$attr = unysonplus_page_anim_attrs();
+	if ( $attr ) { echo '</div>'; }
+}
+endif;
+add_action( 'unysonplus_before_entry_content', 'unysonplus_page_anim_wrapper_open' );
+add_action( 'unysonplus_after_entry_content', 'unysonplus_page_anim_wrapper_close' );
+
+
+/* ============================================================
  * Default Sidebar (Phase 5)
  *
  * Theme-wide default for which sidebar widget area renders alongside
@@ -1048,7 +1117,9 @@ function unysonplus_build_page_custom_css( $pid ) {
 
 	$bg_image = fw_get_db_post_option( $pid, 'page_bg_image' );
 	if ( is_array( $bg_image ) && ! empty( $bg_image['url'] ) ) {
-		$parts[] = 'body{background-image:url(' . esc_url_raw( $bg_image['url'] ) . ');background-size:cover;background-attachment:fixed;}';
+		// Fixed (parallax) is now an opt-in toggle; default scrolls with the page.
+		$attach = ( fw_get_db_post_option( $pid, 'page_bg_image_fixed' ) === 'yes' ) ? 'fixed' : 'scroll';
+		$parts[] = 'body{background-image:url(' . esc_url_raw( $bg_image['url'] ) . ');background-size:cover;background-attachment:' . $attach . ';}';
 	}
 
 	$custom = fw_get_db_post_option( $pid, 'page_custom_css' );
@@ -1088,6 +1159,38 @@ function unysonplus_emit_page_custom_css() {
 }
 endif;
 add_action( 'wp_head', 'unysonplus_emit_page_custom_css', 999 );
+
+/* ============================================================
+ * Custom WebGL / Scene Background (Page Settings → Animations)
+ * Loads three.js, injects the page's Scene DOM + scene code behind all content, and exposes a scroll hook
+ * (window.upwScrollProgress + a 'upw:scroll' CustomEvent, 0..1) so a scene can bind its camera to page
+ * scroll. Admin-only (raw code; the page author must have unfiltered_html). Emitted before the page's
+ * Custom JS so the scene is set up first.
+ * ============================================================ */
+if ( ! function_exists( 'unysonplus_render_page_webgl_bg' ) ) :
+function unysonplus_render_page_webgl_bg() {
+	if ( ! is_singular( 'page' ) || ! function_exists( 'fw_get_db_post_option' ) ) { return; }
+	$pid = (int) get_queried_object_id();
+	if ( ! $pid || fw_get_db_post_option( $pid, 'page_webgl_enable' ) !== 'yes' ) { return; }
+	$code = (string) fw_get_db_post_option( $pid, 'page_webgl_code' );
+	if ( trim( $code ) === '' ) { return; }
+	$post = get_post( $pid );
+	if ( ! $post || ! user_can( $post->post_author, 'unfiltered_html' ) ) { return; } // privilege guard
+
+	$scaffold = (string) fw_get_db_post_option( $pid, 'page_webgl_scaffold' );
+	$three    = get_template_directory_uri() . '/assets/js/vendor/three-r149.min.js';
+	$code     = str_replace( '</script', '<\/script', $code );
+	// Scene DOM printed raw (admin, unfiltered_html) — the author positions/hides its own elements.
+	echo "\n" . '<div id="upw-scene-dom" aria-hidden="true">' . $scaffold . '</div>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo '<script id="upw-webgl-bg-' . absint( $pid ) . '">(function(){'
+		. 'function hook(){window.upwScrollProgress=0;function s(){var m=Math.max(1,document.documentElement.scrollHeight-window.innerHeight);window.upwScrollProgress=Math.min(1,Math.max(0,(window.scrollY||window.pageYOffset||0)/m));window.dispatchEvent(new CustomEvent("upw:scroll",{detail:window.upwScrollProgress}));}addEventListener("scroll",s,{passive:true});addEventListener("resize",s,{passive:true});s();}'
+		. 'function run(){hook();try{' . $code . '}catch(e){console.error("[upw-scene]",e);}}'
+		. 'if(window.THREE){run();return;}'
+		. 'var t=document.createElement("script");t.src="' . esc_url( $three ) . '";t.onload=run;t.onerror=function(){console.error("[upw-scene] three.js failed to load");};document.head.appendChild(t);'
+		. '})();</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+endif;
+add_action( 'wp_footer', 'unysonplus_render_page_webgl_bg', 998 );
 
 if ( ! function_exists( 'unysonplus_emit_page_custom_js' ) ) :
 function unysonplus_emit_page_custom_js() {
