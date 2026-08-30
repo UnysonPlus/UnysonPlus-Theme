@@ -630,7 +630,15 @@ function unysonplus_render_cta_button( $settings ) {
                 ? unysonplus_cta_button_classes( $settings )
                 : 'header-cta-btn';
 
-        echo '<a href="' . esc_url( $link ) . '" class="' . esc_attr( $classes ) . '">' . esc_html( $text ) . '</a>';
+        // An external CTA link (a host other than this site's) opens in a new tab, so visitors
+        // keep the site open when the button sends them off-site (e.g. a GitHub download).
+        $target = '';
+        $link_host = wp_parse_url( $link, PHP_URL_HOST );
+        if ( $link_host && strtolower( $link_host ) !== strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) ) ) {
+                $target = ' target="_blank" rel="noopener noreferrer"';
+        }
+
+        echo '<a href="' . esc_url( $link ) . '" class="' . esc_attr( $classes ) . '"' . $target . '>' . esc_html( $text ) . '</a>';
 }
 endif;
 

@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.5.60
+Version: 2.5.68
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -81,6 +81,13 @@ Tags:           bootstrap, unyson, custom-header, custom-menu, featured-images, 
 body.admin-bar { --admin-bar-offset: 32px; }
 @media (max-width: 782px) {
 	body.admin-bar { --admin-bar-offset: 46px; }
+	/* On mobile the WP admin bar is position:absolute (it scrolls away with the page), NOT fixed like
+	   on desktop. So ONLY once the header is STUCK (scrolled — the admin bar has left the viewport)
+	   should it hug the very top; reserving the 46px offset then would leave a gap above it. AT REST
+	   (not stuck) the header keeps the 46px offset so it sits BELOW the admin bar, never behind it.
+	   (0,4,1) here outranks the theme's `.site-header.header-sticky.site-header--transparent.is-stuck`
+	   (0,4,0). Desktop is unaffected — its admin bar is fixed, so the 32px offset stays in both states. */
+	body.admin-bar .site-header.header-sticky.is-stuck { top: 0; }
 }
 
 /* ========================================================================
@@ -1426,6 +1433,11 @@ body.dropdown-style-top-accent .site-header .primary-menu .sub-menu {
 }
 .primary-navigation-drawer .primary-menu .menu-sublabel { color: inherit; }
 .primary-navigation-drawer .primary-menu .menu-item-has-children > a::after { display: none; }
+/* The primary-navigation is inline-block in the desktop bar (shrinks to content); inside the drawer
+   it must be a full-width block so each menu row spans the panel and the submenu-toggle's right:0
+   lands at the far-right edge instead of just past the text. */
+.primary-navigation-drawer .primary-navigation { display: block; width: 100%; }
+
 .primary-navigation-drawer .primary-menu .submenu-toggle {
 	position: absolute;
 	right: 0;
@@ -1460,6 +1472,34 @@ body.dropdown-style-top-accent .site-header .primary-menu .sub-menu {
 .primary-navigation-drawer .primary-menu .menu-item-has-children.is-open > .sub-menu {
 	max-height: 1000px;
 }
+
+/* Mega menu inside the drawer. The desktop mega panel is position:fixed / display:none (a hover
+   flyout) — unreachable on touch. navigation.js now gives the mega parent an accordion toggle; here
+   we re-render its `> .mega-menu` panel in place: reset the fixed positioning, stack the columns
+   full-width, and reveal every column's links so the whole mega is browsable by tapping the parent. */
+.primary-navigation-drawer .primary-menu .menu-item-has-mega-menu > .mega-menu {
+	position: static !important; left: auto !important; right: auto !important;
+	width: auto !important; min-width: 0 !important; max-width: none !important;
+	display: block !important; visibility: visible !important; opacity: 1 !important; transform: none !important;
+	box-shadow: none !important; border: 0 !important; border-radius: 0 !important; background: transparent !important;
+	padding: 0 0 0 1rem !important;
+	max-height: 0; overflow: hidden; transition: max-height var(--transition-base);
+}
+.primary-navigation-drawer .primary-menu .menu-item-has-mega-menu.is-open > .mega-menu { max-height: 4000px; }
+/* The category ROW shows whenever the panel is open (it carries .sub-menu, which the generic drawer
+   rule would otherwise collapse). Each category column keeps its OWN accordion toggle + link list, so
+   tapping the mega parent reveals the categories, and tapping a category reveals its links — the whole
+   60-item mega isn't dumped at once. This respects the Submenu Behaviour setting (accordion default). */
+.primary-navigation-drawer .primary-menu .mega-menu > .mega-menu-row { display: block !important; max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; }
+.primary-navigation-drawer .primary-menu .mega-menu .mega-menu-col { display: block !important; width: 100% !important; }
+/* Each category's link list collapses by default and expands when the category is tapped (.is-open).
+   The mega extension's frontend.css keeps mega-col sub-menus open (max-height:none) for the desktop
+   panel, so override it here — except in Expand-all mode, where everything stays shown. */
+.primary-navigation-drawer:not(.primary-navigation-drawer--submenu-expand-all) .primary-menu .mega-menu .mega-menu-col > .sub-menu { max-height: 0 !important; overflow: hidden !important; transition: max-height var(--transition-base); }
+.primary-navigation-drawer .primary-menu .mega-menu .mega-menu-col.is-open > .sub-menu { max-height: 1000px !important; }
+/* Expand-all mode: show the whole mega (columns + every link) statically, matching how expand-all
+   treats normal sub-menus. */
+.primary-navigation-drawer--submenu-expand-all .primary-menu .menu-item-has-mega-menu > .mega-menu { max-height: none !important; overflow: visible !important; }
 
 /* Submenu mode: Expand-all — every level shown as a static indented tree; no toggle. */
 .primary-navigation-drawer--submenu-expand-all .primary-menu .sub-menu { max-height: none; overflow: visible; }

@@ -102,8 +102,15 @@ fieldset[disabled] .btn {
     margin-right: 0;
 }
 
+/* Kept in lockstep with the plugin's own `.fw-option-width-short`
+ * (framework/static/css/option-types.css). BOTH rules are `!important` at equal
+ * specificity and the theme sheet loads last, so this one silently decides the
+ * width -- editing only the plugin's had no effect at all. 130px fits the gap
+ * selects' longest `name (size)` label ("1 (0.25rem)" = 65px of text + 22px
+ * padding/border + ~20px caret well) with room for a user-renamed gap entry.
+ * If these two ever disagree again, this is the one that wins. */
 .fw-option-width-short {
-    width: 91.5px !important;
+    width: 130px !important;
 }
 
 .fw-backend-option-input-type-predefined-colors-color-picker .fw-backend-option-descriptor {
@@ -197,25 +204,54 @@ div:has(> .fw-backend-option-type-addable-popup[id$="_right"]) > .fw-backend-opt
 .fw-backend-option-type-addable-popup[id$="_left"],
 .fw-backend-option-type-addable-popup[id$="_center"],
 .fw-backend-option-type-addable-popup[id$="_right"] {
-    flex: 1 1 180px !important;
-    min-width: 180px;
+    /* Basis 0, not 180px: the columns divide the row EQUALLY and always stay on a
+     * single line, whatever the count -- 2 columns are half the width each, 8 are
+     * an eighth each. With a 180px basis the line filled up and the leftovers
+     * wrapped, and because flex grows the last line, those stragglers ballooned:
+     * at 8 columns, six filled line 1 exactly (180*6 + 24*5 = 1200) and the last
+     * two became 588px each on line 2. A zero basis can never overflow the line,
+     * so no column is ever pushed underneath. `min-width: 0` is required -- a flex
+     * item's automatic minimum is its content, which would re-introduce wrapping
+     * once the columns get narrow. */
+    flex: 1 1 0 !important;
+    min-width: 0;
     box-sizing: border-box;
     margin: 0 !important;
     padding: 0;
 }
-/* Outer breathing room: the flex `gap` only spaces BETWEEN columns, so the FIRST
+
+/* Below 783px (the same breakpoint wp-admin and the options grid use) the columns
+ * stop sharing the row: eight columns across a phone gives ~30px each, which is
+ * narrower than the "Add" button inside them. One column per line instead, and
+ * every column takes the full 20px inset on BOTH sides -- at full width each one
+ * is its own row, so the first/last-only insets below no longer apply to it. */
+@media (max-width: 782px) {
+    .fw-backend-option-type-addable-popup[id*="_col_"],
+    .fw-backend-option-type-addable-popup[id$="_left"],
+    .fw-backend-option-type-addable-popup[id$="_center"],
+    .fw-backend-option-type-addable-popup[id$="_right"] {
+        flex: 0 0 100% !important;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
+/* Outer breathing room: `gap` only spaces BETWEEN columns, so the FIRST
  * column gets left padding and the LAST gets right padding to inset the block
  * evenly. "First/last column" is matched without relying on child position
  * (a Column Ratio picker may precede the columns): the first column has no
  * preceding addable-popup sibling; the last has no following one. Works for any
- * column count and in both the footer multi-picker and the header group. */
+ * column count and in both the footer multi-picker and the header group.
+ *
+ * 20px, not 27px: that is the row inset every other option uses (the skin's
+ * --u-row-pad-x), so the column block now lines up with the fields above and
+ * below it instead of sitting 7px further in. */
 :where(
     div:has(> .fw-backend-option-type-addable-popup[id*="_col_"]),
     div:has(> .fw-backend-option-type-addable-popup[id$="_left"]),
     div:has(> .fw-backend-option-type-addable-popup[id$="_center"]),
     div:has(> .fw-backend-option-type-addable-popup[id$="_right"])
 ) > .fw-backend-option-type-addable-popup:not(.fw-backend-option-type-addable-popup ~ .fw-backend-option-type-addable-popup) {
-    padding-left: 27px;
+    padding-left: 20px;
 }
 :where(
     div:has(> .fw-backend-option-type-addable-popup[id*="_col_"]),
@@ -223,7 +259,7 @@ div:has(> .fw-backend-option-type-addable-popup[id$="_right"]) > .fw-backend-opt
     div:has(> .fw-backend-option-type-addable-popup[id$="_center"]),
     div:has(> .fw-backend-option-type-addable-popup[id$="_right"])
 ) > .fw-backend-option-type-addable-popup:not(:has(~ .fw-backend-option-type-addable-popup)) {
-    padding-right: 27px;
+    padding-right: 20px;
 }
 /* Stack the label above the addable list inside each column box. */
 .fw-backend-option-type-addable-popup[id*="_col_"] > .fw-backend-option-label,

@@ -944,8 +944,8 @@ endif;
 if ( ! function_exists( 'unysonplus_footer_justify_field' ) ) :
 /**
  * Distribution control for Auto Width columns — an image-picker whose thumbnails
- * diagram the flex `justify-content` each choice maps to (three blocks in a box,
- * the first slightly darker to hint the "brand + link lists" case). Inline SVG
+ * diagram the flex `justify-content` each choice maps to: three column blocks on a
+ * tinted section plane, drawn from the shared icon palette. Inline SVG
  * data-URIs (no asset files), matching unysonplus_footer_fifth_ratio_field().
  * Saved value is the same string key the select used ('between' etc.), so the
  * render path (footer-builder.php → --fa-justify) is unchanged.
@@ -961,12 +961,29 @@ function unysonplus_footer_justify_field() {
 		'start'   => array( 'label' => __( 'Start (left)', 'unysonplus' ),                   'x' => array( 4, 24, 44 ) ),
 		'end'     => array( 'label' => __( 'End (right)', 'unysonplus' ),                    'x' => array( 44, 64, 84 ) ),
 	);
-	$thumb = function ( $xs ) {
+	/* The shared UnysonPlus icon palette, so these thumbnails speak the same visual
+	 * language as the Section shortcode's: a tinted plane is the SECTION, the grey
+	 * blocks on it are COLUMNS. `structure` (not `structure_strong`) is the
+	 * documented pairing for a column drawn ON A TINTED PLANE. Resolved here inside
+	 * the function -- a named function does not close over file scope, and the
+	 * closure below needs it passed in explicitly via `use`. */
+	$pal = function_exists( 'fw_upw_icon_palette' ) ? fw_upw_icon_palette() : array(
+		'field_strong'   => '#e7ebfc',
+		'structure'      => '#dadada', 'structure_strong' => '#9b9b9b',
+		'structure_line' => '#dcdcde',
+		'content'        => '#ffffff',
+	);
+	$thumb = function ( $xs ) use ( $pal ) {
 		$w = 104; $h = 40; $bw = 16; $bh = 18; $by = 11;
-		$svg  = '<rect x="1.5" y="1.5" width="101" height="37" rx="5" fill="none" stroke="#cbd0d8" stroke-width="1.5"/>';
-		foreach ( $xs as $i => $x ) {
-			$fill = ( 0 === $i ) ? '#7b8290' : '#9aa2ad'; // first block darker = the brand column
-			$svg .= '<rect x="' . $x . '" y="' . $by . '" width="' . $bw . '" height="' . $bh . '" rx="2" fill="' . $fill . '"/>';
+		// Same three-level vocabulary the Section shortcode's glyphs use: a
+		// field_strong PLANE is the section, a `structure` block with a
+		// `structure_line` edge is a COLUMN, and a `content` (white) block inside it
+		// is an ELEMENT. The stroke and the white element are what make a column read
+		// as a container rather than a flat grey slab.
+		$svg  = '<rect x="1.5" y="1.5" width="101" height="37" rx="5" fill="' . $pal['field_strong'] . '" stroke="' . $pal['structure_line'] . '" stroke-width="1.5"/>';
+		foreach ( $xs as $x ) {
+			$svg .= '<rect x="' . $x . '" y="' . $by . '" width="' . $bw . '" height="' . $bh . '" rx="2" fill="' . $pal['structure_strong'] . '" stroke="' . $pal['structure_line'] . '"/>';
+			$svg .= '<rect x="' . ( $x + 3 ) . '" y="' . ( $by + 5 ) . '" width="' . ( $bw - 6 ) . '" height="8" rx="1" fill="' . $pal['content'] . '"/>';
 		}
 		return 'data:image/svg+xml,' . rawurlencode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $w . ' ' . $h . '" width="' . $w . '" height="' . $h . '">' . $svg . '</svg>' );
 	};

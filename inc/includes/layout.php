@@ -1171,13 +1171,17 @@ if ( ! function_exists( 'unysonplus_render_page_webgl_bg' ) ) :
 function unysonplus_render_page_webgl_bg() {
 	if ( ! is_singular( 'page' ) || ! function_exists( 'fw_get_db_post_option' ) ) { return; }
 	$pid = (int) get_queried_object_id();
-	if ( ! $pid || fw_get_db_post_option( $pid, 'page_webgl_enable' ) !== 'yes' ) { return; }
-	$code = (string) fw_get_db_post_option( $pid, 'page_webgl_code' );
+	if ( ! $pid ) { return; }
+	// page_webgl is a multi-picker: { mode: 'none'|'custom', custom: { scaffold, code } }.
+	$pw = fw_get_db_post_option( $pid, 'page_webgl' );
+	if ( ! is_array( $pw ) || ( $pw['mode'] ?? 'none' ) !== 'custom' ) { return; }
+	$c        = ( isset( $pw['custom'] ) && is_array( $pw['custom'] ) ) ? $pw['custom'] : array();
+	$code     = (string) ( $c['code'] ?? '' );
 	if ( trim( $code ) === '' ) { return; }
 	$post = get_post( $pid );
 	if ( ! $post || ! user_can( $post->post_author, 'unfiltered_html' ) ) { return; } // privilege guard
 
-	$scaffold = (string) fw_get_db_post_option( $pid, 'page_webgl_scaffold' );
+	$scaffold = (string) ( $c['scaffold'] ?? '' );
 	$three    = get_template_directory_uri() . '/assets/js/vendor/three-r149.min.js';
 	$code     = str_replace( '</script', '<\/script', $code );
 	// Scene DOM printed raw (admin, unfiltered_html) — the author positions/hides its own elements.

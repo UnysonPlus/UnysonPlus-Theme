@@ -444,6 +444,9 @@
 .drawer-cta { margin-top: 1.25rem; }
 .drawer-cta .header-element--cta_button { display: block; }
 .drawer-cta .btn { display: block; width: 100%; text-align: center; }
+/* Space stacked elements inside the drawer CTA area — with more than one cta_button (e.g. a "Docs"
+   button above "Get the Framework") the second element otherwise sits flush against the first. */
+.drawer-cta .header-element + .header-element { margin-top: .75rem; }
 
 /* ── Mobile bottom tab bar (Phase 3, Header → Mobile & Tablet → Bottom Navigation) ──
    Hidden by default; a fixed bottom bar on phones, built from the Primary menu. */

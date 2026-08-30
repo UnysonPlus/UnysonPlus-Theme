@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 74" preserveAspectRatio="xMidYMid meet">
+  <rect width="80" height="74" fill="#0b0f16"/>
+  <circle cx="58" cy="20" r="9" fill="#e0231c" fill-opacity="0.85"/>
+  <path d="M0 74 L0 52 Q20 40 40 50 Q60 60 80 48 L80 74 Z" fill="#141b26"/>
+  <path d="M0 74 L0 60 Q22 52 44 60 Q62 66 80 58 L80 74 Z" fill="#1e2a38"/>
+  <text x="40" y="34" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#dfe7e0">&lt;/&gt;</text>
+</svg>

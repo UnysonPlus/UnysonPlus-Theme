@@ -193,7 +193,9 @@
 				var modeMatch  = drawerEl.className.match( /primary-navigation-drawer--submenu-([\w-]+)/ );
 				var mode       = modeMatch ? modeMatch[1] : 'accordion';
 				var parentTog  = drawerEl.classList.contains( 'primary-navigation-drawer--parent-toggle' );
-				var submenu    = parent.querySelector( ':scope > .sub-menu' );
+				// A mega-menu parent's flyout is a `> .mega-menu` panel, not a `> .sub-menu`, so it
+				// used to be skipped here — leaving its submenus unreachable on touch. Match both.
+				var submenu    = parent.querySelector( ':scope > .sub-menu, :scope > .mega-menu' );
 
 				// Expand-all: every level shown statically (CSS) — no toggle, no handlers.
 				if ( mode === 'expand-all' || ! submenu ) { return; }

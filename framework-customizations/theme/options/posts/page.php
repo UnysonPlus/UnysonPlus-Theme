@@ -248,33 +248,49 @@ $bg_fixed_field = [
 	],
 ];
 
-/* --- Custom WebGL / Scene Background (advanced) ------------------------ *
- * A page-wide custom canvas/WebGL scene rendered behind ALL content (e.g. a three.js scene carried from a
- * source site). The theme loads three.js, injects your optional hidden DOM scaffold + the scene code, and
- * exposes a scroll hook (window.upwScrollProgress + a 'upw:scroll' event, 0..1) so a scene can bind its
- * camera to page scroll. Admin-only (raw code, requires unfiltered_html). */
+/* --- Page Background — a SELECTABLE page-wide scene ------------------- *
+ * A single picker: None or "Custom (WebGL scene)". Picking Custom reveals the Scene DOM + Scene code editors
+ * and runs a page-wide canvas/three.js scene behind ALL content (the theme loads three.js r149, injects the
+ * scaffold + code, and exposes window.upwScrollProgress + a 'upw:scroll' event so the scene binds to scroll).
+ * Admin-only (raw code, requires unfiltered_html). Page-only — a full-viewport scene has no per-element sense.
+ * Mirrors the Preloader → Custom (code) pattern: a Custom tile alongside the built-in options. */
 $webgl_fields = [
-	'page_webgl_enable' => [
-		'label'        => __( 'Custom WebGL Background', 'unysonplus' ),
-		'desc'         => __( 'Run a custom canvas / three.js scene behind the whole page. three.js (r149) is loaded for you. Admin-only.', 'unysonplus' ),
-		'type'         => 'switch',
-		'value'        => 'no',
-		'right-choice' => [ 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ],
-		'left-choice'  => [ 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ],
-	],
-	'page_webgl_scaffold' => [
-		'label' => __( 'Scene DOM (optional)', 'unysonplus' ),
-		'desc'  => __( 'Hidden markup the scene needs — including its canvas, e.g. <code>&lt;canvas id="gl" style="position:fixed;inset:0;z-index:-1;pointer-events:none"&gt;&lt;/canvas&gt;</code>. Injected before the code runs.', 'unysonplus' ),
-		'type'  => 'code-editor',
-		'mode'  => 'htmlmixed',
-		'value' => '',
-	],
-	'page_webgl_code' => [
-		'label' => __( 'Scene code (JS)', 'unysonplus' ),
-		'desc'  => __( 'The scene JavaScript. Runs after three.js + the Scene DOM are ready. Bind to scroll via the <code>upw:scroll</code> event or <code>window.upwScrollProgress</code> (0–1).', 'unysonplus' ),
-		'type'  => 'code-editor',
-		'mode'  => 'js',
-		'value' => '',
+	'page_webgl' => [
+		'type'         => 'multi-picker',
+		'label'        => __( 'Page Background — WebGL scene', 'unysonplus' ),
+		'desc'         => __( 'Choose a custom canvas / three.js scene to render behind the whole page. three.js (r149) is loaded for you. Admin-only.', 'unysonplus' ),
+		'popover'      => true,
+		'show_borders' => false,
+		'value'        => [ 'mode' => 'none' ],
+		'picker'       => [
+			'mode' => [
+				'type'    => 'image-picker',
+				'label'   => false,
+				'value'   => 'none',
+				'choices' => $upw_layout_picker( [
+					'none'   => 'scene-none.svg',
+					'custom' => 'scene-webgl.svg',
+				] ),
+			],
+		],
+		'choices' => [
+			'custom' => [
+				'scaffold' => [
+					'label' => __( 'Scene DOM (optional)', 'unysonplus' ),
+					'desc'  => __( 'Hidden markup the scene needs — including its canvas, e.g. <code>&lt;canvas id="gl" style="position:fixed;inset:0;z-index:-1;pointer-events:none"&gt;&lt;/canvas&gt;</code>. Injected before the code runs.', 'unysonplus' ),
+					'type'  => 'code-editor',
+					'mode'  => 'htmlmixed',
+					'value' => '',
+				],
+				'code' => [
+					'label' => __( 'Scene code (JS)', 'unysonplus' ),
+					'desc'  => __( 'The scene JavaScript. Runs after three.js + the Scene DOM are ready. Bind to scroll via the <code>upw:scroll</code> event or <code>window.upwScrollProgress</code> (0–1).', 'unysonplus' ),
+					'type'  => 'code-editor',
+					'mode'  => 'js',
+					'value' => '',
+				],
+			],
+		],
 	],
 ];
 
