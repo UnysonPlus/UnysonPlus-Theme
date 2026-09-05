@@ -51,185 +51,247 @@ $upw_layout_picker = function ( array $pairs, $small = 104, $large = 150 ) use (
 	return $out;
 };
 
-/* --- Layout ----------------------------------------------------------- */
+/* --- Layout -----------------------------------------------------------
+ * Grouped (show_borders => false) so each cluster reads as one borderless
+ * panel: the two structure pickers, then the page background trio. Groups
+ * flatten on save, so the stored meta keys (sidebar_override, content_width,
+ * page_bg_*) are unchanged and every runtime consumer keeps working. */
 $layout_options = [
-	'sidebar_override' => [
-		'label'   => __( 'Sidebar Position', 'unysonplus' ),
-		'desc'    => __( 'Override the sidebar for this page only. "Global" follows the template / Pages default.', 'unysonplus' ),
-		'type'    => 'image-picker',
-		'value'   => 'default',
-		'choices' => $upw_layout_picker( [
-			'default' => 'sb-inherit.svg',
-			'none'    => 'sb-none.svg',
-			'left'    => 'sb-left.svg',
-			'right'   => 'sb-right.svg',
-		] ),
+	'grp_layout_structure' => [
+		'type'         => 'group',
+		'show_borders' => false,
+		'options'      => [
+			'sidebar_override' => [
+				'label'   => __( 'Sidebar Position', 'unysonplus' ),
+				'desc'    => __( 'Override the sidebar for this page only. "Global" follows the template / Pages default.', 'unysonplus' ),
+				'type'    => 'image-picker',
+				'value'   => 'default',
+				'choices' => $upw_layout_picker( [
+					'default' => 'sb-inherit.svg',
+					'none'    => 'sb-none.svg',
+					'left'    => 'sb-left.svg',
+					'right'   => 'sb-right.svg',
+				] ),
+			],
+			'content_width' => [
+				'label'   => __( 'Content Width', 'unysonplus' ),
+				'type'    => 'image-picker',
+				'value'   => 'default',
+				'choices' => $upw_layout_picker( [
+					'default' => 'cw-global.svg',
+					'narrow'  => 'cw-narrow.svg',
+					'wide'    => 'cw-wide.svg',
+					'full'    => 'cw-full.svg',
+				] ),
+			],
+		],
 	],
-	'content_width' => [
-		'label'   => __( 'Content Width', 'unysonplus' ),
-		'type'    => 'image-picker',
-		'value'   => 'default',
-		'choices' => $upw_layout_picker( [
-			'default' => 'cw-global.svg',
-			'narrow'  => 'cw-narrow.svg',
-			'wide'    => 'cw-wide.svg',
-			'full'    => 'cw-full.svg',
-		] ),
-	],
-	'page_bg_color' => unysonplus_page_meta_color(
-		__( 'Page Background Color', 'unysonplus' ),
-		__( 'Leave on the preset "Default" to inherit the site background.', 'unysonplus' ),
-		'bg'
-	),
-	'page_bg_image' => [
-		'label' => __( 'Page Background Image', 'unysonplus' ),
-		'type'  => 'upload',
-		'value' => [],
-	],
-	'page_bg_image_fixed' => [
-		'label'        => __( 'Fixed background image', 'unysonplus' ),
-		'desc'         => __( 'Pin the page background image so the content scrolls over it (parallax feel). Ignored on touch devices, where fixed backgrounds jump.', 'unysonplus' ),
-		'type'         => 'switch',
-		'value'        => 'no',
-		'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
-		'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
+	'grp_layout_background' => [
+		'type'         => 'group',
+		'show_borders' => false,
+		'options'      => [
+			'page_bg_color' => unysonplus_page_meta_color(
+				__( 'Page Background Color', 'unysonplus' ),
+				__( 'Leave on the preset "Default" to inherit the site background.', 'unysonplus' ),
+				'bg'
+			),
+			'page_bg_image' => [
+				'label' => __( 'Page Background Image', 'unysonplus' ),
+				'type'  => 'upload',
+				'value' => [],
+			],
+			'page_bg_image_fixed' => [
+				'label'        => __( 'Fixed background image', 'unysonplus' ),
+				'desc'         => __( 'Pin the page background image so the content scrolls over it (parallax feel). Ignored on touch devices, where fixed backgrounds jump.', 'unysonplus' ),
+				'type'         => 'switch',
+				'value'        => 'no',
+				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
+				'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
+			],
+		],
 	],
 ];
 
-/* --- Page Title / Hero ------------------------------------------------ */
+/* --- Page Title / Hero ------------------------------------------------
+ * Grouped into image, overlay and title clusters (borderless panels). */
 $hero_header_options = [
-	'header_image' => [
-		'label' => __( 'Header Image', 'unysonplus' ),
-		'desc'  => __( 'Full-width banner image at the top of the page. Empty inherits the global Pages → Page Title / Hero image.', 'unysonplus' ),
-		'type'  => 'upload',
-		'value' => [],
-	],
-	'header_height' => [
-		'label'   => __( 'Header Height', 'unysonplus' ),
-		'type'    => 'radio',
-		'value'   => 'auto',
-		'choices' => [
-			'auto'       => __( 'Global', 'unysonplus' ),
-			'small'      => __( 'Small (220px)', 'unysonplus' ),
-			'medium'     => __( 'Medium (380px)', 'unysonplus' ),
-			'large'      => __( 'Large (560px)', 'unysonplus' ),
-			'fullscreen' => __( 'Fullscreen (100vh)', 'unysonplus' ),
+	'grp_hero_image' => [
+		'type'         => 'group',
+		'show_borders' => false,
+		'options'      => [
+			'header_image' => [
+				'label' => __( 'Header Image', 'unysonplus' ),
+				'desc'  => __( 'Full-width banner image at the top of the page. Empty inherits the global Pages → Page Title / Hero image.', 'unysonplus' ),
+				'type'  => 'upload',
+				'value' => [],
+			],
+			'header_height' => [
+				'label'   => __( 'Header Height', 'unysonplus' ),
+				'type'    => 'radio',
+				'value'   => 'auto',
+				'choices' => [
+					'auto'       => __( 'Global', 'unysonplus' ),
+					'small'      => __( 'Small (220px)', 'unysonplus' ),
+					'medium'     => __( 'Medium (380px)', 'unysonplus' ),
+					'large'      => __( 'Large (560px)', 'unysonplus' ),
+					'fullscreen' => __( 'Fullscreen (100vh)', 'unysonplus' ),
+				],
+			],
 		],
 	],
-	'header_overlay_color' => unysonplus_page_meta_color(
-		__( 'Overlay Color', 'unysonplus' ),
-		__( 'Tint over the header image. Preset "Default" inherits the global hero overlay.', 'unysonplus' ),
-		'bg',
-		'rgba-color-picker'
-	),
-	'header_overlay_opacity' => [
-		'label'      => __( 'Overlay Opacity', 'unysonplus' ),
-		'desc'       => __( '0 = inherit global, otherwise 0 transparent → 100 opaque.', 'unysonplus' ),
-		'type'       => 'slider',
-		'value'      => 0,
-		'properties' => [ 'min' => 0, 'max' => 100, 'step' => 5 ],
+	'grp_hero_overlay' => [
+		'type'         => 'group',
+		'show_borders' => false,
+		'options'      => [
+			'header_overlay_color' => unysonplus_page_meta_color(
+				__( 'Overlay Color', 'unysonplus' ),
+				__( 'Tint over the header image. Preset "Default" inherits the global hero overlay.', 'unysonplus' ),
+				'bg',
+				'rgba-color-picker'
+			),
+			'header_overlay_opacity' => [
+				'label'      => __( 'Overlay Opacity', 'unysonplus' ),
+				'desc'       => __( '0 = inherit global, otherwise 0 transparent → 100 opaque.', 'unysonplus' ),
+				'type'       => 'slider',
+				'value'      => 0,
+				'properties' => [ 'min' => 0, 'max' => 100, 'step' => 5 ],
+			],
+		],
 	],
-	'hide_page_title' => [
-		'label' => __( 'Hide Page Title', 'unysonplus' ),
-		'type'  => 'checkbox',
-		'value' => false,
-		'text'  => __( 'Yes', 'unysonplus' ),
-	],
-	'header_content_position' => [
-		'label'   => __( 'Title Position', 'unysonplus' ),
-		'type'    => 'image-picker',
-		'value'   => 'default',
-		'choices' => $upw_layout_picker( [
-			'default' => 'tp-global.svg',
-			'top'     => 'tp-top.svg',
-			'center'  => 'tp-center.svg',
-			'bottom'  => 'tp-bottom.svg',
-		] ),
-	],
-	'title_icon' => [
-		'label' => __( 'Title Icon', 'unysonplus' ),
-		'desc'  => __( 'Icon shown before the page title. Pick an icon font, emoji, SVG, or upload an image. Leave empty for no icon.', 'unysonplus' ),
-		'type'  => 'icon',
+	'grp_hero_title' => [
+		'type'         => 'group',
+		'show_borders' => false,
+		'options'      => [
+			'hide_page_title' => [
+				'label' => __( 'Hide Page Title', 'unysonplus' ),
+				'type'  => 'checkbox',
+				'value' => false,
+				'text'  => __( 'Yes', 'unysonplus' ),
+			],
+			'header_content_position' => [
+				'label'   => __( 'Title Position', 'unysonplus' ),
+				'type'    => 'image-picker',
+				'value'   => 'default',
+				'choices' => $upw_layout_picker( [
+					'default' => 'tp-global.svg',
+					'top'     => 'tp-top.svg',
+					'center'  => 'tp-center.svg',
+					'bottom'  => 'tp-bottom.svg',
+				] ),
+			],
+			'title_icon' => [
+				'label' => __( 'Title Icon', 'unysonplus' ),
+				'desc'  => __( 'Icon shown before the page title. Pick an icon font, emoji, SVG, or upload an image. Leave empty for no icon.', 'unysonplus' ),
+				'type'  => 'icon',
+			],
+		],
 	],
 ];
 
-/* --- Header & Footer -------------------------------------------------- */
+/* --- Header & Footer --------------------------------------------------
+ * Header behavior in one group, the two footer toggles in another. */
 $header_footer_options = [
-	'page_header' => [
-		'label'   => __( 'Header', 'unysonplus' ),
-		'desc'    => __( 'How the site header behaves on this page.', 'unysonplus' ),
-		'type'    => 'select',
-		'value'   => '',
-		'choices' => [
-			''            => __( 'Global (default header)', 'unysonplus' ),
-			'transparent' => __( 'Transparent (overlays the first section)', 'unysonplus' ),
-			'd-none'      => __( 'Hidden (no header on this page)', 'unysonplus' ),
+	'grp_hf_header' => [
+		'type'         => 'group',
+		'show_borders' => false,
+		'options'      => [
+			'page_header' => [
+				'label'   => __( 'Header', 'unysonplus' ),
+				'desc'    => __( 'How the site header behaves on this page.', 'unysonplus' ),
+				'type'    => 'select',
+				'value'   => '',
+				'choices' => [
+					''            => __( 'Global (default header)', 'unysonplus' ),
+					'transparent' => __( 'Transparent (overlays the first section)', 'unysonplus' ),
+					'd-none'      => __( 'Hidden (no header on this page)', 'unysonplus' ),
+				],
+			],
 		],
 	],
-	'hide_site_footer' => [
-		'label'        => __( 'Hide Site Footer', 'unysonplus' ),
-		'desc'         => __( 'Remove the whole footer on this page.', 'unysonplus' ),
-		'type'         => 'switch',
-		'value'        => 'no',
-		'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
-		'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
-	],
-	'hide_footer_widgets' => [
-		'label'        => __( 'Hide Footer Widgets', 'unysonplus' ),
-		'desc'         => __( 'Keep the footer bar but drop its widget area on this page.', 'unysonplus' ),
-		'type'         => 'switch',
-		'value'        => 'no',
-		'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
-		'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
+	'grp_hf_footer' => [
+		'type'         => 'group',
+		'show_borders' => false,
+		'options'      => [
+			'hide_site_footer' => [
+				'label'        => __( 'Hide Site Footer', 'unysonplus' ),
+				'desc'         => __( 'Remove the whole footer on this page.', 'unysonplus' ),
+				'type'         => 'switch',
+				'value'        => 'no',
+				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
+				'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
+			],
+			'hide_footer_widgets' => [
+				'label'        => __( 'Hide Footer Widgets', 'unysonplus' ),
+				'desc'         => __( 'Keep the footer bar but drop its widget area on this page.', 'unysonplus' ),
+				'type'         => 'switch',
+				'value'        => 'no',
+				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
+				'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
+			],
+		],
 	],
 ];
 
-/* --- Elements --------------------------------------------------------- */
+/* --- Elements ---------------------------------------------------------
+ * The per-page element visibility toggles read as one borderless panel. */
 $elements_options = [
-	'hide_featured_image' => [
-		'label'        => __( 'Hide Featured Image', 'unysonplus' ),
-		'type'         => 'switch',
-		'value'        => 'no',
-		'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
-		'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
-	],
-	'show_breadcrumbs' => [
-		'label'   => __( 'Show Breadcrumbs', 'unysonplus' ),
-		'type'    => 'select',
-		'value'   => 'default',
-		'choices' => [
-			'default' => __( 'Global', 'unysonplus' ),
-			'yes'     => __( 'Yes', 'unysonplus' ),
-			'no'      => __( 'No', 'unysonplus' ),
-		],
-	],
-	'show_comments' => [
-		'label'   => __( 'Show Comments', 'unysonplus' ),
-		'type'    => 'select',
-		'value'   => 'default',
-		'choices' => [
-			'default' => __( 'Global', 'unysonplus' ),
-			'yes'     => __( 'Yes', 'unysonplus' ),
-			'no'      => __( 'No', 'unysonplus' ),
+	'grp_elements' => [
+		'type'         => 'group',
+		'show_borders' => false,
+		'options'      => [
+			'hide_featured_image' => [
+				'label'        => __( 'Hide Featured Image', 'unysonplus' ),
+				'type'         => 'switch',
+				'value'        => 'no',
+				'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ],
+				'left-choice'  => [ 'value' => 'no',  'label' => __( 'No',  'unysonplus' ) ],
+			],
+			'show_breadcrumbs' => [
+				'label'   => __( 'Show Breadcrumbs', 'unysonplus' ),
+				'type'    => 'select',
+				'value'   => 'default',
+				'choices' => [
+					'default' => __( 'Global', 'unysonplus' ),
+					'yes'     => __( 'Yes', 'unysonplus' ),
+					'no'      => __( 'No', 'unysonplus' ),
+				],
+			],
+			'show_comments' => [
+				'label'   => __( 'Show Comments', 'unysonplus' ),
+				'type'    => 'select',
+				'value'   => 'default',
+				'choices' => [
+					'default' => __( 'Global', 'unysonplus' ),
+					'yes'     => __( 'Yes', 'unysonplus' ),
+					'no'      => __( 'No', 'unysonplus' ),
+				],
+			],
 		],
 	],
 ];
 
-/* --- Custom Code ------------------------------------------------------ */
+/* --- Custom Code ------------------------------------------------------
+ * The two code editors read as one borderless panel. */
 $custom_code_options = [
-	'page_custom_css' => [
-		'label' => __( 'Custom CSS (this page only)', 'unysonplus' ),
-		'desc'  => __( 'Emitted inline in &lt;head&gt;. Loaded only on this page.', 'unysonplus' ),
-		'type'  => 'code-editor',
-		'value' => '',
-		'mode'  => 'css', // top-level key the code-editor option type reads
-	],
-	'page_custom_js' => [
-		'label' => __( 'Custom JS (this page only)', 'unysonplus' ),
-		'desc'  => __( 'Emitted inline before &lt;/body&gt;. Loaded only on this page.', 'unysonplus' ),
-		'type'  => 'code-editor',
-		'value' => '',
-		'mode'  => 'javascript',
+	'grp_custom_code' => [
+		'type'         => 'group',
+		'show_borders' => false,
+		'options'      => [
+			'page_custom_css' => [
+				'label' => __( 'Custom CSS (this page only)', 'unysonplus' ),
+				'desc'  => __( 'Emitted inline in &lt;head&gt;. Loaded only on this page.', 'unysonplus' ),
+				'type'  => 'code-editor',
+				'value' => '',
+				'mode'  => 'css', // top-level key the code-editor option type reads
+			],
+			'page_custom_js' => [
+				'label' => __( 'Custom JS (this page only)', 'unysonplus' ),
+				'desc'  => __( 'Emitted inline before &lt;/body&gt;. Loaded only on this page.', 'unysonplus' ),
+				'type'  => 'code-editor',
+				'value' => '',
+				'mode'  => 'javascript',
+			],
+		],
 	],
 ];
 
@@ -294,8 +356,18 @@ $webgl_fields = [
 	],
 ];
 
+/* The page-wide Background fields (fixed toggle + WebGL scene picker) read as one
+   borderless panel; the Animation Engine inserter above keeps its own card layout. */
+$page_bg_group = [
+	'grp_page_background' => [
+		'type'         => 'group',
+		'show_borders' => false,
+		'options'      => array_merge( $bg_fixed_field, $webgl_fields ),
+	],
+];
+
 $animation_options = ( function_exists( 'upw_page_animation_fields' ) && upw_page_animation_fields() )
-	? array_merge( upw_page_animation_fields(), $bg_fixed_field, $webgl_fields )
+	? array_merge( upw_page_animation_fields(), $page_bg_group )
 	: array_merge(
 		[
 			'page_anim_notice' => [
@@ -304,7 +376,7 @@ $animation_options = ( function_exists( 'upw_page_animation_fields' ) && upw_pag
 				'html'  => '<em>' . esc_html__( 'Activate the Animation Engine extension to add page-wide animations (Entrance, Scroll Motion, Background) here.', 'unysonplus' ) . '</em>',
 			],
 		],
-		$webgl_fields
+		[ 'grp_page_background' => [ 'type' => 'group', 'show_borders' => false, 'options' => $webgl_fields ] ]
 	);
 
 $options = [

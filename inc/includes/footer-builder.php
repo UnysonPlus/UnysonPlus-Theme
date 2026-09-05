@@ -524,6 +524,29 @@ function unysonplus_extract_footer_columns_data( $section_data, $prefix ) {
 endif;
 
 
+if ( ! function_exists( 'unysonplus_footer_grid_template' ) ) :
+/**
+ * Footer column classes → a CSS Grid `grid-template-columns` value in fr units. `fw-col-md-N`
+ * (twelfths) → N fr; the fifth codes `fw-col-sm-15/25/35/45` → 1..4 fr. A layout uses a single base
+ * (all twelfths OR all fifths), so the fr ratios stay proportionally correct. This is the modern
+ * replacement for the footer's Bootstrap 12-grid — native CSS Grid, and it expresses fifths /
+ * sevenths / eighths the 12-grid could not.
+ */
+function unysonplus_footer_grid_template( $classes ) {
+        $fr = array();
+        foreach ( (array) $classes as $cls ) {
+                $u = 1;
+                if ( preg_match( '/fw-col-(?:xs|sm|md|lg|xl)-(\d+)/', (string) $cls, $m ) ) {
+                        $n = (int) $m[1];
+                        $u = in_array( $n, array( 15, 25, 35, 45 ), true ) ? intdiv( $n, 10 ) : max( 1, $n );
+                }
+                $fr[] = $u . 'fr';
+        }
+        return $fr ? implode( ' ', $fr ) : '1fr';
+}
+endif;
+
+
 if ( ! function_exists( 'unysonplus_render_footer_section' ) ) :
 function unysonplus_render_footer_section( $section_data, $prefix, $section_class = '' ) {
         $extracted   = unysonplus_extract_footer_columns_data( $section_data, $prefix );
@@ -531,11 +554,14 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
         $columns     = $extracted['columns'];
         $col_classes = isset( $extracted['classes'] ) ? $extracted['classes'] : array();
 
-        // Auto Width → flex row distributed by the chosen justify (falls back to space-between).
-        $row_class = 'fw-row footer-row';
+        // Row layout. Auto Width → flex row distributed by the chosen justify. Otherwise a MODERN
+        // CSS Grid row: the column ratios become fr tracks (`--fcols`), replacing the Bootstrap
+        // fw-row + fw-col-* 12-grid — which also expresses fifths / sevenths / eighths natively.
+        $is_auto   = ! empty( $extracted['auto'] );
+        $row_class = 'footer-row';
         $row_style = '';
-        if ( ! empty( $extracted['auto'] ) ) {
-                $row_class .= ' footer-row--auto';
+        if ( $is_auto ) {
+                $row_class = 'fw-row footer-row footer-row--auto';
                 $jmap = array( 'between' => 'space-between', 'around' => 'space-around', 'center' => 'center', 'start' => 'flex-start', 'end' => 'flex-end' );
                 $jkey = isset( $extracted['justify'] ) ? (string) $extracted['justify'] : 'between';
                 $row_style = ' style="--fa-justify:' . esc_attr( isset( $jmap[ $jkey ] ) ? $jmap[ $jkey ] : 'space-between' ) . '"';
@@ -543,6 +569,9 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
                 // grid (the source's `grid-cols-8` with a `col-span-2` brand), NOT content-sized columns that
                 // wrap unevenly and get flung to the row edges by space-between.
                 if ( $col_count >= 7 ) { $row_class .= ' footer-row--equal'; }
+        } else {
+                $row_class = 'footer-row footer-row--grid';
+                $row_style = ' style="--fcols:' . esc_attr( unysonplus_footer_grid_template( $col_classes ) ) . '"';
         }
 
         $has_content = false;
@@ -572,7 +601,10 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
                                 <?php
                                 for ( $i = 1; $i <= $col_count; $i++ ) {
                                         $col_data  = isset( $columns[ $i ] ) ? $columns[ $i ] : array();
-                                        $col_class = isset( $col_classes[ $i - 1 ] ) ? $col_classes[ $i - 1 ] : 'col';
+                                        // Grid mode: plain grid items (tracks come from --fcols); auto mode keeps its flex class.
+                                        $col_class = $is_auto
+                                                ? ( isset( $col_classes[ $i - 1 ] ) ? $col_classes[ $i - 1 ] : 'footer-col--auto' )
+                                                : 'footer-col';
                                         // Copyright bar: auto-align columns like the header's left/center/right
                                         // slots — 1 col = centered, 2 cols = left|right, 3+ = left|center…|right.
                                         // A text-align on an element's own CSS Class (deeper in the DOM) still

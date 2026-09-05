@@ -649,7 +649,15 @@ function unysonplus_inject_preset_pickers( $options, $post_type ) {
 	if ( ! defined( 'UP_HFBUILDER_OWNS_CPTS' ) ) {
 		return $options;
 	}
-	if ( in_array( $post_type, array( 'up_header', 'up_footer', 'attachment' ), true ) ) {
+	// Skip the preset CPTs, attachments, and EMBEDDED-content types that never render as a
+	// standalone page with their own chrome — a Snippet / Global Template is inserted INTO a page
+	// (via the Snippet element / Global Section), so a per-content header/footer override is
+	// meaningless there. Post types can opt out via the `unysonplus_hf_preset_picker_skip_types` filter.
+	$skip_types = apply_filters(
+		'unysonplus_hf_preset_picker_skip_types',
+		array( 'up_header', 'up_footer', 'attachment', 'snippet' )
+	);
+	if ( in_array( $post_type, (array) $skip_types, true ) ) {
 		return $options;
 	}
 	$pt = get_post_type_object( $post_type );

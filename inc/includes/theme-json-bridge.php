@@ -270,6 +270,60 @@ if ( ! function_exists( 'unysonplus_theme_json_spacing_sizes' ) ) :
 	}
 endif;
 
+if ( ! function_exists( 'unysonplus_theme_json_layout' ) ) :
+	/**
+	 * Publish the theme's REAL container widths as theme.json layout sizes.
+	 *
+	 * The static theme.json shipped `contentSize: 780px` / `wideSize: 1200px`, numbers the
+	 * theme does not actually use: its container is `--container-max-desktop` (1170px by
+	 * default, or whatever Layout → Container Width is set to). Telling WordPress a content
+	 * width we do not use is not cosmetic — Gutenberg's constrained layout sizes core blocks
+	 * from `contentSize`, so core Group/Columns blocks rendered ~390px narrower than an
+	 * UnysonPlus section on the same page, and a block declaring layout support had its
+	 * fluid container clamped to 780px (which inverted the Section Full Width option).
+	 *
+	 * Real block themes set this to their own container width — the three sampled from
+	 * wp-themes.com declare 1200px, 760px and 1170px respectively, the last being the same
+	 * number this theme uses. Deriving it removes the disagreement at the root.
+	 *
+	 * @return array
+	 */
+	function unysonplus_theme_json_layout() {
+		if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) { return array(); }
+
+		$vars = unysonplus_collect_theme_vars();
+		if ( ! is_array( $vars ) ) { return array(); }
+
+		$len = function ( $key ) use ( $vars ) {
+			$v = isset( $vars[ $key ] ) ? trim( (string) $vars[ $key ] ) : '';
+			// A var() reference cannot be resolved by WordPress — same trap the palette hit.
+			if ( $v === '' || stripos( $v, 'var(' ) !== false ) { return ''; }
+			return $v;
+		};
+
+		$content = $len( '--container-max-desktop' );
+		$wide    = $len( '--site-max-width' );
+
+		$out = array();
+		if ( $content !== '' ) { $out['contentSize'] = $content; }
+
+		// wideSize is the "align wide" ceiling, so it only means anything when it is wider
+		// than the content column. A boxed site can set a site width NARROWER than the
+		// container; publishing that would make alignwide shrink instead of widen.
+		if ( $wide !== '' && $content !== '' ) {
+			$to_px = function ( $s ) { return preg_match( '/^([\d.]+)px$/', $s, $m ) ? (float) $m[1] : null; };
+			$cw    = $to_px( $content );
+			$ww    = $to_px( $wide );
+			if ( $cw === null || $ww === null || $ww > $cw ) { $out['wideSize'] = $wide; }
+		} elseif ( $wide !== '' ) {
+			$out['wideSize'] = $wide;
+		}
+
+		/** Filters the layout sizes published to theme.json / the block editor. */
+		return apply_filters( 'unysonplus_theme_json_layout', $out );
+	}
+endif;
+
 if ( ! function_exists( 'unysonplus_theme_json_bridge' ) ) :
 	/**
 	 * Merge the generated design system into the theme's theme.json data.
@@ -325,6 +379,14 @@ if ( ! function_exists( 'unysonplus_theme_json_bridge' ) ) :
 			$spacing = unysonplus_theme_json_merge_presets( $get( array( 'spacing', 'spacingSizes' ) ), unysonplus_theme_json_spacing_sizes() );
 			if ( ! empty( $spacing ) ) {
 				$settings['spacing']['spacingSizes'] = $spacing;
+			}
+
+			// Layout sizes are scalars, not an origin-wrapped preset list, so $get() does not
+			// apply here. update_with() deep-merges, so any other layout key the theme.json
+			// file declares is preserved — only these two are overridden.
+			$layout = unysonplus_theme_json_layout();
+			if ( ! empty( $layout ) ) {
+				$settings['layout'] = $layout;
 			}
 
 			// Track the theme's own declared schema version. Forcing a different version

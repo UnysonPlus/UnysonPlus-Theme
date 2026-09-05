@@ -600,6 +600,22 @@
 }
 
 /* ============================================================
+   Footer — Ratio columns as a modern CSS Grid (--fcols fr tracks).
+   Replaces the Bootstrap fw-row + fw-col-* 12-grid for the ratio mode;
+   any ratio works (incl. fifths / 7ths / 8ths). Tracks are set per row
+   in inc/includes/footer-builder.php via the --fcols custom property.
+   ============================================================ */
+.footer-section .footer-row--grid {
+	display: grid;
+	grid-template-columns: var(--fcols, 1fr);
+	gap: 40px;
+	align-items: start;
+}
+@media (max-width: 767.98px) {
+	.footer-section .footer-row--grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
    Footer — Auto Width columns (Column Ratio → "Auto Width: On")
    Content-sized flex columns distributed by --fa-justify, bypassing the
    Bootstrap 12-grid ratio snap (which can only do twelfths + fifths).

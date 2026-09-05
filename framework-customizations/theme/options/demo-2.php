@@ -1828,4 +1828,16 @@ $options = [
 			],
 		],
 	],
+	'grp_builder_2' => [
+		'title'   => __( 'Nested Builder', 'unysonplus' ),
+		'type'    => 'box',
+		'options' => [
+			'demo_nested_builder_2' => [
+				// label omitted on purpose: the nested-builder option type defaults
+				// 'label' => false, so the canvas spans the full row width.
+				'type'  => 'nested-builder',
+				'desc'  => __( 'A lightweight, embeddable page-builder canvas as an option type (subclasses the same base as form-builder / page-builder). Drag a Box onto the canvas, then drop Text items INSIDE it — it nests. Stores its tree as JSON. This is the basis for rich, nested content inside Tabs.', 'unysonplus' ),
+			],
+		],
+	],
 ];
