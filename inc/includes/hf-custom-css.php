@@ -857,6 +857,21 @@ function unysonplus_hf_section_render_attrs( $styling, $prefix, $fallback_contai
 			$pad = unysonplus_flatten_spacing_classes( $cs[ $prefix . '_padding' ] );
 			if ( $pad !== '' ) { $classes[] = $pad; }
 		}
+		// Mark a section that paints its OWN full-width background (Background-pro, a bg colour, or a bg image) so
+		// the theme can flush a coloured PRE-footer (a CTA band) to the footer's top edge instead of leaving the
+		// .footer__body top padding as a white gap above it — the mirror of the flush copyright bar at the bottom.
+		$has_bg = false;
+		if ( ! empty( $cs[ $prefix . '_background' ] ) && is_array( $cs[ $prefix . '_background' ] ) ) {
+			$has_bg = true;
+		} elseif ( ! empty( $cs[ $prefix . '_bg_image' ]['url'] ) ) {
+			$has_bg = true;
+		} else {
+			$bgc = isset( $cs[ $prefix . '_bg_color' ] ) ? $cs[ $prefix . '_bg_color' ] : '';
+			$has_bg = is_array( $bgc )
+				? ( '' !== trim( (string) ( $bgc['custom'] ?? '' ) ) || '' !== trim( (string) ( $bgc['predefined'] ?? '' ) ) )
+				: ( '' !== trim( (string) $bgc ) );
+		}
+		if ( $has_bg ) { $classes[] = 'footer-section--has-bg'; }
 	}
 	$classes = array_filter( $classes );
 	$class   = $classes ? ' ' . esc_attr( implode( ' ', $classes ) ) : '';

@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.5.69
+Version: 2.5.78
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -2299,6 +2299,14 @@ body.unyson.page-builder .entry-content { margin-bottom: 0; }
 .footer__body       {
 	padding-top:    calc(var(--footer-pad-top)    * var(--section-spacing-scale));
 	padding-bottom: calc(var(--footer-pad-bottom) * var(--section-spacing-scale));
+}
+/* A PRE-footer that paints its own full-width background (a coloured CTA band, e.g. jukebox's "Craving a juicy
+   burger?") sits FLUSH to the footer's top edge — the mirror of the flush copyright bar at the bottom — instead
+   of the .footer__body top padding showing as a white gap above it. Pull the first bg-carrying section up by the
+   body's top padding; its OWN section padding still gives it internal breathing room. Only the first child, so a
+   plain (no-background) pre-footer / columns keep the normal top spacing. */
+.footer__body > .footer-section--has-bg:first-child {
+	margin-top: calc(-1 * var(--footer-pad-top) * var(--section-spacing-scale));
 }
 /* Fallback: a footer with NO pre/main/post sections (e.g. copyright only) has no
    .footer__body wrapper, so the padding above would have nothing to live on. Apply it
