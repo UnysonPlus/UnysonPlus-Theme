@@ -114,6 +114,19 @@ $design_choice = function ( $variant, $label ) use ($design_svg, $fw_upw_pal) {
    the design's static CSS partial via CSS custom properties (see theme-vars.php).
    Saved shape: [ 'design' => 'pill', 'pill' => [ …sub-options… ] ]. Inline-picker
    rules: label/desc live on the picker sub-option; the top level is false. */
+/* Numeric OVERRIDE for a design preset. House pattern: keep the preset select for the common
+   look, and let a unit-input win when filled — the presets cover full/large/medium, but real
+   sources use 24/28/32px radii and 80/96/271px insets, which no 3-value list can hit. */
+$design_len = function ( $label, $desc, array $units, $unit ) {
+	return [
+		'label' => $label,
+		'desc'  => $desc,
+		'type'  => 'unit-input',
+		'units' => $units,
+		'value' => [ 'value' => '', 'unit' => $unit ],
+		'min'   => 0,
+	];
+};
 $design_select = function ( $label, array $choices, $default ) {
 	return [ 'type' => 'select', 'label' => $label, 'value' => $default, 'choices' => $choices ];
 };
@@ -138,13 +151,19 @@ $design_field = [
 	],
 	'choices' => [
 		'pill' => [
+			'pill_width'  => $design_select( __( 'Width', 'unysonplus' ), [ 'hug' => __( 'Hug content', 'unysonplus' ), 'fixed' => __( 'Fixed (container width)', 'unysonplus' ) ], 'hug' ),
 			'pill_radius' => $design_select( __( 'Roundness', 'unysonplus' ), [ 'full' => __( 'Full (pill)', 'unysonplus' ), 'large' => __( 'Large', 'unysonplus' ), 'medium' => __( 'Medium', 'unysonplus' ) ], 'full' ),
 			'pill_inset'  => $design_select( __( 'Side Inset', 'unysonplus' ), [ 'none' => __( 'None', 'unysonplus' ), 'small' => __( 'Small', 'unysonplus' ), 'large' => __( 'Large', 'unysonplus' ) ], 'none' ),
 			'pill_shadow' => $design_select( __( 'Shadow', 'unysonplus' ), [ 'soft' => __( 'Soft', 'unysonplus' ), 'medium' => __( 'Medium', 'unysonplus' ), 'strong' => __( 'Strong', 'unysonplus' ) ], 'medium' ),
+			'pill_offset'        => $design_len( __( 'Top Offset', 'unysonplus' ), __( 'Gap between the viewport top and the floating bar. Leave empty for the default (0.75rem). This is what makes a detached header sit 24px or 64px down the page.', 'unysonplus' ), [ 'px', 'rem', 'em' ], 'px' ),
+			'pill_radius_custom' => $design_len( __( 'Custom Roundness', 'unysonplus' ), __( 'Exact corner radius. Overrides the Roundness preset above when set.', 'unysonplus' ), [ 'px', 'rem', 'em' ], 'px' ),
+			'pill_inset_custom'  => $design_len( __( 'Custom Side Inset', 'unysonplus' ), __( 'Exact left/right inset. Overrides the Side Inset preset above when set.', 'unysonplus' ), [ 'px', 'rem', 'em', '%' ], 'px' ),
 		],
 		'card' => [
 			'card_radius' => $design_select( __( 'Corner Radius', 'unysonplus' ), [ 'small' => __( 'Small', 'unysonplus' ), 'medium' => __( 'Medium', 'unysonplus' ), 'large' => __( 'Large', 'unysonplus' ) ], 'medium' ),
 			'card_shadow' => $design_select( __( 'Shadow', 'unysonplus' ), [ 'soft' => __( 'Soft', 'unysonplus' ), 'medium' => __( 'Medium', 'unysonplus' ), 'strong' => __( 'Strong', 'unysonplus' ) ], 'medium' ),
+			'card_offset'        => $design_len( __( 'Top Offset', 'unysonplus' ), __( 'Gap between the viewport top and the floating card. Leave empty for the default (1rem).', 'unysonplus' ), [ 'px', 'rem', 'em' ], 'px' ),
+			'card_radius_custom' => $design_len( __( 'Custom Corner Radius', 'unysonplus' ), __( 'Exact corner radius. Overrides the Corner Radius preset above when set.', 'unysonplus' ), [ 'px', 'rem', 'em' ], 'px' ),
 		],
 		'centered' => [
 			'centered_gap' => $design_select( __( 'Spacing', 'unysonplus' ), [ 'tight' => __( 'Tight', 'unysonplus' ), 'normal' => __( 'Normal', 'unysonplus' ), 'roomy' => __( 'Roomy', 'unysonplus' ) ], 'normal' ),
@@ -447,8 +466,43 @@ $options = [
 						],
 
 					'header_glass'         => $toggle_field( __( 'Translucent / Glass', 'unysonplus' ), __( 'A frosted, semi-transparent header background (backdrop blur) at rest.', 'unysonplus' ) ),
+					/* Blur RADIUS for both glass states. The frost used to be a hard-coded 10px, so a
+					   source with a light blur(4px) came back over-frosted and a heavy blur(40px)
+					   under-frosted. Empty keeps the 10px default, so existing sites are unchanged. */
+					/* Saturation boost behind the frost. Real sources pair a blur with saturate(1.3-1.5)
+					   (and occasionally contrast); without this the frost is the right radius but the
+					   wrong richness. 1.4 is the historic baked-in value, so the default is unchanged. */
+					'header_glass_saturate' => [
+						'label'      => __( 'Glass Saturation', 'unysonplus' ),
+						'desc'       => __( 'How much the frosted header saturates what shows through it. 100% = no boost; the default is 140%.', 'unysonplus' ),
+						'type'       => 'slider',
+						'value'      => 140,
+						'properties' => [ 'min' => 100, 'max' => 200, 'step' => 5 ],
+					],
+					'header_glass_blur' => [
+						'label' => __( 'Glass Blur', 'unysonplus' ),
+						'desc'  => __( 'Backdrop-blur radius for the frosted header (both at-top and on-scroll glass). Leave empty for the default (10px).', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'px', 'rem' ],
+						'value' => [ 'value' => '', 'unit' => 'px' ],
+						'min'   => 0,
+					],
 					'header_border'        => $toggle_field( __( 'Header Border', 'unysonplus' ), __( 'A hairline rule under the header.', 'unysonplus' ) ),
 					'header_shadow'        => $toggle_field( __( 'Header Shadow', 'unysonplus' ), __( 'A soft drop shadow that lifts the header off the page.', 'unysonplus' ) ),
+					/* Shadow DEPTH. The toggle above switched one fixed shadow on and off, so a hairline
+					   lift and a heavy 60px drop both rendered identically. Same soft/medium/strong shape
+					   the pill and card designs already use. Default keeps the previous shadow exactly. */
+					'header_shadow_depth' => [
+						'label'   => __( 'Shadow Depth', 'unysonplus' ),
+						'desc'    => __( 'How pronounced the header shadow is (applies to Header Shadow and Shadow on scroll).', 'unysonplus' ),
+						'type'    => 'select',
+						'value'   => 'medium',
+						'choices' => [
+							'soft'   => __( 'Soft', 'unysonplus' ),
+							'medium' => __( 'Medium (default)', 'unysonplus' ),
+							'strong' => __( 'Strong', 'unysonplus' ),
+						],
+					],
 					'header_uppercase_nav' => $toggle_field( __( 'Uppercase Navigation', 'unysonplus' ), __( 'Uppercase the primary menu links with a touch of letter-spacing.', 'unysonplus' ) ),
 
 				],
@@ -479,6 +533,32 @@ $options = [
 					'scroll_border' => $toggle_field( __( 'Border on scroll', 'unysonplus' ), __( 'Add the hairline rule once stuck.', 'unysonplus' ) ),
 					'scroll_shadow' => $toggle_field( __( 'Shadow on scroll', 'unysonplus' ), __( 'Add the drop shadow once stuck.', 'unysonplus' ) ),
 					'scroll_shrink' => $toggle_field( __( 'Shrink logo on scroll', 'unysonplus' ), __( 'Tighten the header padding and shrink the logo once stuck.', 'unysonplus' ) ),
+					/* The NUMERIC counterpart to Shrink logo on scroll. Shrink applies a fixed .25rem
+					   padding — right behaviour, but not the source's actual size (measured across 180
+					   generated sites, scrolled headers lose a median 16px, each site its own amount).
+					   Empty resolves to the at-rest height, so nothing changes unless it is set. */
+					'scroll_height' => [
+						'label' => __( 'Scrolled Header Height', 'unysonplus' ),
+						'desc'  => __( 'Height of the main header row once the header sticks. Leave empty to keep the at-top height (Structure &rarr; Main Header Height). Composes with Shrink logo on scroll.', 'unysonplus' ),
+						'type'  => 'unit-input',
+						'units' => [ 'rem', 'px', 'em' ],
+						'value' => [ 'value' => '', 'unit' => 'px' ],
+						'min'   => 0,
+					],
+					/* A transparent-over-hero header that lands on a solid light bar needs its nav text
+					   to darken with it; the On-Scroll group could restyle everything BUT the links. */
+					'scroll_link_color' => function_exists( 'sc_color_field_compact' )
+						? sc_color_field_compact( [
+							'label' => __( 'Scrolled Link Color', 'unysonplus' ),
+							'desc'  => __( 'Colour of the header links once stuck (needs Change appearance on scroll). Empty keeps the At-top link colour — set it when a light-on-hero header lands on a solid bar.', 'unysonplus' ),
+							'kind'  => 'text',
+						] )
+						: [
+							'label' => __( 'Scrolled Link Color', 'unysonplus' ),
+							'desc'  => __( 'Colour of the header links once stuck. Empty keeps the At-top colour.', 'unysonplus' ),
+							'type'  => 'color-picker',
+							'value' => '',
+						],
 					'sticky_shrink_height' => [
 						'label' => __( 'Shrunk Logo Height', 'unysonplus' ),
 						'desc'  => __( 'Logo height once the header shrinks (Shrink logo on scroll). Leave empty for the default (40px).', 'unysonplus' ),

@@ -657,6 +657,7 @@ function unysonplus_header_element_popup() {
 						'cta_button'      => __( 'CTA Button', 'unysonplus' ),
 						'search'          => __( 'Search', 'unysonplus' ),
 						'social_icons'    => __( 'Social Icons', 'unysonplus' ),
+						'theme_toggle'    => __( 'Light / Dark Toggle', 'unysonplus' ),
 						'custom_html'     => __( 'Custom HTML', 'unysonplus' ),
 						'text'            => __( 'Text', 'unysonplus' ),
 						'widget_area'     => __( 'Widget Area', 'unysonplus' ),

@@ -313,6 +313,11 @@ function _unysonplus_preset_group_header_layout() {
 		'header_mode', 'container', 'header_position', 'header_hide_on_scroll',
 		'bg_color', 'header_glass', 'header_border', 'header_shadow', 'header_uppercase_nav',
 		'header_scroll_change', 'scroll_bg_color', 'scroll_glass', 'scroll_border', 'scroll_shadow', 'scroll_shrink',
+		// Numeric/graded refinements of the same two-state surface (theme 2.5.90). They MUST be listed
+		// here even though no built-in preset sets them: allowed_keys is also what a preset RESETS, so
+		// leaving them out would strand a hand-set Scrolled Header Height or Glass Blur after the user
+		// picks a different header preset.
+		'scroll_height', 'scroll_link_color', 'header_glass_blur', 'header_glass_saturate', 'header_shadow_depth',
 	);
 	$topd = function ( $design, $sub = array() ) {   // header_mode for a Top design
 		return array( 'mode' => 'top', 'top' => array( 'header_design' => array_merge( array( 'design' => $design ), $sub ) ) );

@@ -13,13 +13,50 @@
 	padding-right: var(--header-design-inset, 0px);
 }
 .site-header--design-pill .header-main > [class*="fw-container"] {
-	margin-top: .75rem;
-	margin-bottom: .75rem;
+	margin-top: var(--header-design-offset, .75rem);
+	margin-bottom: var(--header-design-offset, .75rem);
 	padding: .35rem 1.25rem;
 	background: var(--header-bg, #fff);
 	border-radius: var(--header-design-radius, 999px);
 	box-shadow: var(--header-design-shadow, 0 8px 24px -12px rgba(15, 23, 42, .30));
 }
+/* GLASS in Pill mode — the frost belongs to the PILL, not the full-width bar.
+ * `header_glass` paints the backdrop-filter (+ tint) onto `.site-header--glass`, which is
+ * the FULL-WIDTH masthead. In Pill mode that reads as an edge-to-edge frosted band with an
+ * empty rounded outline inside it (the pill itself gets no frost). So relocate the frost onto
+ * the pill (.fw-container) and clear it from the bar + `.header-main`. The compound
+ * `.site-header.site-header--design-pill…` selectors also outrank a stray full-width backdrop
+ * rule (e.g. one the Site Converter injects as a preset), so the pill wins regardless. */
+/* The `.is-stuck` variants MUST be listed too: on scroll the base sheet repaints the FULL-WIDTH bar's frost
+ * via `.site-header--glass.is-stuck:not(.scroll-change)` (specificity 0,4,0), which outranks a stuck-less pill
+ * selector (0,3,0) — so without an `.is-stuck` pill selector the scrolled pill grew a wide frosted band behind
+ * it. These stuck selectors match that specificity and, loading later, win: the frost stays on the pill in
+ * BOTH resting and stuck states, never on the full-width bar. */
+.site-header.site-header--design-pill.site-header--glass,
+.site-header.site-header--design-pill.site-header--glass .header-main,
+.site-header.site-header--design-pill.site-header--glass.is-stuck,
+.site-header.site-header--design-pill.site-header--glass.is-stuck .header-main {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: transparent;
+}
+.site-header--design-pill.site-header--glass .header-main > [class*="fw-container"],
+.site-header--design-pill.site-header--glass.is-stuck .header-main > [class*="fw-container"] {
+	-webkit-backdrop-filter: saturate(1.4) blur(var(--glass-blur, 10px));
+	backdrop-filter: saturate(1.4) blur(var(--glass-blur, 10px));
+	/* Translucent glass tint from the Main Header Background; a clear overlay stays clear. */
+	background: color-mix(in srgb, var(--header-bg, transparent) 72%, transparent);
+}
+
+/* SHADOW in Pill mode belongs to the PILL, not the full-width bar. pill.css already gives
+ * .fw-container its own box-shadow (var(--header-design-shadow)); `header_shadow` additionally
+ * paints `.site-header--shadow` on the FULL-WIDTH masthead, which reads as a faint edge-to-edge
+ * line under the header. Suppress that bar shadow in Pill mode so only the pill's shadow shows. */
+.site-header.site-header--design-pill.site-header--shadow,
+.site-header.site-header--design-pill.site-header--shadow .header-main {
+	box-shadow: none;
+}
+
 /* Neutralize the base .is-stuck white-bar repaint so only the pill reads when stuck. */
 .site-header--design-pill.header-sticky.is-stuck:not(.site-header--transparent) {
 	background: transparent;
@@ -28,4 +65,22 @@
 .site-header--design-pill.is-stuck .header-main > [class*="fw-container"] {
 	margin-top: .4rem;
 	margin-bottom: .4rem;
+}
+
+/* WIDTH: Hug content (default for the Floating Pill; toggled by the design's Width sub-option).
+ * The pill shrinks to its content and centers, instead of stretching across the container — the
+ * compact floating-pill look, and what most source sites use. `header_layout.container_width` is
+ * ignored while hugging (it governs a fixed-width pill). At content width the fixed-bar spread
+ * (auto-margins on the columns) has no free space and collapses, so give the row an explicit gap
+ * between the logo group and the menu. Set Width = Fixed (no `.site-header--pill-hug`) to keep the
+ * old full-container-width pill. */
+.site-header--design-pill.site-header--pill-hug .header-main > [class*="fw-container"] {
+	width: -moz-max-content;
+	width: max-content;
+	max-width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+}
+.site-header--design-pill.site-header--pill-hug .header-main .header-row {
+	gap: var(--header-element-gap, 2.5rem);
 }

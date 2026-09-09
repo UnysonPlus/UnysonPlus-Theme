@@ -213,6 +213,10 @@ add_action( 'wp_head', 'unysonplus_emit_dark_mode_boot', 1 );
 if ( ! function_exists( 'unysonplus_render_dark_mode_toggle' ) ) :
 function unysonplus_render_dark_mode_toggle() {
 	if ( ! unysonplus_dark_mode_is_enabled() ) { return; }
+	// A header/footer builder `theme_toggle` element already put a control on the page — a second
+	// floating one would be a duplicate. The header renders before wp_footer, so the flag is set
+	// by the time this runs. (See unysonplus_render_theme_toggle_element().)
+	if ( ! empty( $GLOBALS['unysonplus_dark_toggle_inline'] ) ) { return; }
 
 	$default = unysonplus_misc_get( 'dark_mode_default', 'auto' );
 	if ( ! in_array( $default, array( 'auto', 'light', 'dark' ), true ) ) {
@@ -252,6 +256,50 @@ function unysonplus_render_dark_mode_toggle() {
 }
 endif;
 add_action( 'wp_footer', 'unysonplus_render_dark_mode_toggle', 20 );
+
+if ( ! function_exists( 'unysonplus_render_theme_toggle_element' ) ) :
+/**
+ * Header/Footer builder element: the light/dark toggle INLINE in a header column, instead of
+ * (or as well as) the floating corner button. Sources that offer a colour-mode switch put it in
+ * the header's right cluster next to the CTA; reproducing that used to need a custom_html element
+ * plus custom JS. Same button markup and the same `theme-toggle` JS contract — only the
+ * positioning differs, so `.theme-toggle--inline` unsets the fixed placement.
+ *
+ * Renders nothing when Dark Mode is off (Theme Settings -> Site-wide UX -> Dark Mode): a toggle
+ * with nothing to toggle would be a dead control.
+ */
+function unysonplus_render_theme_toggle_element() {
+	if ( ! unysonplus_dark_mode_is_enabled() ) { return; }
+	$GLOBALS['unysonplus_dark_toggle_inline'] = true;
+
+	$default = unysonplus_misc_get( 'dark_mode_default', 'auto' );
+	if ( ! in_array( $default, array( 'auto', 'light', 'dark' ), true ) ) { $default = 'auto'; }
+	$show_label = unysonplus_misc_get( 'dark_mode_show_label' ) === 'yes';
+
+	$classes = array( 'theme-toggle', 'theme-toggle--inline' );
+	if ( $show_label ) { $classes[] = 'theme-toggle--with-label'; }
+	?>
+	<button type="button"
+	        class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"
+	        data-default-mode="<?php echo esc_attr( $default ); ?>"
+	        aria-label="<?php esc_attr_e( 'Toggle color mode', 'unysonplus' ); ?>">
+		<span class="theme-toggle__icon theme-toggle__icon--light" aria-hidden="true">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/></svg>
+		</span>
+		<span class="theme-toggle__icon theme-toggle__icon--dark" aria-hidden="true">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.78.78 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278z"/></svg>
+		</span>
+		<span class="theme-toggle__icon theme-toggle__icon--auto" aria-hidden="true">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1v14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/></svg>
+		</span>
+		<span class="theme-toggle__label"
+		      data-label-light="<?php esc_attr_e( 'Light', 'unysonplus' ); ?>"
+		      data-label-dark="<?php esc_attr_e( 'Dark', 'unysonplus' ); ?>"
+		      data-label-auto="<?php esc_attr_e( 'Auto', 'unysonplus' ); ?>"></span>
+	</button>
+	<?php
+}
+endif;
 
 
 /* ============================================================

@@ -10,8 +10,8 @@
 	background: transparent;
 }
 .site-header--design-card .header-main > [class*="fw-container"] {
-	margin-top: 1rem;
-	margin-bottom: 1rem;
+	margin-top: var(--header-design-offset, 1rem);
+	margin-bottom: var(--header-design-offset, 1rem);
 	padding: .5rem 1.5rem;
 	background: var(--header-bg, #fff);
 	border-radius: var(--header-design-radius, 14px);
@@ -20,4 +20,41 @@
 .site-header--design-card.header-sticky.is-stuck:not(.site-header--transparent) {
 	background: transparent;
 	box-shadow: none;
+}
+
+/* GLASS in Card mode — the frost belongs to the CARD, not the full-width bar (parity with pill.css). The
+ * `header_glass` toggle paints backdrop-filter (+ tint) onto `.site-header--glass` = the FULL-WIDTH masthead,
+ * which reads as an edge-to-edge frosted band with the card's rounded outline lost inside it (a floating
+ * glass card — financial-infra / nox / cristo-redentor — rendered as a flat overlay). Relocate the frost onto
+ * the card (.fw-container) and clear it from the bar + `.header-main`, in BOTH resting and stuck states (the
+ * base sheet repaints the bar's frost on scroll via a higher-specificity `.is-stuck` rule). */
+.site-header.site-header--design-card.site-header--glass,
+.site-header.site-header--design-card.site-header--glass .header-main,
+.site-header.site-header--design-card.site-header--glass.is-stuck,
+.site-header.site-header--design-card.site-header--glass.is-stuck .header-main {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: transparent;
+}
+.site-header--design-card.site-header--glass .header-main > [class*="fw-container"],
+.site-header--design-card.site-header--glass.is-stuck .header-main > [class*="fw-container"] {
+	-webkit-backdrop-filter: saturate(1.4) blur(var(--glass-blur, 12px));
+	backdrop-filter: saturate(1.4) blur(var(--glass-blur, 12px));
+	/* Translucent glass tint from the Main Header Background; a clear (fill-less) source card stays clear. */
+	background: color-mix(in srgb, var(--header-bg, transparent) 72%, transparent);
+}
+
+/* SHADOW in Card mode belongs to the CARD (card.css already gives .fw-container box-shadow); `header_shadow`
+ * additionally paints `.site-header--shadow` on the full-width bar (a faint edge-to-edge line). Suppress it. */
+.site-header.site-header--design-card.site-header--shadow,
+.site-header.site-header--design-card.site-header--shadow .header-main {
+	box-shadow: none;
+}
+
+/* BORDER in Card mode belongs to the CARD. `header_border` paints an INSET hairline box-shadow on the
+ * full-width bar, which the shadow-suppression above also clears — so the toggle would do nothing. Give the
+ * card its own hairline outline instead (a subtle slate that reads on both a glass card over a dark hero and
+ * a solid card on a light page), matching the source's bordered floating bar (financial-infra's border-flow). */
+.site-header--design-card.site-header--border .header-main > [class*="fw-container"] {
+	border: 1px solid rgba(148, 163, 184, .28);
 }

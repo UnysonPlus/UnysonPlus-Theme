@@ -1104,6 +1104,29 @@ $options = [
 		'title'   => __( 'Containers &amp; Repeatables', 'unysonplus' ),
 		'type'    => 'group',
 		'options' => [
+			'demo_tabs_2'                      => [
+				'label' => __( 'Tabs', 'unysonplus' ),
+				'type'  => 'tabs',
+				'desc'  => __( 'Groups nested options into a compact tab strip — one value per tab. Ideal for multi-state controls (Start / Middle / End, Normal / Hover, per-breakpoint). The optional dot marks a tab whose values differ from their defaults.', 'unysonplus' ),
+				'dots'  => true,
+				'value' => [],
+				'tabs'  => [
+					// Each tab holds a DIFFERENT set of option types — a tab can carry any options.
+					'text'  => [ 'title' => __( 'Text', 'unysonplus' ), 'options' => [
+						'heading' => [ 'type' => 'text', 'label' => __( 'Heading', 'unysonplus' ), 'value' => 'Hello world' ],
+						'body'    => [ 'type' => 'textarea', 'label' => __( 'Body', 'unysonplus' ), 'value' => '' ],
+					] ],
+					'style' => [ 'title' => __( 'Style', 'unysonplus' ), 'options' => [
+						'color'  => [ 'type' => 'color-picker', 'label' => __( 'Color', 'unysonplus' ), 'value' => '#3858e9' ],
+						'radius' => [ 'type' => 'slider', 'label' => __( 'Radius (px)', 'unysonplus' ), 'value' => 8, 'properties' => [ 'min' => 0, 'max' => 60, 'step' => 1 ] ],
+						'align'  => [ 'type' => 'select', 'label' => __( 'Align', 'unysonplus' ), 'value' => 'center', 'choices' => [ 'left' => __( 'Left', 'unysonplus' ), 'center' => __( 'Center', 'unysonplus' ), 'right' => __( 'Right', 'unysonplus' ) ] ],
+					] ],
+					'media' => [ 'title' => __( 'Media', 'unysonplus' ), 'options' => [
+						'image'  => [ 'type' => 'upload', 'label' => __( 'Image', 'unysonplus' ), 'value' => [], 'images_only' => true ],
+						'enable' => [ 'type' => 'switch', 'label' => __( 'Show caption', 'unysonplus' ), 'value' => 'yes', 'left-choice' => [ 'value' => 'no', 'label' => __( 'No', 'unysonplus' ) ], 'right-choice' => [ 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ] ],
+					] ],
+				],
+			],
 			'demo_addable_popup_2'             => [
 				'label'         => __( 'Addable Popup', 'unysonplus' ),
 				'type'          => 'addable-popup',

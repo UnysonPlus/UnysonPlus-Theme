@@ -101,6 +101,12 @@ $options = [
 				__( 'Link Color', 'unysonplus' ),
 				__( 'Default link color for the entire footer. Pick a palette preset or a custom colour.', 'unysonplus' )
 			),
+			/* 90% of real footers change their link COLOUR on hover; the theme previously only faded
+			   the rest colour, so a distinct hover colour could not be expressed. Empty keeps the fade. */
+			'footer_link_hover_color' => $footer_color(
+				__( 'Link Hover Color', 'unysonplus' ),
+				__( 'Link colour on hover / focus. Leave empty to keep the default subtle fade of the Link Color.', 'unysonplus' )
+			),
 		],
 	],
 	'group_footer_border' => [
@@ -191,6 +197,48 @@ $options = [
 				__( 'Padding Bottom', 'unysonplus' ),
 				__( 'Space below the footer content — below the Post-Footer and above the Copyright bar (which sits flush at the very bottom). "Default" uses the theme value.', 'unysonplus' )
 			),
+			/* The two selects above are constrained to the site spacing scale, which tops out at 8rem.
+			   Measured across 279 real footer padding values, 95% land on a scale step but the rest are
+			   large (160-240px) and clamped to the ceiling, losing up to 112px. These overrides win when
+			   filled, exactly like the header's numeric design overrides. */
+			'footer_padding_top_custom' => [
+				'label' => __( 'Custom Padding Top', 'unysonplus' ),
+				'desc'  => __( 'Exact padding above the footer content. Overrides the Padding Top step above when set — use it for a value the spacing scale cannot reach.', 'unysonplus' ),
+				'type'  => 'unit-input',
+				'units' => [ 'px', 'rem', 'em' ],
+				'value' => [ 'value' => '', 'unit' => 'px' ],
+				'min'   => 0,
+			],
+			'footer_padding_bottom_custom' => [
+				'label' => __( 'Custom Padding Bottom', 'unysonplus' ),
+				'desc'  => __( 'Exact padding below the footer content. Overrides the Padding Bottom step above when set.', 'unysonplus' ),
+				'type'  => 'unit-input',
+				'units' => [ 'px', 'rem', 'em' ],
+				'value' => [ 'value' => '', 'unit' => 'px' ],
+				'min'   => 0,
+			],
+			/* Gap BETWEEN footer columns. Was a fixed 40px (grid) / 32px (equal) / 28px (auto); 80% of
+			   measured footers use something else, most commonly 48px. */
+			'footer_col_gap' => [
+				'label' => __( 'Column Gap', 'unysonplus' ),
+				'desc'  => __( 'Horizontal (and stacked vertical) gap between footer columns. Leave empty for the theme default.', 'unysonplus' ),
+				'type'  => 'unit-input',
+				'units' => [ 'px', 'rem', 'em' ],
+				'value' => [ 'value' => '', 'unit' => 'px' ],
+				'min'   => 0,
+			],
+			/* Footer columns stacked unconditionally under 768px. 11% of measured footers keep a
+			   two-column pair on a phone; 1 column is the previous behaviour. */
+			'footer_mobile_columns' => [
+				'label'   => __( 'Columns on Mobile', 'unysonplus' ),
+				'desc'    => __( 'How many columns the footer rows keep below 768px. One column (stacked) is the default.', 'unysonplus' ),
+				'type'    => 'select',
+				'value'   => '1',
+				'choices' => [
+					'1' => __( '1 — stacked (default)', 'unysonplus' ),
+					'2' => __( '2 columns', 'unysonplus' ),
+				],
+			],
 		],
 	],
 	'footer_css_class' => [

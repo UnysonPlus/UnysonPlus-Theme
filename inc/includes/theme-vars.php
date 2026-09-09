@@ -202,6 +202,16 @@ if ( ! function_exists( 'unysonplus_theme_vars_defaults' ) ) :
 			'--site-bg-image'         => 'none',
 			'--container-gutter'      => '1.5rem',
 			'--section-spacing-scale' => '1',
+
+			/* Glass Surface design token — the frosted-glass "card on glass" look shared by
+			   the .glass-surface utility and any shortcode that opts in (Section / Flexbox
+			   Backdrop Blur). One place to tune the site's glass so every glass panel matches. */
+			'--glass-blur'   => '10px',                       // backdrop-filter blur radius
+			'--glass-bg'     => 'rgba(255, 255, 255, 0.6)',   // translucent fill the blur shows through
+			'--glass-border' => '1px solid rgba(255, 255, 255, 0.35)',
+			'--glass-radius' => 'var(--radius-lg, 16px)',
+			'--glass-shadow' => '0 8px 32px rgba(0, 0, 0, 0.12)',
+
 			'--preloader-bg'          => '#ffffff',
 			'--scroll-progress-color' => 'var(--color-primary)',
 			'--sidebar-width'         => '300px',
@@ -404,6 +414,26 @@ if ( ! function_exists( 'unysonplus_theme_vars_header_layout' ) ) :
 			// keeps its at-top fill.
 			$hsbg = isset( $header_layout['scroll_bg_color'] ) ? unysonplus_preset_color_to_css( $header_layout['scroll_bg_color'] ) : '';
 			if ( $hsbg !== '' ) { $out['--header-scroll-bg'] = $hsbg; }
+
+			// Glass TINT: the frost rule mixes the fill 72% with transparent so an OPAQUE colour reads
+			// as translucent. A colour that already has alpha must NOT be mixed again — doing so
+			// double-applies transparency (a captured rgba(...,.9) rendered at .65). Detect an
+			// already-translucent fill and pin the mix to 100% for that state.
+			$is_translucent = function ( $c ) {
+				$c = strtolower( trim( (string) $c ) );
+				if ( $c === '' ) { return false; }
+				if ( strpos( $c, 'transparent' ) !== false ) { return true; }
+				// rgba()/hsla() with an alpha below 1, or an 8-digit hex whose alpha byte is not ff.
+				if ( preg_match( '/(?:rgba|hsla)\([^)]*[,\/]\s*(0|0?\.[0-9]+)\s*\)/', $c ) ) { return true; }
+				if ( preg_match( '/^#[0-9a-f]{6}([0-9a-f]{2})$/', $c, $m ) && strtolower( $m[1] ) !== 'ff' ) { return true; }
+				return false;
+			};
+			if ( isset( $out['--header-bg'] ) && $is_translucent( $out['--header-bg'] ) ) {
+				$out['--header-glass-tint'] = '100%';
+			}
+			if ( $hsbg !== '' && $is_translucent( $hsbg ) ) {
+				$out['--header-scroll-glass-tint'] = '100%';
+			}
 			$hmh = unysonplus_css_length( isset( $header_layout['min_height'] ) ? $header_layout['min_height'] : '' );
 			if ( $hmh !== '' ) { $out['--header-min-height'] = $hmh; }
 
@@ -421,6 +451,36 @@ if ( ! function_exists( 'unysonplus_theme_vars_header_layout' ) ) :
 			// Sticky-shrink logo height (Behavior = Sticky + Shrink); CSS falls back to 40px.
 			$shrink = unysonplus_css_length( isset( $header_layout['sticky_shrink_height'] ) ? $header_layout['sticky_shrink_height'] : '' );
 			if ( $shrink !== '' ) { $out['--header-shrink-logo'] = $shrink; }
+
+			// Scrolled Header Height — the numeric counterpart to scroll_shrink. Unset, the CSS
+			// falls back to --header-min-height, so the stuck row keeps the at-rest height.
+			$hsh = unysonplus_css_length( isset( $header_layout['scroll_height'] ) ? $header_layout['scroll_height'] : '' );
+			if ( $hsh !== '' ) { $out['--header-height-stuck'] = $hsh; }
+
+			// Scrolled link colour — only meaningful with Change-appearance-on-scroll; the CSS
+			// scopes it to .site-header--scroll-change.is-stuck so it can't leak into the at-top look.
+			$hslc = isset( $header_layout['scroll_link_color'] ) ? unysonplus_preset_color_to_css( $header_layout['scroll_link_color'] ) : '';
+			if ( $hslc !== '' ) { $out['--header-scroll-link'] = $hslc; }
+
+			// Glass blur radius (both glass states). CSS falls back to the historic 10px.
+			$hgb = unysonplus_css_length( isset( $header_layout['header_glass_blur'] ) ? $header_layout['header_glass_blur'] : '' );
+			if ( $hgb !== '' ) { $out['--glass-blur'] = $hgb; }
+			$hgs = isset( $header_layout['header_glass_saturate'] ) ? (int) $header_layout['header_glass_saturate'] : 0;
+			if ( $hgs > 0 && $hgs !== 140 ) { $out['--glass-saturate'] = round( $hgs / 100, 2 ); }
+
+			// Shadow depth — the toggles stay boolean; this scales what they emit. `medium` is the
+			// historic value, so an unset/default install renders exactly as before.
+			$hsd = isset( $header_layout['header_shadow_depth'] ) ? (string) $header_layout['header_shadow_depth'] : '';
+			$shadow_map = array(
+				'soft'   => '0 3px 12px -8px rgba(15, 23, 42, .22)',
+				'strong' => '0 12px 38px -12px rgba(15, 23, 42, .42)',
+			);
+			if ( isset( $shadow_map[ $hsd ] ) ) { $out['--header-shadow'] = $shadow_map[ $hsd ]; }
+
+			// NOTE: the floating-design geometry overrides (offset / radius / inset) are NOT emitted
+			// here. unysonplus_header_design_css_vars() writes those vars onto the header ELEMENT,
+			// so a :root value would always lose the cascade to the design preset. They live beside
+			// the presets in inc/includes/layout.php instead.
 
 			// Header row vertical alignment + element gap (all header rows/columns).
 			$valign_map = array( 'top' => 'flex-start', 'center' => 'center', 'bottom' => 'flex-end' );
@@ -565,12 +625,32 @@ if ( ! function_exists( 'unysonplus_theme_vars_footer' ) ) :
 			'footer_padding_bottom' => '--footer-pad-bottom',
 		);
 		$footer_colors = array(
-			'footer_text_color' => '--footer-color',
-			'footer_link_color' => '--footer-link-color',
+			'footer_text_color'       => '--footer-color',
+			'footer_link_color'       => '--footer-link-color',
+			'footer_link_hover_color' => '--footer-link-hover',
 		);
 		foreach ( $footer_lengths as $opt => $var ) {
 			$css = unysonplus_css_length( fw_get_db_settings_option( $opt ) );
 			if ( $css !== '' ) { $out[ $var ] = $css; }
+		}
+
+		// Exact padding overrides. The two selects above are constrained to the site spacing scale,
+		// which tops out at 8rem; these win when filled so a 160-240px source footer is reachable.
+		foreach ( array( 'footer_padding_top_custom' => '--footer-pad-top', 'footer_padding_bottom_custom' => '--footer-pad-bottom' ) as $opt => $var ) {
+			$css = unysonplus_css_length( fw_get_db_settings_option( $opt ) );
+			if ( $css !== '' ) { $out[ $var ] = $css; }
+		}
+
+		// Column gap between footer columns (grid / equal / auto rows all read it).
+		$fcg = unysonplus_css_length( fw_get_db_settings_option( 'footer_col_gap' ) );
+		if ( $fcg !== '' ) { $out['--footer-col-gap'] = $fcg; }
+
+		// Columns kept below 768px. '1' is the historic behaviour, so only emit for a real change.
+		$fmc = (string) fw_get_db_settings_option( 'footer_mobile_columns', '1' );
+		if ( $fmc !== '' && $fmc !== '1' ) { $out['--footer-mobile-cols'] = (int) $fmc; }
+		// A chosen hover colour must not be dimmed by the legacy fade.
+		if ( unysonplus_preset_color_to_css( fw_get_db_settings_option( 'footer_link_hover_color' ) ) !== '' ) {
+			$out['--footer-link-hover-opacity'] = '1';
 		}
 		foreach ( $footer_colors as $opt => $var ) {
 			// Text/Link are compact palette-preset colours ({predefined,custom});

@@ -289,6 +289,29 @@
 .site-header--scroll-shrink.is-stuck .sc-site-logo__img,
 .site-header--scroll-shrink.is-stuck .site-logo { max-height: var(--header-shrink-logo, 40px); }
 
+/* Scrolled Header Height — the NUMERIC counterpart to Shrink-on-scroll. Shrink is a fixed
+   .25rem padding, which gets the behaviour right but not the source's actual size; this sets
+   the stuck row height exactly (Header -> Layout -> Appearance on scroll -> Scrolled Header
+   Height -> --header-height-stuck). Unset, it resolves to the at-rest height, so nothing
+   changes for existing sites. Composes with shrink: set both to tighten padding AND pin a height. */
+/* Every element that carries the at-rest --header-min-height must take the stuck height too, or the
+   tallest one wins and the row never shrinks: .site-header, .header-main AND .header-main .header-row
+   all set it (style.css), so overriding only .header-main left a 80px .header-row floor under a 73px
+   request — the bar reported the right min-height and still rendered the old size. */
+.site-header.is-stuck,
+.site-header.is-stuck .header-main,
+.site-header.is-stuck .header-main .header-row { min-height: var(--header-height-stuck, var(--header-min-height)); }
+
+/* Scrolled link colour — the On-Scroll group can restyle the bar's background, glass, border,
+   shadow and size, but the nav text used to keep its at-top colour. A header that goes from
+   white-on-hero to a solid light bar needs its links to darken with it, so give the stuck state
+   its own colour (Header -> Layout -> Appearance on scroll -> Scrolled Link Color). Unset, it
+   inherits as before. Scoped to the scroll-change state so it never leaks into the at-top look. */
+.site-header--scroll-change.is-stuck .header-main a,
+.site-header--scroll-change.is-stuck .main-navigation a {
+	color: var(--header-scroll-link, inherit);
+}
+
 /* Hide on scroll down — an independent toggle (.site-header--hide); header-behaviors.js toggles .is-hidden. */
 .site-header--hide { transition: transform .3s ease; will-change: transform; }
 .site-header--hide.is-hidden { transform: translateY(-100%); }
@@ -317,16 +340,22 @@
 /* Shadow — a soft drop shadow lifting the header off the page. */
 .site-header--shadow:not(.is-stuck),
 .site-header--shadow.is-stuck:not(.site-header--scroll-change),
-.site-header--scroll-shadow.is-stuck { box-shadow: 0 6px 22px -10px rgba(15, 23, 42, .28); }
+.site-header--scroll-shadow.is-stuck { box-shadow: var(--header-shadow, 0 6px 22px -10px rgba(15, 23, 42, .28)); }
 
 /* Border + Shadow together — compose (a single box-shadow with both layers). */
 .site-header--border.site-header--shadow:not(.is-stuck),
 .site-header--border.site-header--shadow.is-stuck:not(.site-header--scroll-change),
-.site-header--scroll-border.site-header--scroll-shadow.is-stuck { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .18), 0 6px 22px -10px rgba(15, 23, 42, .28); }
+.site-header--scroll-border.site-header--scroll-shadow.is-stuck { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .18), var(--header-shadow, 0 6px 22px -10px rgba(15, 23, 42, .28)); }
 
 /* Uppercase navigation — primary menu links. */
 .site-header--uppercase-nav .header-main .menu-item > a { text-transform: uppercase; letter-spacing: .04em; }
 
+/* Translucent / Glass — TWO-STATE frosted background.
+   The 72% tint exists to make an OPAQUE fill read as frosted. When the source's captured colour
+   ALREADY carries alpha (e.g. rgba(10,10,10,.9) from a converted site), mixing again double-applies
+   transparency — .9 became .65 and the bar rendered visibly lighter than the source. theme-vars.php
+   therefore emits --header-glass-tint / --header-scroll-glass-tint = 100% for a colour that is already
+   translucent, leaving the captured alpha untouched. Opaque colours keep the 72% default. */
 /* Translucent / Glass — TWO-STATE frosted background. The `.site-header` prefix + the state
    qualifiers keep specificity above both the core `.site-header { background: var(--header-bg) }`
    (0,1,0) and the two-state stuck-bg rules above, so glass wins for whichever state is active.
@@ -335,14 +364,14 @@
    set At-top with no glass, and Change-on-scroll + Glass-on-scroll. */
 .site-header.site-header--glass:not(.is-stuck),
 .site-header.site-header--glass.is-stuck:not(.site-header--scroll-change) {
-	background: color-mix(in srgb, var(--header-bg, #fff) 72%, transparent);
-	-webkit-backdrop-filter: saturate(1.4) blur(10px);
-	backdrop-filter: saturate(1.4) blur(10px);
+	background: color-mix(in srgb, var(--header-bg, #fff) var(--header-glass-tint, 72%), transparent);
+	-webkit-backdrop-filter: saturate(var(--glass-saturate, 1.4)) blur(var(--glass-blur, 10px));
+	backdrop-filter: saturate(var(--glass-saturate, 1.4)) blur(var(--glass-blur, 10px));
 }
 .site-header.header-sticky.site-header--scroll-glass.is-stuck {
-	background: color-mix(in srgb, var(--header-scroll-bg, var(--header-bg, #fff)) 72%, transparent);
-	-webkit-backdrop-filter: saturate(1.4) blur(10px);
-	backdrop-filter: saturate(1.4) blur(10px);
+	background: color-mix(in srgb, var(--header-scroll-bg, var(--header-bg, #fff)) var(--header-scroll-glass-tint, var(--header-glass-tint, 72%)), transparent);
+	-webkit-backdrop-filter: saturate(var(--glass-saturate, 1.4)) blur(var(--glass-blur, 10px));
+	backdrop-filter: saturate(var(--glass-saturate, 1.4)) blur(var(--glass-blur, 10px));
 }
 
 /* =========================================================
@@ -608,11 +637,17 @@
 .footer-section .footer-row--grid {
 	display: grid;
 	grid-template-columns: var(--fcols, 1fr);
-	gap: 40px;
+	/* Column gap was a fixed 40px. Measured across 153 real footers, 80% use something else
+	   (48px is the single most common at 43%), so it is a setting now — Footer -> Layout ->
+	   Spacing -> Column Gap. Empty keeps the previous value. */
+	gap: var(--footer-col-gap, 40px);
 	align-items: start;
 }
 @media (max-width: 767.98px) {
-	.footer-section .footer-row--grid { grid-template-columns: 1fr; }
+	/* Footer columns stacked unconditionally below 768px. 11% of measured footers deliberately
+	   keep two columns on a phone (a compact link pair), so the count is configurable — 1 keeps
+	   the previous behaviour exactly. */
+	.footer-section .footer-row--grid { grid-template-columns: repeat(var(--footer-mobile-cols, 1), minmax(0, 1fr)); }
 }
 
 /* ============================================================
@@ -636,12 +671,12 @@
 	padding: 0;                      /* gap handles spacing, not grid gutters */
 }
 @media (max-width: 782px) {
-	.footer-section .footer-row--auto { justify-content: center; gap: 28px; }
+	.footer-section .footer-row--auto { justify-content: center; gap: var(--footer-col-gap, 28px); }
 }
 /* 7-8 column footer → an EVEN grid (mirrors a source `grid-cols-8`): equal-width link columns that grow
    to fill the row (no content-sizing / edge-spreading), with the first (brand) column wider like a
    `col-span-2`. flex-wrap still lets them stack on narrow screens. */
-.footer-section .footer-row--equal { justify-content: flex-start; gap: 32px; }
+.footer-section .footer-row--equal { justify-content: flex-start; gap: var(--footer-col-gap, 32px); }
 .footer-section .footer-row--equal > .footer-col--auto { flex: 1 1 0; width: auto; min-width: 130px; }
 .footer-section .footer-row--equal > .footer-col--auto:first-child { flex: 1.7 1 0; min-width: 200px; }
 @media (max-width: 782px) {

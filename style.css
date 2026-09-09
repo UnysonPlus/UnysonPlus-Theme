@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.5.79
+Version: 2.5.92
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -72,10 +72,33 @@ Tags:           bootstrap, unyson, custom-header, custom-menu, featured-images, 
 	--transition-base:    250ms ease;
 	--radius:             0.25rem;
 
+	/* Glass Surface token (plugin-inactive fallback; theme-vars.php overrides at runtime). */
+	--glass-blur:         10px;
+	--glass-bg:           rgba(255, 255, 255, 0.6);
+	--glass-border:       1px solid rgba(255, 255, 255, 0.35);
+	--glass-radius:       var(--radius-lg, 16px);
+	--glass-shadow:       0 8px 32px rgba(0, 0, 0, 0.12);
+
 	/* Auto-stack step for floating buttons sharing the same corner.
 	   JS in assets/js/layout.js sets --stack-position: 1, 2, … on
 	   subsequent buttons; corner-modifier rules read it. */
 	--stack-step:         56px;
+}
+
+/* Glass Surface utility — apply the shared frosted-glass token to any element. Opt-in
+   (add the class); every glass panel then tracks the one --glass-* token set above. The
+   @supports guard keeps a readable solid-ish fill where backdrop-filter is unsupported. */
+.glass-surface {
+	background: var(--glass-bg);
+	border: var(--glass-border);
+	border-radius: var(--glass-radius);
+	box-shadow: var(--glass-shadow);
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+	.glass-surface {
+		-webkit-backdrop-filter: blur(var(--glass-blur));
+		backdrop-filter: blur(var(--glass-blur));
+	}
 }
 
 body.admin-bar { --admin-bar-offset: 32px; }
@@ -737,9 +760,23 @@ body .container-fluid {
    was overriding the grid's justify-self:end, pulling the right column inward). */
 .header-main .header-col--start  { flex-shrink: 0; }
 .header-main .header-col--center { display: none; flex: 1 1 auto; justify-content: center; }  /* shown on lg+ via media query below */
-.header-main .header-col--end    { margin-left: auto; gap: var(--header-element-gap, 0.75rem); }
+.header-main .header-col--end    { margin-left: auto; gap: var(--header-element-gap, 0.75rem); flex-shrink: 0; }
+/* Don't squeeze the CTA/action buttons: keep the end column at its content width and let the (growable)
+   nav column yield space instead — otherwise a wide CTA gets pushed past the container into a scrollbar. */
+.header-main .header-col--center { min-width: 0; flex: 1 1 auto; }
+.header-main .header-col--center .primary-menu { flex-wrap: wrap; }
 @media (min-width: 992px) {
 	.header-main .header-col--center { display: flex; }
+}
+/* Laptop-width breathing room: between the nav-collapse breakpoint (992px) and roomy desktops, a full
+   menu plus a large CTA can run past the container and trip a horizontal scrollbar. Trim the header
+   gaps and the big CTA's padding in that range so everything fits — no content is hidden or clipped.
+   (Scoped to .header-main and the header CTA, so it never touches page buttons or the top/bottom bars.) */
+@media (min-width: 992px) and (max-width: 1400px) {
+	.header-main .sc-nav .primary-menu { gap: 1rem; }
+	.header-main .header-row { gap: 0.75rem; }
+	.header-main .header-col--end { gap: 0.5rem; }
+	.header-main .header-cta-btn.btn-lg { padding-left: 1.1rem; padding-right: 1.1rem; }
 }
 
 /* ========================================================================
@@ -984,6 +1021,19 @@ body.transparent .site-header:not(.is-stuck) .has-transparent-logo .site-logo--t
    ============================================================ */
 
 /* Relative positioning for the ::before treatments (underline-grow + bars). */
+/* Fade — the quietest hover treatment: links rest slightly dimmed and come to full strength on
+   hover/current. Measured on 4 of 180 generated sites, and the one common hover style the nine
+   existing presets could not express (they all change colour, fill or draw a rule). */
+body.menu-style-fade .site-header .primary-menu > .menu-item > a {
+	opacity: var(--menu-fade-rest, .7);
+	transition: opacity .2s ease;
+}
+body.menu-style-fade .site-header .primary-menu > .menu-item > a:hover,
+body.menu-style-fade .site-header .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-fade .site-header .primary-menu > .menu-item.current-menu-item > a {
+	opacity: 1;
+}
+
 body.menu-style-underline-grow .site-header .primary-menu > .menu-item > a,
 body.menu-style-bottom-bar     .site-header .primary-menu > .menu-item > a,
 body.menu-style-top-bar        .site-header .primary-menu > .menu-item > a { position: relative; }
@@ -1652,7 +1702,11 @@ body.nav-scrollspy section[id] {
    padding. The actual padding declarations are emitted (scaled by Content Density) in
    the Content Density section below; markup is in template-parts/footer-builder.php. */
 .footer a { color: var(--footer-link-color); }
-.footer a:hover { color: var(--footer-link-color); opacity: 0.85; }
+/* Footer link hover. 90% of measured footers change the link COLOUR on hover; the theme only
+   faded it, so a distinct hover colour was unreachable. --footer-link-hover falls back to the
+   rest colour, and --footer-link-hover-opacity is set to 1 by theme-vars.php whenever a hover
+   colour IS chosen (so the new colour is not dimmed by the legacy fade). */
+.footer a:hover { color: var(--footer-link-hover, var(--footer-link-color)); opacity: var(--footer-link-hover-opacity, 0.85); }
 
 /* Background Pro image (+ any gradient overlay it folds in). All the placement
    knobs come from the control; an overlay is a semi-transparent colour/gradient
@@ -2197,6 +2251,9 @@ img.entry-title__icon { width: auto; height: 0.9em; vertical-align: -0.08em; }
 .theme-toggle--bottom-right  { bottom: calc(1.5rem + var(--stack-position, 0) * var(--stack-step)); right: 1.5rem; }
 .theme-toggle--top-left      { top: calc(var(--admin-bar-offset) + 1.5rem + var(--stack-position, 0) * var(--stack-step)); left:  1.5rem; }
 .theme-toggle--top-right     { top: calc(var(--admin-bar-offset) + 1.5rem + var(--stack-position, 0) * var(--stack-step)); right: 1.5rem; }
+/* Inline variant — the same control placed IN a header/footer column by the builder's
+   `theme_toggle` element, so it flows with the row instead of floating in a page corner. */
+.theme-toggle--inline { position: static; inset: auto; z-index: auto; box-shadow: none; }
 .theme-toggle:hover,
 .theme-toggle:focus-visible {
 	transform: translateY(-1px);
@@ -2296,9 +2353,15 @@ body.unyson.page-builder .entry-content { margin-bottom: 0; }
 .comments-area      { margin-top: calc(2rem * var(--section-spacing-scale)); }
 /* Footer vertical padding — on the inner .footer__body (pre/main/post) so it stays
    ABOVE the copyright bar; the copyright sits flush. See footer-builder.php. */
+/* NOT multiplied by --section-spacing-scale. That scale is a coarse density PRESET meant to nudge
+   DEFAULT rhythm, and everywhere else it multiplies a hardcoded base (sections: calc(4rem * scale),
+   .entry-content: calc(2rem * scale)). The footer's padding is not a default — it has its own explicit
+   Padding Top/Bottom controls (Footer -> Layout -> Spacing) plus exact numeric overrides, so composing
+   the two meant typing 80px and rendering 120px whenever density was "spacious" (x1.5) or 60px when
+   "compact" (x0.75). One property, one control. */
 .footer__body       {
-	padding-top:    calc(var(--footer-pad-top)    * var(--section-spacing-scale));
-	padding-bottom: calc(var(--footer-pad-bottom) * var(--section-spacing-scale));
+	padding-top:    var(--footer-pad-top);
+	padding-bottom: var(--footer-pad-bottom);
 }
 /* A PRE-footer that paints its own full-width background (a coloured CTA band, e.g. jukebox's "Craving a juicy
    burger?") sits FLUSH to the footer's top edge — the mirror of the flush copyright bar at the bottom — instead

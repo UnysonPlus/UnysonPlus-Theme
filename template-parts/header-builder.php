@@ -172,6 +172,14 @@ if ( is_string( $mobile_layout ) && $mobile_layout !== '' && $mobile_layout !== 
 
 $header_design = function_exists( 'unysonplus_header_layout_get' ) ? unysonplus_header_layout_get( 'header_design', 'classic' ) : 'classic';
 if ( $header_design && $header_design !== 'classic' ) { $header_classes[] = 'site-header--design-' . sanitize_html_class( $header_design ); }
+// Floating Pill "Width": hug content (default) vs fixed container width. The hug modifier
+// shrinks the pill to its content and centers it — the compact floating-pill look — instead
+// of stretching across the container. Set Width = Fixed to keep the full-container pill.
+if ( 'pill' === $header_design ) {
+	$pill_opts  = function_exists( 'unysonplus_header_design_options' ) ? unysonplus_header_design_options() : array();
+	$pill_width = isset( $pill_opts['pill_width'] ) ? $pill_opts['pill_width'] : 'hug';
+	if ( 'fixed' !== $pill_width ) { $header_classes[] = 'site-header--pill-hug'; }
+}
 
 if ( $hlg ) {
 	// Appearance — AT TOP (the resting look; also the scrolled look when Change-on-scroll is off).

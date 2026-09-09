@@ -468,7 +468,11 @@ if(! function_exists('unysonplus_logo')) :
                 // Custom logo the Logo Layout governs the tagline entirely — Stacked / Eyebrow show
                 // it inside the lockup, Inline shows none — so never emit the separate line there.
                 // (This is why the old "Hide Tagline" switch is gone: the layout is the control.)
-                if ( ( $description || is_customize_preview() ) && ! $tagline_in_lockup && 'custom' !== $logo_type ) {
+                // Header -> Identity -> Logo -> Show Tagline (image logo only; default On). The fallback to the
+                // WordPress Tagline used to be unconditional, so any site with an image logo and a site tagline
+                // grew a line beneath the logo whether or not its design had one.
+                $tagline_show = ! isset( $header_logo['logo_tagline_show'] ) || 'no' !== $header_logo['logo_tagline_show'];
+                if ( ( $description || is_customize_preview() ) && ! $tagline_in_lockup && 'custom' !== $logo_type && $tagline_show ) {
                         $description_class = array( 'site-description' );
                         // Tagline color: mutually-exclusive palette preset class or custom hex.
                         // Custom hex is emitted to the generated CSS file (.site-description);

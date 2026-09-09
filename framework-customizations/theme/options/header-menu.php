@@ -176,6 +176,7 @@ $options = [
 							'bottom-bar'     => $menu_style_choice( 'bottom-bar',     __( 'Bottom Bar', 'unysonplus' ) ),
 							'top-bar'        => $menu_style_choice( 'top-bar',        __( 'Top Bar', 'unysonplus' ) ),
 							'highlight'      => $menu_style_choice( 'highlight',      __( 'Highlight', 'unysonplus' ) ),
+							'fade'           => $menu_style_choice( 'fade',           __( 'Fade', 'unysonplus' ) ),
 						],
 					],
 

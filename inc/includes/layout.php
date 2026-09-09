@@ -193,13 +193,26 @@ function unysonplus_header_design_css_vars() {
 		'strong' => '0 14px 34px -12px rgba(15, 23, 42, .42)',
 	);
 
+	// Numeric OVERRIDES beat the preset when filled. They are resolved HERE, beside the presets,
+	// rather than as a :root var — these vars are emitted on the header element itself, so a
+	// :root value would lose the cascade to the preset every time.
+	$len = function ( $key ) use ( $opts ) {
+		if ( ! isset( $opts[ $key ] ) || ! function_exists( 'unysonplus_css_length' ) ) { return ''; }
+		return unysonplus_css_length( $opts[ $key ] );
+	};
+
 	if ( 'pill' === $design ) {
 		$vars['--header-design-radius'] = $pick( array( 'full' => '999px', 'large' => '1.5rem', 'medium' => '.75rem' ), 'pill_radius', '999px' );
 		$vars['--header-design-inset']  = $pick( array( 'none' => '0px', 'small' => '1.5rem', 'large' => '4rem' ), 'pill_inset', '0px' );
 		$vars['--header-design-shadow'] = $pick( $shadow, 'pill_shadow', $shadow['medium'] );
+		if ( ( $v = $len( 'pill_radius_custom' ) ) !== '' ) { $vars['--header-design-radius'] = $v; }
+		if ( ( $v = $len( 'pill_inset_custom' ) ) !== '' )  { $vars['--header-design-inset']  = $v; }
+		if ( ( $v = $len( 'pill_offset' ) ) !== '' )        { $vars['--header-design-offset'] = $v; }
 	} elseif ( 'card' === $design ) {
 		$vars['--header-design-radius'] = $pick( array( 'small' => '8px', 'medium' => '14px', 'large' => '22px' ), 'card_radius', '14px' );
 		$vars['--header-design-shadow'] = $pick( $shadow, 'card_shadow', $shadow['medium'] );
+		if ( ( $v = $len( 'card_radius_custom' ) ) !== '' ) { $vars['--header-design-radius'] = $v; }
+		if ( ( $v = $len( 'card_offset' ) ) !== '' )        { $vars['--header-design-offset'] = $v; }
 	} elseif ( 'centered' === $design ) {
 		$vars['--header-design-gap'] = $pick( array( 'tight' => '.25rem', 'normal' => '.5rem', 'roomy' => '1rem' ), 'centered_gap', '.5rem' );
 	}
@@ -872,6 +885,51 @@ function unysonplus_render_page_bg_effect() {
 }
 endif;
 add_action( 'wp_body_open', 'unysonplus_render_page_bg_effect', 3 );
+
+
+/* ============================================================
+ * Site-wide FIXED background VIDEO (Theme Settings → General Layout → Site Background)
+ * A single `position:fixed`, full-viewport <video> behind ALL content that the whole page scrolls over —
+ * the video analog of the image layer's `attachment: fixed`. This is what a page-wide fixed-video backdrop
+ * (e.g. an aurora/landscape loop behind a scrolling site) needs: UnysonPlus backgrounds are otherwise
+ * per-section, and CSS `background-attachment` can't pin a <video>, so it MUST be a real fixed DOM element.
+ * Rendered as self-contained inline-styled markup on wp_body_open (NOT via the generated/combined CSS), so
+ * it takes effect immediately and can't be lost to CSS caching. Only fires when the Site Background's video
+ * layer is enabled AND its `position` is `fixed`; a `scroll` (default) video is a per-section concern and is
+ * ignored here. Sections that should reveal it must be transparent (the Site Converter handles that).
+ * ============================================================ */
+if ( ! function_exists( 'unysonplus_render_site_bg_video' ) ) :
+function unysonplus_render_site_bg_video() {
+	if ( ! function_exists( 'fw_get_db_settings_option' ) ) { return; }
+	$bg = fw_get_db_settings_option( 'general_layout/site_background' );
+	if ( ! is_array( $bg ) ) { return; }
+	$video = isset( $bg['video'] ) && is_array( $bg['video'] ) ? $bg['video'] : array();
+	if ( empty( $video ) ) { return; }
+	// Only a FIXED site-background video is a page-wide backdrop; a scroll one belongs to a section.
+	if ( ( isset( $video['position'] ) ? $video['position'] : 'scroll' ) !== 'fixed' ) { return; }
+
+	// Resolve a playable source: uploaded mp4/webm (the { url } upload shape) or an external URL.
+	$mp4  = ( isset( $video['source_mp4']['url'] ) )  ? (string) $video['source_mp4']['url']  : '';
+	$webm = ( isset( $video['source_webm']['url'] ) ) ? (string) $video['source_webm']['url'] : '';
+	$ext  = isset( $video['external_url'] ) ? (string) $video['external_url'] : '';
+	if ( $mp4 === '' && $webm === '' && $ext === '' ) { return; }
+	$poster = ( isset( $video['poster']['url'] ) ) ? (string) $video['poster']['url'] : '';
+
+	// A background video is decorative: muted + autoplay + loop + playsinline, no controls. `mute` defaults
+	// yes; autoplay is required for a backdrop; loop keeps it seamless.
+	$loop = ( ! isset( $video['loop'] ) || $video['loop'] !== 'no' );
+	?>
+	<div class="site-bg-video" aria-hidden="true" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;overflow:hidden;pointer-events:none;">
+		<video style="width:100%;height:100%;object-fit:cover;display:block;" autoplay muted playsinline<?php echo $loop ? ' loop' : ''; ?><?php echo $poster !== '' ? ' poster="' . esc_url( $poster ) . '"' : ''; ?> preload="metadata">
+			<?php if ( $webm !== '' ) : ?><source src="<?php echo esc_url( $webm ); ?>" type="video/webm"><?php endif; ?>
+			<?php if ( $mp4 !== '' ) : ?><source src="<?php echo esc_url( $mp4 ); ?>" type="video/mp4"><?php endif; ?>
+			<?php if ( $mp4 === '' && $webm === '' && $ext !== '' ) : ?><source src="<?php echo esc_url( $ext ); ?>"><?php endif; ?>
+		</video>
+	</div>
+	<?php
+}
+endif;
+add_action( 'wp_body_open', 'unysonplus_render_site_bg_video', 2 );
 
 /* Page-wide ENTRANCE + SCROLL MOTION — the page's Animations tab (animation / animation_settings /
  * gsap_motion) applied to a wrapper around the page content, via the SAME sc_build_wrapper_attr pipeline

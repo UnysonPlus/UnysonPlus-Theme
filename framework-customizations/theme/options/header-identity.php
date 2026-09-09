@@ -133,6 +133,19 @@ $options = [
 							'min'   => 0,
 							'desc'  => __( 'Display width of the image logo (e.g. 300px or 12rem). Leave empty to auto-size to the header height.', 'unysonplus' ),
 						],
+						/* The image logo renders the site Tagline as a separate line beneath it, falling
+						   back to the WordPress Tagline when no logo tagline is set. That is right for a
+						   brochure site and wrong for most others — and there was no way to turn it off
+						   (the old switch was removed when the CUSTOM logo's Layout took over that job,
+						   which never applied to this image path). Default On keeps existing sites as-is. */
+						'logo_tagline_show' => [
+							'label'        => __( 'Show Tagline', 'unysonplus' ),
+							'desc'         => __( 'Show the site tagline as a line beneath the image logo. Off hides it even when a WordPress Tagline is set.', 'unysonplus' ),
+							'type'         => 'switch',
+							'value'        => 'yes',
+							'right-choice' => [ 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ],
+							'left-choice'  => [ 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ],
+						],
 					),
 					/* ---------- CUSTOM LOGO LAYOUT → text wordmark + optional icon ----------
 					   Ordered Content → Styling → Advanced: first WHAT the logo is (title,

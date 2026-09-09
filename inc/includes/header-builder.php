@@ -435,6 +435,14 @@ function unysonplus_render_header_element( $element ) {
                         unysonplus_render_social_icons();
                         break;
 
+                case 'theme_toggle':
+                        // Inline light/dark switch. Renders nothing when Dark Mode is off, and
+                        // suppresses the floating corner button so there is only ever one control.
+                        if ( function_exists( 'unysonplus_render_theme_toggle_element' ) ) {
+                                unysonplus_render_theme_toggle_element();
+                        }
+                        break;
+
                 case 'heading':
                         unysonplus_render_heading_element( $settings );
                         break;
