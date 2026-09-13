@@ -548,3 +548,19 @@ function unysonplus_nav_menu_item_icon( $title, $item, $args, $depth ) {
 // flex-column would push it onto its own line.
 add_filter( 'nav_menu_item_title', 'unysonplus_nav_menu_item_icon', 9, 4 );
 endif;
+
+if ( ! function_exists( 'unysonplus_nav_menu_fragment_not_current' ) ) :
+/**
+ * An IN-PAGE anchor item (`/#features`, `#pricing` — a one-page site's section nav) is never the "current"
+ * page: WordPress marks every such item `current-menu-item` / `current_page_item` on the page it points into,
+ * so the whole nav painted in the active colour. Drop the current classes from any `#` link (a bare `#` is a
+ * dropdown trigger / placeholder, not the home page); a real `/` home link keeps its own current state.
+ */
+function unysonplus_nav_menu_fragment_not_current( $classes, $item ) {
+	$url = isset( $item->url ) ? (string) $item->url : '';
+	$hash = strpos( $url, '#' );
+	if ( false === $hash ) { return $classes; } // a bare `#` (a dropdown trigger / placeholder) is not the current page either
+	return array_values( array_diff( (array) $classes, array( 'current-menu-item', 'current_page_item', 'current-menu-ancestor', 'current-menu-parent', 'current_page_parent', 'current_page_ancestor' ) ) );
+}
+add_filter( 'nav_menu_css_class', 'unysonplus_nav_menu_fragment_not_current', 20, 2 );
+endif;

@@ -94,7 +94,11 @@ endif;
 if ( ! function_exists( 'unysonplus_hf_css_val' ) ) :
 /** Allow only characters valid in a simple CSS value (colors, lengths, urls). */
 function unysonplus_hf_css_val( $val ) {
-	return trim( preg_replace( '/[^a-zA-Z0-9#(),.%\s\/_\'"-]/', '', (string) $val ) );
+	$v = trim( preg_replace( '/[^a-zA-Z0-9#(),.%\s\/_\'"-]/', '', (string) $val ) );
+	// An UNBALANCED parenthesis (a truncated `rgb(255 255 255 / var(--x, 1)` from a captured source) would swallow the rest
+	// of the generated :root{} block in the browser's parser — every token after it silently lost. Drop such a value instead.
+	if ( substr_count( $v, '(' ) !== substr_count( $v, ')' ) ) { return ''; }
+	return $v;
 }
 endif;
 

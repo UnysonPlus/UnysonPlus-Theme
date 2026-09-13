@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.5.92
+Version: 2.5.95
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -130,6 +130,12 @@ body {
 
 img, video, svg { max-width: 100%; height: auto; }
 
+/* Paragraph rhythm lives BETWEEN paragraphs: the first one in any container carries no top margin and
+   the last one no bottom margin, so a container's own padding (a column, a card, a boxed text block) is
+   the only inner spacing. The UA default `margin-block-start: 1em` would otherwise add dead space at the
+   top of every padded box. A paragraph after a heading is not :first-child, so heading rhythm is untouched.
+   (Deliberately scoped to <p> — NOT a global * { margin: 0 } reset, which would strip every element's rhythm.) */
+p:first-child { margin-top: 0; }
 p:last-child { margin-bottom: 0; }
 
 a { text-decoration: none; }
@@ -2567,7 +2573,9 @@ body.sidebar-left .with-sidebar.has-sidebar > .sidebar { order: -1; }
    9. UTILITIES
    ======================================================================== */
 .site-header--transparent {
-	background-color: transparent;
+	/* A FROSTED overlay (a translucent Main Header Background over the hero) must show its fill; only an
+	   unset background (--header-bg = transparent by default) is see-through. Mirrors header-footer-builder.css. */
+	background-color: var(--header-bg, transparent);
 	position: absolute;
 	top: 0;
 	left: 0;
