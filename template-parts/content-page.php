@@ -19,7 +19,16 @@ $pages_featured_on   = ! function_exists( 'unysonplus_pages_get' )
 $has_thumbnail       = $pages_featured_on && ! $hide_featured && has_post_thumbnail();
 ?>
 
+<?php
+// <article> is emitted for STANDARD (non-builder) pages only. A page built with the
+// Unyson+ builder is a designed composition, not a syndicatable article, and <main> is
+// already its content element — so builder pages drop the wrapper and <main> carries the
+// post_class() hooks instead (handed in via page.php). Classic/Gutenberg pages keep
+// <article> (prose is entry-like) and its hero/sidebar/edit-link structure unchanged.
+// (Posts always keep their own <article> — see content.php / content-single.php.)
+if ( ! $is_builder ) : ?>
 <article id="post-<?php the_ID(); ?>" <?php post_class( 'fw-col-12' ); ?>>
+<?php endif; ?>
 	<?php
 	/** Fires at the top of <article>. */
 	do_action( 'unysonplus_entry_top' );
@@ -70,16 +79,34 @@ $has_thumbnail       = $pages_featured_on && ! $hide_featured && has_post_thumbn
 	/** Fires before .entry-content opens. */
 	do_action( 'unysonplus_before_entry_content' );
 	?>
-	<div class="entry-content">
-		<?php
+	<?php
+	$upw_link_pages = array(
+		'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'unysonplus' ),
+		'after'  => '</div>',
+	);
+	if ( $is_builder ) :
+		// Merge: skip the theme's own `.entry-content` div and let the page-builder's
+		// own output wrapper carry the `entry-content` class instead — one wrapper
+		// instead of `.entry-content > .fw-page-builder-content`, with every
+		// `.entry-content` CSS/JS hook preserved on the surviving element. The filter
+		// is added only around THIS the_content() call and removed immediately after,
+		// so it never affects builder content rendered elsewhere (blog cards, single
+		// posts) where the theme still emits its own `.entry-content`.
+		$upw_add_entry_content = static function ( $class ) {
+			return trim( $class . ' entry-content' );
+		};
+		add_filter( 'fw_ext_page_builder_content_wrapper_class', $upw_add_entry_content );
 		the_content();
-
-		wp_link_pages( array(
-			'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'unysonplus' ),
-			'after'  => '</div>',
-		) );
-		?>
-	</div><!-- .entry-content -->
+		remove_filter( 'fw_ext_page_builder_content_wrapper_class', $upw_add_entry_content );
+		wp_link_pages( $upw_link_pages );
+	else : ?>
+		<div class="entry-content">
+			<?php
+			the_content();
+			wp_link_pages( $upw_link_pages );
+			?>
+		</div><!-- .entry-content -->
+	<?php endif; ?>
 	<?php
 	/** Fires after .entry-content closes. */
 	do_action( 'unysonplus_after_entry_content' );
@@ -102,7 +129,9 @@ $has_thumbnail       = $pages_featured_on && ! $hide_featured && has_post_thumbn
 	<?php endif; ?>
 
 	<?php
-	/** Fires at the bottom of <article>. */
+	/** Fires at the bottom of the entry (inside <article> on classic pages; inside <main> on builder pages). */
 	do_action( 'unysonplus_entry_bottom' );
 	?>
+<?php if ( ! $is_builder ) : ?>
 </article><!-- #post-## -->
+<?php endif; ?>

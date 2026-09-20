@@ -1521,6 +1521,21 @@ function unysonplus_hf_custom_styling( $prefix ) {
 							'label' => __( 'Padding', 'unysonplus' ),
 							'desc'  => __( 'Inner spacing for this section (responsive). Applied as utility classes.', 'unysonplus' ),
 						),
+						// Vertical alignment of the row's columns (footer bars only — a header row already
+						// centres). A lead heading beside a link row usually sits on a shared BASELINE
+						// (align-items:end) in the source; the grid defaulted to top-aligned, so the links
+						// floated at the top of a tall brand column.
+						$prefix . '_valign' => $is_header ? array( 'type' => 'hidden', 'value' => '' ) : array(
+							'label'   => __( 'Column Alignment', 'unysonplus' ),
+							'desc'    => __( 'How the columns of this row line up vertically when their heights differ.', 'unysonplus' ),
+							'type'    => 'select',
+							'value'   => '',
+							'choices' => array(
+								''       => __( 'Top (default)', 'unysonplus' ),
+								'center' => __( 'Middle', 'unysonplus' ),
+								'end'    => __( 'Bottom', 'unysonplus' ),
+							),
+						),
 					),
 				),
 				$prefix . '_grp_appearance' => array(

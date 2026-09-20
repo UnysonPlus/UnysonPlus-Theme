@@ -690,6 +690,20 @@ $options = [
 				'help'    => __( 'Compact dropdown variant of the wide hybrid. Each option shows BOTH a colored swatch and the preset name painted in that color. Near-white presets (luminance > 0.95) get a subtle gray chip behind the label so they don\'t disappear against the panel background. Saved value shape: <code>{ predefined: "bg-red", custom: "" }</code> when a preset is picked, or <code>{ predefined: "", custom: "#abc123" }</code> when a custom color is picked. Consumers emit <code>predefined</code> as <code>class="..."</code> directly; <code>custom</code> as inline <code>style="…"</code>. This demo uses <code>bg-{slug}</code> keys; switch the call to <code>unysonplus_demo_compact_choices( "text" )</code> to get <code>text-{slug}</code> keys for a text-color context.',
 					'unysonplus' ),
 			],
+			'demo_predefined_colors_color_picker_compact_alpha' => [
+				'label'   => __( 'Predefined Colors + Color Picker (Compact, alpha)', 'unysonplus' ),
+				'type'    => 'predefined-colors-color-picker-compact',
+				'picker'  => 'rgba-color-picker', // enables the opacity slider in the custom half
+				'value'   => [
+					'predefined' => '',
+					'custom'     => '',
+				],
+				'choices' => unysonplus_demo_compact_choices( 'bg' ),
+				'desc'    => __( 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+					'unysonplus' ),
+				'help'    => __( 'Same compact picker as above, but with <code>picker => "rgba-color-picker"</code> so the custom half exposes an opacity slider — pick a semi-transparent color and the trigger swatch shows the checkerboard through the alpha. The saved value keeps the full <code>rgba(r,g,b,a)</code> string in <code>custom</code>; a consuming view emits it as inline <code>style="background: rgba(…)"</code>. Use this variant wherever a background needs transparency (e.g. a translucent header). Presets and the custom half stay mutually exclusive as usual.',
+					'unysonplus' ),
+			],
 			'demo_gradient'                  => [
 				'label' => __( 'Gradient', 'unysonplus' ),
 				'type'  => 'gradient',

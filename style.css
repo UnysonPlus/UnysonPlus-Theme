@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.5.95
+Version: 2.6.3
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -2352,6 +2352,9 @@ body.site-framed #page {
 body.unyson.page-builder .entry-content { margin-bottom: 0; }
 .entry-header       { margin-bottom: calc(1.5rem * var(--section-spacing-scale)); }
 .entry-content > * + * { margin-top: calc(1rem * var(--section-spacing-scale)); }
+/* Page-builder sections own their rhythm (padding-block above): the prose flow gap between them made every
+   converted page 16–24px taller per section than its source (sections that abut in the source did not here). */
+.entry-content.fw-page-builder-content > * + * { margin-top: 0; }
 .entry-footer       { padding-top: calc(1rem * var(--section-spacing-scale)); }
 .pagination,
 .posts-navigation,
@@ -2369,7 +2372,7 @@ body.unyson.page-builder .entry-content { margin-bottom: 0; }
 	padding-top:    var(--footer-pad-top);
 	padding-bottom: var(--footer-pad-bottom);
 }
-/* A PRE-footer that paints its own full-width background (a coloured CTA band, e.g. jukebox's "Craving a juicy
+/* A PRE-footer that paints its own full-width background (a coloured CTA band, e.g. the burger source's "Craving a juicy
    burger?") sits FLUSH to the footer's top edge — the mirror of the flush copyright bar at the bottom — instead
    of the .footer__body top padding showing as a white gap above it. Pull the first bg-carrying section up by the
    body's top padding; its OWN section padding still gives it internal breathing room. Only the first child, so a
@@ -2385,6 +2388,36 @@ body.unyson.page-builder .entry-content { margin-bottom: 0; }
 	padding-top:    calc(var(--footer-pad-top)    * var(--section-spacing-scale));
 	padding-bottom: calc(var(--footer-pad-bottom) * var(--section-spacing-scale));
 }
+/* BOXED BODY (Footer → Layout → Boxed Body). The content bars (and, opted in, the copyright) sit in ONE
+   inset panel: the footer's Padding Top/Bottom moves onto the footer itself (space AROUND the panel) and
+   .footer__body becomes the panel — width: min(Max Width, 100% - 2 × gutter), centred, with its own padding,
+   fill, border, radius and shadow (--footer-box-* from theme-vars.php). Bars inside the panel drop their
+   container gutter (the panel padding is the gutter) so a Full Width bar spans the panel exactly. */
+.footer--boxed {
+	padding-top:    var(--footer-pad-top);
+	padding-bottom: var(--footer-pad-bottom);
+}
+.footer--boxed .footer__body {
+	box-sizing: border-box;
+	width: min(var(--footer-box-max, var(--container-max-desktop, var(--site-max-width, 1170px))), calc(100% - 2 * var(--footer-box-gutter, 16px)));
+	margin-inline: auto;
+	padding: var(--footer-box-pad-y, 2rem) var(--footer-box-pad-x, 2rem);
+	background-color: var(--footer-box-bg-color, transparent);
+	background-image: var(--footer-box-bg-image, none);
+	background-size: var(--footer-box-bg-size, cover);
+	background-position: var(--footer-box-bg-position, center center);
+	background-repeat: var(--footer-box-bg-repeat, no-repeat);
+	border: var(--footer-box-border, 0 solid transparent);
+	border-radius: var(--footer-box-radius, 0);
+	box-shadow: var(--footer-box-shadow, none);
+	position: relative;
+	overflow: hidden;
+}
+.footer--boxed .footer__body > .footer-section { position: relative; z-index: 1; }
+.footer--boxed .footer__body .footer-section__inner.fw-container-fluid { padding-left: 0; padding-right: 0; }
+.footer--boxed .footer__body .footer-section__inner.fw-container { max-width: none; padding-left: 0; padding-right: 0; }
+.footer--boxed .footer__body > .footer-section--has-bg:first-child { margin-top: 0; }
+.footer--boxed .footer__body + .footer-section { border-top: none; }
 
 /* Container horizontal padding.
    IMPORTANT: the theme does NOT always load Bootstrap's CSS, so we must define

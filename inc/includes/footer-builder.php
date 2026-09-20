@@ -594,6 +594,11 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
 
         $classes = array( 'footer-section', 'footer-section--' . str_replace( '_', '-', $prefix ) );
         if ( ! empty( $section_class ) ) $classes[] = $section_class;
+        // Column Alignment (Custom Styling → Layout): middle / bottom → a row modifier; top is the default.
+        $valign = isset( $custom_styling['yes'][ $prefix . '_valign' ] ) ? (string) $custom_styling['yes'][ $prefix . '_valign' ] : '';
+        if ( ! empty( $custom_styling['enabled'] ) && 'yes' === $custom_styling['enabled'] && in_array( $valign, array( 'center', 'end' ), true ) ) {
+                $row_class .= ' footer-row--valign-' . $valign;
+        }
         ?>
         <div class="<?php echo esc_attr( implode( ' ', $classes ) ) . $attr['class']; // phpcs:ignore — $attr['class'] is pre-escaped ?>">
                 <div class="<?php echo esc_attr( unysonplus_fw_container_class( $attr['container'] ) ); ?> footer-section__inner">

@@ -1,4 +1,4 @@
-		</div> <!-- #content -->
+		<?php // #content wrapper removed — its role moved onto each template's outermost content element (.site-content). ?>
 		<?php if ( ! ( function_exists( 'unysonplus_should_hide_site_footer' ) && unysonplus_should_hide_site_footer() ) ) : ?>
 			<?php do_action( 'unysonplus_before_footer' ); ?>
 			<?php
@@ -9,7 +9,9 @@
 				// footer_bg_image as a fallback for sites not yet migrated.
 				$f_has_bg_image = false;
 				$f_bg = fw_get_db_settings_option( 'footer_background' );
-				if ( is_array( $f_bg ) && function_exists( 'fw_akg' ) && fw_akg( 'image/src/url', $f_bg ) ) {
+				// A gradient-only Background (no image) paints through the same --footer-bg-image var, so it
+				// needs the class too — without it a gradient footer background silently rendered flat.
+				if ( is_array( $f_bg ) && function_exists( 'fw_akg' ) && ( fw_akg( 'image/src/url', $f_bg ) || count( (array) fw_akg( 'gradient/data/stops', $f_bg, array() ) ) >= 2 ) ) {
 					$f_has_bg_image = true;
 				} else {
 					$f_bg_image = fw_get_db_settings_option( 'footer_bg_image' );
@@ -28,6 +30,13 @@
 				// preceding section is tall enough to sit on.
 				if ( fw_get_db_settings_option( 'footer_overlay_last_section' ) === 'yes' ) {
 					$footer_classes[] = 'footer--overlay';
+				}
+				// Boxed Body (Footer → Layout → Boxed Body): the content bars sit in one inset panel
+				// (.footer__body styled by --footer-box-* from theme-vars.php); the copyright can join it.
+				$f_box = fw_get_db_settings_option( 'footer_body_box' );
+				if ( is_array( $f_box ) && ! empty( $f_box['enabled'] ) && 'yes' === $f_box['enabled'] ) {
+					$footer_classes[] = 'footer--boxed';
+					if ( ! empty( $f_box['yes']['footer_box_copyright_inside'] ) && 'yes' === $f_box['yes']['footer_box_copyright_inside'] ) { $footer_classes[] = 'footer--boxed-copyright'; }
 				}
 				// Footer border (Footer → Layout → Border): the shared width/style/colour
 				// applies to the edges chosen in Border Sides. Default 'top' preserves the

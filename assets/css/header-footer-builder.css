@@ -348,7 +348,7 @@
 .site-header--scroll-border.site-header--scroll-shadow.is-stuck { box-shadow: inset 0 -1px 0 rgba(15, 23, 42, .18), var(--header-shadow, 0 6px 22px -10px rgba(15, 23, 42, .28)); }
 
 /* Uppercase navigation — primary menu links. */
-.site-header--uppercase-nav .header-main .menu-item > a { text-transform: uppercase; letter-spacing: .04em; }
+.site-header--uppercase-nav .header-main .menu-item > a { text-transform: uppercase; letter-spacing: var(--menu-link-letter-spacing, .04em); } /* the Menu Letter Spacing option wins; .04em is only its default (the fixed value out-specified the option's var rule) */
 
 /* Translucent / Glass — TWO-STATE frosted background.
    The 72% tint exists to make an OPAQUE fill read as frosted. When the source's captured colour
@@ -643,6 +643,10 @@
 	gap: var(--footer-col-gap, 40px);
 	align-items: start;
 }
+/* Column Alignment (per-bar Custom Styling → Layout): middle / bottom; top is the default. Placed AFTER
+   the grid rule so it wins at equal specificity (the auto/flex rows read it too). */
+.footer-section .footer-row--valign-center { align-items: center; }
+.footer-section .footer-row--valign-end    { align-items: end; }
 @media (max-width: 767.98px) {
 	/* Footer columns stacked unconditionally below 768px. 11% of measured footers deliberately
 	   keep two columns on a phone (a compact link pair), so the count is configurable — 1 keeps
@@ -669,6 +673,7 @@
 	width: auto;
 	max-width: 100%;
 	padding: 0;                      /* gap handles spacing, not grid gutters */
+	margin: 0;                       /* the fw-row grid gives every child a --fw-gutter-y top margin (24px); the flex gap is the spacing here */
 }
 @media (max-width: 782px) {
 	.footer-section .footer-row--auto { justify-content: center; gap: var(--footer-col-gap, 28px); }

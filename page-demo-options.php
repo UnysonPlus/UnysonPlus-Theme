@@ -18,7 +18,7 @@
 
 get_header();
 ?>
-<div class="fw-container" style="max-width:1080px;padding:2.5rem 0">
+<div class="site-content fw-container" style="max-width:1080px;padding:2.5rem 0">
 	<h1 class="entry-title"><?php the_title(); ?></h1>
 
 	<?php

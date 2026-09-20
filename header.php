@@ -19,5 +19,12 @@
 		<?php get_template_part( 'template-parts/header', 'builder' ); ?>
 		<?php do_action( 'unysonplus_after_header' ); ?>
 	<?php endif; ?>
-
-	<div id="content" class="site-content">
+	<?php
+	// NOTE: no `#content.site-content` wrapper here any more. The content region's
+	// role (sticky-footer flex-grow + the Vertical header grid's "content" cell)
+	// now rides on the `.site-content` class carried by each template's own
+	// outermost content element — `<main class="site-content site-main">` on
+	// builder pages, the `.fw-container.site-content` on classic/sidebar pages
+	// (see unysonplus_main_wrapper_open()). That puts <main> as a direct child of
+	// #page, a sibling of the header and footer, and drops one wrapper div.
+	?>

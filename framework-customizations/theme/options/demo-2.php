@@ -669,6 +669,20 @@ $options = [
 				'help'    => __( 'A consuming view would emit <code>class="bg-primary"</code> here. Flip to the custom-picker half by setting <code>predefined => ""</code> + <code>custom => "#abc123"</code>; the view then emits <code>style="background: #abc123"</code>. Near-white presets (e.g. White, Light Gray) render with a gray chip behind the label so they stay readable against the white panel background.',
 					'unysonplus' ),
 			],
+			'demo_predefined_colors_color_picker_compact_alpha_2' => [
+				'label'   => __( 'Predefined Colors + Color Picker (Compact, alpha)', 'unysonplus' ),
+				'type'    => 'predefined-colors-color-picker-compact',
+				'picker'  => 'rgba-color-picker', // enables the opacity slider in the custom half
+				'value'   => [
+					'predefined' => '',
+					'custom'     => 'rgba(13,60,84,0.5)', // custom half active, 50% alpha
+				],
+				'choices' => unysonplus_demo_compact_choices( 'bg' ),
+				'desc'    => __( 'Same compact picker, but with <code>picker => "rgba-color-picker"</code> so the custom half exposes an opacity slider. Pre-filled with a half-transparent custom value (<code>custom => "rgba(13,60,84,0.5)"</code>) — the trigger swatch shows the checkerboard through the alpha.',
+					'unysonplus' ),
+				'help'    => __( 'Use this variant wherever a background needs transparency (e.g. a translucent header). The saved value keeps the full <code>rgba(r,g,b,a)</code> string; a consuming view emits <code>style="background: rgba(13,60,84,0.5)"</code>. Picking a preset still clears the custom half (and vice-versa).',
+					'unysonplus' ),
+			],
 			'demo_gradient_2'                  => [
 				'label' => __( 'Gradient', 'unysonplus' ),
 				'type'  => 'gradient',

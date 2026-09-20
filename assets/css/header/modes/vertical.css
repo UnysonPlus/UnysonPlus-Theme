@@ -27,8 +27,11 @@
 	}
 	body.layout-vertical-left .site > #masthead,
 	body.layout-vertical-right .site > #masthead { grid-area: header; }
-	body.layout-vertical-left .site > #content,
-	body.layout-vertical-right .site > #content { grid-area: content; }
+	/* The content cell is the template's outermost content element, which now
+	   carries `.site-content` (the #content wrapper was removed) — <main> on
+	   builder pages, the .fw-container on classic pages. */
+	body.layout-vertical-left .site > .site-content,
+	body.layout-vertical-right .site > .site-content { grid-area: content; }
 	body.layout-vertical-left .site > #colophon,
 	body.layout-vertical-right .site > #colophon { grid-area: footer; }
 

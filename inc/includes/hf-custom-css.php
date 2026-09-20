@@ -140,8 +140,14 @@ function unysonplus_hf_typography_css( $typo ) {
 	$d = array();
 	if ( ! empty( $typo['family'] ) ) {
 		$fam = unysonplus_hf_css_val( $typo['family'] );
-		// Quote a multi-word family that isn't already quoted.
-		if ( $fam !== '' && strpos( $fam, ' ' ) !== false && strpos( $fam, ',' ) === false && $fam[0] !== '"' && $fam[0] !== "'" ) {
+		// Quote a multi-word family that isn't already quoted. A full STACK (`ui-monospace, SFMono-Regular, Menlo, monospace`
+		// — a converted source's mono line) passes through as-is: each comma-separated family is quoted only when it has a
+		// space and no quotes, so a stack never collapses to its first token with a serif fallback.
+		if ( $fam !== '' && strpos( $fam, ',' ) !== false ) {
+			$parts = array();
+			foreach ( explode( ',', $fam ) as $one ) { $one = trim( $one ); if ( '' === $one ) { continue; } if ( strpos( $one, ' ' ) !== false && $one[0] !== '"' && $one[0] !== "'" ) { $one = '"' . $one . '"'; } $parts[] = $one; }
+			$fam = implode( ', ', $parts );
+		} elseif ( $fam !== '' && strpos( $fam, ' ' ) !== false && $fam[0] !== '"' && $fam[0] !== "'" ) {
 			$fam = '"' . $fam . '"';
 		}
 		if ( $fam !== '' ) { $d[] = 'font-family:' . $fam; }
@@ -184,6 +190,10 @@ function unysonplus_hf_typography_css( $typo ) {
 	}
 	if ( ! empty( $typo['color'] ) ) {
 		$d[] = 'color:' . unysonplus_hf_css_val( $typo['color'] );
+	}
+	// Text transform (a converted uppercase copyright / label line): uppercase | lowercase | capitalize | none.
+	if ( ! empty( $typo['text-transform'] ) && in_array( strtolower( (string) $typo['text-transform'] ), array( 'uppercase', 'lowercase', 'capitalize', 'none' ), true ) ) {
+		$d[] = 'text-transform:' . strtolower( (string) $typo['text-transform'] );
 	}
 	return implode( ';', $d );
 }

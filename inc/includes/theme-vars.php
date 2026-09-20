@@ -645,6 +645,32 @@ if ( ! function_exists( 'unysonplus_theme_vars_footer' ) ) :
 		$fcg = unysonplus_css_length( fw_get_db_settings_option( 'footer_col_gap' ) );
 		if ( $fcg !== '' ) { $out['--footer-col-gap'] = $fcg; }
 
+		// BOXED BODY (Footer → Layout → Boxed Body): the .footer__body panel's width cap, gutter, padding,
+		// fill, border, radius and shadow → --footer-box-* (consumed by .footer--boxed .footer__body in
+		// style.css; the class itself is added in footer.php). Nothing is emitted while it is off.
+		$fbox = fw_get_db_settings_option( 'footer_body_box' );
+		if ( is_array( $fbox ) && ! empty( $fbox['enabled'] ) && 'yes' === $fbox['enabled'] ) {
+			$fb = isset( $fbox['yes'] ) && is_array( $fbox['yes'] ) ? $fbox['yes'] : array();
+			foreach ( array( 'footer_box_max_width' => '--footer-box-max', 'footer_box_gutter' => '--footer-box-gutter', 'footer_box_padding_y' => '--footer-box-pad-y', 'footer_box_padding_x' => '--footer-box-pad-x', 'footer_box_radius' => '--footer-box-radius' ) as $opt => $var ) {
+				$css = isset( $fb[ $opt ] ) ? unysonplus_css_length( $fb[ $opt ] ) : '';
+				if ( $css !== '' ) { $out[ $var ] = $css; }
+			}
+			if ( ! empty( $fb['footer_box_background'] ) && function_exists( 'unysonplus_background_pro_css_vars' ) ) {
+				$out = array_merge( $out, unysonplus_background_pro_css_vars( $fb['footer_box_background'], '--footer-box-bg' ) );
+			}
+			$fbb = isset( $fb['footer_box_border'] ) ? $fb['footer_box_border'] : null;
+			if ( is_array( $fbb ) ) {
+				$bw = isset( $fbb['width'] ) ? unysonplus_css_length( $fbb['width'] ) : '';
+				$bc = isset( $fbb['color'] ) && function_exists( 'unysonplus_preset_color_to_css' ) ? unysonplus_preset_color_to_css( $fbb['color'] ) : '';
+				$bs = ( isset( $fbb['style'] ) && $fbb['style'] !== '' ) ? preg_replace( '/[^a-z]/', '', (string) $fbb['style'] ) : 'solid';
+				if ( $bw !== '' && $bc !== '' ) { $out['--footer-box-border'] = $bw . ' ' . $bs . ' ' . $bc; }
+			}
+			if ( ! empty( $fb['footer_box_shadow'] ) && class_exists( 'FW_Option_Type_Box_Shadow' ) ) {
+				$sh = FW_Option_Type_Box_Shadow::to_css( $fb['footer_box_shadow'] );
+				if ( $sh !== '' ) { $out['--footer-box-shadow'] = $sh; }
+			}
+		}
+
 		// Columns kept below 768px. '1' is the historic behaviour, so only emit for a real change.
 		$fmc = (string) fw_get_db_settings_option( 'footer_mobile_columns', '1' );
 		if ( $fmc !== '' && $fmc !== '1' ) { $out['--footer-mobile-cols'] = (int) $fmc; }

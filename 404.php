@@ -18,7 +18,8 @@ $show_recent_posts = function_exists( 'unysonplus_misc_get' ) && ( unysonplus_mi
 
 get_header(); ?>
 
-<div class="fw-container">
+<?php // .site-content = flex-grow region + Vertical-grid content cell (the #content wrapper was removed). ?>
+<div class="site-content fw-container">
 	<div class="fw-row">
 		<main id="main" class="site-main content-area fw-col-md" role="main">
 

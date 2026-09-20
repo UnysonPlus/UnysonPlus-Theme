@@ -919,7 +919,13 @@ function unysonplus_render_site_bg_video() {
 	// yes; autoplay is required for a backdrop; loop keeps it seamless.
 	$loop = ( ! isset( $video['loop'] ) || $video['loop'] !== 'no' );
 	?>
-	<div class="site-bg-video" aria-hidden="true" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;overflow:hidden;pointer-events:none;">
+	<?php
+	// The layer sits at z-index:0 with the page wrapper lifted above it (`.site{position:relative;z-index:1}`) instead of at
+	// z-index:-1: a negative layer paints BELOW the body's own background whenever BOTH html and body carry one (a
+	// converted site's `html,body{background:black}`), so the video vanished behind a black body while it played.
+	?>
+	<style id="site-bg-video-stack">.site{position:relative;z-index:1;}</style>
+	<div class="site-bg-video" aria-hidden="true" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:0;overflow:hidden;pointer-events:none;">
 		<video style="width:100%;height:100%;object-fit:cover;display:block;" autoplay muted playsinline<?php echo $loop ? ' loop' : ''; ?><?php echo $poster !== '' ? ' poster="' . esc_url( $poster ) . '"' : ''; ?> preload="metadata">
 			<?php if ( $webm !== '' ) : ?><source src="<?php echo esc_url( $webm ); ?>" type="video/webm"><?php endif; ?>
 			<?php if ( $mp4 !== '' ) : ?><source src="<?php echo esc_url( $mp4 ); ?>" type="video/mp4"><?php endif; ?>
@@ -1369,8 +1375,13 @@ function unysonplus_main_wrapper_open( $extra_main_classes = '' ) {
 
 		// Width=full skips the container constraint so content can go edge-to-edge.
 		// Layout uses the UnysonPlus plugin's frontend-grid (.fw-container*).
+		// The container is the OUTERMOST content element (direct child of #page now
+		// that the #content wrapper is gone), so it carries `site-content` — the
+		// sticky-footer flex-grow region and the Vertical header grid's content cell.
+		// (It also holds both <main> and the sidebar, which is why it, not <main>,
+		// takes the role on classic pages.)
 		$container_class = ( $width === 'full' ) ? 'fw-container-fluid' : 'fw-container';
-		echo '<div class="' . esc_attr( $container_class ) . '"><div class="' . esc_attr( implode( ' ', $wrapper_classes ) ) . '">';
+		echo '<div class="site-content ' . esc_attr( $container_class ) . '"><div class="' . esc_attr( implode( ' ', $wrapper_classes ) ) . '">';
 	}
 
 	/**
@@ -1379,7 +1390,10 @@ function unysonplus_main_wrapper_open( $extra_main_classes = '' ) {
 	 */
 	do_action( 'unysonplus_before_main' );
 
-	$main_classes = 'site-main';
+	// Builder posts have no container wrapper, so <main> itself is the direct child
+	// of #page and carries `site-content` (flex-grow + grid content cell). Classic
+	// pages put it on the container above instead (main sits inside it with the sidebar).
+	$main_classes = $is_builder ? 'site-content site-main' : 'site-main';
 	if ( $extra_main_classes ) { $main_classes .= ' ' . $extra_main_classes; }
 	echo '<main id="main" class="' . esc_attr( $main_classes ) . '" role="main">';
 }

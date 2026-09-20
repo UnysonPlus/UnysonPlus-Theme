@@ -129,7 +129,10 @@ if ( ! function_exists( 'unysonplus_css_tokens_css' ) ) :
 		// floor up to the authored size (replaces the old single-breakpoint step-down
 		// that left tablets on desktop sizes). Any value already a clamp() — e.g. a
 		// scale-driven heading above — is left as-is; body (min == max) stays fixed.
-		if ( function_exists( 'unysonplus_fluid_font_clamp' ) && function_exists( 'unysonplus_mobile_font_size_scale' ) ) {
+		// "Fluid Sizes" off (a converted site's fixed pixel sizes): every token stays exactly as authored — a 16px body no longer
+		// grows to ~18.4px at 1440 and inflates every rem / em measure with it (a finding filed on eleven conversions).
+		$fluid_on = ! isset( $typography['type_fluid_enable'] ) || 'no' !== (string) $typography['type_fluid_enable'];
+		if ( $fluid_on && function_exists( 'unysonplus_fluid_font_clamp' ) && function_exists( 'unysonplus_mobile_font_size_scale' ) ) {
 			foreach ( $tokens as $name => $value ) {
 				if ( ! preg_match( '/^--(h[1-6]|body)-font-size$/', $name, $tag ) ) { continue; }
 				if ( strpos( $value, 'clamp(' ) !== false ) { continue; }

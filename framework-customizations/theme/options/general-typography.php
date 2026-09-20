@@ -87,6 +87,14 @@ $options = array(
 				'type'    => 'group',
 				'title'   => __( 'Type Scale (fluid)', 'unysonplus' ),
 				'options' => array(
+			'type_fluid_enable' => array(
+				'label'        => __( 'Fluid Sizes', 'unysonplus' ),
+				'desc'         => __( 'Scale the Body and Heading sizes smoothly with the viewport (the body grows ~15% on wide screens, headings shrink on phones). Off = every size renders exactly as authored at every width — what a converted site with fixed pixel sizes expects.', 'unysonplus' ),
+				'type'         => 'switch',
+				'value'        => 'yes',
+				'left-choice'  => array( 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ),
+				'right-choice' => array( 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ),
+			),
 			'type_scale_enable' => array(
 				'label'        => __( 'Fluid Heading Scale', 'unysonplus' ),
 				'desc'         => __( 'Drive H1–H6 from one fluid modular scale (built from the Body size × the ratio below) instead of the fixed per-heading sizes. Sizes scale smoothly across every screen — no breakpoint jumps — and stay zoom-accessible. When on, the "Heading Sizes (overrides)" sizes below are ignored (their line-height, letter-spacing and colour still apply).', 'unysonplus' ),

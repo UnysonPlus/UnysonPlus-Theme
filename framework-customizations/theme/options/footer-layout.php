@@ -241,6 +241,101 @@ $options = [
 			],
 		],
 	],
+	/* BOXED BODY — the footer's content (Pre / Main / Post, optionally the Copyright bar) inside ONE inset
+	   panel: a capped width with a side gutter, its own padding, background, border, radius and shadow, on
+	   the .footer__body wrapper. The "card footer" pattern (a bordered / tinted panel floating on the footer
+	   background) is common in modern layouts and had no native expression — a per-bar Custom Styling paints
+	   a full-bleed section, and nothing could wrap several bars in one box. Off by default (no change). */
+	'group_footer_box' => [
+		'type'    => 'group',
+		'title'   => __( 'Boxed Body', 'unysonplus' ),
+		'options' => [
+			'footer_body_box' => [
+				'type'   => 'multi-picker',
+				'label'  => false,
+				'desc'   => false,
+				'picker' => [
+					'enabled' => [
+						'label'        => __( 'Boxed Body', 'unysonplus' ),
+						'desc'         => __( 'Wrap the footer content (Pre / Main / Post-Footer) in one inset panel with its own padding, background, border, radius and shadow — the footer background stays behind it, and the footer Padding Top/Bottom becomes the space around the panel.', 'unysonplus' ),
+						'type'         => 'switch',
+						'value'        => 'no',
+						'left-choice'  => [ 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ],
+						'right-choice' => [ 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ],
+					],
+				],
+				'choices' => [
+					'yes' => [
+						'footer_box_max_width' => [
+							'label' => __( 'Max Width', 'unysonplus' ),
+							'desc'  => __( 'The panel\'s maximum width. Leave empty to use the site Container Width.', 'unysonplus' ),
+							'type'  => 'unit-input',
+							'units' => [ 'px', 'rem', '%' ],
+							'value' => [ 'value' => '', 'unit' => 'px' ],
+							'min'   => 0,
+						],
+						'footer_box_gutter' => [
+							'label' => __( 'Side Gutter', 'unysonplus' ),
+							'desc'  => __( 'Minimum space between the panel and the viewport edges (the panel is width: min(Max Width, 100% - 2 × gutter)).', 'unysonplus' ),
+							'type'  => 'unit-input',
+							'units' => [ 'px', 'rem' ],
+							'value' => [ 'value' => '16', 'unit' => 'px' ],
+							'min'   => 0,
+						],
+						'footer_box_padding_y' => [
+							'label' => __( 'Padding (vertical)', 'unysonplus' ),
+							'desc'  => __( 'Inner space above and below the panel content.', 'unysonplus' ),
+							'type'  => 'unit-input',
+							'units' => [ 'px', 'rem' ],
+							'value' => [ 'value' => '32', 'unit' => 'px' ],
+							'min'   => 0,
+						],
+						'footer_box_padding_x' => [
+							'label' => __( 'Padding (horizontal)', 'unysonplus' ),
+							'desc'  => __( 'Inner space on the left and right of the panel content. The bars inside the panel use this as their gutter (a Full Width bar adds none of its own).', 'unysonplus' ),
+							'type'  => 'unit-input',
+							'units' => [ 'px', 'rem' ],
+							'value' => [ 'value' => '32', 'unit' => 'px' ],
+							'min'   => 0,
+						],
+						'footer_box_background' => [
+							'label'   => __( 'Panel Background', 'unysonplus' ),
+							'desc'    => __( 'The panel\'s own fill — colour, gradient and/or image — painted over the footer background.', 'unysonplus' ),
+							'type'    => 'background-pro',
+							'disable' => [ 'video' ],
+						],
+						'footer_box_border' => function_exists( 'unysonplus_hf_border_row_field' )
+							? unysonplus_hf_border_row_field(
+								__( 'Panel Border', 'unysonplus' ),
+								__( 'Width · style · colour on all four edges of the panel. Shows only when both a width and a colour are set.', 'unysonplus' )
+							)
+							: [ 'type' => 'hidden', 'value' => '' ],
+						'footer_box_radius' => [
+							'label' => __( 'Corner Radius', 'unysonplus' ),
+							'desc'  => __( 'Rounds the panel corners.', 'unysonplus' ),
+							'type'  => 'unit-input',
+							'units' => [ 'px', 'rem' ],
+							'value' => [ 'value' => '', 'unit' => 'px' ],
+							'min'   => 0,
+						],
+						'footer_box_shadow' => [
+							'label' => __( 'Panel Shadow', 'unysonplus' ),
+							'desc'  => __( 'A drop shadow under the panel.', 'unysonplus' ),
+							'type'  => 'box-shadow',
+						],
+						'footer_box_copyright_inside' => [
+							'label'        => __( 'Copyright Inside the Panel', 'unysonplus' ),
+							'desc'         => __( 'On: the Copyright bar renders inside the panel, after the Post-Footer (its own Custom Styling border becomes the panel\'s bottom divider). Off: it stays a flush full-width bar under the panel.', 'unysonplus' ),
+							'type'         => 'switch',
+							'value'        => 'no',
+							'left-choice'  => [ 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ],
+							'right-choice' => [ 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ],
+						],
+					],
+				],
+			],
+		],
+	],
 	'footer_css_class' => [
 		'label' => __( 'Custom CSS Class', 'unysonplus' ),
 		'type'  => 'text',

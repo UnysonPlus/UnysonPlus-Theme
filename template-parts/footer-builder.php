@@ -104,12 +104,16 @@ if ( ! empty( $copyright['enabled'] ) && $copyright['enabled'] === 'yes' && ! em
 }
 $copyright_html = trim( ob_get_clean() );
 
-// Compose: content sections in the padded .footer__body, copyright flush after it.
+// Compose: content sections in the padded .footer__body, copyright flush after it — or INSIDE the
+// body when Boxed Body → "Copyright Inside the Panel" is on (the © bar is then the panel's last row).
 $rendered = '';
-if ( $body !== '' ) {
-	$rendered .= '<div class="footer__body">' . $body . '</div>';
+$box_cfg  = fw_get_db_settings_option( 'footer_body_box' );
+$copy_in  = is_array( $box_cfg ) && ! empty( $box_cfg['enabled'] ) && 'yes' === $box_cfg['enabled']
+	&& ! empty( $box_cfg['yes']['footer_box_copyright_inside'] ) && 'yes' === $box_cfg['yes']['footer_box_copyright_inside'];
+if ( $body !== '' || ( $copy_in && $copyright_html !== '' ) ) {
+	$rendered .= '<div class="footer__body">' . $body . ( $copy_in ? $copyright_html : '' ) . '</div>';
 }
-$rendered .= $copyright_html;
+if ( ! $copy_in ) { $rendered .= $copyright_html; }
 
 if ( trim( $rendered ) !== '' ) {
 	echo $rendered; // phpcs:ignore — already-escaped footer-section HTML.
