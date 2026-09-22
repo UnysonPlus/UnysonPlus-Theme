@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.6.3
+Version: 2.6.10
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -2081,9 +2081,125 @@ img.entry-title__icon { width: auto; height: 0.9em; vertical-align: -0.08em; }
 	color: var(--color-muted);
 }
 
-/* --- Search / 404 --- */
-.error-404 { padding: 3rem 0; text-align: center; }
-.error-404 .page-title { margin-bottom: 1rem; }
+/* --- 404 / not-found -----------------------------------------------------
+   Token-driven so it inherits whatever child theme / dark mode is active.
+   <main.error-404-page> is the .site-content flex-grow region, so the state
+   centres vertically between the header and footer. */
+.error-404-page { display: flex; flex-direction: column; }
+.error-404 {
+	flex: 1 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding-block: clamp(3rem, 8vw, 6rem);
+	padding-inline: 1.25rem;
+}
+.error-404__inner { max-width: 40rem; width: 100%; }
+.error-404__code {
+	font-family: var(--h1-font-family, var(--font-heading, inherit));
+	font-weight: 800;
+	line-height: 1;
+	font-size: clamp(5rem, 18vw, 9rem);
+	letter-spacing: -0.04em;
+	color: var(--color-primary, #0d6efd);
+	margin: 0 0 0.5rem;
+}
+.error-404__title {
+	font-size: clamp(1.5rem, 4vw, 2.25rem);
+	line-height: 1.15;
+	margin: 0 0 0.75rem;
+	color: var(--color-text, #212529);
+	text-wrap: balance;
+}
+.error-404__text {
+	font-size: 1.0625rem;
+	line-height: 1.6;
+	color: var(--color-muted, #6c757d);
+	margin: 0 auto 2rem;
+	max-width: 34rem;
+	text-wrap: pretty;
+}
+/* The message is editor content (may hold paragraphs, links, images). */
+.error-404__text > :first-child { margin-top: 0; }
+.error-404__text > :last-child { margin-bottom: 0; }
+.error-404__text p { margin: 0 0 0.75rem; }
+.error-404__text a { color: var(--color-primary, #0d6efd); text-decoration: underline; }
+.error-404__text img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	margin: 1.25rem auto;
+	border-radius: var(--radius, 0.25rem);
+}
+.error-404__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+.error-404__btn {
+	display: inline-flex; align-items: center; justify-content: center;
+	padding: 0.75rem 1.5rem;
+	border-radius: var(--radius, 0.25rem);
+	font-weight: 600; font-size: 1rem; line-height: 1;
+	text-decoration: none;
+	transition: transform var(--transition-fast, 0.15s) var(--ease-out, ease),
+	            box-shadow var(--transition-fast, 0.15s) var(--ease-out, ease);
+}
+/* `.error-404 .` prefix keeps the label white against the primary fill — it must
+   outrank the theme's `a:not(.btn) { color: var(--color-primary) }` link rule (0,1,1). */
+.error-404 .error-404__btn--primary {
+	background: var(--color-primary, #0d6efd);
+	color: #fff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+.error-404 .error-404__btn--primary:hover,
+.error-404 .error-404__btn--primary:focus-visible {
+	transform: translateY(-1px);
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+	color: #fff;
+}
+.error-404__search { margin: 1.75rem auto 0; max-width: 26rem; }
+.error-404__search-form { display: flex; gap: 0.5rem; }
+.error-404__search-input {
+	flex: 1 1 auto; min-width: 0;
+	padding: 0.65rem 0.9rem;
+	border: 1px solid var(--color-border, rgba(0, 0, 0, 0.1));
+	border-radius: var(--radius, 0.25rem);
+	background: var(--color-bg, #fff);
+	color: var(--color-text, #212529);
+	font-size: 1rem;
+}
+.error-404__search-input:focus-visible {
+	outline: 2px solid var(--color-primary, #0d6efd); outline-offset: 1px;
+}
+/* Filled with the brand primary + white — a guaranteed-contrast pair, unlike the
+   body text/bg tokens which a child theme may set to a low-contrast combination.
+   `.error-404 .` prefix keeps it winning the cascade. */
+.error-404 .error-404__search-submit {
+	flex: 0 0 auto;
+	display: inline-flex; align-items: center; gap: 0.4rem;
+	padding: 0.65rem 1.1rem;
+	border: 0; border-radius: var(--radius, 0.25rem);
+	background: var(--color-primary, #0d6efd); color: #fff;
+	font-weight: 600; font-size: 1rem; line-height: 1; cursor: pointer;
+	transition: opacity var(--transition-fast, 0.15s) var(--ease-out, ease);
+}
+.error-404 .error-404__search-submit:hover { opacity: 0.9; }
+.error-404__search-submit svg { width: 1em; height: 1em; flex: 0 0 auto; }
+.error-404__recent { margin-top: 2.5rem; }
+.error-404__recent-label {
+	font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
+	color: var(--color-muted, #6c757d); margin: 0 0 0.75rem;
+}
+.error-404__recent-list {
+	list-style: none; margin: 0; padding: 0;
+	display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; justify-content: center;
+}
+.error-404__recent-list a { color: var(--color-primary, #0d6efd); text-decoration: none; font-weight: 500; }
+.error-404__recent-list a:hover { text-decoration: underline; }
+
+@media (prefers-reduced-motion: reduce) {
+	.error-404__btn { transition: none; }
+	.error-404__btn--primary:hover,
+	.error-404__btn--primary:focus-visible { transform: none; }
+}
 
 /* ========================================================================
    8. FORMS (minimal — Bootstrap handles most)

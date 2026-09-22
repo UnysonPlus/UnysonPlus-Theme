@@ -67,6 +67,10 @@ function unysonplus_misc_get( $key, $default = '' ) {
 
 		// 404
 		'404_page_id'                 => 'misc_404',
+		'404_heading'                 => 'misc_404',
+		'404_text'                    => 'misc_404',
+		'404_show_button'             => 'misc_404',
+		'404_button_label'            => 'misc_404',
 		'404_show_search'             => 'misc_404',
 		'404_show_recent_posts'       => 'misc_404',
 

@@ -641,6 +641,30 @@ function unysonplus_hf_css_paths() {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_hf_url_sig' ) ) :
+/**
+ * A migration-proof signature of the URL baked into the generated stylesheet.
+ *
+ * The generated CSS contains absolute uploads URLs — a logo background-image and
+ * the like. After a migration the site's URL changes but the file and the theme
+ * version do not, so the enqueue path would keep serving a stylesheet full of the
+ * OLD site's URLs: a broken logo on the new domain. Comparing this signature on
+ * enqueue catches that and forces one rebuild.
+ *
+ * It is an md5 rather than the URL itself on purpose: a migrator's
+ * serialization-aware search-replace rewrites stored URLs, so a plain URL would
+ * be rewritten to match the new site and hide the very change that must be
+ * detected. A hash contains none of the old URL's text, so it survives untouched
+ * and the mismatch is preserved.
+ *
+ * @return string
+ */
+function unysonplus_hf_url_sig() {
+	$up = wp_upload_dir();
+	return md5( (string) ( $up['baseurl'] ?? '' ) );
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_hf_write_css_file' ) ) :
 /**
  * Write the given CSS to the generated file. Returns true on success, false if it
@@ -676,6 +700,7 @@ function unysonplus_hf_regenerate_css() {
 	$css = unysonplus_generated_css();
 	if ( unysonplus_hf_write_css_file( $css ) ) {
 		update_option( 'unysonplus_hf_css_hash', md5( $css ), false );
+		update_option( 'unysonplus_hf_css_url', unysonplus_hf_url_sig(), false );
 	}
 }
 endif;
@@ -749,11 +774,15 @@ function unysonplus_hf_enqueue_css() {
 		// changed (a theme update can change the CSS-generation logic). Normal setting
 		// changes rebuild via unysonplus_hf_regenerate_css() on the save/preset hooks.
 		$theme_v = (string) wp_get_theme()->get( 'Version' );
-		if ( ! file_exists( $paths['file'] ) || get_option( 'unysonplus_hf_css_theme_ver' ) !== $theme_v ) {
+		$url_sig = unysonplus_hf_url_sig();
+		if ( ! file_exists( $paths['file'] )
+			|| get_option( 'unysonplus_hf_css_theme_ver' ) !== $theme_v
+			|| get_option( 'unysonplus_hf_css_url' ) !== $url_sig ) {
 			$css = unysonplus_generated_css();
 			if ( unysonplus_hf_write_css_file( $css ) ) {
 				update_option( 'unysonplus_hf_css_hash', md5( $css ), false );
 				update_option( 'unysonplus_hf_css_theme_ver', $theme_v, false );
+				update_option( 'unysonplus_hf_css_url', $url_sig, false );
 			}
 		}
 		if ( file_exists( $paths['file'] ) ) {
