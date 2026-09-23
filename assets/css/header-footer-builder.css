@@ -307,10 +307,14 @@
    white-on-hero to a solid light bar needs its links to darken with it, so give the stuck state
    its own colour (Header -> Layout -> Appearance on scroll -> Scrolled Link Color). Unset, it
    inherits as before. Scoped to the scroll-change state so it never leaks into the at-top look. */
-.site-header--scroll-change.is-stuck .header-main a,
-.site-header--scroll-change.is-stuck .main-navigation a {
+.site-header--scroll-change.is-stuck .header-main a:not(.btn):not(.header-cta-btn),
+.site-header--scroll-change.is-stuck .main-navigation a:not(.btn):not(.header-cta-btn) {
 	color: var(--header-scroll-link, inherit);
 }
+/* …a BUTTON keeps its own text colour. It carries its own fill, so recolouring it with the nav's scrolled
+   colour is never right — and with --header-scroll-link unset the declaration resolves to `inherit`, which
+   painted a white-filled CTA in the header's near-white text and made it unreadable on scroll (a real-site
+   audit). The exclusion above is the fix; this comment is here so it is not "simplified" back. */
 
 /* Hide on scroll down — an independent toggle (.site-header--hide); header-behaviors.js toggles .is-hidden. */
 .site-header--hide { transition: transform .3s ease; will-change: transform; }

@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.6.10
+Version: 2.6.13
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -691,6 +691,14 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 }
 .site-header.header-sticky.is-stuck {
 	background-color: var(--header-sticky-bg);
+}
+/* The stuck DROP SHADOW is a legacy default that predates the two-state chrome in
+   header-footer-builder.css. Left unconditional it (a) painted a shadow on headers whose Header Shadow
+   and Shadow-on-scroll options are both OFF, and (b) overwrote the Border hairline, which is an inset
+   box-shadow — and box-shadow does not stack across rules, so the later declaration simply won and the
+   scrolled hairline vanished (a real-site audit). It now yields whenever the explicit chrome options own
+   the stuck look; those rules draw the border, the shadow, or both composed. */
+.site-header.header-sticky.is-stuck:not(.site-header--border):not(.site-header--shadow):not(.site-header--scroll-change):not(.site-header--scroll-border):not(.site-header--scroll-shadow) {
 	box-shadow: var(--header-shadow);
 }
 
@@ -881,6 +889,7 @@ a.header-icon-text:hover { opacity: 0.85; }
 /* --- Brand / logo --- */
 .site-title,
 .navbar-brand {
+	font-family: var(--site-title-font, var(--font-heading, inherit));
 	font-size: var(--site-title-size, 1.25rem);
 	font-weight: var(--site-title-weight, 700);
 	color: var(--color-text);

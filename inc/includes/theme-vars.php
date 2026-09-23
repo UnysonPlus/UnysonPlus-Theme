@@ -611,6 +611,19 @@ if ( ! function_exists( 'unysonplus_theme_vars_header_logo' ) ) :
 				if ( ! empty( $header_logo['title_weight'] ) ) {
 					$out['--site-title-weight'] = $header_logo['title_weight'];
 				}
+				// Wordmark FACE (Header → Identity → Site Title Font Family). A brand wordmark is very often
+				// set in a face of its own, so it gets its own control rather than inheriting the heading font.
+				$title_family = '';
+				if ( isset( $header_logo['title_font'] ) ) {
+					$tf = $header_logo['title_font'];
+					if ( is_array( $tf ) && ! empty( $tf['family'] ) ) { $title_family = (string) $tf['family']; }
+					elseif ( is_string( $tf ) ) { $title_family = $tf; }
+				}
+				if ( '' !== trim( $title_family ) ) {
+					// (the family value is already a usable CSS stack, as --font-heading / --font-body are)
+					$title_family = trim( preg_replace( '/[{};<>]/', '', $title_family ) );
+					if ( '' !== $title_family ) { $out['--site-title-font'] = $title_family; }
+				}
 			}
 	}
 endif;

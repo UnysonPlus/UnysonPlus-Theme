@@ -202,6 +202,13 @@ $options = [
 							'desc'    => __( 'Wrap the logo icon in a subtle bordered frame — the "app icon" look (a tile behind the mark). Choose the tile shape, or None for a plain icon.', 'unysonplus' ),
 						],
 						// --- Styling ---
+						'title_font' => [
+							'label'      => __( 'Site Title Font Family', 'unysonplus' ),
+							'desc'       => __( 'Font family for the text wordmark. Leave empty to inherit the site Heading Font (Theme Settings &rarr; General &rarr; Typography). A brand wordmark is very often set in a face of its own, which is why this sits here rather than with the site typography.', 'unysonplus' ),
+							'type'       => 'typography',
+							'value'      => [ 'family' => '' ],
+							'components' => [ 'family' => true, 'size' => false, 'line-height' => false, 'letter-spacing' => false, 'color' => false ],
+						],
 						'title_size' => [
 							'label' => __( 'Site Title Font Size', 'unysonplus' ),
 							'type'  => 'unit-input',

@@ -195,7 +195,7 @@ function unysonplus_migrate_header_logo_shape() {
 	if ( isset( $hl['logo_type'] ) && is_array( $hl['logo_type'] ) ) { return; } // already nested
 
 	$simple_keys = array( 'image', 'image_2x', 'sticky_image', 'mobile_image', 'transparent_image', 'alt', 'width' );
-	$custom_keys = array( 'site_title', 'title_size', 'title_weight', 'color', 'logo_icon', 'logo_layout', 'logo_icon_frame', 'logo_icon_color', 'logo_icon_size', 'logo_custom_css', 'tagline', 'tagline_text', 'tagline_color' );
+	$custom_keys = array( 'site_title', 'title_font', 'title_size', 'title_weight', 'color', 'logo_icon', 'logo_layout', 'logo_icon_frame', 'logo_icon_color', 'logo_icon_size', 'logo_custom_css', 'tagline', 'tagline_text', 'tagline_color' );
 
 	// Nothing legacy worth lifting? (fresh install) — leave it for the option defaults.
 	$has_flat = false;
