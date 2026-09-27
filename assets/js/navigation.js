@@ -532,3 +532,59 @@
 		if ( t ) { t.setAttribute( 'aria-expanded', 'false' ); t.focus(); }
 	} );
 } )();
+
+/* Sliding menu indicator (body.menu-style-sliding). A single .menu-slider pill glides between the
+   top-level items on hover / focus and rests under the current page. Progressive enhancement: does
+   nothing unless the Sliding style is active, and style.css shows a static current-item fill if this
+   never runs. Positions are measured relative to the menu (which is position:relative in that style). */
+( function () {
+	if ( ! document.body || document.body.className.indexOf( 'menu-style-sliding' ) === -1 ) { return; }
+	var reduce = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+
+	function initMenu( menu ) {
+		if ( menu.querySelector( ':scope > .menu-slider' ) ) { return; }
+		var slider = document.createElement( 'span' );
+		slider.className = 'menu-slider';
+		if ( reduce ) { slider.style.transition = 'none'; }
+		menu.appendChild( slider );
+
+		function linkOf( item ) { return item ? item.querySelector( ':scope > a' ) : null; }
+		function current() {
+			var it = menu.querySelector( ':scope > .current-menu-item' )
+			      || menu.querySelector( ':scope > .current-menu-ancestor' )
+			      || menu.querySelector( ':scope > .menu-item' );
+			return linkOf( it );
+		}
+		function moveTo( a ) {
+			if ( ! a ) { return; }
+			var m = menu.getBoundingClientRect(), r = a.getBoundingClientRect();
+			slider.style.left   = ( r.left - m.left ) + 'px';
+			slider.style.top    = ( r.top - m.top ) + 'px';
+			slider.style.width  = r.width + 'px';
+			slider.style.height = r.height + 'px';
+		}
+		function snap( a ) {
+			menu.classList.add( 'has-slider' );
+			var prev = slider.style.transition;
+			slider.style.transition = 'none';
+			moveTo( a );
+			void slider.offsetWidth; // force reflow so the next move animates
+			if ( ! reduce ) { slider.style.transition = prev; }
+		}
+
+		snap( current() );
+		Array.prototype.forEach.call( menu.querySelectorAll( ':scope > .menu-item' ), function ( item ) {
+			item.addEventListener( 'mouseenter', function () { moveTo( linkOf( item ) ); } );
+			var a = linkOf( item );
+			if ( a ) { a.addEventListener( 'focus', function () { moveTo( a ); } ); }
+		} );
+		menu.addEventListener( 'mouseleave', function () { moveTo( current() ); } );
+		var rt;
+		window.addEventListener( 'resize', function () { clearTimeout( rt ); rt = setTimeout( function () { snap( current() ); }, 120 ); } );
+	}
+
+	function init() {
+		Array.prototype.forEach.call( document.querySelectorAll( '.site-header .primary-menu' ), initMenu );
+	}
+	if ( document.readyState === 'loading' ) { document.addEventListener( 'DOMContentLoaded', init ); } else { init(); }
+} )();

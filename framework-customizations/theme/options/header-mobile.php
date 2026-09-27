@@ -48,9 +48,13 @@ $options = [
 				],
 			],
 			'mobile_bar_bg' => [
-				'type'  => 'color-picker',
+				// rgba, not a plain colour-picker: a TRANSLUCENT mobile bar over a hero is a real and common
+				// design, and the plain picker accepts hex only — it round-tripped `rgba(20,20,20,.8)` to an
+				// empty string, so a converted site lost its mobile bar fill the first time the tab was saved.
+				// The rgba picker holds hex, rgba and empty alike, so nothing already saved changes.
+				'type'  => 'rgba-color-picker',
 				'label' => __( 'Mobile Bar Background', 'unysonplus' ),
-				'desc'  => __( 'Background colour of the collapsed header bar on mobile. Leave empty to keep the desktop header background. Useful when the desktop header is transparent over a hero but the mobile bar needs a solid fill.', 'unysonplus' ),
+				'desc'  => __( 'Background colour of the collapsed header bar on mobile. Leave empty to keep the desktop header background. Useful when the desktop header is transparent over a hero but the mobile bar needs its own fill — semi-transparent is fine.', 'unysonplus' ),
 				'value' => '',
 			],
 		],

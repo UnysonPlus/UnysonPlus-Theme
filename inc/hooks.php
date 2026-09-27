@@ -187,28 +187,104 @@ if(!function_exists('_action_theme_process_google_fonts')) {
 
 if (!function_exists('fw_theme_get_remote_fonts')) :
         /**
-         * Get remote fonts
-         * @param array $include_from_google
+         * Build the Google Fonts <link> for the given families (css2 API).
+         *
+         * The old css?family=Name:regular,500,…,900italic URL listed every variant, so a
+         * variable font came back as one @font-face per weight × style × subset (e.g. two
+         * families = 136 rules / ~50 KB of CSS) all pointing at the same few files. For a
+         * variable font the css2 API takes a weight RANGE instead (wght@200..900), which
+         * returns one rule per style × subset with every weight still available: a much
+         * smaller, faster stylesheet and no risk of dropping a weight something uses.
+         * Static fonts reject a range, so each family is probed once (result cached in
+         * the unysonplus_gf_variable option) and falls back to its explicit weight list.
+         *
+         * @param array $include_from_google family => array( 'variants' => [...] )
+         * @return string
          */
         function fw_theme_get_remote_fonts($include_from_google) {
                 if ( ! sizeof( $include_from_google ) ) {
                                 return '';
                 }
 
-                $html = '<link href="https://fonts.googleapis.com/css?family=';
-
+                $params = array();
                 foreach ( $include_from_google as $font => $styles ) {
-                        $html .= str_replace( ' ', '+', $font );
-                        if ( !empty($styles['variants']) ) {
-                                $html .= ':' . implode( ',', $styles['variants'] );
-                        }
-                        $html .= '|';
+                        $spec = unysonplus_google_font_css2_spec( $font, isset( $styles['variants'] ) ? (array) $styles['variants'] : array() );
+                        $params[] = 'family=' . str_replace( '%20', '+', rawurlencode( $font ) ) . ( $spec !== '' ? ':' . $spec : '' );
                 }
 
-                $html = substr( $html, 0, -1 );
-                $html .= '&display=swap" rel="stylesheet" type="text/css">';
+                return '<link href="https://fonts.googleapis.com/css2?' . implode( '&', $params ) . '&display=swap" rel="stylesheet" type="text/css">';
+        }
+endif;
 
-                return $html;
+if ( ! function_exists( 'unysonplus_google_font_css2_spec' ) ) :
+        /**
+         * The css2 axis spec for one family, e.g. "ital,wght@0,200..900;1,200..900"
+         * (variable) or "ital,wght@0,400;0,700;1,400" (static). '' = default 400 only.
+         *
+         * @param string $family   Google font family name.
+         * @param array  $variants v1-style variants: regular, italic, 700, 700italic …
+         * @return string
+         */
+        function unysonplus_google_font_css2_spec( $family, $variants ) {
+                $upright = array();
+                $italic  = array();
+                foreach ( $variants as $v ) {
+                        $v = (string) $v;
+                        if ( ! preg_match( '/^(\d{3})?(regular|italic)?$/', $v, $m ) || $v === '' ) { continue; }
+                        $w = ! empty( $m[1] ) ? (int) $m[1] : 400;
+                        if ( isset( $m[2] ) && 'italic' === $m[2] ) { $italic[ $w ] = $w; } else { $upright[ $w ] = $w; }
+                }
+                if ( ! $upright && ! $italic ) { return ''; }
+                ksort( $upright );
+                ksort( $italic );
+
+                $all = $upright + $italic;
+                if ( count( $all ) > 2 && unysonplus_google_font_is_variable( $family, min( $all ), max( $all ), ! empty( $italic ) ) ) {
+                        $range = min( $all ) . '..' . max( $all );
+                        return $italic ? 'ital,wght@0,' . $range . ';1,' . $range : 'wght@' . $range;
+                }
+
+                if ( ! $italic ) {
+                        return ( array( 400 ) === array_values( $upright ) ) ? '' : 'wght@' . implode( ';', $upright );
+                }
+                $tuples = array();
+                foreach ( $upright as $w ) { $tuples[] = '0,' . $w; }
+                foreach ( $italic as $w )  { $tuples[] = '1,' . $w; }
+                return 'ital,wght@' . implode( ';', $tuples );
+        }
+endif;
+
+if ( ! function_exists( 'unysonplus_google_font_is_variable' ) ) :
+        /**
+         * Whether Google serves $family as a variable font over [$min, $max]. Asked once
+         * per family+range and remembered; a network failure is not cached, and counts
+         * as "static" so the explicit (always valid) weight list is used.
+         *
+         * @return bool
+         */
+        function unysonplus_google_font_is_variable( $family, $min, $max, $has_italic ) {
+                $key   = $family . '|' . $min . '..' . $max . ( $has_italic ? '|i' : '' );
+                $known = get_option( 'unysonplus_gf_variable', array() );
+                if ( ! is_array( $known ) ) { $known = array(); }
+                if ( isset( $known[ $key ] ) ) {
+                        return (bool) $known[ $key ];
+                }
+                $range = $min . '..' . $max;
+                $spec  = $has_italic ? 'ital,wght@0,' . $range . ';1,' . $range : 'wght@' . $range;
+                $res   = wp_remote_get(
+                        'https://fonts.googleapis.com/css2?family=' . str_replace( '%20', '+', rawurlencode( $family ) ) . ':' . $spec,
+                        array( 'timeout' => 5 )
+                );
+                if ( is_wp_error( $res ) ) {
+                        return false;
+                }
+                $code = (int) wp_remote_retrieve_response_code( $res );
+                if ( 200 !== $code && 400 !== $code ) {
+                        return false;
+                }
+                $known[ $key ] = ( 200 === $code );
+                update_option( 'unysonplus_gf_variable', $known, false );
+                return $known[ $key ];
         }
 endif;
 
@@ -240,7 +316,8 @@ if (!function_exists('_action_theme_print_google_fonts_link')) :
                 if ( function_exists( 'unysonplus_typography_config' ) && function_exists( 'fw_get_db_settings_option' ) && function_exists( '_action_theme_process_google_fonts' ) ) {
                         $cfg  = unysonplus_typography_config( fw_get_db_settings_option( 'typography', array() ) );
                         $need = isset( $cfg['google'] ) && is_array( $cfg['google'] ) ? $cfg['google'] : array();
-                        $stale = false;
+                        // A link cached before the css2 switch (css?family=…) is rebuilt once too.
+                        $stale = ( strpos( $link, 'fonts.googleapis.com/css?' ) !== false );
                         foreach ( $need as $fam ) {
                                 if ( $fam !== '' && strpos( $link, str_replace( ' ', '+', $fam ) ) === false ) { $stale = true; break; }
                         }

@@ -75,12 +75,31 @@ $menu_style_svg = function ( $variant, $label ) use ( $fw_upw_pal ) {
 		case 'highlight':
 			$treat = '<rect x="47" y="13" width="38" height="13" rx="3" fill="' . $accent . '" opacity="0.16"/>';
 			break;
+		case 'gradient-underline':
+			$gid   = 'mg' . substr( md5( $variant ), 0, 5 );
+			$treat = '<defs><linearGradient id="' . $gid . '"><stop offset="0" stop-color="' . $accent . '"/><stop offset="1" stop-color="#7fc0b2"/></linearGradient></defs>'
+			       . '<rect x="' . $ax . '" y="26" width="' . $iw . '" height="2" rx="1" fill="url(#' . $gid . ')"/>';
+			break;
+		case 'slide-fill':
+			$treat = '<rect x="47" y="13" width="38" height="13" rx="3" fill="' . $accent . '"/>';
+			$active_fill = '#ffffff';
+			break;
+		case 'marker':
+			$treat = '<rect x="49" y="18" width="36" height="8" rx="2" fill="' . $accent . '" opacity="0.3"/>';
+			$active_fill = '#3a4149';
+			break;
+		case 'dot':
+			$treat = '<circle cx="' . ( $ax + $iw / 2 ) . '" cy="29" r="2.5" fill="' . $accent . '"/>';
+			break;
+		case 'sliding':
+			$treat = '<rect x="47" y="13" width="38" height="13" rx="6.5" fill="' . $accent . '" opacity="0.18"/>';
+			break;
 		// 'none' → color only, no treatment.
 	}
 
 	$active = '<rect x="' . $ax . '" y="' . $iy . '" width="' . $iw . '" height="' . $ih . '" rx="' . $irx . '" fill="' . $active_fill . '"/>';
-	// Fills sit BEHIND the active label; lines/borders sit in front.
-	$mid   = in_array( $variant, array( 'pill', 'box', 'highlight' ), true ) ? $treat . $active : $active . $treat;
+	// Fills / marker sit BEHIND the active label; lines / borders / dots sit in front.
+	$mid   = in_array( $variant, array( 'pill', 'box', 'highlight', 'slide-fill', 'marker', 'sliding' ), true ) ? $treat . $active : $active . $treat;
 	$text  = '<text x="' . ( $w / 2 ) . '" y="' . ( $h - 6 ) . '" text-anchor="middle" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="10" fill="#50575e">' . $label . '</text>';
 	$svg   = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $w . ' ' . $h . '" width="' . $w . '" height="' . $h . '">' . $bars . $mid . $text . '</svg>';
 	return 'data:image/svg+xml,' . rawurlencode( $svg );
@@ -167,16 +186,39 @@ $options = [
 						'desc'    => __( 'How each top-level menu item reacts on hover and for the current page. The fills (Pill, Box, Highlight) use the Item Hover / Active Background below; Underline and the accent bars use the Hover / Active Color.', 'unysonplus' ),
 						'value'   => 'none',
 						'choices' => [
-							'none'           => $menu_style_choice( 'none',           __( 'None', 'unysonplus' ) ),
-							'underline-grow' => $menu_style_choice( 'underline-grow', __( 'Underline', 'unysonplus' ) ),
-							'underline'      => $menu_style_choice( 'underline',      __( 'Underline (static)', 'unysonplus' ) ),
-							'pill'           => $menu_style_choice( 'pill',           __( 'Pill', 'unysonplus' ) ),
-							'box'            => $menu_style_choice( 'box',            __( 'Box', 'unysonplus' ) ),
-							'outline'        => $menu_style_choice( 'outline',        __( 'Outline', 'unysonplus' ) ),
-							'bottom-bar'     => $menu_style_choice( 'bottom-bar',     __( 'Bottom Bar', 'unysonplus' ) ),
-							'top-bar'        => $menu_style_choice( 'top-bar',        __( 'Top Bar', 'unysonplus' ) ),
-							'highlight'      => $menu_style_choice( 'highlight',      __( 'Highlight', 'unysonplus' ) ),
-							'fade'           => $menu_style_choice( 'fade',           __( 'Fade', 'unysonplus' ) ),
+							'none'               => $menu_style_choice( 'none',               __( 'None', 'unysonplus' ) ),
+							// Underlines
+							'underline-grow'     => $menu_style_choice( 'underline-grow',     __( 'Underline', 'unysonplus' ) ),
+							'underline'          => $menu_style_choice( 'underline',          __( 'Underline (static)', 'unysonplus' ) ),
+							'gradient-underline' => $menu_style_choice( 'gradient-underline', __( 'Gradient Underline', 'unysonplus' ) ),
+							// Fills
+							'pill'               => $menu_style_choice( 'pill',               __( 'Pill', 'unysonplus' ) ),
+							'box'                => $menu_style_choice( 'box',                __( 'Box', 'unysonplus' ) ),
+							'slide-fill'         => $menu_style_choice( 'slide-fill',         __( 'Slide Fill', 'unysonplus' ) ),
+							'marker'             => $menu_style_choice( 'marker',             __( 'Marker', 'unysonplus' ) ),
+							// Border, bars, dot
+							'outline'            => $menu_style_choice( 'outline',            __( 'Outline', 'unysonplus' ) ),
+							'bottom-bar'         => $menu_style_choice( 'bottom-bar',         __( 'Bottom Bar', 'unysonplus' ) ),
+							'top-bar'            => $menu_style_choice( 'top-bar',            __( 'Top Bar', 'unysonplus' ) ),
+							'dot'                => $menu_style_choice( 'dot',                __( 'Dot', 'unysonplus' ) ),
+							// Motion
+							'sliding'            => $menu_style_choice( 'sliding',            __( 'Sliding', 'unysonplus' ) ),
+						],
+					],
+
+					/* Modifiers - orthogonal extras that STACK on any primary treatment above
+					   (multi-select). Value -> body.menu-mod-{slug} classes (style.css). */
+					'menu_item_modifiers' => [
+						'type'    => 'checkboxes',
+						'label'   => __( 'Style Modifiers', 'unysonplus' ),
+						'desc'    => __( 'Optional extras that combine with the Menu Item Style above - e.g. Underline + Bold + Glow. Fade the inactive items is the former standalone Fade style, now stackable.', 'unysonplus' ),
+						'value'   => [],
+						'choices' => [
+							'bold'      => __( 'Bold on hover / current', 'unysonplus' ),
+							'spread'    => __( 'Letter-spacing (spread)', 'unysonplus' ),
+							'uppercase' => __( 'Uppercase labels', 'unysonplus' ),
+							'glow'      => __( 'Accent glow', 'unysonplus' ),
+							'fade-rest' => __( 'Fade the inactive items', 'unysonplus' ),
 						],
 					],
 

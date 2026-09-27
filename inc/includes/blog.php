@@ -232,7 +232,9 @@ function unysonplus_blog_entry_meta() {
 	if ( $on( 'date' ) ) {
 		$bits[] = '<span class="meta-date"><time datetime="' . esc_attr( get_the_date( 'c' ) ) . '">' . esc_html( get_the_date() ) . '</time></span>';
 	}
-	if ( $on( 'author' ) ) {
+	// Skip an empty author (e.g. an imported post with no user): an empty item
+	// would leave two separators side by side.
+	if ( $on( 'author' ) && '' !== trim( (string) get_the_author() ) ) {
 		$bits[] = '<span class="meta-author">' . esc_html( get_the_author() ) . '</span>';
 	}
 	if ( $on( 'category' ) ) {
@@ -380,7 +382,9 @@ function unysonplus_blog_single_meta() {
 	if ( $on( 'date' ) ) {
 		$bits[] = '<span class="meta-date"><time datetime="' . esc_attr( get_the_date( 'c' ) ) . '">' . esc_html( get_the_date() ) . '</time></span>';
 	}
-	if ( $on( 'author' ) ) {
+	// Skip an empty author (e.g. an imported post with no user): an empty item
+	// would leave two separators side by side.
+	if ( $on( 'author' ) && '' !== trim( (string) get_the_author() ) ) {
 		$bits[] = '<span class="meta-author">' . esc_html( get_the_author() ) . '</span>';
 	}
 	if ( $on( 'category' ) ) {

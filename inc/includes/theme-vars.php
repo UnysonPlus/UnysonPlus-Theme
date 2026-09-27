@@ -1050,7 +1050,13 @@ if ( ! function_exists( 'unysonplus_collect_theme_vars' ) ) :
 		unysonplus_theme_vars_mega_menu( $out );
 		unysonplus_theme_vars_social( $out );
 
-		return $out;
+		// Drop any property that resolved to an empty value. A length saved with an
+		// empty number (e.g. { value: '', unit: 'rem' }) becomes '', and an empty
+		// custom property doesn't fall back: `var(--widget-spacing, 1.5rem)` then
+		// yields nothing, so the sidebar widgets lost all spacing between them.
+		return array_filter( $out, static function ( $v ) {
+			return '' !== trim( (string) $v );
+		} );
 	}
 endif;
 

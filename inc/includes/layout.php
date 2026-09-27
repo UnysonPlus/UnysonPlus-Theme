@@ -702,14 +702,34 @@ function unysonplus_layout_body_classes( $classes ) {
 		$classes[] = 'layout-' . $header_mode;
 	}
 
-	// Header → Menu: item style (hover/active treatment on top-level nav items).
-	// 'none' is the bare default and needs no class; style.css keys the rest off
-	// body.menu-style-<slug>.
+	// Header → Menu: PRIMARY item style (single-select hover/active treatment) + MODIFIERS.
+	// 'none' is the bare default and needs no class; style.css keys the rest off body.menu-style-<slug>,
+	// and each modifier off body.menu-mod-<slug> (stacks on any primary).
 	$menu_opts  = fw_get_db_settings_option( 'header_menu', array() );
 	$menu_style = ( is_array( $menu_opts ) && ! empty( $menu_opts['menu_item_style'] ) ) ? (string) $menu_opts['menu_item_style'] : 'none';
 	$menu_style = preg_replace( '/[^a-z0-9\-]/', '', strtolower( $menu_style ) );
-	if ( in_array( $menu_style, array( 'underline', 'underline-grow', 'pill', 'box', 'outline', 'bottom-bar', 'top-bar', 'highlight' ), true ) ) {
+
+	// Modifiers (checkboxes: [slug => truthy] or a list of slugs).
+	$menu_mods_raw = ( is_array( $menu_opts ) && ! empty( $menu_opts['menu_item_modifiers'] ) ) ? (array) $menu_opts['menu_item_modifiers'] : array();
+	$menu_mods = array();
+	foreach ( $menu_mods_raw as $mk => $mv ) {
+		if ( is_int( $mk ) ) { $menu_mods[] = (string) $mv; }
+		elseif ( $mv ) { $menu_mods[] = (string) $mk; }
+	}
+
+	// Back-compat migration from the old flat list: the dead "highlight" is now the Marker fill; the
+	// old standalone "fade" becomes primary None + the fade-rest modifier (so old saves keep working).
+	if ( $menu_style === 'highlight' ) { $menu_style = 'marker'; }
+	if ( $menu_style === 'fade' )      { $menu_style = 'none'; $menu_mods[] = 'fade-rest'; }
+
+	$menu_primary_ok = array( 'underline', 'underline-grow', 'gradient-underline', 'sliding', 'pill', 'box', 'slide-fill', 'marker', 'outline', 'bottom-bar', 'top-bar', 'dot' );
+	if ( in_array( $menu_style, $menu_primary_ok, true ) ) {
 		$classes[] = 'menu-style-' . $menu_style;
+	}
+	$menu_mod_ok = array( 'bold', 'spread', 'uppercase', 'glow', 'fade-rest' );
+	foreach ( array_unique( $menu_mods ) as $menu_mod ) {
+		$menu_mod = preg_replace( '/[^a-z0-9\-]/', '', strtolower( (string) $menu_mod ) );
+		if ( in_array( $menu_mod, $menu_mod_ok, true ) ) { $classes[] = 'menu-mod-' . $menu_mod; }
 	}
 
 		// Dropdown panel design (overall submenu-box treatment). 'classic' is the

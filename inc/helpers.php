@@ -155,6 +155,46 @@ if ( ! function_exists( 'unysonplus_predefined_color_class' ) ) :
         }
 endif;
 
+if ( ! function_exists( 'unysonplus_logo_aspect_ratio' ) ) :
+        /**
+         * Width / height ratio of a logo attachment, or 0 when unknown.
+         *
+         * Rasters read it from the attachment metadata. SVGs usually have none, so
+         * read the width/height attributes or the viewBox from the file itself.
+         *
+         * @param int  $attachment_id Logo attachment id (0 = unknown).
+         * @param bool $is_svg        Whether the logo is an SVG.
+         * @return float
+         */
+        function unysonplus_logo_aspect_ratio( $attachment_id, $is_svg ) {
+                if ( ! $attachment_id ) {
+                        return 0;
+                }
+                $meta = wp_get_attachment_metadata( $attachment_id );
+                if ( ! empty( $meta['width'] ) && ! empty( $meta['height'] ) ) {
+                        return (float) $meta['width'] / (float) $meta['height'];
+                }
+                if ( ! $is_svg ) {
+                        return 0;
+                }
+                $file = get_attached_file( $attachment_id );
+                if ( ! $file || ! is_readable( $file ) ) {
+                        return 0;
+                }
+                $head = (string) file_get_contents( $file, false, null, 0, 2048 );
+                if ( ! preg_match( '/<svg[^>]*>/i', $head, $tag ) ) {
+                        return 0;
+                }
+                if ( preg_match( '/\swidth="([\d.]+)(?:px)?"/i', $tag[0], $w ) && preg_match( '/\sheight="([\d.]+)(?:px)?"/i', $tag[0], $h ) && (float) $h[1] > 0 ) {
+                        return (float) $w[1] / (float) $h[1];
+                }
+                if ( preg_match( '/viewBox="\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)\s*"/i', $tag[0], $vb ) && (float) $vb[2] > 0 ) {
+                        return (float) $vb[1] / (float) $vb[2];
+                }
+                return 0;
+        }
+endif;
+
 if ( ! function_exists( 'unysonplus_logo_image_html' ) ) :
         /**
          * Build the Simple (image) logo <img>, with px-resize / responsive-srcset /
@@ -171,10 +211,23 @@ if ( ! function_exists( 'unysonplus_logo_image_html' ) ) :
                         // Only an exact pixel width can drive a raster resize; rem/em/empty
                         // serve the original and let CSS (--logo-width) scale it.
                         $logo_px = ( is_array( $logo_w ) && isset( $logo_w['unit'], $logo_w['value'] ) && 'px' === $logo_w['unit'] && is_numeric( $logo_w['value'] ) ) ? (int) $logo_w['value'] : 0;
+                        // An SVG logo is resolution-independent: never hand it to fw_resize(). Where the
+                        // host's image library claims to handle SVG it returns a "-WxH.svg" URL for a file
+                        // it never writes, so the logo 404s in production while looking fine locally.
+                        $_lid    = ! empty( $header_logo['image']['attachment_id'] ) ? (int) $header_logo['image']['attachment_id'] : 0;
+                        $_lmime  = $_lid ? get_post_mime_type( $_lid ) : '';
+                        $_is_svg = ( 'image/svg+xml' === $_lmime )
+                                || ( ! empty( $header_logo['image']['url'] ) && preg_match( '/\.svg(?:$|\?)/i', $header_logo['image']['url'] ) )
+                                || preg_match( '/\.svg(?:$|\?)/i', (string) $unyson_image_src );
                         if( $logo_px > 0 ) {
-                                $img_attr['src']                = fw_resize( $unyson_image_src, $logo_px, 0, false );
+                                $img_attr['src']                = $_is_svg ? $unyson_image_src : fw_resize( $unyson_image_src, $logo_px, 0, false );
                                 $img_attr['width']      = $logo_px;
-                                // intrinsic height omitted here; display height handled by CSS (height:auto)
+                                // Height from the source's aspect ratio, so the browser reserves the
+                                // logo box before it loads (no layout shift). CSS keeps height:auto.
+                                $_ratio = unysonplus_logo_aspect_ratio( $_lid, $_is_svg );
+                                if ( $_ratio > 0 ) {
+                                        $img_attr['height'] = max( 1, (int) round( $logo_px / $_ratio ) );
+                                }
                         }else{
                                 $img_attr['src']                = $unyson_image_src;
                                 $meta = ! empty( $header_logo['image']['attachment_id'] )
@@ -190,14 +243,9 @@ if ( ! function_exists( 'unysonplus_logo_image_html' ) ) :
                                 // only offers sizes WP already generated, and a logo original SMALLER than the
                                 // registered sizes has none, so 1x screens over-download the full file.
                                 // (A manual image_2x below still wins when it is set.)
-                                $_lid = ! empty( $header_logo['image']['attachment_id'] ) ? (int) $header_logo['image']['attachment_id'] : 0;
-                                // An SVG logo is resolution-independent — it needs no srcset, and fw_resize()
-                                // can't raster-resize it (it returns null and warns "array offset on null" in
-                                // class-fw-resize.php). Skip the whole rendition loop for SVGs so the header
-                                // never throws that warning — including after an admin re-save wipes image_2x.
-                                $_lmime  = $_lid ? get_post_mime_type( $_lid ) : '';
-                                $_is_svg = ( 'image/svg+xml' === $_lmime )
-                                        || ( ! empty( $header_logo['image']['url'] ) && preg_match( '/\.svg(?:$|\?)/i', $header_logo['image']['url'] ) );
+                                // An SVG needs no srcset, and fw_resize() can't raster-resize it (it returns
+                                // null and warns "array offset on null" in class-fw-resize.php). Skip the whole
+                                // rendition loop for SVGs, including after an admin re-save wipes image_2x.
                                 if ( $_lid && ! $_is_svg && empty( $header_logo['image_2x']['url'] ) ) {
                                 	$_meta2 = wp_get_attachment_metadata( $_lid );
                                 	$_ow    = ! empty( $_meta2['width'] ) ? (int) $_meta2['width'] : 0;
