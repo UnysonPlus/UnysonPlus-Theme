@@ -260,6 +260,13 @@ if ( ! function_exists( 'unysonplus_theme_vars_layout' ) ) :
 			$lget = function ( $k, $d = '' ) use ( $layout ) {
 				return ( isset( $layout[ $k ] ) && $layout[ $k ] !== '' && $layout[ $k ] !== null ) ? $layout[ $k ] : $d;
 			};
+			// A choice key (roundness, spacing scale …) read as a map index: a malformed saved value
+			// (an array where a slug belongs) falls back to the default instead of fataling the CSS
+			// rebuild with "Illegal offset type".
+			$lkey = function ( $k, $d ) use ( $lget ) {
+				$v = $lget( $k, $d );
+				return is_scalar( $v ) ? (string) $v : $d;
+			};
 
 			// Site Width Mode sub-options now live in the site_width_mode multi-picker
 			// (boxed / framed groups); read them via the width helper. site_boxed_width
@@ -288,7 +295,7 @@ if ( ! function_exists( 'unysonplus_theme_vars_layout' ) ) :
 
 			// Section spacing scale
 			$scale_map = array( 'compact' => '0.75', 'cozy' => '1', 'spacious' => '1.5' );
-			$scale_key = $lget( 'layout_section_spacing', 'cozy' );
+			$scale_key = $lkey( 'layout_section_spacing', 'cozy' );
 			if ( isset( $scale_map[ $scale_key ] ) ) {
 				$out['--section-spacing-scale'] = $scale_map[ $scale_key ];
 			}
@@ -320,7 +327,7 @@ if ( ! function_exists( 'unysonplus_theme_vars_layout' ) ) :
 				'rounded' => array( '0.375rem', '0.75rem', '1rem' ),
 				'soft'    => array( '0.5rem', '1rem', '1.5rem' ),
 			);
-			$round = $lget( 'layout_roundness', 'subtle' );
+			$round = $lkey( 'layout_roundness', 'subtle' );
 			if ( isset( $round_map[ $round ] ) ) {
 				$out['--radius']    = $round_map[ $round ][0];
 				$out['--radius-sm'] = $round_map[ $round ][0];
