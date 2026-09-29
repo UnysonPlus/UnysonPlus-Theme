@@ -182,7 +182,7 @@ if ( ! function_exists( 'unysonplus_logo_aspect_ratio' ) ) :
                         return 0;
                 }
                 $head = (string) file_get_contents( $file, false, null, 0, 2048 );
-                if ( ! preg_match( '/<svg[^>]*>/i', $head, $tag ) ) {
+                if ( ! preg_match( '/<svg\b[^>]*>/i', $head, $tag ) ) {
                         return 0;
                 }
                 if ( preg_match( '/\swidth="([\d.]+)(?:px)?"/i', $tag[0], $w ) && preg_match( '/\sheight="([\d.]+)(?:px)?"/i', $tag[0], $h ) && (float) $h[1] > 0 ) {
