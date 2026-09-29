@@ -945,8 +945,10 @@ function unysonplus_render_site_bg_video() {
 	// converted site's `html,body{background:black}`), so the video vanished behind a black body while it played.
 	?>
 	<style id="site-bg-video-stack">.site{position:relative;z-index:1;}</style>
+	<?php // preload="auto": this video autoplays as the page backdrop, so deferring its bytes only buys a
+	     // blank backdrop while the browser fetches the header and comes back for the media. ?>
 	<div class="site-bg-video" aria-hidden="true" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:0;overflow:hidden;pointer-events:none;">
-		<video style="width:100%;height:100%;object-fit:cover;display:block;" autoplay muted playsinline<?php echo $loop ? ' loop' : ''; ?><?php echo $poster !== '' ? ' poster="' . esc_url( $poster ) . '"' : ''; ?> preload="metadata">
+		<video style="width:100%;height:100%;object-fit:cover;display:block;" autoplay muted playsinline<?php echo $loop ? ' loop' : ''; ?><?php echo $poster !== '' ? ' poster="' . esc_url( $poster ) . '"' : ''; ?> preload="auto">
 			<?php if ( $webm !== '' ) : ?><source src="<?php echo esc_url( $webm ); ?>" type="video/webm"><?php endif; ?>
 			<?php if ( $mp4 !== '' ) : ?><source src="<?php echo esc_url( $mp4 ); ?>" type="video/mp4"><?php endif; ?>
 			<?php if ( $mp4 === '' && $webm === '' && $ext !== '' ) : ?><source src="<?php echo esc_url( $ext ); ?>"><?php endif; ?>
