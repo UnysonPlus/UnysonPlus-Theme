@@ -17,4 +17,5 @@ $manifest['supported_extensions'] = array(
 	'asset-optimizer' => array(),
 	'live-editor'     => array(),
 	'snippets'        => array(),
+	'seo'             => array(),
 );

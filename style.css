@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.6.27
+Version: 2.6.37
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -3055,3 +3055,46 @@ body.page-layout-landing #colophon { display: none; }
 	/* Scroll-progress bar still indicates position, just without easing. */
 	.scroll-progress, .scroll-progress-bar { transition: none !important; }
 }
+
+/* ---------------------------------------------------------------------------
+   INLINE RUN (footer element option: Inline With Previous)
+   A run of consecutive elements that share ONE row instead of stacking — the
+   common centred footer whose nav links and social icons sit on a single line.
+   Wraps by default: five links beside four icons must fold on a phone rather
+   than overflow. Alignment is inherited from the column, so a centred column
+   centres its inline row too, and the gap is one themeable variable.
+   --------------------------------------------------------------------------- */
+.hf-inline-run {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--hf-inline-gap, 1.5rem);
+}
+/* The column's text alignment decides where the row sits. */
+.footer-col--center .hf-inline-run,
+.text-center .hf-inline-run { justify-content: center; }
+.text-end .hf-inline-run,
+.footer-col--right .hf-inline-run { justify-content: flex-end; }
+/* A grouped <ul> inside the row must not re-stack or keep its block margins. */
+.hf-inline-run > .footer-links {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--hf-inline-gap, 1.5rem);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.hf-inline-run > .footer-element { margin: 0; }
+
+/* A centred column must also centre its FLEX children. `text-align` moves text but not a flex or
+   grid box, so a logo lockup / social row / button stayed pinned left inside an otherwise centred
+   footer column -- the visible half of "my footer is centred except the logo". */
+.footer-col.text-center .footer-column > .footer-element,
+.footer-col.text-center .footer-column > .hf-inline-run { justify-content: center; }
+.footer-col.text-center .footer-column .site-logo,
+.footer-col.text-center .footer-column .footer-logo { justify-content: center; margin-inline: auto; }
+.footer-col.text-end .footer-column > .footer-element,
+.footer-col.text-end .footer-column > .hf-inline-run { justify-content: flex-end; }
+.footer-col.text-end .footer-column .site-logo,
+.footer-col.text-end .footer-column .footer-logo { justify-content: flex-end; margin-inline-start: auto; }

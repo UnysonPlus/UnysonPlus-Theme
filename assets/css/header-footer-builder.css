@@ -263,6 +263,27 @@
    hides under the admin bar. (This selector ties style.css's on specificity, so it
    must carry the offset too — otherwise whichever loads last wins with top:0.) */
 .site-header.header-sticky { position: sticky; top: var(--admin-bar-offset, 0px); z-index: 1030; }
+
+/* TOP BAR SCROLLS AWAY (Header → Top Bar → "Scrolls Away"). A child of a `position:sticky` box cannot
+   scroll out from under it — the whole box is what pins — so the sticky has to move DOWN one level: the
+   header itself goes static and `.header-main` becomes the sticky box. The Top Bar then sits above it in
+   normal flow and scrolls off the top exactly as a hand-written `<div>…</div><header class="sticky">` does,
+   with no JS involved.
+   The painted fill has to travel with it: the stuck background rules below target `.site-header`, which is
+   no longer the pinned element, so `.header-main` would pin as a transparent strip with the page sliding
+   visibly beneath it. These two rules carry the fill onto the pinned row for both states.
+   Specificity: (0,3,0), one above the `.site-header.header-sticky` base it overrides. */
+.site-header.site-header--topbar-unstick.header-sticky { position: static; top: auto; z-index: auto; }
+.site-header.site-header--topbar-unstick.header-sticky .header-main {
+	position: sticky;
+	top: var(--admin-bar-offset, 0px);
+	z-index: 1030;
+	background: var(--header-bg);
+}
+.site-header.site-header--topbar-unstick.header-sticky.is-stuck .header-main { background: var(--header-scroll-bg, var(--header-bg)); }
+/* A transparent overlay keeps floating over the content, same as the whole-header case above. */
+.site-header--topbar-unstick.site-header--transparent .header-main,
+.site-header--topbar-unstick.site-header--transparent-overlay.is-stuck:not(.site-header--scroll-change) .header-main { background: transparent; }
 /* STUCK background — the TWO-STATE model. These win at (0,4,0) over the core style.css
    `.site-header.header-sticky.is-stuck { background: var(--header-sticky-bg) }` (0,3,0), so the
    old forced white/near-opaque repaint is retired. Change-on-scroll OFF => the stuck header
@@ -738,3 +759,10 @@
 .header-search-input { border: 0; outline: 0; background: transparent; color: #111; font: inherit; padding: 6px 8px; min-width: 200px; }
 .header-search-btn { color: #555; }
 .header-search-btn:hover { color: #111; }
+
+/* Heading element with a leading mark (Header/Footer → Heading → Heading Icon). The icon sits on the
+   heading's own baseline-ish centre and inherits its colour, so a column title reads as one unit rather
+   than a glyph with a word after it. `--hf-heading-icon-gap` lets a conversion carry the source's gap. */
+.hf-heading--has-icon { display: flex; align-items: center; gap: var(--hf-heading-icon-gap, .5rem); }
+.hf-heading__icon-wrap { display: inline-flex; flex: 0 0 auto; line-height: 1; }
+.hf-heading__icon-wrap svg { width: 1em; height: 1em; display: block; }

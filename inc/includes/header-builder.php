@@ -646,7 +646,10 @@ function unysonplus_render_cta_button( $settings ) {
                 $target = ' target="_blank" rel="noopener noreferrer"';
         }
 
-        echo '<a href="' . esc_url( $link ) . '" class="' . esc_attr( $classes ) . '"' . $target . '>' . esc_html( $text ) . '</a>';
+        // The label rides in .btn__label, matching the Button shortcode, so a button colour preset can style
+		// the TEXT (a gradient clipped to it) independently of the button box — the header CTA wears the same
+		// presets as body buttons and would otherwise be the one button the preset could not reach.
+		echo '<a href="' . esc_url( $link ) . '" class="' . esc_attr( $classes ) . '"' . $target . '><span class="btn__label">' . esc_html( $text ) . '</span></a>';
 }
 endif;
 

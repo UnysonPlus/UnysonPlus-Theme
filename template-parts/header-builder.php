@@ -144,6 +144,14 @@ if ( ! $unyson || ( empty( $main_left ) && empty( $main_center ) && empty( $main
 // Header classes.
 $header_classes = array( 'site-header', 'site-header--' . sanitize_html_class( $behavior ) );
 if ( in_array( $position, array( 'sticky', 'overlay' ), true ) ) { $header_classes[] = 'header-sticky'; }
+/* Top Bar → "Scrolls Away": pin the MAIN row instead of the whole header, so the utility bar scrolls out of
+   view above it. Only meaningful when the header pins at all, and only when a Top Bar is actually rendered —
+   the bar renders from its columns, so an empty Top Bar must not change how the header behaves. */
+if ( in_array( $position, array( 'sticky', 'overlay' ), true )
+	&& ! empty( $topbar['topbar_unstick'] )
+	&& ( ! empty( $topbar_left ) || ! empty( $topbar_center ) || ! empty( $topbar_right ) ) ) {
+	$header_classes[] = 'site-header--topbar-unstick';
+}
 if ( $position === 'overlay' ) { $header_classes[] = 'site-header--transparent'; }
 if ( $hide_on_scroll ) { $header_classes[] = 'site-header--hide'; }
 if ( function_exists( 'fw_get_db_post_option' ) && fw_get_db_post_option( get_the_ID(), 'page_header' ) === 'd-none' ) { $header_classes[] = 'd-none'; }

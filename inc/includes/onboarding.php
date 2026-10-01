@@ -182,6 +182,24 @@ if ( ! function_exists( 'unysonplus_onboarding_notice' ) ) :
 		if ( $screen && 'appearance_page_unysonplus-getting-started' === $screen->id ) { return; } // don't nag on the page itself
 		if ( get_user_meta( get_current_user_id(), 'unysonplus_onboarding_dismissed', true ) ) { return; }
 
+		/**
+		 * Whether to greet this user at all.
+		 *
+		 * The checklist assumes a NEW site with nothing set up. That assumption is wrong after a site
+		 * conversion, which creates the menu, the homepage and the footer itself -- so a freshly converted
+		 * site showed a welcome telling its owner to go and do three things that were already ticked, while
+		 * competing for attention with the converter's own list of what actually needs looking at. Two
+		 * onboarding surfaces talking over each other, at the exact moment someone is deciding whether the
+		 * tool worked.
+		 *
+		 * The filter lets whoever knows better say so, rather than this file having to learn about them.
+		 * Getting Started stays reachable from Appearance either way; only the nag is suppressed.
+		 *
+		 * @since 2.6.25
+		 * @param bool $show
+		 */
+		if ( ! apply_filters( 'unysonplus_show_onboarding_notice', true ) ) { return; }
+
 		$page_url    = admin_url( 'themes.php?page=unysonplus-getting-started' );
 		$dismiss_url = wp_nonce_url( add_query_arg( 'unysonplus_dismiss_onboarding', '1' ), 'unysonplus_dismiss_onboarding' );
 		$ajax_nonce  = wp_create_nonce( 'unysonplus_dismiss_onboarding_ajax' );

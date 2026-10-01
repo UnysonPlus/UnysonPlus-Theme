@@ -320,6 +320,15 @@ function unysonplus_hf_heading_options() {
 			'choices' => array( 'h2' => 'H2', 'h3' => 'H3', 'h4' => 'H4', 'h5' => 'H5', 'h6' => 'H6' ),
 			'desc'    => __( 'The HTML heading level. H1 is reserved for the page title.', 'unysonplus' ),
 		),
+		/* A column title often carries a small mark beside it — a pin over an address column, a clock over
+		   opening hours. Without a field for it the mark had nowhere to go and was simply dropped. Decorative
+		   by nature, so it is rendered aria-hidden and the heading keeps its own accessible text. */
+		'heading_icon' => array(
+			'label' => __( 'Heading Icon', 'unysonplus' ),
+			'type'  => 'icon-v2',
+			'desc'  => __( 'Optional. A small mark shown before the heading text — e.g. a pin above an address column.', 'unysonplus' ),
+			'value' => array( 'type' => 'none' ),
+		),
 	);
 }
 endif;
@@ -618,7 +627,14 @@ function unysonplus_footer_element_popup() {
 				'hide-md' => __( 'Desktop (≥ 992px)', 'unysonplus' ),
 			),
 		),
-		'element_css_class' => array(
+		'inline_with_previous' => array(
+			'type'  => 'switch',
+			'label' => __( 'Inline With Previous', 'unysonplus' ),
+			'desc'  => __( 'Place this element on the SAME ROW as the element above it, instead of below. Tick it on several elements in a row to put them all on one line (a nav row whose links and social icons share a line). Ignored on the first element of a column. The row wraps on narrow screens.', 'unysonplus' ),
+			'right-choice' => array( 'value' => 'yes', 'label' => __( 'Yes', 'unysonplus' ) ),
+			'left-choice'  => array( 'value' => 'no',  'label' => __( 'No', 'unysonplus' ) ),
+			'value' => 'no',
+		),		'element_css_class' => array(
 			'type'  => 'text',
 			'label' => __( 'CSS Class', 'unysonplus' ),
 			'desc'  => __( 'Extra class(es) added to this element wrapper, for custom CSS targeting.', 'unysonplus' ),
@@ -1083,6 +1099,22 @@ function unysonplus_footer_columns_field( $prefix, $max = 6, $default_count = 1,
 				'value'       => unysonplus_footer_equal_split( $n ),
 			);
 		}
+		// COLUMN ALIGNMENT. Widget columns had no alignment control at all -- only the copyright bar
+		// auto-aligned -- so a centred footer (a single centred stack: logo over a centred nav row over the
+		// tagline) could not be expressed, and a per-element `text-center` cannot do it either: that class
+		// lands INSIDE each element, while centring a row needs the class on an ancestor.
+		$reveal[ $prefix . '_align' ] = array(
+			'type'    => 'radio',
+			'label'   => __( 'Column Alignment', 'unysonplus' ),
+			'desc'    => __( 'Horizontal alignment of the content inside every column of this row. Inherit keeps the theme default (left).', 'unysonplus' ),
+			'value'   => 'inherit',
+			'choices' => array(
+				'inherit' => __( 'Inherit', 'unysonplus' ),
+				'left'    => __( 'Left', 'unysonplus' ),
+				'center'  => __( 'Center', 'unysonplus' ),
+				'right'   => __( 'Right', 'unysonplus' ),
+			),
+		);
 		for ( $i = 1; $i <= $n; $i++ ) {
 			$reveal[ $prefix . '_col_' . $i ] = unysonplus_footer_column(
 				sprintf( __( 'Column %d', 'unysonplus' ), $i ),

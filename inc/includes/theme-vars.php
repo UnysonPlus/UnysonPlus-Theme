@@ -42,7 +42,18 @@ function unysonplus_background_pro_css_vars( $bg, $prefix ) {
 		&& class_exists( 'FW_Option_Type_Gradient_V2' )
 		&& method_exists( 'FW_Option_Type_Gradient_V2', 'to_css' ) ) {
 		$grad = FW_Option_Type_Gradient_V2::to_css( fw_akg( 'gradient/data', $bg ) );
-		if ( $grad ) { $images[] = $grad; }
+		if ( $grad ) {
+			$images[] = $grad;
+			// A canvas GRADIENT spans the document, so it scrolls with the page: that is what makes it read
+			// as one long wash. The body rule's fallback is `fixed`, which maps the gradient to the VIEWPORT
+			// instead — every screenful then re-renders the whole ramp, so a mid-gradient stop (a teal, say)
+			// showed up as a tint on every screen that the source only reaches near the bottom. Only the image
+			// branch above ever set this var, so a gradient-only background always took that fallback.
+			if ( ! isset( $out[ $prefix . '-attachment' ] ) ) {
+				$g_att = fw_akg( 'gradient/attachment', $bg, 'scroll' );
+				$out[ $prefix . '-attachment' ] = ( 'fixed' === $g_att ) ? 'fixed' : 'scroll';
+			}
+		}
 	}
 
 	if ( $images ) { $out[ $prefix . '-image' ] = implode( ', ', $images ); }

@@ -135,6 +135,27 @@ if ( ! function_exists( 'unysonplus_upload_option_src' ) ) :
         }
 endif;
 
+if ( ! function_exists( 'unysonplus_esc_image_src' ) ) :
+	/**
+	 * Escape an image `src` without discarding an inline payload.
+	 *
+	 * `data` is not in wp_allowed_protocols(), so esc_url() returns '' for a `data:image/…` URI and the
+	 * <img> renders with an empty src. An inline SVG logo is a perfectly ordinary source for a converted
+	 * site, so escape the payload's own character set instead of dropping it; everything else still goes
+	 * through esc_url().
+	 *
+	 * @param string $src
+	 * @return string
+	 */
+	function unysonplus_esc_image_src( $src ) {
+		$src = (string) $src;
+		if ( 0 === stripos( $src, 'data:image/' ) ) {
+			return preg_replace( '/[^A-Za-z0-9;,:\/=+._%-]/', '', $src );
+		}
+		return esc_url( $src );
+	}
+endif;
+
 if ( ! function_exists( 'unysonplus_predefined_color_class' ) ) :
         /**
          * Return the predefined-palette CSS class from a colors-picker option value.
@@ -301,11 +322,18 @@ if ( ! function_exists( 'unysonplus_logo_variants_html' ) ) :
                         'transparent_image' => '--transparent',
                 ) as $_key => $_suffix ) {
                         if ( ! empty( $header_logo[ $_key ] ) && ( $_v = unysonplus_upload_option_src( $header_logo[ $_key ] ) ) ) {
-                                $out .= fw_html_tag( 'img', array(
+                                $_vattr = array(
                                         'src'   => $_v,
                                         'alt'   => $alt,
                                         'class' => 'site-logo site-logo' . $_suffix . ' img-fluid',
-                                ) );
+                                );
+                                // Explicit width/height (resolved from the file, incl. SVG) so the
+                                // variant reserves its box before load — no CLS. CSS still sizes it.
+                                if ( function_exists( 'unysonplus_local_img_dimensions' ) && ( $_vd = unysonplus_local_img_dimensions( $_v ) ) ) {
+                                        $_vattr['width']  = $_vd[0];
+                                        $_vattr['height'] = $_vd[1];
+                                }
+                                $out .= fw_html_tag( 'img', $_vattr );
                         }
                 }
                 return $out;

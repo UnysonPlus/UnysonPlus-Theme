@@ -390,8 +390,39 @@ function unysonplus_render_footer_column( $column_data, $col_class ) {
                 } else { $i++; }
         }
 
+        // INLINE RUNS — an element flagged `inline_with_previous` sits on the SAME ROW as the element above,
+        // and consecutive flagged elements extend that row. The source shape this exists for is the common
+        // centred footer: a nav row whose links and social icons share one line. Expressed as a RELATIONSHIP
+        // rather than a per-element `inline` attribute, which cannot say inline with WHAT: with two flagged
+        // neighbours there is no way to tell whether they join each other or each start a row.
+        // Note a run is computed over RENDERED BLOCKS, so a <ul> of grouped list items counts as one member.
+        $inline_open = array(); $inline_close = array();
+        $is_inline = function ( $el ) { return isset( $el['inline_with_previous'] ) && 'yes' === (string) $el['inline_with_previous']; };
+        // The run must open at the start of the RENDERED BLOCK, not at the flagged element's immediate
+        // neighbour: consecutive list items render as ONE <ul>, so opening the row beside the last <li>
+        // would put the wrapper inside the list. Walk back to the first element of that <ul> run.
+        $block_start = function ( $i ) use ( $column_data, $listable ) {
+                $t = ! empty( $column_data[ $i ]['element_type']['element'] ) ? $column_data[ $i ]['element_type']['element'] : '';
+                if ( ! isset( $listable[ $t ] ) ) { return $i; }
+                while ( $i > 0 ) {
+                        $pt = ! empty( $column_data[ $i - 1 ]['element_type']['element'] ) ? $column_data[ $i - 1 ]['element_type']['element'] : '';
+                        if ( ! isset( $listable[ $pt ] ) ) { break; }
+                        $i--;
+                }
+                return $i;
+        };
+        for ( $i = 0; $i < $count; ) {
+                $j = $i + 1;
+                while ( $j < $count && $is_inline( $column_data[ $j ] ) ) { $j++; }
+                if ( $j - $i >= 2 ) {
+                        $inline_open[ $block_start( $i ) ] = true;
+                        $inline_close[ $j - 1 ] = true;
+                        $i = $j;
+                } else { $i++; }
+        }
         $open_list = false;
         foreach ( $column_data as $idx => $element ) {
+                if ( ! empty( $inline_open[ $idx ] ) ) { echo '<div class="hf-inline-run">'; }
                 if ( empty( $element['element_type']['element'] ) ) continue;
                 $type = $element['element_type']['element'];
 
@@ -437,6 +468,11 @@ function unysonplus_render_footer_column( $column_data, $col_class ) {
                                 unysonplus_render_footer_element( $element );
                                 echo '</div>';
                         }
+                }
+                // Close the inline row last, so a <ul> the run holds is already closed inside it.
+                if ( ! empty( $inline_close[ $idx ] ) ) {
+                        if ( $open_list ) { echo '</ul>'; $open_list = false; }
+                        echo '</div>';
                 }
         }
         if ( $open_list ) { echo '</ul>'; }
@@ -519,7 +555,14 @@ function unysonplus_extract_footer_columns_data( $section_data, $prefix ) {
                 $columns[ $i ] = ! empty( $choice[ $col_key ] ) ? $choice[ $col_key ] : array();
         }
 
-        return array( 'col_count' => $count, 'classes' => $classes, 'columns' => $columns, 'auto' => ! empty( $auto ), 'justify' => $justify );
+        // COLUMN ALIGNMENT (row-level option) → a text-* class on every column of this row. It must sit on
+        // the COLUMN, not on the elements: centring an inline run needs the class on an ancestor, and an
+        // element's own class lands inside the run where it cannot reach it.
+        $align = isset( $choice[ $prefix . '_align' ] ) ? (string) $choice[ $prefix . '_align' ] : 'inherit';
+        $align_cls = ( 'center' === $align ) ? ' text-center' : ( ( 'right' === $align ) ? ' text-end' : ( ( 'left' === $align ) ? ' text-start' : '' ) );
+
+
+        return array( 'col_count' => $count, 'classes' => $classes, 'columns' => $columns, 'auto' => ! empty( $auto ), 'justify' => $justify, 'align_cls' => trim( $align_cls ) );
 }
 endif;
 
@@ -553,6 +596,7 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
         $col_count   = $extracted['col_count'];
         $columns     = $extracted['columns'];
         $col_classes = isset( $extracted['classes'] ) ? $extracted['classes'] : array();
+        $col_align_cls = isset( $extracted['align_cls'] ) ? (string) $extracted['align_cls'] : ''; // the row's Column Alignment option
 
         // Row layout. Auto Width → flex row distributed by the chosen justify. Otherwise a MODERN
         // CSS Grid row: the column ratios become fr tracks (`--fcols`), replacing the Bootstrap
@@ -619,6 +663,12 @@ function unysonplus_render_footer_section( $section_data, $prefix, $section_clas
                                                 $align = unysonplus_copyright_auto_align_class( $i, $col_count );
                                                 if ( '' !== $align ) { $col_class .= ' ' . $align; }
                                         }
+                                        // The row's own Column Alignment option wins over the auto default. It has to land
+                                        // on the COLUMN: centring an inline run needs the class on an ancestor, and an
+                                        // element's own CSS class sits inside the run where it cannot reach it.
+                                        if ( ! empty( $col_align_cls ) ) {
+                                                $col_class = trim( preg_replace( '/\btext-(center|end|start)\b/', '', $col_class ) ) . ' ' . $col_align_cls;
+                                        }
                                         unysonplus_render_footer_column( $col_data, $col_class );
                                 }
                                 ?>
@@ -658,7 +708,11 @@ function unysonplus_render_footer_logo( $settings ) {
         $show_title = ! empty( $settings['footer_logo_show_title'] ) && 'yes' === $settings['footer_logo_show_title'];
 		$title_text = ! empty( $settings['footer_logo_title'] ) ? $settings['footer_logo_title'] : get_bloginfo( 'name' );
 		echo '<a href="' . esc_url( home_url( '/' ) ) . '" class="footer-logo-link' . ( $show_title ? ' footer-logo-link--lockup' : '' ) . '">';
-        echo '<img src="' . esc_url( $image ) . '" alt="' . esc_attr( get_bloginfo( 'name' ) ) . '" class="' . esc_attr( $logo_class ) . '">';
+        // Explicit width/height (resolved from the file, incl. SVG) so the logo box is
+        // reserved before load — no CLS. CSS (footer-logo max-width) still sizes it.
+        $logo_img = '<img src="' . unysonplus_esc_image_src( $image ) . '" alt="' . esc_attr( get_bloginfo( 'name' ) ) . '" class="' . esc_attr( $logo_class ) . '">';
+        if ( function_exists( 'unysonplus_img_add_dimensions' ) ) { $logo_img = unysonplus_img_add_dimensions( $logo_img ); }
+        echo $logo_img;
         if ( $show_title ) { echo '<span class="footer-logo-title">' . esc_html( $title_text ) . '</span>'; }
         echo '</a>';
 }
@@ -732,7 +786,10 @@ function unysonplus_render_text_element( $settings, $feat = '' ) {
 
         // Single div — the element's visibility/custom classes ($feat) ride on it, so the old
         // outer `footer-element--text` wrapper div is gone (clean DOM).
-        echo '<div class="builder-text-element' . esc_attr( $feat ) . '">' . do_shortcode( wpautop( wp_kses_post( $content ) ) ) . '</div>';
+        $inner = do_shortcode( wpautop( wp_kses_post( $content ) ) );
+        // Give any editor-inserted images explicit width/height (no CLS).
+        if ( function_exists( 'unysonplus_img_add_dimensions' ) ) { $inner = unysonplus_img_add_dimensions( $inner ); }
+        echo '<div class="builder-text-element' . esc_attr( $feat ) . '">' . $inner . '</div>';
 }
 endif;
 
@@ -771,7 +828,20 @@ function unysonplus_render_heading_element( $settings, $feat = '' ) {
 	if ( ! in_array( $level, array( 'h2', 'h3', 'h4', 'h5', 'h6' ), true ) ) { $level = 'h3'; }
 	// $feat carries the element's visibility (`footer-element hide-*`) + custom class, applied
 	// directly on the heading tag so no extra wrapper <div> is needed (clean DOM).
-	echo '<' . $level . ' class="footer-links-title hf-heading' . esc_attr( $feat ) . '">' . esc_html( unysonplus_footer_resolve_tokens( $text ) ) . '</' . $level . '>';
+	// The optional leading mark (Heading Icon). Rendered through the same helper the Icon + Text element
+	// uses, so an inline SVG, a library glyph and a font class all work. Decorative: it is hidden from
+	// assistive tech and the heading keeps its own text as the accessible name.
+	$icon = '';
+	if ( ! empty( $settings['heading_icon'] ) && function_exists( 'unysonplus_hf_toggle_icon_svg' ) ) {
+		$icon = (string) unysonplus_hf_toggle_icon_svg( $settings['heading_icon'], 'hf-heading__icon' );
+	}
+	if ( '' === $icon && ! empty( $settings['heading_icon']['icon-class'] ) ) {
+		$icon = '<i class="' . esc_attr( (string) $settings['heading_icon']['icon-class'] ) . ' hf-heading__icon" aria-hidden="true"></i>';
+	}
+	$cls = 'footer-links-title hf-heading' . ( '' !== $icon ? ' hf-heading--has-icon' : '' ) . $feat;
+	echo '<' . $level . ' class="' . esc_attr( $cls ) . '">'
+		. ( '' !== $icon ? '<span class="hf-heading__icon-wrap" aria-hidden="true">' . $icon . '</span>' : '' )
+		. esc_html( unysonplus_footer_resolve_tokens( $text ) ) . '</' . $level . '>';
 }
 endif;
 
