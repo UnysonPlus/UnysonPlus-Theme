@@ -289,6 +289,95 @@ if ( ! function_exists( 'unysonplus_google_font_is_variable' ) ) :
 endif;
 
 
+if ( ! function_exists( 'unysonplus_drop_self_hosted_families' ) ) :
+        /**
+         * Remove families the ACTIVE THEME already self-hosts from a Google Fonts <link>.
+         *
+         * A theme can ship a family itself — a converted site bundles its webfaces into the child theme as
+         * `fonts/*.woff2` precisely so it has no CDN dependency. The Typography settings still NAME that
+         * family, so this theme also requested it from Google: the same typeface downloaded twice, from two
+         * origins, and the remote copy is the damaging one. It is fetched `media="print"` (non-blocking), so
+         * it lands AFTER first paint, re-enters font loading, and relays every line it touches. Measured on a
+         * converted page: the h1 jumped between 189px and 126px — one line — for a CLS of 0.159, which is
+         * most of that page's total. Self-hosting the faces did not prevent it, because nothing told this
+         * function the faces were already here.
+         *
+         * A theme declares what it self-hosts through `unysonplus_self_hosted_font_families` (an array of
+         * family names). Anything listed is dropped from the link; if that empties it, nothing is printed and
+         * the preconnect hints go too. Families NOT listed are untouched, so a theme that self-hosts one
+         * family and uses Google for another still gets the second.
+         *
+         * @param string $link The cached <link> markup (possibly several links).
+         * @return string The markup with self-hosted families removed, or '' when none remain.
+         */
+        function unysonplus_drop_self_hosted_families( $link ) {
+                $link = (string) $link;
+                if ( '' === trim( $link ) ) {
+                        return '';
+                }
+                $self = apply_filters( 'unysonplus_self_hosted_font_families', array() );
+                if ( ! is_array( $self ) || ! $self ) {
+                        return $link;
+                }
+                // Match the family as the URL spells it: spaces become '+' and the name may carry an axis
+                // spec (':ital,wght@…'). Comparison is case-insensitive because a settings value and a URL
+                // do not always agree on case.
+                $drop = array();
+                foreach ( $self as $fam ) {
+                        $fam = trim( (string) $fam );
+                        if ( '' !== $fam ) {
+                                $drop[] = preg_quote( str_replace( ' ', '+', $fam ), '#' );
+                        }
+                }
+                if ( ! $drop ) {
+                        return $link;
+                }
+                // Whether anything was ACTUALLY dropped. Without this the rewrite ran on every page that has
+                // any self-hosted family and handed back an esc_url'd copy of a link it had not changed —
+                // `&` re-encoded to `&#038;` for nothing. A filter that leaves its input alone should return
+                // its input, not an equivalent-but-different string.
+                $hit = false;
+                $out = preg_replace_callback(
+                        '#href=([\'"])(https?://fonts\.googleapis\.com/css[^\'"]*)\1#i',
+                        function ( $m ) use ( $drop, &$hit ) {
+                                $url = html_entity_decode( $m[2] );
+                                $parts = explode( '?', $url, 2 );
+                                if ( 2 !== count( $parts ) ) {
+                                        return $m[0];
+                                }
+                                $kept = array();
+                                foreach ( explode( '&', $parts[1] ) as $param ) {
+                                        if ( 0 === stripos( $param, 'family=' ) ) {
+                                                $name = substr( $param, 7 );
+                                                $name = explode( ':', $name, 2 );
+                                                $name = $name[0];
+                                                foreach ( $drop as $d ) {
+                                                        if ( preg_match( '#^' . $d . '$#i', $name ) ) { $hit = true; continue 2; }
+                                                }
+                                        }
+                                        $kept[] = $param;
+                                }
+                                // No family left → signal the whole link for removal.
+                                $has_family = false;
+                                foreach ( $kept as $k ) {
+                                        if ( 0 === stripos( $k, 'family=' ) ) { $has_family = true; break; }
+                                }
+                                if ( ! $has_family ) {
+                                        return 'href=' . $m[1] . '' . $m[1];
+                                }
+                                return 'href=' . $m[1] . esc_url( $parts[0] . '?' . implode( '&', $kept ) ) . $m[1];
+                        },
+                        $link
+                );
+                if ( ! $hit ) {
+                        return $link; // nothing of ours was in it — hand back exactly what we were given
+                }
+                // Drop any <link> whose href we emptied above.
+                $out = preg_replace( '#<link\b[^>]*href=([\'"])\1[^>]*>#i', '', (string) $out );
+                return '' === trim( (string) $out ) ? '' : (string) $out;
+        }
+endif;
+
 if (!function_exists('_action_theme_print_google_fonts_link')) :
         /**
          * Print the Google Fonts <link> — NON render-blocking, with font-display:swap.
@@ -326,6 +415,8 @@ if (!function_exists('_action_theme_print_google_fonts_link')) :
                                 $link = (string) get_option( 'fw_theme_google_fonts_link', '' );
                         }
                 }
+
+                $link = unysonplus_drop_self_hosted_families( $link );
 
                 if ($link === '') { return; }
 
@@ -373,7 +464,15 @@ if ( ! function_exists( 'unysonplus_google_fonts_resource_hints' ) ) :
          * @return array
          */
         function unysonplus_google_fonts_resource_hints( $hints, $relation_type ) {
-                if ( '' === (string) get_option( 'fw_theme_google_fonts_link', '' ) ) {
+                $link = (string) get_option( 'fw_theme_google_fonts_link', '' );
+                // …and nothing is output when every family in it is self-hosted by the theme, so the hint
+                // must read the SAME answer the printer does. Reading only the raw option left a page that
+                // never contacts Google still preconnecting to two Google hosts: a DNS + TLS round trip
+                // spent on a connection nothing uses.
+                if ( function_exists( 'unysonplus_drop_self_hosted_families' ) ) {
+                        $link = unysonplus_drop_self_hosted_families( $link );
+                }
+                if ( '' === $link ) {
                         return $hints;
                 }
                 if ( 'preconnect' === $relation_type ) {

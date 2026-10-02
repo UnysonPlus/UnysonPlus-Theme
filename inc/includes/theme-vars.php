@@ -1028,6 +1028,10 @@ if ( ! function_exists( 'unysonplus_theme_vars_social' ) ) :
 			if ( $sc !== '' ) { $out['--social-icon-color'] = $sc; }
 			$sb = unysonplus_preset_color_to_css( isset( $ss['social_icon_bg'] ) ? $ss['social_icon_bg'] : '' );
 			if ( $sb !== '' ) { $out['--social-icon-bg'] = $sb; }
+			// The outline styles' ring. Without its own token the border follows the glyph colour, so a faint
+			// ring around a bright mark -- a very common chip treatment -- could not be expressed.
+			$sbd = unysonplus_preset_color_to_css( isset( $ss['social_icon_border'] ) ? $ss['social_icon_border'] : '' );
+			if ( $sbd !== '' ) { $out['--social-icon-border'] = $sbd; }
 			$shc = unysonplus_preset_color_to_css( isset( $ss['social_icon_hover_color'] ) ? $ss['social_icon_hover_color'] : '' );
 			if ( $shc !== '' ) { $out['--social-icon-hover-color'] = $shc; }
 			$shb = unysonplus_preset_color_to_css( isset( $ss['social_icon_hover_bg'] ) ? $ss['social_icon_hover_bg'] : '' );

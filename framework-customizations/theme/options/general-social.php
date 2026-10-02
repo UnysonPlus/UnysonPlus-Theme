@@ -128,6 +128,7 @@ $options = array(
 					),
 					'social_icon_color'       => $color( __( 'Icon Color', 'unysonplus' ), __( 'Glyph color. Leave empty to inherit the surrounding text color.', 'unysonplus' ), 'text' ),
 					'social_icon_bg'          => $color( __( 'Background', 'unysonplus' ), __( 'Chip background (filled styles). Leave empty for transparent.', 'unysonplus' ), 'bg' ),
+					'social_icon_border'      => $color( __( 'Ring Color', 'unysonplus' ), __( 'Border colour for the outline styles. Leave empty to follow the glyph colour.', 'unysonplus' ), 'text' ),
 					'social_icon_hover_color' => $color( __( 'Icon Hover Color', 'unysonplus' ), __( 'Glyph color on hover.', 'unysonplus' ), 'text' ),
 					'social_icon_hover_bg'    => $color( __( 'Background Hover', 'unysonplus' ), __( 'Chip background on hover.', 'unysonplus' ), 'bg' ),
 					'social_icon_hover_fx' => array(

@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.6.37
+Version: 2.6.40
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -840,6 +840,18 @@ body .container-fluid {
 .social-style-rounded .header-social-icon i,
 .social-style-square .header-social-icon i,
 .social-style-square-outline .header-social-icon i { font-size: calc(var(--social-size, 2.25rem) * 0.46); }
+/* ...and the same for an SVG mark. The rule above sizes an icon FONT (<i>), which is what the picker
+   produces for a hand-built site; a converted site's marks arrive as inline <svg>, which the rule never
+   touched. They then drew at their own intrinsic size -- measured 24px inside a 40px chip, against the
+   18px the 0.46 ratio intends -- so every converted social row looked crowded. */
+.social-style-circle .header-social-icon svg,
+.social-style-circle-outline .header-social-icon svg,
+.social-style-rounded .header-social-icon svg,
+.social-style-square .header-social-icon svg,
+.social-style-square-outline .header-social-icon svg {
+	width: calc(var(--social-size, 2.25rem) * 0.46);
+	height: calc(var(--social-size, 2.25rem) * 0.46);
+}
 
 .social-style-circle .header-social-icon,
 .social-style-circle-outline .header-social-icon { border-radius: 50%; }
@@ -850,8 +862,16 @@ body .container-fluid {
 .social-style-rounded .header-social-icon,
 .social-style-square .header-social-icon { background-color: var(--social-icon-bg, rgba(0, 0, 0, 0.06)); }
 /* Outline chips */
+/* The ring colour is its own token. It was locked to currentColor, which ties the ring to the GLYPH --
+   a source commonly draws a faint ring (white at 0.1) around a much brighter mark (white at 0.7), and
+   that is unreachable while the two share one colour. Falls back to currentColor, so nothing changes
+   for a site that never sets it. The fill falls back to transparent, so an outline chip that also
+   declares a background (a faint glass ring) can keep both. */
 .social-style-circle-outline .header-social-icon,
-.social-style-square-outline .header-social-icon { border: 1px solid currentColor; background-color: transparent; }
+.social-style-square-outline .header-social-icon {
+	border: 1px solid var(--social-icon-border, currentColor);
+	background-color: var(--social-icon-bg, transparent);
+}
 
 /* Hover background for any chip style */
 .social-style-circle .header-social-icon:hover,

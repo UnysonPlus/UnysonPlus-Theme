@@ -245,6 +245,26 @@ if ( ! function_exists( 'unysonplus_logo_image_html' ) ) :
                                 $img_attr['width']      = $logo_px;
                                 // Height from the source's aspect ratio, so the browser reserves the
                                 // logo box before it loads (no layout shift). CSS keeps height:auto.
+                                // RETINA: the resize above fits the logo to its configured width EXACTLY, which is
+                                // right for a 1x screen and soft on every other one -- a 40px logo on a 2x display is
+                                // asked to cover 80 device pixels from a 40px file. Lighthouse reports it as "Serves
+                                // images with low resolution" (displayed 40x40, actual 40x40, expected 60x60 at its
+                                // 1.5x emulation). Add a 2x candidate whenever the ORIGINAL is actually big enough to
+                                // cut one, so the browser can pick it; when it is not, the 1x src stands alone exactly
+                                // as before and nothing upscales. An SVG needs none of this.
+                                if ( ! $_is_svg && ! empty( $img_attr['src'] ) && empty( $header_logo['image_2x']['url'] ) ) {
+                                        $_ow2 = 0;
+                                        if ( $_lid ) {
+                                                $_m2  = wp_get_attachment_metadata( $_lid );
+                                                $_ow2 = ! empty( $_m2['width'] ) ? (int) $_m2['width'] : 0;
+                                        }
+                                        if ( $_ow2 >= $logo_px * 2 && function_exists( 'fw_resize' ) ) {
+                                                $_u2x = fw_resize( $unyson_image_src, $logo_px * 2, 0, false );
+                                                if ( $_u2x && $_u2x !== $img_attr['src'] ) {
+                                                        $img_attr['srcset'] = $img_attr['src'] . ' 1x, ' . $_u2x . ' 2x';
+                                                }
+                                        }
+                                }
                                 $_ratio = unysonplus_logo_aspect_ratio( $_lid, $_is_svg );
                                 if ( $_ratio > 0 ) {
                                         $img_attr['height'] = max( 1, (int) round( $logo_px / $_ratio ) );
