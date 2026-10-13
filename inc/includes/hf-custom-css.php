@@ -337,9 +337,12 @@ function unysonplus_hf_build_css() {
 				if ( $do_bot ) { $decl[] = 'border-bottom:' . $bval; }
 			} else {
 				if ( $do_top || $do_bot ) { $decl[] = 'position:relative'; }
-				$pd      = 'content:"";display:block;max-width:' . $emax . ';margin-inline:auto;border-top:' . $bval;
-				if ( $do_top ) { $border_pseudo .= $sel . '::before{' . $pd . '}'; }
-				if ( $do_bot ) { $border_pseudo .= $sel . '::after{' . $pd . '}'; }
+				// Pinned to the section's own edge, like a real border: an in-flow pseudo sat
+				// INSIDE the padding, so a top line landed right on the content with all the
+				// top padding above it (e.g. a copyright line touching its text).
+				$pd      = 'content:"";display:block;position:absolute;left:0;right:0;max-width:' . $emax . ';margin-inline:auto;border-top:' . $bval;
+				if ( $do_top ) { $border_pseudo .= $sel . '::before{' . $pd . ';top:0}'; }
+				if ( $do_bot ) { $border_pseudo .= $sel . '::after{' . $pd . ';bottom:0}'; }
 			}
 		}
 
@@ -773,7 +776,9 @@ function unysonplus_hf_enqueue_css() {
 		// Lazy self-heal: rebuild only when the file is absent or the theme version
 		// changed (a theme update can change the CSS-generation logic). Normal setting
 		// changes rebuild via unysonplus_hf_regenerate_css() on the save/preset hooks.
-		$theme_v = (string) wp_get_theme()->get( 'Version' );
+		// Parent + active (child) versions: wp_get_theme() alone is the CHILD on a child-theme site, so a
+		// parent-theme update (which is what changes the generator) never triggered the rebuild there.
+		$theme_v = (string) wp_get_theme( get_template() )->get( 'Version' ) . '/' . (string) wp_get_theme()->get( 'Version' );
 		$url_sig = unysonplus_hf_url_sig();
 		if ( ! file_exists( $paths['file'] )
 			|| get_option( 'unysonplus_hf_css_theme_ver' ) !== $theme_v

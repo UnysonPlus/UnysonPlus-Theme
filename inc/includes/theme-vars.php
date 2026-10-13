@@ -646,6 +646,86 @@ if ( ! function_exists( 'unysonplus_theme_vars_header_logo' ) ) :
 	}
 endif;
 
+if ( ! function_exists( 'unysonplus_css_color_luma' ) ) :
+	/**
+	 * Perceived lightness (0 = black … 1 = white) of a CSS colour: #rgb / #rrggbb / #rrggbbaa, rgb()/rgba(),
+	 * a palette slug ('primary') or var(--color-<slug>) (resolved through the live palette map). Returns
+	 * null when the colour can't be read or is mostly transparent (alpha < 0.5 — what shows through it
+	 * is unknown), so callers can treat "unknown" as "don't guess".
+	 *
+	 * @param string $color
+	 * @return float|null
+	 */
+	function unysonplus_css_color_luma( $color ) {
+		$color = strtolower( trim( (string) $color ) );
+		if ( $color === '' || $color === 'transparent' ) { return null; }
+		if ( preg_match( '/^var\(\s*--color-([a-z0-9\-]+)/', $color, $m ) ) { $color = $m[1]; }
+		if ( preg_match( '/^[a-z][a-z0-9\-]*$/', $color ) && function_exists( 'unysonplus_color_preset_slug_map' ) ) {
+			$map   = unysonplus_color_preset_slug_map();
+			$color = ! empty( $map[ $color ] ) ? strtolower( trim( (string) $map[ $color ] ) ) : '';
+		}
+		$rgb = null; $alpha = 1.0;
+		if ( preg_match( '/^#([0-9a-f]{3,8})$/', $color, $m ) ) {
+			$h = $m[1];
+			if ( strlen( $h ) === 3 || strlen( $h ) === 4 ) {
+				$h = $h[0] . $h[0] . $h[1] . $h[1] . $h[2] . $h[2] . ( strlen( $h ) === 4 ? $h[3] . $h[3] : '' );
+			}
+			if ( strlen( $h ) !== 6 && strlen( $h ) !== 8 ) { return null; }
+			$rgb = array( hexdec( substr( $h, 0, 2 ) ), hexdec( substr( $h, 2, 2 ) ), hexdec( substr( $h, 4, 2 ) ) );
+			if ( strlen( $h ) === 8 ) { $alpha = hexdec( substr( $h, 6, 2 ) ) / 255; }
+		} elseif ( preg_match( '/^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)(?:\s*[,\/]\s*([\d.]+)(%?))?/', $color, $m ) ) {
+			$rgb = array( (int) $m[1], (int) $m[2], (int) $m[3] );
+			if ( isset( $m[4] ) && $m[4] !== '' ) { $alpha = (float) $m[4] / ( ! empty( $m[5] ) ? 100 : 1 ); }
+		}
+		if ( ! $rgb || $alpha < 0.5 ) { return null; }
+		return ( 0.299 * $rgb[0] + 0.587 * $rgb[1] + 0.114 * $rgb[2] ) / 255;
+	}
+endif;
+
+if ( ! function_exists( 'unysonplus_footer_bg_tone' ) ) :
+	/**
+	 * Is the footer background dark or light? Read from the footer Background (Background Pro colour, or a
+	 * gradient's average) — falling back to the legacy footer_bg_color. Returns 'dark', 'light' or '' when
+	 * it can't be known: nothing set in Theme Settings (a child theme may restyle the default), or a
+	 * background IMAGE (its pixels decide, not the colour under it). Drives the footer's automatic
+	 * heading / link / text colours (theme-vars below + footer.php).
+	 *
+	 * @return string
+	 */
+	function unysonplus_footer_bg_tone() {
+		if ( ! function_exists( 'fw_get_db_settings_option' ) ) { return ''; }
+		$bg   = fw_get_db_settings_option( 'footer_background' );
+		$luma = null;
+		if ( is_array( $bg ) && function_exists( 'fw_akg' ) ) {
+			if ( fw_akg( 'image/src/url', $bg ) ) { return ''; }
+			$stops = fw_akg( 'gradient/data/stops', $bg );
+			if ( is_array( $stops ) && count( $stops ) >= 2 ) {
+				$sum = 0; $n = 0;
+				foreach ( $stops as $stop ) {
+					$l = unysonplus_css_color_luma( isset( $stop['color'] ) ? $stop['color'] : '' );
+					if ( $l === null ) { return ''; }
+					$sum += $l; $n++;
+				}
+				$luma = $sum / $n;
+			} else {
+				$cv = fw_akg( 'color/value', $bg );
+				if ( is_array( $cv ) ) {
+					$c    = ! empty( $cv['predefined'] ) ? $cv['predefined'] : ( isset( $cv['custom'] ) ? $cv['custom'] : '' );
+					$luma = unysonplus_css_color_luma( is_string( $c ) ? $c : '' );
+				}
+			}
+		}
+		if ( $luma === null ) {
+			$legacy_img = fw_get_db_settings_option( 'footer_bg_image' );
+			if ( is_array( $legacy_img ) && ! empty( $legacy_img['url'] ) ) { return ''; }
+			$legacy_bg = fw_get_db_settings_option( 'footer_bg_color' );
+			$luma      = is_string( $legacy_bg ) ? unysonplus_css_color_luma( $legacy_bg ) : null;
+		}
+		if ( $luma === null ) { return ''; }
+		return $luma < 0.5 ? 'dark' : 'light';
+	}
+endif;
+
 if ( ! function_exists( 'unysonplus_theme_vars_footer' ) ) :
 	/** Footer padding / colors / borders / background tokens. */
 	function unysonplus_theme_vars_footer( array &$out ) {
@@ -657,6 +737,7 @@ if ( ! function_exists( 'unysonplus_theme_vars_footer' ) ) :
 		);
 		$footer_colors = array(
 			'footer_text_color'       => '--footer-color',
+			'footer_heading_color'    => '--footer-heading-color',
 			'footer_link_color'       => '--footer-link-color',
 			'footer_link_hover_color' => '--footer-link-hover',
 		);
@@ -717,6 +798,19 @@ if ( ! function_exists( 'unysonplus_theme_vars_footer' ) ) :
 				? unysonplus_preset_color_to_css( $val )
 				: ( is_string( $val ) ? $val : '' );
 			if ( $css !== '' ) { $out[ $var ] = $css; }
+		}
+		// Automatic contrast on a LIGHT footer background: the theme's footer defaults (#ccc text, white
+		// links) are made for the default dark footer and vanish on a light one. When the Background is
+		// light and Text / Link are left empty, fall back to the body text colour instead. (A DARK footer
+		// keeps the light defaults; its headings are handled by the footer--heading-color class that
+		// footer.php adds — see unysonplus_footer_bg_tone().)
+		if ( function_exists( 'unysonplus_footer_bg_tone' ) && 'light' === unysonplus_footer_bg_tone() ) {
+			if ( unysonplus_preset_color_to_css( fw_get_db_settings_option( 'footer_text_color' ) ) === '' ) {
+				$out['--footer-color'] = 'var(--color-text, #212529)';
+			}
+			if ( unysonplus_preset_color_to_css( fw_get_db_settings_option( 'footer_link_color' ) ) === '' ) {
+				$out['--footer-link-color'] = 'var(--color-text, #212529)';
+			}
 		}
 		// Footer top border — now the combined multi-inline row
 		// footer_border_top => { width:{value,unit}, style, color:{predefined,custom} }.

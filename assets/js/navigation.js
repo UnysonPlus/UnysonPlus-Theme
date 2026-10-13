@@ -497,6 +497,65 @@
 })();
 
 /**
+ * Header OVERFLOW collapse — when the inline menu does not fit the main header row (a long menu at a
+ * laptop width), switch the header to its collapsed state (hamburger + drawer) instead of letting the
+ * row run past the container. The CSS breakpoint still handles phones/tablets; this covers every width
+ * above it, for any item count. Measured with the class removed (same frame, so nothing paints in
+ * between): the row overflows, two columns overlap, or the top-level menu wraps onto a second line.
+ */
+( function () {
+	'use strict';
+	var CLS    = 'header-nav-overflow';
+	var header = document.getElementById( 'masthead' );
+	if ( ! header ) { return; }
+	var row = header.querySelector( '.header-main .header-row' );
+	// Only a header that can collapse: an inline menu to hide and a toggle + drawer to replace it.
+	if ( ! row || ! row.querySelector( '.header-element--menu, .header-element--menu_area' ) ||
+		! row.querySelector( '.menu-toggle' ) || ! document.getElementById( 'primary-navigation-drawer' ) ) { return; }
+
+	function visible( el ) { return el.offsetWidth > 0 || el.offsetHeight > 0; }
+
+	function overflows() {
+		if ( row.scrollWidth > row.clientWidth + 1 ) { return true; }
+		var cols = Array.prototype.filter.call( row.querySelectorAll( ':scope > .header-col' ), visible );
+		for ( var i = 1; i < cols.length; i++ ) {
+			if ( cols[ i - 1 ].getBoundingClientRect().right > cols[ i ].getBoundingClientRect().left + 1 ) { return true; }
+		}
+		// Top-level menu lists only (a sub-menu / mega-menu list stacks vertically by design).
+		var menus = Array.prototype.filter.call(
+			row.querySelectorAll( '.header-element--menu ul, .header-element--menu_area ul' ),
+			function ( ul ) { return ! ( ul.parentElement && ul.parentElement.closest( 'ul' ) ); }
+		);
+		for ( var m = 0; m < menus.length; m++ ) {
+			var items = Array.prototype.filter.call( menus[ m ].children, function ( li ) { return li.tagName === 'LI' && visible( li ); } );
+			if ( items.length > 1 && items[ items.length - 1 ].offsetTop > items[ 0 ].offsetTop + items[ 0 ].offsetHeight / 2 ) { return true; }
+			if ( menus[ m ].scrollWidth > menus[ m ].clientWidth + 1 ) { return true; }
+		}
+		return false;
+	}
+
+	function check() {
+		header.classList.remove( CLS );
+		// Already collapsed by the CSS breakpoint (inline menu hidden) → nothing to decide.
+		var menu = row.querySelector( '.header-element--menu, .header-element--menu_area' );
+		if ( ! visible( menu ) ) { return; }
+		if ( overflows() ) { header.classList.add( CLS ); }
+	}
+
+	var raf = 0;
+	function schedule() {
+		if ( raf ) { return; }
+		raf = window.requestAnimationFrame( function () { raf = 0; check(); } );
+	}
+
+	check();
+	window.addEventListener( 'resize', schedule, { passive: true } );
+	window.addEventListener( 'load', schedule );
+	// Web fonts change the menu's width once they swap in.
+	if ( document.fonts && document.fonts.ready ) { document.fonts.ready.then( schedule ); }
+} )();
+
+/**
  * Header SEARCH icon toggle — click the magnifier to reveal the field popover; click outside or
  * press Escape to close. Progressive enhancement over the CSS `:focus-within` fallback.
  */

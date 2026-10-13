@@ -95,11 +95,18 @@ $options = [
 		'options' => [
 			'footer_text_color' => $footer_color(
 				__( 'Text Color', 'unysonplus' ),
-				__( 'Default text color for the entire footer. Pick a palette preset or a custom colour.', 'unysonplus' )
+				__( 'Default text color for the entire footer. Pick a palette preset or a custom colour. Leave empty for automatic: light grey on a dark footer background, the body text colour on a light one.', 'unysonplus' )
+			),
+			/* Footer headings (Heading elements, widget / text-element headings) otherwise wear the GLOBAL
+			   heading colour, which is unreadable on a dark footer. Empty = automatic: the global heading
+			   colour, switched to white when the footer Background colour is dark. */
+			'footer_heading_color' => $footer_color(
+				__( 'Heading Color', 'unysonplus' ),
+				__( 'Colour of the headings in the footer (column titles, widget and text headings). Leave empty for automatic: the global heading colour, or white when the footer background is dark. Builder sections placed in the footer keep their own colours.', 'unysonplus' )
 			),
 			'footer_link_color' => $footer_color(
 				__( 'Link Color', 'unysonplus' ),
-				__( 'Default link color for the entire footer. Pick a palette preset or a custom colour.', 'unysonplus' )
+				__( 'Default link color for the entire footer. Pick a palette preset or a custom colour. Leave empty for automatic: white on a dark footer background, the body text colour on a light one.', 'unysonplus' )
 			),
 			/* 90% of real footers change their link COLOUR on hover; the theme previously only faded
 			   the rest colour, so a distinct hover colour could not be expressed. Empty keeps the fade. */

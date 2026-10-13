@@ -32,6 +32,11 @@
 	   builder pages, the .fw-container on classic pages. */
 	body.layout-vertical-left .site > .site-content,
 	body.layout-vertical-right .site > .site-content { grid-area: content; }
+	/* A page built in another page builder on its full-width template prints its own root straight into
+	   .site (Elementor: `div.elementor`), with no .site-content — without an area it auto-places into the
+	   first free cell, the rail column, and the whole page renders rail-wide. */
+	body.layout-vertical-left .site > .elementor,
+	body.layout-vertical-right .site > .elementor { grid-area: content; min-width: 0; }
 	body.layout-vertical-left .site > #colophon,
 	body.layout-vertical-right .site > #colophon { grid-area: footer; }
 
@@ -48,6 +53,17 @@
 		height: calc(100vh - var(--admin-bar-offset));
 		overflow-y: auto;
 		min-height: 0;
+	}
+	/* A transparent / overlay header behaviour has no meaning on a side rail: `.site-header--transparent` (with
+	   `.header-sticky`, specificity 0,3,0) made the rail absolute, full width and laid it over the whole page
+	   (blurred, when glass). The rail stays a sticky rail in its own grid column. */
+	body.layout-vertical-left .site-header.site-header--transparent,
+	body.layout-vertical-right .site-header.site-header--transparent {
+		position: sticky;
+		top: var(--admin-bar-offset);
+		left: auto;
+		right: auto;
+		width: auto;
 	}
 	body.layout-vertical-left  .site-header { border-right: 1px solid var(--color-border); }
 	body.layout-vertical-right .site-header { border-left:  1px solid var(--color-border); }

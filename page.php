@@ -2,15 +2,20 @@
 /**
  * The default page template.
  *
- * Default = no sidebar. Editors who want sidebars assign one of the named
- * templates (Right Sidebar, Left Sidebar, Boxed Narrow, etc.) instead.
+ * Default = no sidebar. An explicit Theme Settings → Pages → Default Sidebar
+ * choice (none / left / right) wins over that, and a per-page Sidebar Position
+ * wins over both. The forced "none" used to sit above the Pages setting in the
+ * layout cascade, so choosing "Right" there never reached a default-template page.
  *
  * Page-builder pages skip the wrapper entirely — the builder owns layout.
  *
  * @package Unysonplus
  */
 
-unysonplus_set_layout_override( array( 'sidebar' => 'none' ) );
+$unysonplus_pages_sidebar = function_exists( 'unysonplus_pages_get' ) ? unysonplus_pages_get( 'default_sidebar', 'inherit' ) : 'inherit';
+if ( ! in_array( $unysonplus_pages_sidebar, array( 'none', 'left', 'right' ), true ) ) {
+	unysonplus_set_layout_override( array( 'sidebar' => 'none' ) );
+}
 
 get_header();
 

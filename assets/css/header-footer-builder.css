@@ -439,6 +439,22 @@
 	.site-header.header-collapse-lg .menu-toggle { display: none; }
 }
 
+/* Collapsed-header safety net: any OTHER inline element left in the row (a status chip, a one-line text list)
+   could still be wider than a phone and push the toggle off-screen. The row's columns may shrink, the toggle
+   never does, and such an element truncates with an ellipsis instead of overflowing. */
+@media (max-width: 991.98px) {
+	.site-header.header-collapse-lg .header-main .header-col { min-width: 0; flex-shrink: 1; }
+	.site-header.header-collapse-lg .header-main .header-col--start { flex-shrink: 0; } /* the logo keeps priority */
+	.site-header.header-collapse-lg .header-main .menu-toggle { flex-shrink: 0; }
+	.site-header.header-collapse-lg .header-main .header-col > .header-element:not(.header-element--logo) { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+@media (max-width: 767.98px) {
+	.site-header.header-collapse-md .header-main .header-col { min-width: 0; flex-shrink: 1; }
+	.site-header.header-collapse-md .header-main .header-col--start { flex-shrink: 0; } /* the logo keeps priority */
+	.site-header.header-collapse-md .header-main .menu-toggle { flex-shrink: 0; }
+	.site-header.header-collapse-md .header-main .header-col > .header-element:not(.header-element--logo) { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
 /* header-collapse-md — collapse below 768px. */
 @media (max-width: 767.98px) {
 	.site-header.header-collapse-md .header-element--menu,
@@ -449,6 +465,22 @@
 @media (min-width: 768px) {
 	.site-header.header-collapse-md .menu-toggle { display: none; }
 }
+
+/* Collapse-when-it-doesn't-fit. The breakpoints above are fixed widths, but whether the inline menu
+   fits depends on how many items it has (8+ top-level items run past the container at 1024-1280px,
+   pushing the CTA off-screen or under the logo). navigation.js measures the main header row at
+   any width ABOVE the breakpoint and adds .header-nav-overflow when the inline menu does not fit,
+   which engages exactly the collapsed state: inline menu + CTA hidden, hamburger shown (the drawer
+   carries both). Removed again as soon as the full menu fits, so it works for any item count. The
+   doubled .site-header outranks the per-request custom-breakpoint <style> printed after this file. */
+.site-header.site-header.header-nav-overflow .header-element--menu,
+.site-header.site-header.header-nav-overflow .header-element--menu_area,
+.site-header.site-header.header-nav-overflow .header-element--cta_button { display: none; }
+.site-header.site-header.header-nav-overflow .menu-toggle { display: inline-flex; }
+.site-header.header-nav-overflow .header-main .header-col { min-width: 0; flex-shrink: 1; }
+.site-header.header-nav-overflow .header-main .header-col--start { flex-shrink: 0; }
+.site-header.header-nav-overflow .header-main .menu-toggle { flex-shrink: 0; }
+.site-header.header-nav-overflow .header-main { background-color: var(--mobile-bar-bg); }
 
 /* Mobile main-header height (falls back to the desktop height when unset). */
 @media (max-width: 767.98px) {

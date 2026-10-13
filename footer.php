@@ -58,6 +58,15 @@
 				if ( is_array( $f_bext ) && isset( $f_bext['mode'] ) && $f_bext['mode'] !== 'full' && $f_bext['mode'] !== '' ) {
 					$footer_classes[] = 'footer--bcontained';
 				}
+				// Footer heading colour (Footer → Layout → Colors → Heading Color). With a colour set, or
+				// automatically when the footer Background is dark, footer headings stop wearing the global
+				// heading colour (unreadable on a dark footer): .footer--heading-color in style.css paints
+				// them var(--footer-heading-color, #fff). footer--tone-* records the detected background tone
+				// for child themes. Nothing is added when no colour is set and the tone is light / unknown.
+				$f_tone = function_exists( 'unysonplus_footer_bg_tone' ) ? unysonplus_footer_bg_tone() : '';
+				if ( $f_tone !== '' ) { $footer_classes[] = 'footer--tone-' . $f_tone; }
+				$f_heading = function_exists( 'unysonplus_preset_color_to_css' ) ? unysonplus_preset_color_to_css( fw_get_db_settings_option( 'footer_heading_color' ) ) : '';
+				if ( $f_heading !== '' || 'dark' === $f_tone ) { $footer_classes[] = 'footer--heading-color'; }
 			}
 			?>
 			<footer id="colophon" class="<?php echo esc_attr( implode( ' ', $footer_classes ) ); ?>" role="contentinfo">

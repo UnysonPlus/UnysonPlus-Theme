@@ -770,7 +770,11 @@ function unysonplus_render_list_item_element( $settings ) {
         }
 
         $inner  = $icon !== '' ? $icon . ' ' : ''; // $icon is already rendered markup (SVG or <i>)
-        $inner .= '<span class="list-item__text">' . esc_html( $text ) . '</span>';
+        // A LIST ITEM'S TEXT MAY CARRY A LINE BREAK. A postal address is two lines ("Suite 400" /
+        // "San Francisco, CA 94102"), and esc_html() rendered the `<br>` literally, so the only way to show one
+        // was to fold the address onto a single long line. `<br>` is the one tag allowed — everything else is
+        // still stripped, so this stays as safe as esc_html() for any other markup.
+        $inner .= '<span class="list-item__text">' . wp_kses( $text, array( 'br' => array() ) ) . '</span>';
 
         if ( $href !== '' ) {
                 echo '<a class="footer-link hf-link list-item" href="' . $href . '"' . $rel . '>' . $inner . '</a>'; // phpcs:ignore -- href pre-escaped per type

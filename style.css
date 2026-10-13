@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.6.40
+Version: 2.6.47
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -167,6 +167,36 @@ a:not(.btn):hover, a:not(.btn):focus-visible { color: var(--body-link-hover, var
 	text-decoration: var(--body-link-decoration-hover, underline);
 }
 a.btn:hover, a.btn:focus-visible { text-decoration: none; }
+
+/* Button BASE for theme-rendered buttons (header CTA, footer / drawer buttons, widget buttons). The
+   `.btn` box model (display, padding, font-size, line-height, border, radius) ships with the plugin's
+   Button shortcode stylesheet, which only loads on pages that contain a Button element — so on any
+   other page the header CTA and footer buttons collapsed to bare inline links. This is the same
+   baseline, with the same values, at ZERO specificity (:where): when the shortcode stylesheet also
+   loads it changes nothing, and a Button Colour / Size Preset, the shortcode's own `.btn` rules or a
+   child theme always win over it regardless of load order. */
+:where(.btn) {
+	display: inline-block;
+	font-family: inherit;
+	font-weight: 400;
+	line-height: 1.5;
+	text-align: center;
+	text-decoration: none;
+	white-space: nowrap;
+	vertical-align: middle;
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+	padding: 0.375rem 0.75rem;
+	font-size: 1rem;
+	border-radius: 0.375rem;
+	color: inherit;
+	border: 1px solid #ced4da;
+	transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+:where(.btn:hover) { color: inherit; border-color: #adb5bd; }
+:where(.btn-lg) { padding: 0.5rem 1rem; font-size: 1.25rem; border-radius: 0.5rem; }
+:where(.btn-sm) { padding: 0.25rem 0.5rem; font-size: 0.875rem; border-radius: 0.25rem; }
 
 /* Keyboard focus ring — color/width configurable via General → Base (default 2px primary). */
 :focus-visible {
@@ -1921,6 +1951,16 @@ body.nav-scrollspy section[id] {
    colour IS chosen (so the new colour is not dimmed by the legacy fade). */
 .footer a:hover { color: var(--footer-link-hover, var(--footer-link-color)); opacity: var(--footer-link-hover-opacity, 0.85); }
 
+/* Footer headings (Footer → Layout → Colors → Heading Color). Without this every footer heading wears
+   the GLOBAL heading colour (--h1-color … --h6-color), unreadable on a dark footer. footer.php adds
+   .footer--heading-color when a Heading Color is set, or automatically when the footer Background is
+   dark (then white). Builder sections placed in the footer are page content with their own surfaces
+   (often a light card), so their headings are left alone. One class + element = (0,1,1): beats the
+   global hN rule but not a child theme's `.footer .hf-heading` / `footer.footer h2` override. */
+.footer--heading-color :is(h1, h2, h3, h4, h5, h6):not(:where(.up-builder-section *)) {
+	color: var(--footer-heading-color, #ffffff);
+}
+
 /* Background Pro image (+ any gradient overlay it folds in). All the placement
    knobs come from the control; an overlay is a semi-transparent colour/gradient
    layered into --footer-bg-image, so no separate ::before tint is needed. */
@@ -1944,7 +1984,7 @@ body.nav-scrollspy section[id] {
 .footer .footer__body + .footer-section { border-top: var(--footer-section-divider, none); }
 
 .footer .widget-title {
-	color: var(--footer-link-color);
+	color: var(--footer-heading-color, var(--footer-link-color));
 	font-size: 1rem;
 	font-weight: 600;
 	margin: 0 0 0.75rem;
