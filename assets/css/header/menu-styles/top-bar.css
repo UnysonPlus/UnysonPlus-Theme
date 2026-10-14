@@ -1,0 +1,30 @@
+/* Menu item style: top-bar
+ * Split out of style.css so a page ships only the hover treatment it uses.
+ * Loaded by inc/static.php when Header -> Menu -> Item Style is "top-bar"
+ * (body.menu-style-top-bar). Same on-demand pattern as header/designs and header/modes.
+ */
+body.menu-style-underline-grow .site-header .primary-menu > .menu-item > a,
+body.menu-style-underline      .site-header .primary-menu > .menu-item > a,
+body.menu-style-bottom-bar     .site-header .primary-menu > .menu-item > a,
+body.menu-style-top-bar        .site-header .primary-menu > .menu-item > a { position: relative; }
+/* Bottom / Top accent bar — a thick rule flush to one edge. */
+body.menu-style-bottom-bar .site-header .primary-menu > .menu-item > a::before,
+body.menu-style-top-bar    .site-header .primary-menu > .menu-item > a::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background-color: var(--menu-link-hover);
+	transform: scaleX(0);
+	transition: transform var(--transition-fast);
+}
+body.menu-style-top-bar    .site-header .primary-menu > .menu-item > a::before { top: 0; }
+body.menu-style-bottom-bar .site-header .primary-menu > .menu-item > a:hover::before,
+body.menu-style-bottom-bar .site-header .primary-menu > .menu-item > a:focus-visible::before,
+body.menu-style-bottom-bar .site-header .primary-menu > .current-menu-item > a::before,
+body.menu-style-bottom-bar .site-header .primary-menu > .current-menu-ancestor > a::before,
+body.menu-style-top-bar .site-header .primary-menu > .menu-item > a:hover::before,
+body.menu-style-top-bar .site-header .primary-menu > .menu-item > a:focus-visible::before,
+body.menu-style-top-bar .site-header .primary-menu > .current-menu-item > a::before,
+body.menu-style-top-bar .site-header .primary-menu > .current-menu-ancestor > a::before { transform: scaleX(1); }

@@ -171,6 +171,70 @@ if ( function_exists( 'unysonplus_header_layout_get' ) ) {
         }
 }
 
+// Menu item style - load ONLY the active hover treatment (Header -> Menu -> Item
+// Style). Fourteen variants used to ship in style.css on every page while exactly
+// one can apply, because each is gated on a body.menu-style-<slug> class. Measured
+// on a real site: 6.1 KB of the 14 was dead weight on every request, and the
+// unused-CSS purger cannot reclaim it - these are :hover rules, which a static scan
+// can never judge, so the safelist deliberately protects them. Splitting at the
+// source is the only thing that removes them. Same on-demand pattern as the header
+// designs and modes above.
+$unysonplus_menu_opts  = function_exists( 'fw_get_db_settings_option' ) ? fw_get_db_settings_option( 'header_menu', array() ) : array();
+$unysonplus_menu_style = ( is_array( $unysonplus_menu_opts ) && ! empty( $unysonplus_menu_opts['menu_item_style'] ) )
+        ? (string) $unysonplus_menu_opts['menu_item_style']
+        : 'none';
+$unysonplus_menu_style = preg_replace( '/[^a-z0-9\-]/', '', strtolower( $unysonplus_menu_style ) );
+// Mirror layout.php's back-compat migration, or the stylesheet and the body class
+// would disagree: the retired "highlight" renders as Marker, and "fade" is no longer
+// a primary style at all (it became the fade-rest modifier).
+if ( 'highlight' === $unysonplus_menu_style ) { $unysonplus_menu_style = 'marker'; }
+if ( 'fade' === $unysonplus_menu_style )      { $unysonplus_menu_style = 'none'; }
+if ( '' !== $unysonplus_menu_style && 'none' !== $unysonplus_menu_style ) {
+        $unysonplus_menu_rel = '/assets/css/header/menu-styles/' . $unysonplus_menu_style . '.css';
+        if ( file_exists( get_template_directory() . $unysonplus_menu_rel ) ) {
+                wp_enqueue_style(
+                        'unysonplus-menu-style-' . $unysonplus_menu_style,
+                        get_template_directory_uri() . $unysonplus_menu_rel,
+                        // After style.css, which still holds the shared menu base.
+                        array( 'parent-style', 'unysonplus-hf-builder' ),
+                        $unysonplus_theme_version,
+                        'all'
+                );
+        }
+}
+
+// Page-conditional parts - CSS that can only ever apply on certain requests, split
+// out of style.css so every other page stops carrying it. Same on-demand pattern as
+// the header designs/modes and the menu item styles above. Measured on a real site,
+// these three were 11.5 KB shipping on every page view.
+//
+// Note the gates are the SAME conditions the markup uses, so the CSS can never be
+// missing where it is needed: the dark palette keys off unysonplus_dark_mode_is_enabled(),
+// which is what both toggle renderers check, and the comment block covers the case of
+// comments being closed on a post that already has some (the list still renders).
+$unysonplus_parts = array();
+if ( is_404() ) {
+        $unysonplus_parts[] = 'error-404';
+}
+if ( is_singular() && ( comments_open() || get_comments_number() > 0 ) ) {
+        $unysonplus_parts[] = 'comments';
+}
+if ( function_exists( 'unysonplus_dark_mode_is_enabled' ) && unysonplus_dark_mode_is_enabled() ) {
+        $unysonplus_parts[] = 'dark-mode';
+}
+foreach ( $unysonplus_parts as $unysonplus_part ) {
+        $unysonplus_part_rel = '/assets/css/parts/' . $unysonplus_part . '.css';
+        if ( file_exists( get_template_directory() . $unysonplus_part_rel ) ) {
+                wp_enqueue_style(
+                        'unysonplus-part-' . $unysonplus_part,
+                        get_template_directory_uri() . $unysonplus_part_rel,
+                        array( 'parent-style' ),
+                        $unysonplus_theme_version,
+                        'all'
+                );
+        }
+}
+
 wp_enqueue_script(
         'unysonplus-header-behaviors',
         get_template_directory_uri() . '/assets/js/header-behaviors.js',

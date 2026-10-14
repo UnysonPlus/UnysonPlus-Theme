@@ -1,0 +1,34 @@
+/* Menu item style: dot
+ * Split out of style.css so a page ships only the hover treatment it uses.
+ * Loaded by inc/static.php when Header -> Menu -> Item Style is "dot"
+ * (body.menu-style-dot). Same on-demand pattern as header/designs and header/modes.
+ */
+/* ============================================================
+   Menu item styles — Base + Modifiers (added set).
+   PRIMARY treatments below are mutually exclusive (one body.menu-style-<slug>).
+   MODIFIERS (body.menu-mod-<slug>) are orthogonal and stack on ANY primary.
+   ============================================================ */
+
+/* Shared positioning context for the ::before / ::after treatments. */
+body.menu-style-gradient-underline .site-header .primary-menu > .menu-item > a,
+body.menu-style-slide-fill         .site-header .primary-menu > .menu-item > a,
+body.menu-style-marker             .site-header .primary-menu > .menu-item > a,
+body.menu-style-dot                .site-header .primary-menu > .menu-item > a { position: relative; }
+/* Dot — a small dot centred beneath the item. */
+body.menu-style-dot .site-header .primary-menu > .menu-item > a::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	bottom: 0.2rem;
+	width: 5px;
+	height: 5px;
+	margin-left: -2.5px;
+	border-radius: 50%;
+	background-color: var(--menu-link-hover);
+	transform: scale(0);
+	transition: transform var(--transition-fast);
+}
+body.menu-style-dot .site-header .primary-menu > .menu-item > a:hover::after,
+body.menu-style-dot .site-header .primary-menu > .menu-item > a:focus-visible::after,
+body.menu-style-dot .site-header .primary-menu > .current-menu-item > a::after,
+body.menu-style-dot .site-header .primary-menu > .current-menu-ancestor > a::after { transform: scale(1); }

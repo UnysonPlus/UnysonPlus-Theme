@@ -1,0 +1,29 @@
+/* Menu item style: sliding
+ * Split out of style.css so a page ships only the hover treatment it uses.
+ * Loaded by inc/static.php when Header -> Menu -> Item Style is "sliding"
+ * (body.menu-style-sliding). Same on-demand pattern as header/designs and header/modes.
+ */
+/* Sliding indicator — a single shared pill that GLIDES between items (premium "magic" nav). JS
+   (navigation.js) inserts a .menu-slider into the menu and positions it under the hovered item,
+   snapping back to the current page at rest. Links sit above the slider. If JS is off, a static
+   fallback fills the current item like the Box style, so the nav never looks broken. */
+body.menu-style-sliding .site-header .primary-menu { position: relative; }
+body.menu-style-sliding .site-header .primary-menu > .menu-item > a { position: relative; z-index: 1; border-radius: var(--radius); }
+body.menu-style-sliding .site-header .primary-menu .menu-slider {
+	position: absolute;
+	z-index: 0;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	border-radius: 999px;
+	/* Based on the hover ACCENT (not the item-hover background, whose faint default is invisible on a
+	   dark header) so the gliding pill reads on any header. Override with --menu-slider-bg if needed. */
+	background-color: var(--menu-slider-bg, color-mix(in srgb, var(--menu-link-hover, #00b295) 20%, transparent));
+	opacity: 0;
+	pointer-events: none;
+	transition: left var(--transition-fast), top var(--transition-fast), width var(--transition-fast), height var(--transition-fast), opacity var(--transition-fast);
+}
+body.menu-style-sliding .site-header .primary-menu.has-slider .menu-slider { opacity: 1; }
+body.menu-style-sliding .site-header .primary-menu:not(.has-slider) > .current-menu-item > a,
+body.menu-style-sliding .site-header .primary-menu:not(.has-slider) > .current-menu-ancestor > a { background-color: var(--menu-item-hover-bg); }

@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.6.47
+Version: 2.6.52
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -142,7 +142,11 @@ a { text-decoration: none; }
 /* Link color for real links only — NOT buttons. A button (.btn) controls its own text color via its
    Button Preset; without this exclusion the global link color bleeds into any preset that doesn't set
    an explicit color (e.g. an outline preset), tinting the label with --color-primary. */
-a:not(.btn) { color: var(--color-primary); }
+/* Specificity is held at (0,0,1) — the same as a bare `a` — via :where(), so ANY classed rule (a
+   shortcode's link, pagination, a card title, a child theme's `.x a`) overrides it with no !important
+   and no specificity race. The old `a:not(.btn)` weighed (0,1,1), and its :hover twin (0,2,1) beat
+   component hovers like `.page-numbers:hover` (0,2,0) on every build. */
+a:where(:not(.btn)) { color: var(--color-primary); }
 /* NO global hover underline — it was over-broad (nav, footer, social, buttons all inherited it).
    CONTENT/prose links get their hover underline from the dedicated Body Link Underline rule below
    (`--body-link-decoration-hover`, Typography → Body Link, default underline); chrome + buttons
@@ -150,7 +154,7 @@ a:not(.btn) { color: var(--color-primary); }
 /* Global link hover: body-link tokens only — NEVER the menu token (--menu-link-hover
    is white on dark-header sites, which made every prose/card link vanish on hover).
    The menu styles its own hover via the scoped .menu rules. */
-a:not(.btn):hover, a:not(.btn):focus-visible { color: var(--body-link-hover, var(--color-primary, #0d6efd)); }
+a:where(:not(.btn):hover, :not(.btn):focus-visible) { color: var(--body-link-hover, var(--color-primary, #0d6efd)); }
 /* Body/content link colors (Typography → Body Link Color). Fall back to the base
    link color so an unset value keeps current behavior.
    Scoped to `:not([class])` so ONLY bare prose links get the body-link color —
@@ -451,13 +455,14 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .post-thumb--ratio-1-1  { aspect-ratio: 1 / 1; }
 .post-thumb--ratio-original img { height: auto; }
 
-.post-entry .entry-meta {
+.post-entry .entry-meta,
+.entry-header > .entry-meta {
 	display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
 	margin: .35rem 0 .5rem; font-size: .8125rem; color: var(--color-muted, #6c757d);
 }
-.post-entry .entry-meta a { color: inherit; }
-.post-entry .entry-meta a:hover { color: var(--color-primary, #0d6efd); }
-.post-entry .entry-meta .meta-sep { opacity: .45; }
+.post-entry .entry-meta a, .entry-header > .entry-meta a { color: inherit; }
+.post-entry .entry-meta a:hover, .entry-header > .entry-meta a:hover { color: var(--color-primary, #0d6efd); }
+.post-entry .entry-meta .meta-sep, .entry-header > .entry-meta .meta-sep { opacity: .45; }
 .post-entry .entry-summary { margin-top: .5rem; }
 .post-entry .read-more { font-weight: 600; white-space: nowrap; }
 
@@ -607,11 +612,24 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .related-post__title { font-size: 1rem; line-height: 1.35; margin: .65rem 0 .25rem; }
 .related-post__date { font-size: .8125rem; color: var(--color-muted, #6c757d); }
 
-.post-navigation { margin: 2.5rem 0; padding-top: 1.5rem; border-top: 1px solid var(--color-border, #e5e5e5); }
-.post-navigation .nav-links { display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
-.post-navigation .nav-next { text-align: right; margin-left: auto; }
-.post-navigation .nav-label { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--color-muted, #6c757d); }
-.post-navigation .nav-title { font-weight: 600; }
+/* Single prev / next: two equal cards side by side (stacked on phones), small muted label
+   with an arrow over the title; the card's border takes the primary colour on hover. */
+.post-navigation { display: block; margin: 2.5rem 0; padding-top: 1.5rem; border-top: 1px solid var(--color-border, #e5e5e5); }
+.post-navigation .nav-links { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.post-navigation .nav-next { grid-column: 2; text-align: right; }
+.post-navigation .nav-links a { display: flex; flex-direction: column; gap: .3rem; height: 100%; padding: 1rem 1.25rem;
+	border: 1px solid var(--color-border, #e5e5e5); border-radius: var(--radius, .5rem); color: var(--color-text); text-decoration: none;
+	transition: border-color .15s ease, box-shadow .15s ease; }
+.post-navigation .nav-links a:hover, .post-navigation .nav-links a:focus-visible { border-color: var(--color-primary); box-shadow: 0 4px 14px rgba(0,0,0,.06); }
+.post-navigation .nav-label { display: block; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--color-muted, #6c757d); }
+.post-navigation .nav-previous .nav-label::before { content: "\2190\00a0"; }
+.post-navigation .nav-next .nav-label::after { content: "\00a0\2192"; }
+.post-navigation .nav-title { font-weight: 600; line-height: 1.35; }
+.post-navigation .nav-links a:hover .nav-title { color: var(--color-primary); }
+@media (max-width: 600px) {
+	.post-navigation .nav-links { grid-template-columns: 1fr; }
+	.post-navigation .nav-next { grid-column: 1; }
+}
 
 /* ---- Related-posts styles (grid / list / carousel) ---------------------- */
 .related-posts--list .related-posts__grid { display: block; }
@@ -1079,271 +1097,6 @@ body.transparent .site-header:not(.is-stuck) .has-transparent-logo .site-logo--t
 	color: var(--menu-link-hover);
 	text-decoration: none;
 }
-
-/* ============================================================
-   Menu item styles (Header → Menu → Menu Item Style)
-   A body.menu-style-<name> class (see unysonplus_layout_body_classes) selects the
-   hover / current-page treatment applied to TOP-LEVEL primary-menu items. The
-   fills (pill / box / highlight) use --menu-item-hover-bg; underline + the bars
-   use --menu-link-hover as the accent. 'none' needs no rule (base color only).
-   ============================================================ */
-
-/* Relative positioning for the ::before treatments (underline-grow + bars). */
-/* Fade — the quietest hover treatment: links rest slightly dimmed and come to full strength on
-   hover/current. Measured on 4 of 180 generated sites, and the one common hover style the nine
-   existing presets could not express (they all change colour, fill or draw a rule). */
-body.menu-style-fade .site-header .primary-menu > .menu-item > a {
-	opacity: var(--menu-fade-rest, .7);
-	transition: opacity .2s ease;
-}
-body.menu-style-fade .site-header .primary-menu > .menu-item > a:hover,
-body.menu-style-fade .site-header .primary-menu > .menu-item > a:focus-visible,
-body.menu-style-fade .site-header .primary-menu > .menu-item.current-menu-item > a {
-	opacity: 1;
-}
-
-body.menu-style-underline-grow .site-header .primary-menu > .menu-item > a,
-body.menu-style-underline      .site-header .primary-menu > .menu-item > a,
-body.menu-style-bottom-bar     .site-header .primary-menu > .menu-item > a,
-body.menu-style-top-bar        .site-header .primary-menu > .menu-item > a { position: relative; }
-
-/* Underline (animated) — a bar grows in from the center. */
-/* The rule's clearance is measured from the TEXT, not from the link box.
-   Both underline styles offset the bar `0.25rem` up from the box's bottom edge, which only reads as a gap
-   while the link has vertical padding to sit in. The Menu Link Padding Y is an option and is legitimately 0
-   (a source whose nav links carry no vertical padding converts to exactly that) — and at 0 the box hugs the
-   text, so measuring up from its bottom put the rule INSIDE the text: measured, the rule's top sat 3px above
-   the text's bottom edge, overlapping the glyph box, against a source that clears its text by 5px.
-   Reserve the space the rule needs (gap + rule) and pin it to the bottom of that reserve, so the clearance is
-   the same whatever the padding is set to. At the 0.5rem default this widens the gap from 2px to 4px. */
-body.menu-style-underline-grow .site-header .primary-menu > .menu-item > a,
-body.menu-style-underline      .site-header .primary-menu > .menu-item > a {
-	padding-bottom: max(var(--menu-link-pad-y), 0.375rem);
-}
-body.menu-style-underline-grow .site-header .primary-menu > .menu-item > a::before {
-	content: "";
-	position: absolute;
-	left: var(--menu-link-pad-x);
-	right: var(--menu-link-pad-x);
-	bottom: calc(max(var(--menu-link-pad-y), 0.375rem) - 0.375rem);
-	height: 2px;
-	background-color: var(--menu-link-hover);
-	transform: scaleX(0);
-	transform-origin: center;
-	transition: transform var(--transition-fast);
-}
-body.menu-style-underline-grow .site-header .primary-menu > .menu-item > a:hover::before,
-body.menu-style-underline-grow .site-header .primary-menu > .menu-item > a:focus-visible::before,
-body.menu-style-underline-grow .site-header .primary-menu > .current-menu-item > a::before,
-body.menu-style-underline-grow .site-header .primary-menu > .current-menu-ancestor > a::before { transform: scaleX(1); }
-
-/* Underline (static) — a simple rule appears on hover / current.
-   Drawn as a BAR, not an inset box-shadow. An inset shadow is clipped to the element's corner radius, and
-   `.primary-menu .menu-item > a` carries `border-radius: var(--radius)` for the Pill / Box styles — so on any
-   site whose roundness is not zero the underline's ends curved inwards (measured: an 8px radius bowed a 2px
-   rule visibly at both ends, against a source drawing a straight `border-bottom`). A rule is straight; the
-   radius belongs to the fills, not to this. */
-body.menu-style-underline .site-header .primary-menu > .menu-item > a::after {
-	content: "";
-	position: absolute;
-	left: var(--menu-link-pad-x);
-	right: var(--menu-link-pad-x);
-	bottom: calc(max(var(--menu-link-pad-y), 0.375rem) - 0.375rem);
-	height: 2px;
-	background-color: var(--menu-link-hover);
-	opacity: 0;
-	transition: opacity var(--transition-fast);
-}
-body.menu-style-underline .site-header .primary-menu > .menu-item > a:hover::after,
-body.menu-style-underline .site-header .primary-menu > .menu-item > a:focus-visible::after,
-body.menu-style-underline .site-header .primary-menu > .current-menu-item > a::after,
-body.menu-style-underline .site-header .primary-menu > .current-menu-ancestor > a::after { opacity: 1; }
-
-/* Pill / Box / Highlight — filled background from --menu-item-hover-bg. */
-body.menu-style-pill .site-header .primary-menu > .menu-item > a { border-radius: 999px; }
-body.menu-style-pill      .site-header .primary-menu > .menu-item > a:hover,
-body.menu-style-pill      .site-header .primary-menu > .menu-item > a:focus-visible,
-body.menu-style-pill      .site-header .primary-menu > .current-menu-item > a,
-body.menu-style-pill      .site-header .primary-menu > .current-menu-ancestor > a,
-body.menu-style-box       .site-header .primary-menu > .menu-item > a:hover,
-body.menu-style-box       .site-header .primary-menu > .menu-item > a:focus-visible,
-body.menu-style-box       .site-header .primary-menu > .current-menu-item > a,
-body.menu-style-box       .site-header .primary-menu > .current-menu-ancestor > a,
-body.menu-style-highlight .site-header .primary-menu > .menu-item > a:hover,
-body.menu-style-highlight .site-header .primary-menu > .menu-item > a:focus-visible,
-body.menu-style-highlight .site-header .primary-menu > .current-menu-item > a,
-body.menu-style-highlight .site-header .primary-menu > .current-menu-ancestor > a {
-	background-color: var(--menu-item-hover-bg);
-}
-
-/* On the FILLED menu styles the link text flips to the contrast colour on hover /
-   current, but the sub-label carries its own muted resting colour and so looks like
-   it "didn't change" (and reads low-contrast on the filled background). Make it
-   follow the link colour like the main label. Higher specificity than the header
-   preset's generated sub-label colour rules, so it wins on hover / current. */
-body.menu-style-pill      .site-header .primary-menu > .menu-item > a:hover .menu-sublabel,
-body.menu-style-pill      .site-header .primary-menu > .menu-item > a:focus-visible .menu-sublabel,
-body.menu-style-pill      .site-header .primary-menu > .current-menu-item > a .menu-sublabel,
-body.menu-style-pill      .site-header .primary-menu > .current-menu-ancestor > a .menu-sublabel,
-body.menu-style-box       .site-header .primary-menu > .menu-item > a:hover .menu-sublabel,
-body.menu-style-box       .site-header .primary-menu > .menu-item > a:focus-visible .menu-sublabel,
-body.menu-style-box       .site-header .primary-menu > .current-menu-item > a .menu-sublabel,
-body.menu-style-box       .site-header .primary-menu > .current-menu-ancestor > a .menu-sublabel,
-body.menu-style-highlight .site-header .primary-menu > .menu-item > a:hover .menu-sublabel,
-body.menu-style-highlight .site-header .primary-menu > .menu-item > a:focus-visible .menu-sublabel,
-body.menu-style-highlight .site-header .primary-menu > .current-menu-item > a .menu-sublabel,
-body.menu-style-highlight .site-header .primary-menu > .current-menu-ancestor > a .menu-sublabel {
-	color: inherit;
-	opacity: .82;
-}
-
-/* Outline — a bordered box on hover / current. */
-body.menu-style-outline .site-header .primary-menu > .menu-item > a { border: 1px solid transparent; }
-body.menu-style-outline .site-header .primary-menu > .menu-item > a:hover,
-body.menu-style-outline .site-header .primary-menu > .menu-item > a:focus-visible,
-body.menu-style-outline .site-header .primary-menu > .current-menu-item > a,
-body.menu-style-outline .site-header .primary-menu > .current-menu-ancestor > a {
-	border-color: var(--menu-link-hover);
-	background-color: transparent;
-}
-
-/* Bottom / Top accent bar — a thick rule flush to one edge. */
-body.menu-style-bottom-bar .site-header .primary-menu > .menu-item > a::before,
-body.menu-style-top-bar    .site-header .primary-menu > .menu-item > a::before {
-	content: "";
-	position: absolute;
-	left: 0;
-	right: 0;
-	height: 3px;
-	background-color: var(--menu-link-hover);
-	transform: scaleX(0);
-	transition: transform var(--transition-fast);
-}
-body.menu-style-bottom-bar .site-header .primary-menu > .menu-item > a::before { bottom: 0; }
-body.menu-style-top-bar    .site-header .primary-menu > .menu-item > a::before { top: 0; }
-body.menu-style-bottom-bar .site-header .primary-menu > .menu-item > a:hover::before,
-body.menu-style-bottom-bar .site-header .primary-menu > .menu-item > a:focus-visible::before,
-body.menu-style-bottom-bar .site-header .primary-menu > .current-menu-item > a::before,
-body.menu-style-bottom-bar .site-header .primary-menu > .current-menu-ancestor > a::before,
-body.menu-style-top-bar .site-header .primary-menu > .menu-item > a:hover::before,
-body.menu-style-top-bar .site-header .primary-menu > .menu-item > a:focus-visible::before,
-body.menu-style-top-bar .site-header .primary-menu > .current-menu-item > a::before,
-body.menu-style-top-bar .site-header .primary-menu > .current-menu-ancestor > a::before { transform: scaleX(1); }
-
-/* ============================================================
-   Menu item styles — Base + Modifiers (added set).
-   PRIMARY treatments below are mutually exclusive (one body.menu-style-<slug>).
-   MODIFIERS (body.menu-mod-<slug>) are orthogonal and stack on ANY primary.
-   ============================================================ */
-
-/* Shared positioning context for the ::before / ::after treatments. */
-body.menu-style-gradient-underline .site-header .primary-menu > .menu-item > a,
-body.menu-style-slide-fill         .site-header .primary-menu > .menu-item > a,
-body.menu-style-marker             .site-header .primary-menu > .menu-item > a,
-body.menu-style-dot                .site-header .primary-menu > .menu-item > a { position: relative; }
-
-/* Gradient underline — a static rule drawn as a two-tone gradient (2nd colour --menu-link-hover-2,
-   falls back to the single hover colour so it still shows without a second colour set). */
-body.menu-style-gradient-underline .site-header .primary-menu > .menu-item > a::after {
-	content: "";
-	position: absolute;
-	left: var(--menu-link-pad-x);
-	right: var(--menu-link-pad-x);
-	bottom: 0.25rem;
-	height: 2px;
-	border-radius: 1px;
-	background: linear-gradient(90deg, var(--menu-link-hover), var(--menu-link-hover-2, color-mix(in srgb, var(--menu-link-hover) 45%, #ffffff)));
-	opacity: 0;
-	transition: opacity var(--transition-fast);
-}
-body.menu-style-gradient-underline .site-header .primary-menu > .menu-item > a:hover::after,
-body.menu-style-gradient-underline .site-header .primary-menu > .menu-item > a:focus-visible::after,
-body.menu-style-gradient-underline .site-header .primary-menu > .current-menu-item > a::after,
-body.menu-style-gradient-underline .site-header .primary-menu > .current-menu-ancestor > a::after { opacity: 1; }
-
-/* Slide-fill — the filled background wipes in from the left (distinct from the fade-in Pill / Box). */
-body.menu-style-slide-fill .site-header .primary-menu > .menu-item > a { z-index: 0; overflow: hidden; border-radius: var(--radius); }
-body.menu-style-slide-fill .site-header .primary-menu > .menu-item > a::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	z-index: -1;
-	background-color: var(--menu-item-hover-bg);
-	transform: scaleX(0);
-	transform-origin: left center;
-	transition: transform var(--transition-fast);
-}
-body.menu-style-slide-fill .site-header .primary-menu > .menu-item > a:hover::before,
-body.menu-style-slide-fill .site-header .primary-menu > .menu-item > a:focus-visible::before,
-body.menu-style-slide-fill .site-header .primary-menu > .current-menu-item > a::before,
-body.menu-style-slide-fill .site-header .primary-menu > .current-menu-ancestor > a::before { transform: scaleX(1); }
-
-/* Marker — an angled, semi-transparent felt-tip swipe behind the lower half of the text
-   (this is what the old "Highlight" should have been — a real marker, not a soft box). */
-body.menu-style-marker .site-header .primary-menu > .menu-item > a { z-index: 0; }
-body.menu-style-marker .site-header .primary-menu > .menu-item > a::before {
-	content: "";
-	position: absolute;
-	left: calc(var(--menu-link-pad-x) - 3px);
-	right: calc(var(--menu-link-pad-x) - 3px);
-	bottom: 0.35rem;
-	height: 0.72em;
-	z-index: -1;
-	background-color: var(--menu-link-hover);
-	border-radius: 2px;
-	opacity: 0;
-	transform: skewX(-11deg) scaleX(0.55);
-	transform-origin: left center;
-	transition: opacity var(--transition-fast), transform var(--transition-fast);
-}
-body.menu-style-marker .site-header .primary-menu > .menu-item > a:hover::before,
-body.menu-style-marker .site-header .primary-menu > .menu-item > a:focus-visible::before,
-body.menu-style-marker .site-header .primary-menu > .current-menu-item > a::before,
-body.menu-style-marker .site-header .primary-menu > .current-menu-ancestor > a::before { opacity: 0.28; transform: skewX(-11deg) scaleX(1); }
-
-/* Dot — a small dot centred beneath the item. */
-body.menu-style-dot .site-header .primary-menu > .menu-item > a::after {
-	content: "";
-	position: absolute;
-	left: 50%;
-	bottom: 0.2rem;
-	width: 5px;
-	height: 5px;
-	margin-left: -2.5px;
-	border-radius: 50%;
-	background-color: var(--menu-link-hover);
-	transform: scale(0);
-	transition: transform var(--transition-fast);
-}
-body.menu-style-dot .site-header .primary-menu > .menu-item > a:hover::after,
-body.menu-style-dot .site-header .primary-menu > .menu-item > a:focus-visible::after,
-body.menu-style-dot .site-header .primary-menu > .current-menu-item > a::after,
-body.menu-style-dot .site-header .primary-menu > .current-menu-ancestor > a::after { transform: scale(1); }
-
-/* Sliding indicator — a single shared pill that GLIDES between items (premium "magic" nav). JS
-   (navigation.js) inserts a .menu-slider into the menu and positions it under the hovered item,
-   snapping back to the current page at rest. Links sit above the slider. If JS is off, a static
-   fallback fills the current item like the Box style, so the nav never looks broken. */
-body.menu-style-sliding .site-header .primary-menu { position: relative; }
-body.menu-style-sliding .site-header .primary-menu > .menu-item > a { position: relative; z-index: 1; border-radius: var(--radius); }
-body.menu-style-sliding .site-header .primary-menu .menu-slider {
-	position: absolute;
-	z-index: 0;
-	top: 0;
-	left: 0;
-	width: 0;
-	height: 0;
-	border-radius: 999px;
-	/* Based on the hover ACCENT (not the item-hover background, whose faint default is invisible on a
-	   dark header) so the gliding pill reads on any header. Override with --menu-slider-bg if needed. */
-	background-color: var(--menu-slider-bg, color-mix(in srgb, var(--menu-link-hover, #00b295) 20%, transparent));
-	opacity: 0;
-	pointer-events: none;
-	transition: left var(--transition-fast), top var(--transition-fast), width var(--transition-fast), height var(--transition-fast), opacity var(--transition-fast);
-}
-body.menu-style-sliding .site-header .primary-menu.has-slider .menu-slider { opacity: 1; }
-body.menu-style-sliding .site-header .primary-menu:not(.has-slider) > .current-menu-item > a,
-body.menu-style-sliding .site-header .primary-menu:not(.has-slider) > .current-menu-ancestor > a { background-color: var(--menu-item-hover-bg); }
 
 /* ---- Modifiers (stack on any primary) ---- */
 
@@ -2060,16 +1813,14 @@ img.entry-title__icon { width: auto; height: 0.9em; vertical-align: -0.08em; }
 
 /* --- Pagination --- */
 .pagination,
-.posts-navigation,
-.post-navigation {
+.posts-navigation {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem;
 	margin: 2rem 0;
 }
 .page-numbers,
-.posts-navigation .nav-links a,
-.post-navigation .nav-links a {
+.posts-navigation .nav-links a {
 	display: inline-flex;
 	align-items: center;
 	padding: 0.5rem 0.875rem;
@@ -2085,144 +1836,8 @@ img.entry-title__icon { width: auto; height: 0.9em; vertical-align: -0.08em; }
 	border-color: var(--color-primary);
 }
 
-/* --- Comments
-   Designed against WordPress's default Walker_Comment markup
-   (style=ul, short_ping=true). Author + metadata flow as one row;
-   content sits below. Nested replies indent + add a left rail.
-   --- */
-.comments-area {
-	margin-top: 3rem;
-	padding-top: 2rem;
-	border-top: 1px solid var(--color-border);
-}
-.comments-title {
-	font-size: 1.5rem;
-	font-weight: 700;
-	margin: 0 0 1.5rem;
-}
-.comment-list {
-	list-style: none;
-	padding: 0;
-	margin: 0 0 2rem;
-}
-.comment-list .comment {
-	padding: 1.5rem 0;
-	border-bottom: 1px solid var(--color-border);
-}
-.comment-list .comment:first-child { padding-top: 0; }
-.comment-list .comment:last-child  { padding-bottom: 0; border-bottom: 0; }
-.comment-list .children {
-	list-style: none;
-	padding-left: 1.5rem;
-	margin-top: 1.5rem;
-	border-left: 2px solid var(--color-border);
-}
-.comment-list .children .comment:first-child { padding-top: 0; }
-
-/* Article wrapper (no grid — natural flow) */
-.comment-body { display: block; }
-
-/* Meta row: avatar + author + says + permalink date + edit-link, all inline */
-.comment-meta {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0.5rem 0.625rem;
-	margin-bottom: 0.875rem;
-	font-size: 0.875rem;
-	line-height: 1.4;
-}
-.comment-author {
-	display: flex;
-	align-items: center;
-	gap: 0.625rem;
-	min-width: 0;
-}
-.comment-author .avatar {
-	border-radius: 50%;
-	flex-shrink: 0;
-}
-.comment-author .fn,
-.comment-author b {
-	font-weight: 600;
-	color: var(--color-text);
-	font-style: normal;
-}
-.comment-author .fn a,
-.comment-author b a {
-	color: inherit;
-	text-decoration: none;
-}
-.comment-author .fn a:hover { color: var(--color-primary); }
-.comment-author .says {
-	color: var(--color-muted);
-}
-.comment-metadata {
-	color: var(--color-muted);
-	font-size: 0.8125rem;
-	display: inline-flex;
-	gap: 0.5rem;
-	align-items: center;
-}
-.comment-metadata a {
-	color: inherit;
-	text-decoration: none;
-}
-.comment-metadata a:hover { color: var(--color-text); }
-.comment-metadata .edit-link::before { content: "·"; margin-right: 0.5rem; opacity: 0.6; }
-
-/* Awaiting moderation badge */
-.comment-awaiting-moderation {
-	display: inline-block;
-	background-color: rgba(255, 193, 7, 0.15);
-	color: #856404;
-	padding: 0.125rem 0.5rem;
-	border-radius: var(--radius);
-	font-size: 0.75rem;
-	margin-bottom: 0.5rem;
-}
-
-/* Body */
-.comment-content {
-	color: var(--color-text);
-}
-.comment-content > * + * { margin-top: 0.75rem; }
-.comment-content p { margin: 0 0 0.75rem; }
-.comment-content p:last-child { margin-bottom: 0; }
-
 /* Reply link — small pill button */
 .reply { margin-top: 0.875rem; }
-.comment-reply-link {
-	display: inline-block;
-	padding: 0.25rem 0.75rem;
-	background-color: transparent;
-	color: var(--color-primary);
-	border: 1px solid var(--color-border);
-	border-radius: var(--radius);
-	font-size: 0.8125rem;
-	font-weight: 500;
-	text-decoration: none;
-	transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
-}
-.comment-reply-link:hover,
-.comment-reply-link:focus-visible {
-	background-color: var(--color-primary);
-	color: #fff;
-	border-color: var(--color-primary);
-	text-decoration: none;
-}
-
-/* Comment navigation (older/newer) */
-.comment-navigation,
-.navigation.comment-navigation {
-	margin: 1.5rem 0;
-	font-size: 0.875rem;
-}
-.comment-navigation .nav-links {
-	display: flex;
-	justify-content: space-between;
-	gap: 1rem;
-}
 
 /* "Comments are closed" notice */
 .no-comments {
@@ -2230,217 +1845,6 @@ img.entry-title__icon { width: auto; height: 0.9em; vertical-align: -0.08em; }
 	font-style: italic;
 	padding: 1rem 0;
 }
-
-/* ---- Comment form ---- */
-#respond {
-	margin-top: 2rem;
-	padding-top: 2rem;
-	border-top: 1px solid var(--color-border);
-}
-#reply-title,
-.comment-reply-title {
-	font-size: 1.25rem;
-	font-weight: 700;
-	margin: 0 0 0.5rem;
-}
-.comment-reply-title small {
-	font-size: 0.8125rem;
-	font-weight: 400;
-	margin-left: 0.75rem;
-}
-.comment-reply-title small a { color: var(--color-muted); }
-
-#commentform { margin-top: 1rem; }
-#commentform p { margin: 0 0 1rem; }
-#commentform label {
-	display: block;
-	font-weight: 500;
-	font-size: 0.875rem;
-	margin-bottom: 0.375rem;
-	color: var(--color-text);
-}
-#commentform input[type="text"],
-#commentform input[type="email"],
-#commentform input[type="url"],
-#commentform textarea {
-	width: 100%;
-	padding: 0.625rem 0.875rem;
-	background-color: var(--color-bg);
-	color: var(--color-text);
-	border: 1px solid var(--color-border);
-	border-radius: var(--radius);
-	font-family: inherit;
-	font-size: 0.9375rem;
-	line-height: 1.5;
-	transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-#commentform input[type="text"]:focus,
-#commentform input[type="email"]:focus,
-#commentform input[type="url"]:focus,
-#commentform textarea:focus {
-	outline: none;
-	border-color: var(--color-primary);
-	box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
-}
-#commentform textarea {
-	min-height: 140px;
-	resize: vertical;
-}
-#commentform .form-submit { margin-top: 1.25rem; margin-bottom: 0; }
-#commentform input[type="submit"],
-.form-submit input[type="submit"] {
-	background-color: var(--color-primary);
-	color: #fff;
-	border: 0;
-	padding: 0.625rem 1.5rem;
-	border-radius: var(--radius);
-	cursor: pointer;
-	font-weight: 600;
-	font-size: 0.9375rem;
-	transition: background-color var(--transition-fast), transform var(--transition-fast);
-}
-#commentform input[type="submit"]:hover,
-.form-submit input[type="submit"]:hover {
-	/* Stay in the button's own color family — NEVER the menu token (white on
-	   dark-header sites = invisible button). Brightness gives the hover cue
-	   for any brand color. */
-	background-color: var(--color-primary, #0d6efd);
-	filter: brightness(0.9);
-	transform: translateY(-1px);
-}
-#commentform .comment-notes,
-#commentform .logged-in-as,
-.form-allowed-tags {
-	font-size: 0.8125rem;
-	color: var(--color-muted);
-}
-.form-allowed-tags code {
-	background-color: rgba(127, 127, 127, 0.12);
-	padding: 0.125rem 0.375rem;
-	border-radius: 0.125rem;
-	font-size: 0.8125rem;
-	word-break: break-word;
-}
-#cancel-comment-reply-link {
-	display: inline-block;
-	margin-left: 0.75rem;
-	font-size: 0.8125rem;
-	color: var(--color-muted);
-}
-
-/* --- 404 / not-found -----------------------------------------------------
-   Token-driven so it inherits whatever child theme / dark mode is active.
-   <main.error-404-page> is the .site-content flex-grow region, so the state
-   centres vertically between the header and footer. */
-.error-404-page { display: flex; flex-direction: column; }
-.error-404 {
-	flex: 1 0 auto;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
-	padding-block: clamp(3rem, 8vw, 6rem);
-	padding-inline: 1.25rem;
-}
-.error-404__inner { max-width: 40rem; width: 100%; }
-.error-404__code {
-	font-family: var(--h1-font-family, var(--font-heading, inherit));
-	font-weight: 800;
-	line-height: 1;
-	font-size: clamp(5rem, 18vw, 9rem);
-	letter-spacing: -0.04em;
-	color: var(--color-primary, #0d6efd);
-	margin: 0 0 0.5rem;
-}
-.error-404__title {
-	font-size: clamp(1.5rem, 4vw, 2.25rem);
-	line-height: 1.15;
-	margin: 0 0 0.75rem;
-	color: var(--color-text, #212529);
-	text-wrap: balance;
-}
-.error-404__text {
-	font-size: 1.0625rem;
-	line-height: 1.6;
-	color: var(--color-muted, #6c757d);
-	margin: 0 auto 2rem;
-	max-width: 34rem;
-	text-wrap: pretty;
-}
-/* The message is editor content (may hold paragraphs, links, images). */
-.error-404__text > :first-child { margin-top: 0; }
-.error-404__text > :last-child { margin-bottom: 0; }
-.error-404__text p { margin: 0 0 0.75rem; }
-.error-404__text a { color: var(--color-primary, #0d6efd); text-decoration: underline; }
-.error-404__text img {
-	display: block;
-	max-width: 100%;
-	height: auto;
-	margin: 1.25rem auto;
-	border-radius: var(--radius, 0.25rem);
-}
-.error-404__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
-.error-404__btn {
-	display: inline-flex; align-items: center; justify-content: center;
-	padding: 0.75rem 1.5rem;
-	border-radius: var(--radius, 0.25rem);
-	font-weight: 600; font-size: 1rem; line-height: 1;
-	text-decoration: none;
-	transition: transform var(--transition-fast, 0.15s) var(--ease-out, ease),
-	            box-shadow var(--transition-fast, 0.15s) var(--ease-out, ease);
-}
-/* `.error-404 .` prefix keeps the label white against the primary fill — it must
-   outrank the theme's `a:not(.btn) { color: var(--color-primary) }` link rule (0,1,1). */
-.error-404 .error-404__btn--primary {
-	background: var(--color-primary, #0d6efd);
-	color: #fff;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-}
-.error-404 .error-404__btn--primary:hover,
-.error-404 .error-404__btn--primary:focus-visible {
-	transform: translateY(-1px);
-	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
-	color: #fff;
-}
-.error-404__search { margin: 1.75rem auto 0; max-width: 26rem; }
-.error-404__search-form { display: flex; gap: 0.5rem; }
-.error-404__search-input {
-	flex: 1 1 auto; min-width: 0;
-	padding: 0.65rem 0.9rem;
-	border: 1px solid var(--color-border, rgba(0, 0, 0, 0.1));
-	border-radius: var(--radius, 0.25rem);
-	background: var(--color-bg, #fff);
-	color: var(--color-text, #212529);
-	font-size: 1rem;
-}
-.error-404__search-input:focus-visible {
-	outline: 2px solid var(--color-primary, #0d6efd); outline-offset: 1px;
-}
-/* Filled with the brand primary + white — a guaranteed-contrast pair, unlike the
-   body text/bg tokens which a child theme may set to a low-contrast combination.
-   `.error-404 .` prefix keeps it winning the cascade. */
-.error-404 .error-404__search-submit {
-	flex: 0 0 auto;
-	display: inline-flex; align-items: center; gap: 0.4rem;
-	padding: 0.65rem 1.1rem;
-	border: 0; border-radius: var(--radius, 0.25rem);
-	background: var(--color-primary, #0d6efd); color: #fff;
-	font-weight: 600; font-size: 1rem; line-height: 1; cursor: pointer;
-	transition: opacity var(--transition-fast, 0.15s) var(--ease-out, ease);
-}
-.error-404 .error-404__search-submit:hover { opacity: 0.9; }
-.error-404__search-submit svg { width: 1em; height: 1em; flex: 0 0 auto; }
-.error-404__recent { margin-top: 2.5rem; }
-.error-404__recent-label {
-	font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
-	color: var(--color-muted, #6c757d); margin: 0 0 0.75rem;
-}
-.error-404__recent-list {
-	list-style: none; margin: 0; padding: 0;
-	display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; justify-content: center;
-}
-.error-404__recent-list a { color: var(--color-primary, #0d6efd); text-decoration: none; font-weight: 500; }
-.error-404__recent-list a:hover { text-decoration: underline; }
 
 @media (prefers-reduced-motion: reduce) {
 	.error-404__btn { transition: none; }
@@ -2556,45 +1960,6 @@ img.entry-title__icon { width: auto; height: 0.9em; vertical-align: -0.08em; }
 	background-color: rgba(255, 255, 255, 0.08);
 }
 .footer-back-to-top svg { display: block; width: 1em; height: 1em; }
-
-/* ========================================================================
-   8b. DARK MODE
-   Bootstrap 5.3 ships its own [data-bs-theme="dark"] palette for forms,
-   buttons, dropdowns, alerts, etc. — those swap automatically when the
-   attribute is set on <html>. This block re-binds our custom CSS
-   properties to a coordinated dark palette under the same selector.
-   ======================================================================== */
-:root[data-bs-theme="dark"] {
-	--color-bg:           #1a1a1a;
-	--color-text:         #e9ecef;
-	--color-muted:        #adb5bd;
-	--color-border:       rgba(255, 255, 255, 0.12);
-
-	--header-bg:          transparent; /* unset = no fill (shows the dark page behind); a set colour overrides */
-	--header-sticky-bg:   rgba(33, 37, 41, 0.95);
-	--header-shadow:      0 2px 8px rgba(0, 0, 0, 0.4);
-
-	--topbar-bg:          #0d0e10;
-	--topbar-color:       #e9ecef;
-
-	--footer-bg:          #0d0e10;
-	--footer-color:       #adb5bd;
-	--footer-link-color:  #f0f0f0;
-
-	--menu-link-color:    #e9ecef;
-	--menu-link-hover:    #ffc107;
-	--menu-dropdown-bg:   #2b2f33;
-	--menu-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-
-	--drawer-bg:          #1a1a1a;
-	--drawer-color:       #f1f1f1;
-	--scrim-bg:           rgba(0, 0, 0, 0.7);
-
-	/* Site container backgrounds (introduced in Phase 2; must flip in dark mode
-	   or body keeps its light bg even after JS sets data-bs-theme="dark"). */
-	--site-bg-color:      #0d0e10;
-	--preloader-bg:       #ffffff;
-}
 
 /* --- Floating theme-mode toggle --- */
 .theme-toggle {
@@ -2722,7 +2087,6 @@ body.unyson.page-builder .entry-content { margin-bottom: 0; }
 .pagination,
 .posts-navigation,
 .post-navigation    { margin: calc(2rem * var(--section-spacing-scale)) 0; }
-.comments-area      { margin-top: calc(2rem * var(--section-spacing-scale)); }
 /* Footer vertical padding — on the inner .footer__body (pre/main/post) so it stays
    ABOVE the copyright bar; the copyright sits flush. See footer-builder.php. */
 /* NOT multiplied by --section-spacing-scale. That scale is a coarse density PRESET meant to nudge
@@ -2966,7 +2330,6 @@ body.sidebar-left .with-sidebar.has-sidebar > .sidebar { order: -1; }
 	border-bottom: 1px solid var(--color-border);
 }
 .sidebar .widget ul li:last-child { border-bottom: 0; }
-
 
 /* ========================================================================
    14. ALTERNATE HEADER LAYOUTS — moved to per-mode stylesheets

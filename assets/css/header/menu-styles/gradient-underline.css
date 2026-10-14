@@ -1,0 +1,34 @@
+/* Menu item style: gradient-underline
+ * Split out of style.css so a page ships only the hover treatment it uses.
+ * Loaded by inc/static.php when Header -> Menu -> Item Style is "gradient-underline"
+ * (body.menu-style-gradient-underline). Same on-demand pattern as header/designs and header/modes.
+ */
+/* ============================================================
+   Menu item styles — Base + Modifiers (added set).
+   PRIMARY treatments below are mutually exclusive (one body.menu-style-<slug>).
+   MODIFIERS (body.menu-mod-<slug>) are orthogonal and stack on ANY primary.
+   ============================================================ */
+
+/* Shared positioning context for the ::before / ::after treatments. */
+body.menu-style-gradient-underline .site-header .primary-menu > .menu-item > a,
+body.menu-style-slide-fill         .site-header .primary-menu > .menu-item > a,
+body.menu-style-marker             .site-header .primary-menu > .menu-item > a,
+body.menu-style-dot                .site-header .primary-menu > .menu-item > a { position: relative; }
+/* Gradient underline — a static rule drawn as a two-tone gradient (2nd colour --menu-link-hover-2,
+   falls back to the single hover colour so it still shows without a second colour set). */
+body.menu-style-gradient-underline .site-header .primary-menu > .menu-item > a::after {
+	content: "";
+	position: absolute;
+	left: var(--menu-link-pad-x);
+	right: var(--menu-link-pad-x);
+	bottom: 0.25rem;
+	height: 2px;
+	border-radius: 1px;
+	background: linear-gradient(90deg, var(--menu-link-hover), var(--menu-link-hover-2, color-mix(in srgb, var(--menu-link-hover) 45%, #ffffff)));
+	opacity: 0;
+	transition: opacity var(--transition-fast);
+}
+body.menu-style-gradient-underline .site-header .primary-menu > .menu-item > a:hover::after,
+body.menu-style-gradient-underline .site-header .primary-menu > .menu-item > a:focus-visible::after,
+body.menu-style-gradient-underline .site-header .primary-menu > .current-menu-item > a::after,
+body.menu-style-gradient-underline .site-header .primary-menu > .current-menu-ancestor > a::after { opacity: 1; }

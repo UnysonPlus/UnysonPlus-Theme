@@ -1,0 +1,39 @@
+/* Menu item style: highlight
+ * Split out of style.css so a page ships only the hover treatment it uses.
+ * Loaded by inc/static.php when Header -> Menu -> Item Style is "highlight"
+ * (body.menu-style-highlight). Same on-demand pattern as header/designs and header/modes.
+ */
+body.menu-style-pill      .site-header .primary-menu > .menu-item > a:hover,
+body.menu-style-pill      .site-header .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-pill      .site-header .primary-menu > .current-menu-item > a,
+body.menu-style-pill      .site-header .primary-menu > .current-menu-ancestor > a,
+body.menu-style-box       .site-header .primary-menu > .menu-item > a:hover,
+body.menu-style-box       .site-header .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-box       .site-header .primary-menu > .current-menu-item > a,
+body.menu-style-box       .site-header .primary-menu > .current-menu-ancestor > a,
+body.menu-style-highlight .site-header .primary-menu > .menu-item > a:hover,
+body.menu-style-highlight .site-header .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-highlight .site-header .primary-menu > .current-menu-item > a,
+body.menu-style-highlight .site-header .primary-menu > .current-menu-ancestor > a {
+	background-color: var(--menu-item-hover-bg);
+}
+/* On the FILLED menu styles the link text flips to the contrast colour on hover /
+   current, but the sub-label carries its own muted resting colour and so looks like
+   it "didn't change" (and reads low-contrast on the filled background). Make it
+   follow the link colour like the main label. Higher specificity than the header
+   preset's generated sub-label colour rules, so it wins on hover / current. */
+body.menu-style-pill      .site-header .primary-menu > .menu-item > a:hover .menu-sublabel,
+body.menu-style-pill      .site-header .primary-menu > .menu-item > a:focus-visible .menu-sublabel,
+body.menu-style-pill      .site-header .primary-menu > .current-menu-item > a .menu-sublabel,
+body.menu-style-pill      .site-header .primary-menu > .current-menu-ancestor > a .menu-sublabel,
+body.menu-style-box       .site-header .primary-menu > .menu-item > a:hover .menu-sublabel,
+body.menu-style-box       .site-header .primary-menu > .menu-item > a:focus-visible .menu-sublabel,
+body.menu-style-box       .site-header .primary-menu > .current-menu-item > a .menu-sublabel,
+body.menu-style-box       .site-header .primary-menu > .current-menu-ancestor > a .menu-sublabel,
+body.menu-style-highlight .site-header .primary-menu > .menu-item > a:hover .menu-sublabel,
+body.menu-style-highlight .site-header .primary-menu > .menu-item > a:focus-visible .menu-sublabel,
+body.menu-style-highlight .site-header .primary-menu > .current-menu-item > a .menu-sublabel,
+body.menu-style-highlight .site-header .primary-menu > .current-menu-ancestor > a .menu-sublabel {
+	color: inherit;
+	opacity: .82;
+}

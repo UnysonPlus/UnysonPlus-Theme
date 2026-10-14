@@ -1,0 +1,14 @@
+/* Menu item style: outline
+ * Split out of style.css so a page ships only the hover treatment it uses.
+ * Loaded by inc/static.php when Header -> Menu -> Item Style is "outline"
+ * (body.menu-style-outline). Same on-demand pattern as header/designs and header/modes.
+ */
+/* Outline — a bordered box on hover / current. */
+body.menu-style-outline .site-header .primary-menu > .menu-item > a { border: 1px solid transparent; }
+body.menu-style-outline .site-header .primary-menu > .menu-item > a:hover,
+body.menu-style-outline .site-header .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-outline .site-header .primary-menu > .current-menu-item > a,
+body.menu-style-outline .site-header .primary-menu > .current-menu-ancestor > a {
+	border-color: var(--menu-link-hover);
+	background-color: transparent;
+}

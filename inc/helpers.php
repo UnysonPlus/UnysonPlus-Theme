@@ -651,55 +651,22 @@ function unysonplus_post_nav() {
         return;
     }
 
-    $previous = is_attachment() ? get_post( get_post()->post_parent ) : get_adjacent_post( false, '', true );
-    $next     = get_adjacent_post( false, '', false );
-
-    if ( ! $previous && ! $next ) {
+    // Blog posts get their prev / next from the Single Post settings (blog.php).
+    if ( 'post' === get_post_type() ) {
         return;
     }
 
     $post_type_obj = get_post_type_object( get_post_type() );
     $post_type     = $post_type_obj ? $post_type_obj->labels->singular_name : '';
 
-?>
-
-<div class="fw-container">
-    <div class="fw-row">
-        <div class="fw-col-md-12">
-
-        <nav class="navigation post-navigation" role="navigation">
-
-            <div class="screen-reader-text">
-                <?php printf( __( '%s navigation', 'unysonplus' ), $post_type ); ?>
-            </div>
-
-            <div class="nav-links fw-row mb-4">
-
-                <?php if ( $previous ) : ?>
-                    <?php previous_post_link(
-                        '<div class="meta-nav fw-col-md-6">%link</div>',
-                        '<h5 class="previous">Previous ' . esc_html( $post_type ) . '</h5><h4>%title</h4>'
-                    ); ?>
-                <?php else : ?>
-                    <div class="meta-nav fw-col-md-6"></div>
-                <?php endif; ?>
-
-                <?php if ( $next ) : ?>
-                    <?php next_post_link(
-                        '<div class="meta-nav text-md-end fw-col-md-6">%link</div>',
-                        '<h5 class="next">Next ' . esc_html( $post_type ) . '</h5><h4>%title</h4>'
-                    ); ?>
-                <?php endif; ?>
-
-            </div>
-
-        </nav>
-
-        </div>
-    </div>
-</div>
-
-<?php
+    the_post_navigation( array(
+        /* translators: %s: post type singular name. */
+        'prev_text'          => '<span class="nav-label">' . esc_html( sprintf( __( 'Previous %s', 'unysonplus' ), $post_type ) ) . '</span> <span class="nav-title">%title</span>',
+        /* translators: %s: post type singular name. */
+        'next_text'          => '<span class="nav-label">' . esc_html( sprintf( __( 'Next %s', 'unysonplus' ), $post_type ) ) . '</span> <span class="nav-title">%title</span>',
+        /* translators: %s: post type singular name. */
+        'screen_reader_text' => sprintf( __( '%s navigation', 'unysonplus' ), $post_type ),
+    ) );
 }
 
 endif;

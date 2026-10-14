@@ -1,0 +1,42 @@
+/* Dark-mode palette (Bootstrap 5.3 data-bs-theme)
+ * Loaded by inc/static.php only when the dark-mode toggle is enabled.
+ * Split out of style.css so a page ships it only when it can apply.
+ */
+/* ========================================================================
+   8b. DARK MODE
+   Bootstrap 5.3 ships its own [data-bs-theme="dark"] palette for forms,
+   buttons, dropdowns, alerts, etc. — those swap automatically when the
+   attribute is set on <html>. This block re-binds our custom CSS
+   properties to a coordinated dark palette under the same selector.
+   ======================================================================== */
+:root[data-bs-theme="dark"] {
+	--color-bg:           #1a1a1a;
+	--color-text:         #e9ecef;
+	--color-muted:        #adb5bd;
+	--color-border:       rgba(255, 255, 255, 0.12);
+
+	--header-bg:          transparent; /* unset = no fill (shows the dark page behind); a set colour overrides */
+	--header-sticky-bg:   rgba(33, 37, 41, 0.95);
+	--header-shadow:      0 2px 8px rgba(0, 0, 0, 0.4);
+
+	--topbar-bg:          #0d0e10;
+	--topbar-color:       #e9ecef;
+
+	--footer-bg:          #0d0e10;
+	--footer-color:       #adb5bd;
+	--footer-link-color:  #f0f0f0;
+
+	--menu-link-color:    #e9ecef;
+	--menu-link-hover:    #ffc107;
+	--menu-dropdown-bg:   #2b2f33;
+	--menu-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+	--drawer-bg:          #1a1a1a;
+	--drawer-color:       #f1f1f1;
+	--scrim-bg:           rgba(0, 0, 0, 0.7);
+
+	/* Site container backgrounds (introduced in Phase 2; must flip in dark mode
+	   or body keeps its light bg even after JS sets data-bs-theme="dark"). */
+	--site-bg-color:      #0d0e10;
+	--preloader-bg:       #ffffff;
+}

@@ -373,7 +373,11 @@ add_action( 'unysonplus_before_entry_content', 'unysonplus_single_featured_below
 /* ---- Single meta row ---- */
 if ( ! function_exists( 'unysonplus_blog_single_meta' ) ) :
 function unysonplus_blog_single_meta() {
-	if ( ! is_singular( 'post' ) ) { return; }
+	/**
+	 * Post types whose single view shows the meta row (date / author / category ...).
+	 * Blog posts by default; a child theme adds a blog-like custom post type (e.g. news).
+	 */
+	if ( ! is_singular( (array) apply_filters( 'unysonplus_single_meta_post_types', array( 'post' ) ) ) ) { return; }
 
 	$meta = (array) unysonplus_single_get( 'single_meta', array( 'date' => true, 'author' => true, 'category' => true ) );
 	$on   = function ( $k ) use ( $meta ) { return ! empty( $meta[ $k ] ); };
@@ -388,7 +392,19 @@ function unysonplus_blog_single_meta() {
 		$bits[] = '<span class="meta-author">' . esc_html( get_the_author() ) . '</span>';
 	}
 	if ( $on( 'category' ) ) {
-		$cats = get_the_category_list( ', ' );
+		$cats = '';
+		if ( 'post' === get_post_type() ) {
+			$cats = get_the_category_list( ', ' );
+		} else {
+			// A custom post type: its first public hierarchical taxonomy plays the category role.
+			foreach ( get_object_taxonomies( get_post_type(), 'objects' ) as $tax ) {
+				if ( $tax->hierarchical && $tax->public ) {
+					$list = get_the_term_list( get_the_ID(), $tax->name, '', ', ' );
+					$cats = is_wp_error( $list ) ? '' : (string) $list;
+					break;
+				}
+			}
+		}
 		if ( $cats ) { $bits[] = '<span class="meta-cat">' . $cats . '</span>'; }
 	}
 	if ( $on( 'tags' ) ) {

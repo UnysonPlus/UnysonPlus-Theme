@@ -1,0 +1,38 @@
+/* Menu item style: marker
+ * Split out of style.css so a page ships only the hover treatment it uses.
+ * Loaded by inc/static.php when Header -> Menu -> Item Style is "marker"
+ * (body.menu-style-marker). Same on-demand pattern as header/designs and header/modes.
+ */
+/* ============================================================
+   Menu item styles — Base + Modifiers (added set).
+   PRIMARY treatments below are mutually exclusive (one body.menu-style-<slug>).
+   MODIFIERS (body.menu-mod-<slug>) are orthogonal and stack on ANY primary.
+   ============================================================ */
+
+/* Shared positioning context for the ::before / ::after treatments. */
+body.menu-style-gradient-underline .site-header .primary-menu > .menu-item > a,
+body.menu-style-slide-fill         .site-header .primary-menu > .menu-item > a,
+body.menu-style-marker             .site-header .primary-menu > .menu-item > a,
+body.menu-style-dot                .site-header .primary-menu > .menu-item > a { position: relative; }
+/* Marker — an angled, semi-transparent felt-tip swipe behind the lower half of the text
+   (this is what the old "Highlight" should have been — a real marker, not a soft box). */
+body.menu-style-marker .site-header .primary-menu > .menu-item > a { z-index: 0; }
+body.menu-style-marker .site-header .primary-menu > .menu-item > a::before {
+	content: "";
+	position: absolute;
+	left: calc(var(--menu-link-pad-x) - 3px);
+	right: calc(var(--menu-link-pad-x) - 3px);
+	bottom: 0.35rem;
+	height: 0.72em;
+	z-index: -1;
+	background-color: var(--menu-link-hover);
+	border-radius: 2px;
+	opacity: 0;
+	transform: skewX(-11deg) scaleX(0.55);
+	transform-origin: left center;
+	transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+body.menu-style-marker .site-header .primary-menu > .menu-item > a:hover::before,
+body.menu-style-marker .site-header .primary-menu > .menu-item > a:focus-visible::before,
+body.menu-style-marker .site-header .primary-menu > .current-menu-item > a::before,
+body.menu-style-marker .site-header .primary-menu > .current-menu-ancestor > a::before { opacity: 0.28; transform: skewX(-11deg) scaleX(1); }

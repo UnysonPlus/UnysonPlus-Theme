@@ -529,7 +529,21 @@
 		for ( var m = 0; m < menus.length; m++ ) {
 			var items = Array.prototype.filter.call( menus[ m ].children, function ( li ) { return li.tagName === 'LI' && visible( li ); } );
 			if ( items.length > 1 && items[ items.length - 1 ].offsetTop > items[ 0 ].offsetTop + items[ 0 ].offsetHeight / 2 ) { return true; }
-			if ( menus[ m ].scrollWidth > menus[ m ].clientWidth + 1 ) { return true; }
+			// Horizontal overflow with NO wrapping (flex-wrap:nowrap). Measure the top-level
+			// items against the list's own content box - NOT scrollWidth. A dropdown is
+			// absolutely positioned and is MEANT to stick out past the list, and absolutely
+			// positioned descendants count toward scrollWidth, so the old scrollWidth test
+			// read "overflowing" on every menu that has a dropdown, at every viewport width.
+			// Measured on a real menu: scrollWidth 1094 vs clientWidth 1021 at 1920px, with
+			// nothing actually overflowing - the header collapsed to the hamburger even at
+			// 2400px and could never recover.
+			if ( items.length ) {
+				var listRect = menus[ m ].getBoundingClientRect();
+				for ( var it = 0; it < items.length; it++ ) {
+					var itemRect = items[ it ].getBoundingClientRect();
+					if ( itemRect.right > listRect.right + 1 || itemRect.left < listRect.left - 1 ) { return true; }
+				}
+			}
 		}
 		return false;
 	}

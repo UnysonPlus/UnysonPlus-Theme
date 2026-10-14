@@ -1,0 +1,230 @@
+/* Comment list + comment form styles
+ * Loaded by inc/static.php only where a comment area can render.
+ * Split out of style.css so a page ships it only when it can apply.
+ */
+/* --- Comments
+   Designed against WordPress's default Walker_Comment markup
+   (style=ul, short_ping=true). Author + metadata flow as one row;
+   content sits below. Nested replies indent + add a left rail.
+   --- */
+.comments-area {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--color-border);
+}
+.comments-title {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin: 0 0 1.5rem;
+}
+.comment-list {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 2rem;
+}
+.comment-list .comment {
+	padding: 1.5rem 0;
+	border-bottom: 1px solid var(--color-border);
+}
+.comment-list .comment:first-child { padding-top: 0; }
+.comment-list .comment:last-child  { padding-bottom: 0; border-bottom: 0; }
+.comment-list .children {
+	list-style: none;
+	padding-left: 1.5rem;
+	margin-top: 1.5rem;
+	border-left: 2px solid var(--color-border);
+}
+.comment-list .children .comment:first-child { padding-top: 0; }
+/* Article wrapper (no grid — natural flow) */
+.comment-body { display: block; }
+/* Meta row: avatar + author + says + permalink date + edit-link, all inline */
+.comment-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 0.625rem;
+	margin-bottom: 0.875rem;
+	font-size: 0.875rem;
+	line-height: 1.4;
+}
+.comment-author {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	min-width: 0;
+}
+.comment-author .avatar {
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+.comment-author .fn,
+.comment-author b {
+	font-weight: 600;
+	color: var(--color-text);
+	font-style: normal;
+}
+.comment-author .fn a,
+.comment-author b a {
+	color: inherit;
+	text-decoration: none;
+}
+.comment-author .fn a:hover { color: var(--color-primary); }
+.comment-author .says {
+	color: var(--color-muted);
+}
+.comment-metadata {
+	color: var(--color-muted);
+	font-size: 0.8125rem;
+	display: inline-flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+.comment-metadata a {
+	color: inherit;
+	text-decoration: none;
+}
+.comment-metadata a:hover { color: var(--color-text); }
+.comment-metadata .edit-link::before { content: "·"; margin-right: 0.5rem; opacity: 0.6; }
+/* Awaiting moderation badge */
+.comment-awaiting-moderation {
+	display: inline-block;
+	background-color: rgba(255, 193, 7, 0.15);
+	color: #856404;
+	padding: 0.125rem 0.5rem;
+	border-radius: var(--radius);
+	font-size: 0.75rem;
+	margin-bottom: 0.5rem;
+}
+/* Body */
+.comment-content {
+	color: var(--color-text);
+}
+.comment-content > * + * { margin-top: 0.75rem; }
+.comment-content p { margin: 0 0 0.75rem; }
+.comment-content p:last-child { margin-bottom: 0; }
+.comment-reply-link {
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	background-color: transparent;
+	color: var(--color-primary);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	font-size: 0.8125rem;
+	font-weight: 500;
+	text-decoration: none;
+	transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+.comment-reply-link:hover,
+.comment-reply-link:focus-visible {
+	background-color: var(--color-primary);
+	color: #fff;
+	border-color: var(--color-primary);
+	text-decoration: none;
+}
+/* Comment navigation (older/newer) */
+.comment-navigation,
+.navigation.comment-navigation {
+	margin: 1.5rem 0;
+	font-size: 0.875rem;
+}
+.comment-navigation .nav-links {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+}
+/* ---- Comment form ---- */
+#respond {
+	margin-top: 2rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--color-border);
+}
+#reply-title,
+.comment-reply-title {
+	font-size: 1.25rem;
+	font-weight: 700;
+	margin: 0 0 0.5rem;
+}
+.comment-reply-title small {
+	font-size: 0.8125rem;
+	font-weight: 400;
+	margin-left: 0.75rem;
+}
+.comment-reply-title small a { color: var(--color-muted); }
+#commentform { margin-top: 1rem; }
+#commentform p { margin: 0 0 1rem; }
+#commentform label {
+	display: block;
+	font-weight: 500;
+	font-size: 0.875rem;
+	margin-bottom: 0.375rem;
+	color: var(--color-text);
+}
+#commentform input[type="text"],
+#commentform input[type="email"],
+#commentform input[type="url"],
+#commentform textarea {
+	width: 100%;
+	padding: 0.625rem 0.875rem;
+	background-color: var(--color-bg);
+	color: var(--color-text);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	font-family: inherit;
+	font-size: 0.9375rem;
+	line-height: 1.5;
+	transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+#commentform input[type="text"]:focus,
+#commentform input[type="email"]:focus,
+#commentform input[type="url"]:focus,
+#commentform textarea:focus {
+	outline: none;
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+#commentform textarea {
+	min-height: 140px;
+	resize: vertical;
+}
+#commentform .form-submit { margin-top: 1.25rem; margin-bottom: 0; }
+#commentform input[type="submit"],
+.form-submit input[type="submit"] {
+	background-color: var(--color-primary);
+	color: #fff;
+	border: 0;
+	padding: 0.625rem 1.5rem;
+	border-radius: var(--radius);
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 0.9375rem;
+	transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+#commentform input[type="submit"]:hover,
+.form-submit input[type="submit"]:hover {
+	/* Stay in the button's own color family — NEVER the menu token (white on
+	   dark-header sites = invisible button). Brightness gives the hover cue
+	   for any brand color. */
+	background-color: var(--color-primary, #0d6efd);
+	filter: brightness(0.9);
+	transform: translateY(-1px);
+}
+#commentform .comment-notes,
+#commentform .logged-in-as,
+.form-allowed-tags {
+	font-size: 0.8125rem;
+	color: var(--color-muted);
+}
+.form-allowed-tags code {
+	background-color: rgba(127, 127, 127, 0.12);
+	padding: 0.125rem 0.375rem;
+	border-radius: 0.125rem;
+	font-size: 0.8125rem;
+	word-break: break-word;
+}
+#cancel-comment-reply-link {
+	display: inline-block;
+	margin-left: 0.75rem;
+	font-size: 0.8125rem;
+	color: var(--color-muted);
+}
+.comments-area      { margin-top: calc(2rem * var(--section-spacing-scale)); }

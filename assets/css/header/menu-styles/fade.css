@@ -1,0 +1,26 @@
+/* Menu item style: fade
+ * Split out of style.css so a page ships only the hover treatment it uses.
+ * Loaded by inc/static.php when Header -> Menu -> Item Style is "fade"
+ * (body.menu-style-fade). Same on-demand pattern as header/designs and header/modes.
+ */
+/* ============================================================
+   Menu item styles (Header → Menu → Menu Item Style)
+   A body.menu-style-<name> class (see unysonplus_layout_body_classes) selects the
+   hover / current-page treatment applied to TOP-LEVEL primary-menu items. The
+   fills (pill / box / highlight) use --menu-item-hover-bg; underline + the bars
+   use --menu-link-hover as the accent. 'none' needs no rule (base color only).
+   ============================================================ */
+
+/* Relative positioning for the ::before treatments (underline-grow + bars). */
+/* Fade — the quietest hover treatment: links rest slightly dimmed and come to full strength on
+   hover/current. Measured on 4 of 180 generated sites, and the one common hover style the nine
+   existing presets could not express (they all change colour, fill or draw a rule). */
+body.menu-style-fade .site-header .primary-menu > .menu-item > a {
+	opacity: var(--menu-fade-rest, .7);
+	transition: opacity .2s ease;
+}
+body.menu-style-fade .site-header .primary-menu > .menu-item > a:hover,
+body.menu-style-fade .site-header .primary-menu > .menu-item > a:focus-visible,
+body.menu-style-fade .site-header .primary-menu > .menu-item.current-menu-item > a {
+	opacity: 1;
+}
