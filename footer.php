@@ -67,10 +67,14 @@
 				if ( $f_tone !== '' ) { $footer_classes[] = 'footer--tone-' . $f_tone; }
 				$f_heading = function_exists( 'unysonplus_preset_color_to_css' ) ? unysonplus_preset_color_to_css( fw_get_db_settings_option( 'footer_heading_color' ) ) : '';
 				if ( $f_heading !== '' || 'dark' === $f_tone ) { $footer_classes[] = 'footer--heading-color'; }
+				// Watermark Text (Footer → Layout): the oversized faint wordmark clips at the footer's edges.
+				$f_wm = function_exists( 'unysonplus_footer_wordmark_cfg' ) ? unysonplus_footer_wordmark_cfg() : null;
+				if ( $f_wm ) { $footer_classes[] = 'footer--has-wordmark'; $footer_classes[] = 'footer--wordmark-' . $f_wm['placement']; }
 			}
 			?>
 			<footer id="colophon" class="<?php echo esc_attr( implode( ' ', $footer_classes ) ); ?>" role="contentinfo">
 				<?php get_template_part( 'template-parts/footer', 'builder' ); ?>
+				<?php if ( function_exists( 'unysonplus_render_footer_wordmark' ) ) { unysonplus_render_footer_wordmark(); } ?>
 			</footer><!-- #colophon -->
 			<?php if ( in_array( 'footer--overlay', $footer_classes, true ) ) : ?>
 			<script>

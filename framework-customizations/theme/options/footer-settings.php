@@ -81,7 +81,7 @@ if ( function_exists( 'unysonplus_footer_extra_bars' ) && function_exists( 'unys
 	}
 }
 
-// Copyright — always last.
+// Copyright — last of the footer bars (only the Watermark tab follows).
 $footer_subtabs['tab_copyright'] = [
 	'title'   => __( 'Copyright', 'unysonplus' ),
 	'type'    => 'tab',
@@ -91,6 +91,21 @@ $footer_subtabs['tab_copyright'] = [
 			'type'    => 'box',
 			'options' => [
 				fw()->theme->get_options( 'footer-copyright' ),
+			],
+		],
+	],
+];
+
+// Watermark — the oversized footer wordmark, after Copyright.
+$footer_subtabs['tab_watermark'] = [
+	'title'   => __( 'Watermark', 'unysonplus' ),
+	'type'    => 'tab',
+	'options' => [
+		'footer_watermark_box' => [
+			'title'   => __( 'Watermark Text', 'unysonplus' ),
+			'type'    => 'box',
+			'options' => [
+				fw()->theme->get_options( 'footer-watermark' ),
 			],
 		],
 	],

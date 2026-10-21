@@ -110,10 +110,15 @@ $rendered = '';
 $box_cfg  = fw_get_db_settings_option( 'footer_body_box' );
 $copy_in  = is_array( $box_cfg ) && ! empty( $box_cfg['enabled'] ) && 'yes' === $box_cfg['enabled']
 	&& ! empty( $box_cfg['yes']['footer_box_copyright_inside'] ) && 'yes' === $box_cfg['yes']['footer_box_copyright_inside'];
+// Watermark Text (Footer → Layout) slots inside the footer: before the content, behind the content
+// (first child of .footer__body), and between the content and the copyright. The bottom slots ("after",
+// "behind the whole footer") are printed by footer.php.
+$wm = function ( $at ) { return function_exists( 'unysonplus_footer_wordmark_html' ) ? unysonplus_footer_wordmark_html( $at ) : ''; };
+$rendered .= $wm( 'before' );
 if ( $body !== '' || ( $copy_in && $copyright_html !== '' ) ) {
-	$rendered .= '<div class="footer__body">' . $body . ( $copy_in ? $copyright_html : '' ) . '</div>';
+	$rendered .= '<div class="footer__body">' . $wm( 'behind-body' ) . $body . ( $copy_in ? $wm( 'before-copyright' ) . $copyright_html : '' ) . '</div>';
 }
-if ( ! $copy_in ) { $rendered .= $copyright_html; }
+if ( ! $copy_in ) { $rendered .= $wm( 'before-copyright' ) . $copyright_html; }
 
 if ( trim( $rendered ) !== '' ) {
 	echo $rendered; // phpcs:ignore — already-escaped footer-section HTML.
