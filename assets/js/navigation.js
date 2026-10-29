@@ -516,8 +516,14 @@
 	function visible( el ) { return el.offsetWidth > 0 || el.offsetHeight > 0; }
 
 	function overflows() {
-		if ( row.scrollWidth > row.clientWidth + 1 ) { return true; }
+		// The row is measured by its columns, not scrollWidth: a dropdown under the last menu item is
+		// absolutely positioned past the row's right edge, which scrollWidth counts as overflow.
 		var cols = Array.prototype.filter.call( row.querySelectorAll( ':scope > .header-col' ), visible );
+		var rowRect = row.getBoundingClientRect();
+		for ( var c = 0; c < cols.length; c++ ) {
+			var colRect = cols[ c ].getBoundingClientRect();
+			if ( colRect.right > rowRect.right + 1 || colRect.left < rowRect.left - 1 ) { return true; }
+		}
 		for ( var i = 1; i < cols.length; i++ ) {
 			if ( cols[ i - 1 ].getBoundingClientRect().right > cols[ i ].getBoundingClientRect().left + 1 ) { return true; }
 		}

@@ -180,7 +180,21 @@ if ( ! function_exists( 'unysonplus_footer_wordmark_html' ) ) :
 			$c['hide']
 		);
 		if ( 'image' === $c['source'] ) {
-			$inner = '<img class="footer-wordmark__img" src="' . esc_url( $c['image'] ) . '" alt="" loading="lazy" decoding="async">';
+			// Intrinsic size from the media library (when it is an attachment), so the image reserves its box.
+			$dims = '';
+			$aid  = attachment_url_to_postid( $c['image'] );
+			$meta = $aid ? wp_get_attachment_metadata( $aid ) : array();
+			if ( empty( $meta['width'] ) && $aid && 'image/svg+xml' === get_post_mime_type( $aid ) ) {
+				// SVGs carry no size metadata; read it from the file's viewBox.
+				$svg = @file_get_contents( get_attached_file( $aid ), false, null, 0, 2048 );
+				if ( $svg && preg_match( '/viewBox=["\'][\d.\-]+[\s,]+[\d.\-]+[\s,]+([\d.]+)[\s,]+([\d.]+)/', $svg, $vb ) ) {
+					$meta = array( 'width' => round( $vb[1] ), 'height' => round( $vb[2] ) );
+				}
+			}
+			if ( ! empty( $meta['width'] ) && ! empty( $meta['height'] ) ) {
+				$dims = ' width="' . (int) $meta['width'] . '" height="' . (int) $meta['height'] . '"';
+			}
+			$inner = '<img class="footer-wordmark__img" src="' . esc_url( $c['image'] ) . '" alt=""' . $dims . ' loading="lazy" decoding="async">';
 		} else {
 			$text   = $c['uppercase'] ? ( function_exists( 'mb_strtoupper' ) ? mb_strtoupper( $c['text'] ) : strtoupper( $c['text'] ) ) : $c['text'];
 			$chars  = max( 1, function_exists( 'mb_strlen' ) ? mb_strlen( $text ) : strlen( $text ) );
