@@ -48,11 +48,19 @@ if ( $hf_render['mode'] === 'builder' && function_exists( 'fw_ext_hfbuilder_rend
 	$hf_ov_style = function_exists( 'unysonplus_header_layout_get' ) ? unysonplus_header_layout_get( 'overlay_style', 'panel' ) : 'panel';
 	$hf_corner = 'tr';
 	$hf_cmode  = 'shade';
+	$hf_align    = 'center';
+	$hf_numbered = false;
+	$hf_aside    = array( 'content' => '', 'position' => 'br' );
 	if ( ( $hf_type === 'fullscreen-overlay' ) && function_exists( 'fw_akg' ) && function_exists( 'fw_get_db_settings_option' ) ) {
 		$hf_chrome = fw_get_db_settings_option( 'header_layout', array() );
 		$hf_chrome = is_array( $hf_chrome ) ? $hf_chrome : array();
 		$m = fw_akg( 'header_mode/overlay/overlay_color_mode', $hf_chrome, 'shade' );
 		if ( in_array( $m, array( 'shade', 'tint', 'aurora', 'rainbow', 'mono', 'duotone', 'alternating', 'glass' ), true ) ) { $hf_cmode = $m; }
+		$a = fw_akg( 'header_mode/overlay/overlay_align', $hf_chrome, 'center' );
+		if ( in_array( $a, array( 'center', 'left', 'right' ), true ) ) { $hf_align = $a; }
+		$hf_numbered = ( fw_akg( 'header_mode/overlay/overlay_numbered', $hf_chrome, 'no' ) === 'yes' );
+		$hf_aside['content']  = (string) fw_akg( 'header_mode/overlay/overlay_aside_content', $hf_chrome, '' );
+		$hf_aside['position'] = (string) fw_akg( 'header_mode/overlay/overlay_aside_position', $hf_chrome, 'br' );
 		if ( $hf_ov_style === 'concentric' ) {
 			$c = fw_akg( 'header_mode/overlay/overlay_style/concentric/overlay_corner', $hf_chrome, 'tr' );
 			if ( in_array( $c, array( 'tr', 'tl', 'br', 'bl' ), true ) ) { $hf_corner = $c; }
@@ -69,6 +77,9 @@ if ( $hf_render['mode'] === 'builder' && function_exists( 'fw_ext_hfbuilder_rend
 		'is_concentric'  => ( $hf_type === 'fullscreen-overlay' && $hf_ov_style === 'concentric' ),
 		'overlay_corner' => $hf_corner,
 		'overlay_color_mode' => $hf_cmode,
+		'overlay_align'      => $hf_align,
+		'overlay_numbered'   => $hf_numbered,
+		'overlay_aside'      => $hf_aside,
 	) );
 	return;
 }
@@ -241,9 +252,19 @@ $is_concentric = ( $layout_mode === 'overlay' && $overlay_style === 'concentric'
 // a Grow-From corner nested under its own picker reveal.
 $overlay_corner     = 'tr';
 $overlay_color_mode = 'shade';
+// Editorial overlay options (Panel): alignment, numbered items, corner aside. Housed at
+// the overlay reveal level alongside Color Mode. Center / off / empty = classic look.
+$overlay_align    = 'center';
+$overlay_numbered = false;
+$overlay_aside    = array( 'content' => '', 'position' => 'br' );
 if ( $layout_mode === 'overlay' && function_exists( 'fw_akg' ) ) {
 	$cmode = fw_akg( 'header_mode/overlay/overlay_color_mode', $chrome, 'shade' );
 	if ( in_array( $cmode, array( 'shade', 'tint', 'aurora', 'rainbow', 'mono', 'duotone', 'alternating', 'glass' ), true ) ) { $overlay_color_mode = $cmode; }
+	$al = fw_akg( 'header_mode/overlay/overlay_align', $chrome, 'center' );
+	if ( in_array( $al, array( 'center', 'left', 'right' ), true ) ) { $overlay_align = $al; }
+	$overlay_numbered = ( fw_akg( 'header_mode/overlay/overlay_numbered', $chrome, 'no' ) === 'yes' );
+	$overlay_aside['content']  = (string) fw_akg( 'header_mode/overlay/overlay_aside_content', $chrome, '' );
+	$overlay_aside['position'] = (string) fw_akg( 'header_mode/overlay/overlay_aside_position', $chrome, 'br' );
 	if ( $is_concentric ) {
 		$corner = fw_akg( 'header_mode/overlay/overlay_style/concentric/overlay_corner', $chrome, 'tr' );
 		if ( in_array( $corner, array( 'tr', 'tl', 'br', 'bl' ), true ) ) { $overlay_corner = $corner; }
@@ -254,6 +275,8 @@ $drawer_classes = array( 'primary-navigation-drawer' );
 if ( $layout_mode === 'overlay' ) {
 	$drawer_classes[] = 'primary-navigation-drawer--overlay';
 	$drawer_classes[] = 'primary-navigation-drawer--cc-' . $overlay_color_mode; // all overlay styles
+	if ( $overlay_align !== 'center' ) { $drawer_classes[] = 'primary-navigation-drawer--align-' . $overlay_align; }
+	if ( $overlay_numbered )           { $drawer_classes[] = 'primary-navigation-drawer--numbered'; }
 	if ( $is_radial )     { $drawer_classes[] = 'primary-navigation-drawer--radial'; }
 	if ( $is_concentric ) {
 		$drawer_classes[] = 'primary-navigation-drawer--concentric';
@@ -325,4 +348,5 @@ get_template_part( 'template-parts/header/' . $template, null, array(
 	'bottombar_left'    => $bottombar_left, 'bottombar_center' => $bottombar_center, 'bottombar_right' => $bottombar_right,
 	'drawer_classes'    => implode( ' ', $drawer_classes ),
 	'is_radial'         => $is_radial,
+	'overlay_aside'     => $overlay_aside,
 ) );

@@ -321,6 +321,55 @@ $overlay_bg_field = [
 	'disable' => [ 'video' ],
 ];
 
+// Overlay menu alignment (Panel). Center is the classic look; Left / Right give the
+// editorial off-center list. Read in the router → drawer class
+// primary-navigation-drawer--align-*.
+$overlay_align_field = [
+	'label'   => __( 'Menu Alignment', 'unysonplus' ),
+	'desc'    => __( 'How the overlay menu list is aligned. Center is the classic look; Left or Right gives an editorial off-center list.', 'unysonplus' ),
+	'type'    => 'select',
+	'value'   => 'center',
+	'choices' => [
+		'center' => __( 'Center', 'unysonplus' ),
+		'left'   => __( 'Left', 'unysonplus' ),
+		'right'  => __( 'Right', 'unysonplus' ),
+	],
+];
+
+// Numbered items — prefixes each top-level menu item with 01, 02, 03 … via a pure CSS
+// counter (no markup). Read in the router → drawer class primary-navigation-drawer--numbered.
+$overlay_numbered_field = [
+	'label'        => __( 'Numbered Items', 'unysonplus' ),
+	'desc'         => __( 'Prefix each top-level menu item with a two-digit number (01, 02, 03 …).', 'unysonplus' ),
+	'type'         => 'switch',
+	'value'        => 'no',
+	'right-choice' => [ 'value' => 'yes', 'label' => __( 'On', 'unysonplus' ) ],
+	'left-choice'  => [ 'value' => 'no',  'label' => __( 'Off', 'unysonplus' ) ],
+];
+
+// Overlay aside — an optional free-form block shown in a corner of the overlay (the
+// editorial fullscreen-menu look). Any text or HTML — a strapline, contact details, a
+// couple of links, even a shortcode. Empty = no aside. Read in the router and rendered
+// by unysonplus_render_overlay_aside().
+$overlay_aside_content_field = [
+	'label' => __( 'Aside Content', 'unysonplus' ),
+	'desc'  => __( 'Optional block shown in a corner of the overlay — any text or HTML (a strapline, contact details, links, a shortcode). Line breaks become paragraphs. Leave empty to hide the aside.', 'unysonplus' ),
+	'type'  => 'textarea',
+	'value' => '',
+];
+$overlay_aside_position_field = [
+	'label'   => __( 'Aside Position', 'unysonplus' ),
+	'desc'    => __( 'Which corner of the overlay the aside sits in. It keeps this corner whatever the menu alignment, and drops below the menu on phones.', 'unysonplus' ),
+	'type'    => 'select',
+	'value'   => 'br',
+	'choices' => [
+		'br' => __( 'Bottom Right', 'unysonplus' ),
+		'bl' => __( 'Bottom Left', 'unysonplus' ),
+		'tr' => __( 'Top Right', 'unysonplus' ),
+		'tl' => __( 'Top Left', 'unysonplus' ),
+	],
+];
+
 $options = [
 
 	// Quick-start Header Presets — the same preset-loader control the Menu &
@@ -374,7 +423,7 @@ $options = [
 						'choices' => [
 							'top'      => [ 'header_design' => $design_field ],
 							'vertical' => [ 'vertical_side' => $side_field, 'vertical_width' => $vertical_width_field ],
-							'overlay'  => [ 'overlay_style' => $overlay_style_field, 'overlay_color_mode' => $overlay_color_mode_field, 'overlay_duotone_color' => $overlay_duotone_color_field, 'overlay_bg_opacity' => $overlay_bg_opacity_field, 'overlay_background' => $overlay_bg_field ],
+							'overlay'  => [ 'overlay_style' => $overlay_style_field, 'overlay_color_mode' => $overlay_color_mode_field, 'overlay_duotone_color' => $overlay_duotone_color_field, 'overlay_bg_opacity' => $overlay_bg_opacity_field, 'overlay_background' => $overlay_bg_field, 'overlay_align' => $overlay_align_field, 'overlay_numbered' => $overlay_numbered_field, 'overlay_aside_content' => $overlay_aside_content_field, 'overlay_aside_position' => $overlay_aside_position_field ],
 						],
 					],
 

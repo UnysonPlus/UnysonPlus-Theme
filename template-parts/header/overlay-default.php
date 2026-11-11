@@ -69,5 +69,6 @@ $d = $args;
 	<div class="primary-navigation-drawer__panel" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Site menu', 'unysonplus' ); ?>">
 		<?php unysonplus_render_drawer_close(); ?>
 		<?php unysonplus_render_drawer_content( 'overlay' ); ?>
+		<?php if ( function_exists( 'unysonplus_render_overlay_aside' ) ) { unysonplus_render_overlay_aside( isset( $d['overlay_aside'] ) ? $d['overlay_aside'] : array() ); } ?>
 	</div>
 </div>

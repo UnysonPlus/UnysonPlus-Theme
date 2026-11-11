@@ -22,6 +22,10 @@ $d = $args;
 	if ( $d['hf_type'] === 'fullscreen-overlay' ) {
 		$drawer_cls .= ' primary-navigation-drawer--overlay';
 		$drawer_cls .= ' primary-navigation-drawer--cc-' . sanitize_html_class( ! empty( $d['overlay_color_mode'] ) ? $d['overlay_color_mode'] : 'shade' );
+		if ( ! empty( $d['overlay_align'] ) && $d['overlay_align'] !== 'center' ) {
+			$drawer_cls .= ' primary-navigation-drawer--align-' . sanitize_html_class( $d['overlay_align'] );
+		}
+		if ( ! empty( $d['overlay_numbered'] ) ) { $drawer_cls .= ' primary-navigation-drawer--numbered'; }
 	}
 	if ( ! empty( $d['is_radial'] ) )              { $drawer_cls .= ' primary-navigation-drawer--radial'; }
 	if ( ! empty( $d['is_concentric'] ) ) {
@@ -43,6 +47,9 @@ $d = $args;
 			<?php elseif ( function_exists( 'unysonplus_nav_menu' ) ) :
 				unysonplus_nav_menu( 'primary' );
 			endif; ?>
+			<?php if ( $d['hf_type'] === 'fullscreen-overlay' && empty( $d['is_radial'] ) && function_exists( 'unysonplus_render_overlay_aside' ) ) {
+				unysonplus_render_overlay_aside( isset( $d['overlay_aside'] ) ? $d['overlay_aside'] : array() );
+			} ?>
 		</div>
 	</div>
 <?php endif; ?>

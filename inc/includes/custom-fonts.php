@@ -146,3 +146,17 @@ function unysonplus_font_filetype_fix( $data, $file, $filename, $mimes ) {
 }
 add_filter( 'wp_check_filetype_and_ext', 'unysonplus_font_filetype_fix', 10, 4 );
 endif;
+
+/**
+ * A family uploaded here is self-hosted, so the theme must not also request it from Google Fonts. Without this,
+ * a custom font that shares a Google font's name (e.g. an OFL family uploaded as .woff2 to avoid the CDN) was
+ * downloaded twice: the local faces, then the Google stylesheet after first paint, re-laying out the text.
+ * unysonplus_drop_self_hosted_families() (inc/hooks.php) drops every family listed on this filter.
+ */
+add_filter( 'unysonplus_self_hosted_font_families', function ( $families ) {
+	$families = is_array( $families ) ? $families : array();
+	foreach ( unysonplus_custom_fonts_list() as $f ) {
+		$families[] = $f['family'];
+	}
+	return array_values( array_unique( $families ) );
+} );

@@ -46,8 +46,6 @@
 	do_action( 'unysonplus_after_entry_content' );
 	?>
 
-	<footer class="entry-footer"></footer><!-- .entry-footer -->
-
 	<?php
 	/** Fires at the bottom of <article>. */
 	do_action( 'unysonplus_entry_bottom' );

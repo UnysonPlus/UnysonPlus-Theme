@@ -85,6 +85,33 @@ function unysonplus_render_drawer_content( $fallback_location = 'off-canvas' ) {
 }
 endif;
 
+if ( ! function_exists( 'unysonplus_render_overlay_aside' ) ) :
+/**
+ * Render the optional editorial aside inside a fullscreen Overlay (Panel) menu.
+ *
+ * Shows a free-form block (any text/HTML — a strapline, contact details, links, a
+ * shortcode) in a chosen corner of the overlay. No-op when empty, so existing
+ * overlays are untouched. Shared by the slot (overlay-default) and builder-authored
+ * overlay. A legacy tagline/contact pair (pre-rename) is folded into the content.
+ *
+ * @param array $aside { content: string, position: 'br'|'bl'|'tr'|'tl' }
+ */
+function unysonplus_render_overlay_aside( $aside ) {
+	$aside   = is_array( $aside ) ? $aside : array();
+	$content = isset( $aside['content'] ) ? (string) $aside['content'] : '';
+	// Back-compat: an aside saved before the single-field rename kept a tagline + contact.
+	if ( trim( $content ) === '' && ( ! empty( $aside['tagline'] ) || ! empty( $aside['contact'] ) ) ) {
+		$content = trim( (string) ( $aside['tagline'] ?? '' ) . "\n" . (string) ( $aside['contact'] ?? '' ) );
+	}
+	if ( trim( $content ) === '' ) { return; }
+	$pos = isset( $aside['position'] ) ? (string) $aside['position'] : 'br';
+	if ( ! in_array( $pos, array( 'br', 'bl', 'tr', 'tl' ), true ) ) { $pos = 'br'; }
+	echo '<aside class="overlay-aside overlay-aside--' . esc_attr( $pos ) . '">';
+	echo do_shortcode( wpautop( wp_kses_post( $content ) ) ); // phpcs:ignore — author content, kses-filtered
+	echo '</aside>';
+}
+endif;
+
 if ( ! function_exists( 'unysonplus_header_cta_elements' ) ) :
 /**
  * Collect the CTA Button elements placed in the Main Header (any column) — used to re-surface the header

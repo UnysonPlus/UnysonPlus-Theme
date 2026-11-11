@@ -420,13 +420,31 @@ if (!function_exists('_action_theme_print_google_fonts_link')) :
 
                 if ($link === '') { return; }
 
-                // 1) Force display=swap on every fonts.googleapis.com CSS URL.
+                /*
+                 * 1) Set font-display on every fonts.googleapis.com CSS URL.
+                 *
+                 * swap stays the default and is right most of the time: the text is
+                 * readable at once in a fallback, then the real face arrives. The cost is
+                 * that the swap RE-LAYOUTS whatever that text sits in, which on a long
+                 * page of tables is most of the Cumulative Layout Shift a site will ever
+                 * record. A site that would rather keep the layout still can choose
+                 * optional: a face that is not ready in time is skipped for that page
+                 * view instead of shifting it.
+                 *
+                 * Filter: unysonplus_google_font_display.
+                 */
+                $font_display = apply_filters( 'unysonplus_google_font_display', 'swap' );
+                if ( ! in_array( $font_display, array( 'auto', 'block', 'swap', 'fallback', 'optional' ), true ) ) {
+                        $font_display = 'swap';
+                }
                 $link = preg_replace_callback(
                         '#href=([\'"])(https?://fonts\.googleapis\.com/css[^\'"]*)\1#i',
-                        function ($m) {
+                        function ($m) use ( $font_display ) {
                                 $url = html_entity_decode($m[2]);
                                 if (strpos($url, 'display=') === false) {
-                                        $url .= (strpos($url, '?') === false ? '?' : '&') . 'display=swap';
+                                        $url .= (strpos($url, '?') === false ? '?' : '&') . 'display=' . $font_display;
+                                } else {
+                                        $url = preg_replace('/([?&])display=[^&]*/', '$1display=' . $font_display, $url);
                                 }
                                 return 'href=' . $m[1] . esc_url($url) . $m[1];
                         },

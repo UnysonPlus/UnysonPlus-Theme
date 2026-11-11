@@ -112,3 +112,58 @@ body.layout-overlay .menu-toggle        { display: inline-flex; }
 	-webkit-backdrop-filter: blur(16px);
 	backdrop-filter: blur(16px);
 }
+
+/* ============================================================
+ * Editorial options (Header → Layout → Overlay): Menu Alignment,
+ * Numbered Items, and the corner Aside. All opt-in — center / off /
+ * empty keep the classic centered Panel untouched.
+ * ============================================================ */
+
+/* Menu Alignment — Left / Right shift the whole list to an edge and indent it
+   from the viewport, for the off-center editorial look. */
+.primary-navigation-drawer--overlay.primary-navigation-drawer--align-left  .primary-navigation-drawer__panel { align-items: flex-start; padding-left: clamp(1.5rem, 12vw, 12rem); }
+.primary-navigation-drawer--overlay.primary-navigation-drawer--align-right .primary-navigation-drawer__panel { align-items: flex-end;   padding-right: clamp(1.5rem, 12vw, 12rem); }
+.primary-navigation-drawer--align-left  .primary-menu { align-items: flex-start; text-align: left; }
+.primary-navigation-drawer--align-right .primary-menu { align-items: flex-end;   text-align: right; }
+
+/* Numbered Items — a pure CSS counter prefixes each TOP-LEVEL item with 01, 02 …
+   (no markup, submenus excluded). The marker is small, dimmed and raised. */
+.primary-navigation-drawer--numbered .primary-menu { counter-reset: overlay-nav; }
+.primary-navigation-drawer--numbered .primary-menu > .menu-item { counter-increment: overlay-nav; }
+.primary-navigation-drawer--numbered .primary-menu > .menu-item > a::before {
+	content: counter(overlay-nav, decimal-leading-zero);
+	font-size: 0.4em;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	opacity: 0.55;
+	margin-right: 0.9em;
+	vertical-align: super;
+}
+
+/* Corner Aside — a free-form block pinned to a chosen corner of the overlay
+   (independent of the menu's own alignment). Collapses below the panel on phones. */
+.primary-navigation-drawer--overlay .overlay-aside {
+	position: absolute;
+	max-width: 22rem;
+	color: var(--menu-link-color, var(--color-text, #fff));
+	opacity: 0.72;
+	font-size: 0.95rem;
+	line-height: 1.5;
+}
+/* Corners — horizontal + vertical edge per position; text hugs the nearer edge. */
+.primary-navigation-drawer--overlay .overlay-aside--br { right: clamp(1.5rem, 5vw, 4rem); bottom: clamp(1.5rem, 6vh, 4rem); text-align: right; }
+.primary-navigation-drawer--overlay .overlay-aside--bl { left:  clamp(1.5rem, 5vw, 4rem); bottom: clamp(1.5rem, 6vh, 4rem); text-align: left; }
+.primary-navigation-drawer--overlay .overlay-aside--tr { right: clamp(1.5rem, 5vw, 4rem); top:    clamp(1.5rem, 6vh, 4rem); text-align: right; }
+.primary-navigation-drawer--overlay .overlay-aside--tl { left:  clamp(1.5rem, 5vw, 4rem); top:    clamp(1.5rem, 6vh, 4rem); text-align: left; }
+.primary-navigation-drawer--overlay .overlay-aside p { margin: 0 0 0.4rem; }
+.primary-navigation-drawer--overlay .overlay-aside p:last-child { margin-bottom: 0; }
+.primary-navigation-drawer--overlay .overlay-aside a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+@media (max-width: 782px) {
+	.primary-navigation-drawer--overlay .overlay-aside {
+		position: static;
+		inset: auto;
+		text-align: inherit;
+		max-width: 100%;
+		margin-top: 2rem;
+	}
+}
