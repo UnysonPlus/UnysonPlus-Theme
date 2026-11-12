@@ -296,8 +296,11 @@ if ( ! function_exists( 'unysonplus_typography_to_vars' ) ) :
 		}
 		// Skip pure-black — it's the legacy default of these (formerly inert) controls;
 		// emitting it would force black headings over the theme's inherited text colour.
-		if ( ! empty( $font['color'] ) && ! in_array( strtolower( (string) $font['color'] ), array( '#000000', '#000' ), true ) ) {
-			$out[ "--{$prefix}-color" ] = $font['color'];
+		// A hex string normally; a { predefined, custom } preset value resolves too (it printed "Array to string
+		// conversion" when an AI saved one).
+		$font_color = ! empty( $font['color'] ) ? ( function_exists( 'unysonplus_preset_color_to_css' ) ? unysonplus_preset_color_to_css( $font['color'] ) : ( is_string( $font['color'] ) ? $font['color'] : '' ) ) : '';
+		if ( $font_color !== '' && ! in_array( strtolower( $font_color ), array( '#000000', '#000' ), true ) ) {
+			$out[ "--{$prefix}-color" ] = $font_color;
 		}
 		// text-transform: a heading font uppercased purely by CSS (a display face like Syncopate) reproduces
 		// its casing through this token, consumed by the hN rules that read var(--{prefix}-text-transform).

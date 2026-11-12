@@ -892,7 +892,12 @@ if ( ! function_exists( 'unysonplus_theme_vars_typography' ) ) :
 		// Body text color from typography (aliases the existing --body-color emitted by css-tokens.php).
 		$typography = fw_get_db_settings_option( 'typography', array() );
 		if ( ! empty( $typography['body']['color'] ) ) {
-			$out['--color-text'] = $typography['body']['color'];
+			// A hex string normally; a { predefined, custom } preset value (an AI once saved one) resolves too,
+			// instead of printing "Array to string conversion" into every page.
+			$body_color = unysonplus_preset_color_to_css( $typography['body']['color'] );
+			if ( $body_color !== '' ) {
+				$out['--color-text'] = $body_color;
+			}
 		}
 		// (--font-body / --font-heading + the heading scale come from css-tokens.php
 		// — the Typography preset / pairing — not here.)
