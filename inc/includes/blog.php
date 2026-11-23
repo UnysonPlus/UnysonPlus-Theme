@@ -788,6 +788,13 @@ function unysonplus_render_archive_header() {
 			esc_html__( 'Search results for:', 'unysonplus' ),
 			esc_html( get_search_query() )
 		);
+	} elseif ( is_home() && ! is_front_page() && (int) get_option( 'page_for_posts' ) ) {
+		// The posts page (Settings > Reading): its own title, and its excerpt as the intro line.
+		$posts_page = (int) get_option( 'page_for_posts' );
+		printf( '<h1 class="page-title">%s</h1>', esc_html( get_the_title( $posts_page ) ) );
+		if ( unysonplus_archive_get( 'archive_show_description', 'yes' ) === 'yes' && has_excerpt( $posts_page ) ) {
+			printf( '<div class="archive-description"><p>%s</p></div>', esc_html( get_the_excerpt( $posts_page ) ) );
+		}
 	} else {
 		the_archive_title( '<h1 class="page-title">', '</h1>' );
 		if ( unysonplus_archive_get( 'archive_show_description', 'yes' ) === 'yes' ) {

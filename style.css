@@ -4,7 +4,7 @@ Theme Name:     Unyson+ Theme
 Theme URI:      http://lastimosa.com.ph/unysonplus
 Description:    Bootstrap 5 WordPress theme for the Unyson+ framework. Requires the UnysonPlus plugin (the Unyson+ framework) to be installed and active — without it the theme’s features are disabled and an admin notice prompts you to install it.
 Requires Plugins: unysonplus
-Version: 2.6.65
+Version: 2.6.67
 Author:         Jon-Michael Lastimosa
 Author URI:     http://jon-michael.lastimosa.com.ph
 License:        GNU General Public License v2 or later
@@ -432,8 +432,10 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .posts-list--grid.posts-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .posts-list--grid.posts-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .posts-list--grid.posts-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-@media (max-width: 991.98px) { .posts-list--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 575.98px) { .posts-list--grid { grid-template-columns: 1fr; } }
+/* The breakpoints repeat the column classes: a bare .posts-list--grid lost to .posts-list--grid.posts-cols-N
+   (two classes), so a 3- or 4-column grid stayed 3 or 4 columns wide on phones. */
+@media (max-width: 991.98px) { .posts-list--grid.posts-cols-3, .posts-list--grid.posts-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575.98px) { .posts-list--grid, .posts-list--grid.posts-cols-2, .posts-list--grid.posts-cols-3, .posts-list--grid.posts-cols-4 { grid-template-columns: 1fr; } }
 
 .post-entry { margin: 0; }
 .post-entry__body { padding-top: 1rem; }
@@ -607,8 +609,8 @@ body.unyson.page-builder .site-content { padding-block: 0; }
 .related-posts__grid.posts-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .related-posts__grid.posts-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .related-posts__grid.posts-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-@media (max-width: 767.98px) { .related-posts__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 479.98px) { .related-posts__grid { grid-template-columns: 1fr; } }
+@media (max-width: 767.98px) { .related-posts__grid.posts-cols-3, .related-posts__grid.posts-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 479.98px) { .related-posts__grid, .related-posts__grid.posts-cols-2, .related-posts__grid.posts-cols-3, .related-posts__grid.posts-cols-4 { grid-template-columns: 1fr; } }
 .related-post__title { font-size: 1rem; line-height: 1.35; margin: .65rem 0 .25rem; }
 .related-post__date { font-size: .8125rem; color: var(--color-muted, #6c757d); }
 

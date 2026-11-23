@@ -10,6 +10,11 @@ unysonplus_main_wrapper_open();
 
 if ( have_posts() ) :
 
+	// The posts page gets the same header as an archive (its title and intro line).
+	if ( is_home() && ! is_front_page() && function_exists( 'unysonplus_render_archive_header' ) ) {
+		unysonplus_render_archive_header();
+	}
+
 	/**
 	 * Fires before the post loop starts.
 	 */
